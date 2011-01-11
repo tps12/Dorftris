@@ -82,24 +82,24 @@ def main():
                 if e.key == K_ESCAPE:
                     done = True
 
-            stepped = False
-            for creature in creatures:
-                creature.step()
+        stepped = False
+        for creature in creatures:
+            creature.step()
 
-                if creature in creature_sprites:
-                    sprite = creature_sprites[creature]
-                    x, y = tile_location(creature.location)
-                    if sprite.rect.topleft != (x,y):
-                        sprite.rect.topleft = (x,y)
-                        stepped = True
+            if creature in creature_sprites:
+                sprite = creature_sprites[creature]
+                x, y = tile_location(creature.location)
+                if sprite.rect.topleft != (x,y):
+                    sprite.rect.topleft = (x,y)
+                    stepped = True
 
-            sprites.clear(screen, background)
-            sprites.draw(screen)
+        sprites.clear(screen, background)
+        sprites.draw(screen)
 
-            if stepped:
-                step.play()
+        if stepped:
+            step.play()
 
-            display.flip()
+        display.flip()
 
 if __name__ == '__main__':
     main()
