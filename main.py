@@ -54,6 +54,8 @@ def main():
                              randint(0,dimensions[1]-1))
         creatures.append(creature)
 
+    creature_sprites = {}
+
     for creature in creatures:
         sprite = Sprite()
         image = choice(kind).copy()
@@ -65,6 +67,8 @@ def main():
         x, y = tile_location(creature.location)
         sprite.rect = sprite.image.get_rect().move(x, y)
         sprites.add(sprite)
+
+        creature_sprites[creature] = sprite
 
     step = Sound('38874__swuing__footstep_grass.wav')
     step.play()
@@ -78,6 +82,17 @@ def main():
             elif e.type == KEYDOWN:
                 if e.key == K_ESCAPE:
                     done = True
+
+            stepped = False
+            for creature in creatures:
+                creature.step()
+
+                if creature in creature_sprites:
+                    sprite = creature_sprites[creature]
+                    x, y = tile_location(creature.location)
+                    if sprite.rect.topleft != (x,y):
+                        sprite.rect.topleft = (x,y)
+                        stepped = True
 
             sprites.clear(screen, background)
             sprites.draw(screen)
