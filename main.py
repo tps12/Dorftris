@@ -43,7 +43,7 @@ def main():
     sprites = Group()
 
     kind = [mono.render(glyph, True, (0,0,0))
-            for glyph in (u'\u263b',u'\u046a',u'\u13cc',u'\u263f',u'\u237e')]
+            for glyph in (u'\u263a',u'\u046a',u'\u13cc',u'\u263f',u'\u237e')]
 
     for i in range(20):
         sprite = Sprite()
