@@ -71,7 +71,6 @@ def main():
         creature_sprites[creature] = sprite
 
     step = Sound('38874__swuing__footstep_grass.wav')
-    step.play()
 
     done = False
 
@@ -96,6 +95,9 @@ def main():
 
             sprites.clear(screen, background)
             sprites.draw(screen)
+
+            if stepped:
+                step.play()
 
             display.flip()
 
