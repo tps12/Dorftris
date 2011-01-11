@@ -3,6 +3,7 @@ from random import choice, randint
 import pygame
 from pygame import display, draw, event, font, Surface
 from pygame.locals import *
+from pygame.mixer import Sound
 from pygame.sprite import *
 
 TILE_WIDTH = 16
@@ -56,6 +57,9 @@ def main():
                               randint(0,dimensions[1]-1)))
         sprite.rect = sprite.image.get_rect().move(x, y)
         sprites.add(sprite)
+
+    step = Sound('38874__swuing__footstep_grass.wav')
+    step.play()
 
     done = False
 
