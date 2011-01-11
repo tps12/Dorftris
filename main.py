@@ -6,6 +6,8 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
+from data import Creature
+
 TILE_WIDTH = 16
 TILE_HEIGHT = 18
 
@@ -45,7 +47,14 @@ def main():
     kind = [mono.render(glyph, True, (0,0,0))
             for glyph in (u'\u263a',u'\u046a',u'\u13cc',u'\u263f',u'\u237e')]
 
+    creatures = []
     for i in range(20):
+        creature = Creature()
+        creature.location = (randint(0,dimensions[0]-1),
+                             randint(0,dimensions[1]-1))
+        creatures.append(creature)
+
+    for creature in creatures:
         sprite = Sprite()
         image = choice(kind).copy()
         image.fill((randint(0,255),randint(0,255),randint(0,255)),
@@ -53,8 +62,7 @@ def main():
         sprite.image = Surface(image.get_size())
         sprite.image.fill((0,0,0))
         sprite.image.blit(image, (0,0))
-        x, y = tile_location((randint(0,dimensions[0]-1),
-                              randint(0,dimensions[1]-1)))
+        x, y = tile_location(creature.location)
         sprite.rect = sprite.image.get_rect().move(x, y)
         sprites.add(sprite)
 
