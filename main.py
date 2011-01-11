@@ -46,9 +46,12 @@ def main():
 
     for i in range(20):
         sprite = Sprite()
-        sprite.image = choice(kind).copy()
-        sprite.image.fill((randint(0,255),randint(0,255),randint(0,255)),
-                          special_flags=BLEND_ADD)
+        image = choice(kind).copy()
+        image.fill((randint(0,255),randint(0,255),randint(0,255)),
+                   special_flags=BLEND_ADD)
+        sprite.image = Surface(image.get_size())
+        sprite.image.fill((0,0,0))
+        sprite.image.blit(image, (0,0))
         x, y = tile_location((randint(0,dimensions[0]-1),
                               randint(0,dimensions[1]-1)))
         sprite.rect = sprite.image.get_rect().move(x, y)
