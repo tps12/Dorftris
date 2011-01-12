@@ -17,6 +17,9 @@ class Material(object):
         self.substance = substance
         self.amount = amount
 
+    def mass(self):
+        return self.substance.density * self.amount
+
 class Entity(object):
     def __init__(self, kind):
         self.kind = kind
@@ -25,6 +28,9 @@ class Thing(Entity):
     def __init__(self, kind, materials):
         Entity.__init__(self, kind)
         self.materials = materials
+
+    def mass(self):
+        return sum([m.mass() for m in self.materials])
 
 class Item(Thing):
     def __init__(self, kind, materials):
