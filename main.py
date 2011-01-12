@@ -14,7 +14,7 @@ TILE_HEIGHT = 18
 def tile_location(c):
     x, y = c
     return (TILE_WIDTH/2 + x * TILE_WIDTH,
-            TILE_HEIGHT/2 + y * TILE_HEIGHT + (x&1) * TILE_HEIGHT)
+            TILE_HEIGHT/2 + y * TILE_HEIGHT + (x&1) * TILE_HEIGHT/2)
 
 def main():
     pygame.init()
@@ -32,7 +32,7 @@ def main():
 
     mono = font.Font('FreeMono.ttf', 18)
     ground = [mono.render(glyph, True, (0,0,0))
-              for glyph in ('.',',','`',"'")]
+              for glyph in (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a')]
 
     for x in range(dimensions[0]):
         for y in range(dimensions[1]):
