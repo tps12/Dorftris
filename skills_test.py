@@ -53,5 +53,11 @@ class SkillSetTestCase(TestCase):
         s.train(['athletics','running'], 50)
         self.assertEqual(s.exp(['athletics','running']), 60)
 
+    def test_outtrain_sibling(self):
+        s = SkillSet()
+        s.train(['athletics','jumping'], 10)
+        s.train(['athletics','running'], 30)
+        self.assertEqual(s.exp(['athletics','jumping']), 20)
+
 if __name__ == '__main__':
     main()
