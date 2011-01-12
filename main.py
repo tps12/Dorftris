@@ -74,6 +74,7 @@ def main():
     step = Sound('38874__swuing__footstep_grass.wav')
 
     done = False
+    paused = False
 
     while not done:
         for e in event.get():
@@ -82,10 +83,14 @@ def main():
             elif e.type == KEYDOWN:
                 if e.key == K_ESCAPE:
                     done = True
+                elif e.key == K_SPACE:
+                    paused = not paused
 
         stepped = False
+
         for creature in creatures:
-            creature.step()
+            if not paused:
+                creature.step()
 
             if creature in creature_sprites:
                 sprite = creature_sprites[creature]
