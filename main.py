@@ -9,7 +9,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Creature, Thing
+from data import Creature, Entity, Thing
 from glyphs import GlyphGraphics
 
 TILE_WIDTH = 16
@@ -36,7 +36,7 @@ def main():
 
     graphics = GlyphGraphics(max(TILE_WIDTH, TILE_HEIGHT))
 
-    ground = Thing('ground')
+    ground = Entity('ground')
 
     for x in range(dimensions[0]):
         for y in range(dimensions[1]):
