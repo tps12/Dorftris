@@ -1,12 +1,13 @@
 from random import choice, randint
 
 import pygame
-from pygame import display, draw, event, font, Surface
+from pygame import display, draw, event, Surface
 from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
 from data import Creature
+from glyphs import GlyphGraphics
 
 TILE_WIDTH = 16
 TILE_HEIGHT = 18
@@ -30,13 +31,11 @@ def main():
     
     background.fill((0,0,0))
 
-    mono = font.Font('FreeMono.ttf', 18)
-    ground = [mono.render(glyph, True, (0,0,0))
-              for glyph in (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a')]
+    graphics = GlyphGraphics(max(TILE_WIDTH, TILE_HEIGHT))
 
     for x in range(dimensions[0]):
         for y in range(dimensions[1]):
-            dirt = choice(ground).copy()
+            dirt = choice(graphics['ground']).copy()
             dirt.fill((0,randint(65,189),0), special_flags=BLEND_ADD)
             background.blit(dirt, tile_location((x,y)))
 
@@ -44,8 +43,7 @@ def main():
 
     sprites = Group()
 
-    kind = [mono.render(glyph, True, (0,0,0))
-            for glyph in (u'\u263a',u'\u046a',u'\u13cc',u'\u263f',u'\u237e')]
+    kind = ('dwarf','goblin','tortoise','spider-small')
 
     creatures = []
     for i in range(20):
@@ -58,7 +56,7 @@ def main():
 
     for creature in creatures:
         sprite = Sprite()
-        image = choice(kind).copy()
+        image = graphics[choice(kind)][0].copy()
         image.fill((randint(0,255),randint(0,255),randint(0,255)),
                    special_flags=BLEND_ADD)
         sprite.image = Surface(image.get_size())
