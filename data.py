@@ -1,7 +1,12 @@
 from random import randint
 
-class Creature(object):
-    def __init__(self):
+class Thing(object):
+    def __init__(self, kind):
+        self.kind = kind
+
+class Creature(Thing):
+    def __init__(self, kind):
+        Thing.__init__(self, kind)
         self.location = None
         self.rest = randint(0,20)
 

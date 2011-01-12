@@ -25,7 +25,8 @@ class GlyphGraphics(object):
         return tuple([self.font.render(glyph, True, (0,0,0))
                       for glyph in glyphs])
 
-    def __getitem__(self, key):
+    def __getitem__(self, thing):
+        key = thing.kind
         try:
             return self.images[key]
         except KeyError:

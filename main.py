@@ -9,7 +9,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Creature
+from data import Creature, Thing
 from glyphs import GlyphGraphics
 
 TILE_WIDTH = 16
@@ -36,9 +36,11 @@ def main():
 
     graphics = GlyphGraphics(max(TILE_WIDTH, TILE_HEIGHT))
 
+    ground = Thing('ground')
+
     for x in range(dimensions[0]):
         for y in range(dimensions[1]):
-            dirt = choice(graphics['ground']).copy()
+            dirt = choice(graphics[ground]).copy()
             dirt.fill((0,randint(65,189),0), special_flags=BLEND_ADD)
             background.blit(dirt, tile_location((x,y)))
 
@@ -50,7 +52,7 @@ def main():
 
     creatures = []
     for i in range(20):
-        creature = Creature()
+        creature = Creature(choice(kind))
         creature.location = (randint(0,dimensions[0]-1),
                              randint(0,dimensions[1]-1))
         creatures.append(creature)
@@ -59,7 +61,7 @@ def main():
 
     for creature in creatures:
         sprite = Sprite()
-        image = graphics[choice(kind)][0].copy()
+        image = graphics[creature][0].copy()
         image.fill((randint(0,255),randint(0,255),randint(0,255)),
                    special_flags=BLEND_ADD)
         sprite.image = Surface(image.get_size())
