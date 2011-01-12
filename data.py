@@ -1,20 +1,16 @@
 from random import randint
 
 class Substance(object):
-    def __init__(self, density):
-        self.density = density
+    density = None
 
 class Wood(Substance):
-    def __init__(self, density):
-        Substance.__init__(self, density)
+    pass
 
 class Oak(Wood):
-    def __init__(self):
-        Wood.__init__(self, 750.0)
+    density = 750.0
 
 class Meat(Substance):
-    def __init__(self):
-        Substance.__init__(self, 1000.0)
+    density = 1000.0
 
 class Material(object):
     def __init__(self, substance, amount):
@@ -46,7 +42,7 @@ class Barrel(Container):
 
 class Creature(Thing):
     def __init__(self, kind):
-        Thing.__init__(self, kind, [Material(Meat(), 0.075)])
+        Thing.__init__(self, kind, [Material(Meat, 0.075)])
         self.location = None
         self.rest = randint(0,20)
 
