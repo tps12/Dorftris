@@ -1,3 +1,6 @@
+import gettext
+gettext.install('dorftris')
+
 from random import choice, randint
 
 import pygame
