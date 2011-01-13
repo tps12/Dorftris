@@ -11,6 +11,7 @@ from pygame.sprite import *
 
 from data import Creature, Entity, Thing, World
 from glyphs import GlyphGraphics
+from pathing import PathManager
 
 TILE_WIDTH = 16
 TILE_HEIGHT = 18
@@ -50,7 +51,22 @@ def main():
 
     kind = ('dwarf','goblin','tortoise','spider-small')
 
-    world = World(object(), [], [])
+    class Tile(object):
+        def is_passable(self):
+            return True
+
+    class Space(object):
+        def __init__(self, dim):
+            self.dim = (dim[0], dim[1], 1)
+            self.pathing = PathManager(self)
+
+        def get_dimensions(self):
+            return self.dim
+
+        def __getitem__(self, loc):
+            return Tile()
+
+    world = World(Space(dimensions), [], [])
 
     for i in range(20):
         creature = Creature(choice(kind))
