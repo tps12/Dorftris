@@ -107,7 +107,7 @@ class PathManager:
         between Z levels doesn't carry any additional cost, walls and cliffs
         are just like obstacles.
         
-        """
+        """       
         for p in (a,b):
             for i in range(3):
                 if p[i] < 0 or p[i] >= self.dim[i]:

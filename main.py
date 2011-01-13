@@ -52,19 +52,22 @@ def main():
     kind = ('dwarf','goblin','tortoise','spider-small')
 
     class Tile(object):
+        def __init__(self, passable):
+            self.passable = passable
+            
         def is_passable(self):
-            return True
+            return self.passable
 
     class Space(object):
         def __init__(self, dim):
-            self.dim = (dim[0], dim[1], 1)
+            self.dim = (dim[0], dim[1], 2)
             self.pathing = PathManager(self)
 
         def get_dimensions(self):
             return self.dim
 
         def __getitem__(self, loc):
-            return Tile()
+            return Tile(loc[2] == 1)
 
     world = World(Space(dimensions), [], [])
 
@@ -109,7 +112,7 @@ def main():
 
         for creature in world.creatures:
             if not paused:
-                creature.step()
+                creature.step(world)
 
             if creature in creature_sprites:
                 sprite = creature_sprites[creature]
