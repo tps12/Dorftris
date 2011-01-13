@@ -16,6 +16,9 @@ from pathing import PathManager
 TILE_WIDTH = 16
 TILE_HEIGHT = 18
 
+INFO_WIDTH = 20
+STATUS_HEIGHT = 2
+
 def tile_location(c):
     x, y = c
     return (TILE_WIDTH/2 + x * TILE_WIDTH,
@@ -26,7 +29,9 @@ def main():
 
     dimensions = 80, 50
 
-    screen = pygame.display.set_mode(tile_location([d+1 for d in dimensions]),
+    padded = dimensions[0] + INFO_WIDTH, dimensions[1] + STATUS_HEIGHT
+
+    screen = pygame.display.set_mode(tile_location([d+1 for d in padded]),
                                      HWSURFACE)
 
     display.set_caption('Hex Grid')
