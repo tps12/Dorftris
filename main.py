@@ -9,7 +9,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Creature, Entity, Thing
+from data import Creature, Entity, Thing, World
 from glyphs import GlyphGraphics
 
 TILE_WIDTH = 16
@@ -50,16 +50,17 @@ def main():
 
     kind = ('dwarf','goblin','tortoise','spider-small')
 
-    creatures = []
+    world = World(object(), [], [])
+
     for i in range(20):
         creature = Creature(choice(kind))
         creature.location = (randint(0,dimensions[0]-1),
                              randint(0,dimensions[1]-1))
-        creatures.append(creature)
+        world.creatures.append(creature)
 
     creature_sprites = {}
 
-    for creature in creatures:
+    for creature in world.creatures:
         sprite = Sprite()
         image = graphics[creature][0].copy()
         image.fill((randint(0,255),randint(0,255),randint(0,255)),
@@ -90,7 +91,7 @@ def main():
 
         stepped = False
 
-        for creature in creatures:
+        for creature in world.creatures:
             if not paused:
                 creature.step()
 

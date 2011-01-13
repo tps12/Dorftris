@@ -64,3 +64,9 @@ class Creature(Thing):
                     self.location = (self.location[0] + randint(-1,1),
                                      self.location[1])
             self.rest = 20
+
+class World(object):
+    def __init__(self, space, items, creatures):
+        self.space = space
+        self.items = items
+        self.creatures = creatures
