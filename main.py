@@ -9,7 +9,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Creature, Entity, Thing, World
+from data import Barrel, Creature, Entity, Oak, Thing, World
 from glyphs import GlyphGraphics
 from pathing import PathManager
 
@@ -90,7 +90,11 @@ def main():
                                            randint(0,dimensions[1]-1)))
         world.creatures.append(creature)
 
-    creature_sprites = {}
+    for i in range(10):
+        world.items.append(Barrel((randint(0,dimensions[0]-1),
+                                   randint(0,dimensions[1]-1)), Oak))
+
+    entity_sprites = {}
 
     for creature in world.creatures:
         sprite = Sprite()
@@ -104,7 +108,20 @@ def main():
         sprite.rect = sprite.image.get_rect().move(x, y)
         sprites.add(sprite)
 
-        creature_sprites[creature] = sprite
+        entity_sprites[creature] = sprite
+
+    for item in world.items:
+        sprite = Sprite()
+        image = graphics[item][0].copy()
+        image.fill((139,69,19), special_flags=BLEND_ADD)
+        sprite.image = Surface(image.get_size())
+        sprite.image.fill((0,0,0))
+        sprite.image.blit(image, (0,0))
+        x, y = tile_location(item.location)
+        sprite.rect = sprite.image.get_rect().move(x, y)
+        sprites.add(sprite)
+
+        entity_sprites[item] = sprite
 
     step = Sound('38874__swuing__footstep_grass.wav')
 
@@ -130,14 +147,20 @@ def main():
             if not paused:
                 creature.step(world)
 
-            if creature in creature_sprites:
-                sprite = creature_sprites[creature]
+            if creature in entity_sprites:
+                sprite = entity_sprites[creature]
                 x, y = tile_location(creature.location)
                 if sprite.rect.topleft != (x,y):
                     sprite.rect.topleft = (x,y)
                     stepped = True
                 if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
                     descs.append(creature.kind)
+
+        for item in world.items:
+            if item in entity_sprites:
+                x, y = tile_location(item.location)
+                if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
+                    descs.append(item.kind)
 
         sprites.clear(screen, background)
         sprites.draw(screen)
