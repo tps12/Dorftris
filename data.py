@@ -46,11 +46,68 @@ class Barrel(Container):
     def __init__(self, substance):
         Container.__init__(self, 'barrel', [Material(substance, 0.075)], 0.25)
 
+class Task(object):
+    def __init__(self, subject):
+        self.subject = subject
+
+class MoveTo(Task):
+    def __init__(self, subject, target):
+        Task.__init__(self, subject)
+        self.target = target
+
+    def requirement(self):
+        pass
+
+    def perform(self):
+        pass
+
+class Acquire(Task):
+    def __init__(self, subject, target):
+        Task.__init__(self, subject)
+        self.target = target
+
+    def requirement(self):
+        for item in self.subject.inventory:
+            if item is self.target:
+                return None
+        else:
+            return Acquire(self.subject, self.target)
+
+    def perform(self):
+        pass
+
+class Consume(Task):
+    def __init__(self, subject, target):
+        Task.__init__(self, subject)
+        self.target = target
+
+    def requirement(self):
+        for item in self.subject.inventory:
+            if item is self.target:
+                return None
+        else:
+            return Acquire(self.subject, self.target)
+
+    def perform(self):
+        pass
+
+class Job(object):
+    def __init__(self, tasks):
+        self.tasks = tasks
+
+    def work(self):
+        pass
+
+class Drink(Job):
+    def __init__(self):
+        Job.__init__(self, [Consume(Beverage)])
+
 class Creature(Thing):
     def __init__(self, kind):
         Thing.__init__(self, kind, [Material(Meat, 0.075)])
         self.location = None
         self.path = None
+        self.inventory = []
         self.rest = randint(0,20)
 
     def step(self, world):
