@@ -4,7 +4,7 @@ gettext.install('dorftris')
 from random import choice, randint
 
 import pygame
-from pygame import display, draw, event, Surface
+from pygame import display, draw, event, font, Surface
 from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
@@ -40,7 +40,8 @@ def main():
     
     background.fill((0,0,0))
 
-    graphics = GlyphGraphics(max(TILE_WIDTH, TILE_HEIGHT))
+    uifont = font.Font('FreeMono.ttf', max(TILE_WIDTH, TILE_HEIGHT))
+    graphics = GlyphGraphics(uifont)
 
     ground = Entity('ground')
 

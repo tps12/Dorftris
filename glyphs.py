@@ -1,5 +1,3 @@
-from pygame import font
-
 class GlyphGraphics(object):
     glyphs = {
         'barrel': u'\u236f',
@@ -15,8 +13,8 @@ class GlyphGraphics(object):
 
     images = {}
 
-    def __init__(self, size):
-        self.font = font.Font('FreeMono.ttf', size)
+    def __init__(self, font):
+        self.font = font
         self.unknown = self._getimage(u'\ufffd')
 
     def _getimage(self, glyphs):
