@@ -43,6 +43,9 @@ class Container(Item):
         self.capacity = capacity
         self.contents = []
 
+    def mass(self):
+        return Thing.mass(self) + sum([item.mass() for item in self.contents])
+
 class Barrel(Container):
     def __init__(self, location, substance):
         Container.__init__(self, 'barrel',
@@ -65,9 +68,12 @@ class GoToRandomGoal(Task):
                    for i in range(2)]) + (1,))
 
     def work(self):
+        if self.path == []:
+            return True
+        
         self.subject.location = self.path[0][0:2]
         self.path = self.path[1:]
-        return len(self.path) == 0
+        return self.path == []
 
 class Job(object):
     def __init__(self, tasks):
