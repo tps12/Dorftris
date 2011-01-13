@@ -63,20 +63,22 @@ class Job(object):
     def __init__(self, tasks):
         self.tasks = tasks
 
-    def work(self, subject, world):
+    def work(self):
         return True
 
 class GoToRandomPlace(Job):
     def __init__(self, subject, world):
         Job.__init__(self, [])
-        self.path = world.space.pathing.find_path(
-            (subject.location[0], subject.location[1], 1),
-            (randint(0, world.space.get_dimensions()[0]-1),
-             randint(0, world.space.get_dimensions()[1]-1),
+        self.subject = subject
+        self.world = world
+        self.path = self.world.space.pathing.find_path(
+            (self.subject.location[0], self.subject.location[1], 1),
+            (randint(0, self.world.space.get_dimensions()[0]-1),
+             randint(0, self.world.space.get_dimensions()[1]-1),
              1))
 
-    def work(self, subject, world):
-        subject.location = self.path[0][0:2]
+    def work(self):
+        self.subject.location = self.path[0][0:2]
         self.path = self.path[1:]
         return len(self.path) == 0
 
@@ -95,7 +97,7 @@ class Creature(Thing):
             if self.job is None:
                 self.job = GoToRandomPlace(self, world)
 
-            if self.job.work(self, world):
+            if self.job.work():
                 self.job = None
                 
             self.rest = 20
