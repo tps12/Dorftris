@@ -104,28 +104,40 @@ class Drink(Job):
     def __init__(self):
         Job.__init__(self, [Consume(Beverage)])
 
+class GoToRandomPlace(Job):
+    def __init__(self):
+        Job.__init__(self, [])
+
+    def work(self, subject, world):
+        if subject.path is not None:
+            subject.location = subject.path[0][0:2]
+            subject.path = subject.path[1:] if len(subject.path) > 1 else None
+        else:
+            subject.path = world.space.pathing.find_path(
+                (subject.location[0], subject.location[1], 1),
+                (randint(0, world.space.get_dimensions()[0]-1),
+                 randint(0, world.space.get_dimensions()[1]-1),
+                 1))
+        return subject.path is None
+
 class Creature(Thing):
     def __init__(self, kind, location):
         Thing.__init__(self, kind, [Material(Meat, 0.075)])
         self.location = location
         self.path = None
         self.inventory = []
+        self.job = None
         self.rest = randint(0,20)
 
     def step(self, world):
         if self.rest > 0:
             self.rest -= 1
         else:
-            if self.location is not None:
-                if self.path is not None:
-                    self.location = self.path[0][0:2]
-                    self.path = self.path[1:] if len(self.path) > 1 else None
-                else:
-                    self.path = world.space.pathing.find_path(
-                        (self.location[0], self.location[1], 1),
-                        (randint(0,world.space.get_dimensions()[0]-1),
-                         randint(0,world.space.get_dimensions()[1]-1),
-                         1))
+            if self.job is None:
+                self.job = GoToRandomPlace()
+
+            if self.job.work(self, world):
+                self.job = None
                 
             self.rest = 20
 
