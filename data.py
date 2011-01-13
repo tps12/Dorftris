@@ -49,26 +49,14 @@ class Barrel(Container):
                            [Material(substance, 0.075)], location, 0.25)
 
 class Task(object):
-    def perform(self, subject, world):
-        return True
-
-class GoToGoal(Task):
-    def __init__(self, goal):
-        self.goal = goal
-
-    def perform(self, subject, world):
-        pass
-
-class Job(object):
-    def __init__(self, tasks):
-        self.tasks = tasks
+    def requirements(self):
+        return []
 
     def work(self):
         return True
 
-class GoToRandomPlace(Job):
+class GoToRandomGoal(Task):
     def __init__(self, subject, world):
-        Job.__init__(self, [])
         self.subject = subject
         self.world = world
         self.path = self.world.space.pathing.find_path(
@@ -80,6 +68,21 @@ class GoToRandomPlace(Job):
         self.subject.location = self.path[0][0:2]
         self.path = self.path[1:]
         return len(self.path) == 0
+
+class Job(object):
+    def __init__(self, tasks):
+        self.tasks = tasks
+
+    def work(self):
+        if not len(self.tasks):
+            return True
+
+        self.tasks = self.tasks[0].requirements() + self.tasks
+        return self.tasks[0].work()
+
+class GoToRandomPlace(Job):
+    def __init__(self, subject, world):
+        Job.__init__(self, [GoToRandomGoal(subject, world)])
 
 class Creature(Thing):
     def __init__(self, kind, location):
