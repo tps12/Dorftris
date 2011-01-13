@@ -72,10 +72,9 @@ class GoToRandomPlace(Job):
         self.subject = subject
         self.world = world
         self.path = self.world.space.pathing.find_path(
-            (self.subject.location[0], self.subject.location[1], 1),
-            (randint(0, self.world.space.get_dimensions()[0]-1),
-             randint(0, self.world.space.get_dimensions()[1]-1),
-             1))
+            self.subject.location + (1,),
+            tuple([randint(0, self.world.space.get_dimensions()[i]-1)
+                   for i in range(2)]) + (1,))
 
     def work(self):
         self.subject.location = self.path[0][0:2]
