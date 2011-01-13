@@ -44,6 +44,7 @@ def main():
     graphics = GlyphGraphics(uifont)
 
     pause_notice = uifont.render('*** PAUSED ***', True, (255,255,255))
+    pause_notice.fill((255,255,255), special_flags=BLEND_ADD)
 
     ground = Entity('ground')
 
@@ -132,11 +133,9 @@ def main():
         sprites.draw(screen)
 
         msg_loc = tile_location((0,dimensions[1]+1))
-        
+        screen.fill((0,0,0), Rect(msg_loc, pause_notice.get_size()))        
         if paused:
             screen.blit(pause_notice, msg_loc)
-        else:
-            screen.fill((0,0,0), Rect(msg_loc, pause_notice.get_size()))
 
         if stepped:
             step.play()
