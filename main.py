@@ -123,6 +123,9 @@ def main():
 
         stepped = False
 
+        pos = mouse.get_pos()
+        descs = []
+
         for creature in world.creatures:
             if not paused:
                 creature.step(world)
@@ -133,9 +136,18 @@ def main():
                 if sprite.rect.topleft != (x,y):
                     sprite.rect.topleft = (x,y)
                     stepped = True
+                if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
+                    descs.append(creature.kind)
 
         sprites.clear(screen, background)
         sprites.draw(screen)
+
+        info_loc = tile_location((dimensions[0]+1,0))
+        screen.fill((0,0,0), Rect(info_loc, screen.get_size()))
+        for d in descs:
+            line = uifont.render(d, True, (255,255,255))
+            screen.blit(line, info_loc)
+            info_loc = (info_loc[0], info_loc[1] + line.get_height())
 
         msg_loc = tile_location((0,dimensions[1]+1))
         screen.fill((0,0,0), Rect(msg_loc, pause_notice.get_size()))        
