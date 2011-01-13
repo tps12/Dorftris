@@ -33,18 +33,20 @@ class Thing(Entity):
         return sum([m.mass() for m in self.materials])
 
 class Item(Thing):
-    def __init__(self, kind, materials):
+    def __init__(self, kind, materials, location):
         Thing.__init__(self, kind, materials)
+        self.location = location
 
 class Container(Item):
-    def __init__(self, kind, materials, capacity):
-        Item.__init__(self, kind, materials)
+    def __init__(self, kind, materials, location, capacity):
+        Item.__init__(self, kind, materials, location)
         self.capacity = capacity
         self.contents = []
 
 class Barrel(Container):
-    def __init__(self, substance):
-        Container.__init__(self, 'barrel', [Material(substance, 0.075)], 0.25)
+    def __init__(self, location, substance):
+        Container.__init__(self, 'barrel',
+                           [Material(substance, 0.075)], location, 0.25)
 
 class Task(object):
     def __init__(self, subject):
@@ -103,9 +105,9 @@ class Drink(Job):
         Job.__init__(self, [Consume(Beverage)])
 
 class Creature(Thing):
-    def __init__(self, kind):
+    def __init__(self, kind, location):
         Thing.__init__(self, kind, [Material(Meat, 0.075)])
-        self.location = None
+        self.location = location
         self.path = None
         self.inventory = []
         self.rest = randint(0,20)

@@ -72,9 +72,8 @@ def main():
     world = World(Space(dimensions), [], [])
 
     for i in range(20):
-        creature = Creature(choice(kind))
-        creature.location = (randint(0,dimensions[0]-1),
-                             randint(0,dimensions[1]-1))
+        creature = Creature(choice(kind), (randint(0,dimensions[0]-1),
+                                           randint(0,dimensions[1]-1)))
         world.creatures.append(creature)
 
     creature_sprites = {}
