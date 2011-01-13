@@ -4,7 +4,7 @@ gettext.install('dorftris')
 from random import choice, randint
 
 import pygame
-from pygame import display, draw, event, font, Surface
+from pygame import display, draw, event, font, Rect, Surface
 from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
@@ -42,6 +42,8 @@ def main():
 
     uifont = font.Font('FreeMono.ttf', max(TILE_WIDTH, TILE_HEIGHT))
     graphics = GlyphGraphics(uifont)
+
+    pause_notice = uifont.render('*** PAUSED ***', True, (255,255,255))
 
     ground = Entity('ground')
 
@@ -128,6 +130,13 @@ def main():
 
         sprites.clear(screen, background)
         sprites.draw(screen)
+
+        msg_loc = tile_location((0,dimensions[1]+1))
+        
+        if paused:
+            screen.blit(pause_notice, msg_loc)
+        else:
+            screen.fill((0,0,0), Rect(msg_loc, pause_notice.get_size()))
 
         if stepped:
             step.play()
