@@ -1,6 +1,6 @@
 class GlyphGraphics(object):
     glyphs = {
-        'barrel': u'\u236f',
+        'barrel': u'\u2338',
         'chair': u'\u2441',
         'dwarf': u'\u263a',
         'goblin': u'\u263f',
