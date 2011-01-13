@@ -4,7 +4,7 @@ gettext.install('dorftris')
 from random import choice, randint
 
 import pygame
-from pygame import display, draw, event, font, Rect, Surface
+from pygame import display, draw, event, font, mouse, Rect, Surface
 from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
@@ -23,6 +23,11 @@ def tile_location(c):
     x, y = c
     return (TILE_WIDTH/2 + x * TILE_WIDTH,
             TILE_HEIGHT/2 + y * TILE_HEIGHT + (x&1) * TILE_HEIGHT/2)
+
+def location_tile(c):
+    px, py = c
+    x = (px - TILE_WIDTH/2)/TILE_WIDTH
+    return x, (py - TILE_HEIGHT/2 - (x&1) * TILE_HEIGHT/2)/TILE_HEIGHT
 
 def main():
     pygame.init()
