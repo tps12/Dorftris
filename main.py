@@ -154,13 +154,13 @@ def main():
             else:
                 if item not in entity_sprites:
                     sprite = Sprite()
-                    image = graphics[item][0].copy()
 
                     if isinstance(item, Corpse):
                         image = graphics[item.origins][0].copy()
-                        image.fill((63,63,63), special_flags=BLEND_ADD)
                     else:
-                        image.fill((139,69,19), special_flags=BLEND_ADD)
+                        image = graphics[item][0].copy()
+                        
+                    image.fill(item.color, special_flags=BLEND_ADD)
                         
                     sprite.image = Surface(image.get_size())
                     sprite.image.fill((0,0,0))

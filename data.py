@@ -2,15 +2,18 @@ from math import sqrt
 from random import randint
 
 class Substance(object):
+    color = None
     density = None
 
 class Wood(Substance):
     pass
 
 class Oak(Wood):
+    color = (139,69,19)
     density = 750.0
 
 class Meat(Substance):
+    color = (63,0,0)
     density = 1000.0
 
 class Material(object):
@@ -57,6 +60,7 @@ class Beverage(Thing):
 class Item(Thing):
     def __init__(self, kind, materials, location):
         Thing.__init__(self, kind, materials)
+        self.color = self.materials[0].substance.color
         self.location = location
         self.reserved = False
 
