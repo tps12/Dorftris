@@ -96,9 +96,15 @@ class Creature(Thing):
         self.location = location
         self.inventory = []
         self.job = None
+        self.hydration = randint(9000,36000)
         self.rest = randint(0,20)
 
     def step(self, world):
+        self.hydration -= 1
+
+        if self.hydration == 0:
+            world.creatures.remove(self)
+        
         if self.rest > 0:
             self.rest -= 1
         else:

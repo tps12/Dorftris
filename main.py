@@ -147,6 +147,10 @@ def main():
             if not paused:
                 creature.step(world)
 
+            if creature not in world.creatures:
+                sprites.remove(entity_sprites[creature])
+                del entity_sprites[creature]
+
             if creature in entity_sprites:
                 sprite = entity_sprites[creature]
                 x, y = tile_location(creature.location)
