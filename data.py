@@ -25,17 +25,21 @@ class Entity(object):
     def __init__(self, kind):
         self.kind = kind
 
-class Beverage(Entity):
-    def __init__(self):
-        self.kind = 'beverage'
-
 class Thing(Entity):
+    fluid = False
+    
     def __init__(self, kind, materials):
         Entity.__init__(self, kind)
         self.materials = materials
 
     def mass(self):
         return sum([m.mass() for m in self.materials])
+
+class Beverage(Thing):
+    fluid = True
+    
+    def __init__(self):
+        Thing.__init__(self, 'beverage', [])
 
 class Item(Thing):
     def __init__(self, kind, materials, location):
