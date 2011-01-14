@@ -178,7 +178,9 @@ class Drink(Task):
             return reqs[0].requirements() + reqs
 
     def work(self):
-        bev = self.subject.inventory.find(Beverage)
+        bev = self.subject.inventory.find(lambda item:
+                                          isinstance(item, Storage) and
+                                          item.has(Beverage))
         self.subject.hydration += 36000
         bev.reserved = False
         return True
