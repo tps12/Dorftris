@@ -258,8 +258,8 @@ class DropExtraItems(Job):
                                       lambda item: not item.reserved)])
 
 class Creature(Thing):
-    def __init__(self, kind, location):
-        Thing.__init__(self, kind, [Material(Meat, 0.075)])
+    def __init__(self, kind, materials, location):
+        Thing.__init__(self, kind, materials)
         self.location = location
         self.inventory = Storage(1.0)
         self.job = None
@@ -294,19 +294,19 @@ class Creature(Thing):
 
 class Dwarf(Creature):
     def __init__(self, location):
-        Creature.__init__(self, 'dwarf', location)
+        Creature.__init__(self, 'dwarf', [Material(Meat, 0.075)], location)
         
 class Goblin(Creature):
     def __init__(self, location):
-        Creature.__init__(self, 'goblin', location)
+        Creature.__init__(self, 'goblin', [Material(Meat, 0.05)], location)
 
 class Tortoise(Creature):
     def __init__(self, location):
-        Creature.__init__(self, 'tortoise', location)
+        Creature.__init__(self, 'tortoise', [Material(Meat, 0.3)], location)
 
 class SmallSpider(Creature):
     def __init__(self, location):
-        Creature.__init__(self, 'spider-small', location)
+        Creature.__init__(self, 'spider-small', [Material(Meat, 0.0001)], location)
 
 class World(object):
     def __init__(self, space, items, creatures):
