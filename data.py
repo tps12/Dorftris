@@ -21,6 +21,9 @@ class Material(object):
     def mass(self):
         return self.substance.density * self.amount
 
+class Water(Substance):
+    density = 1000.0
+
 class Entity(object):
     def __init__(self, kind):
         self.kind = kind
@@ -44,8 +47,12 @@ class Thing(Entity):
 class Beverage(Thing):
     fluid = True
     
-    def __init__(self):
-        Thing.__init__(self, 'beverage', [])
+    def __init__(self, amount):
+        Thing.__init__(self, 'beverage', [Material(Water, amount)])
+
+    def description(self):
+        return _('{0} ({1} L)').format(self.kind,
+                                          self.materials[0].amount * 1000)
 
 class Item(Thing):
     def __init__(self, kind, materials, location):
@@ -120,7 +127,7 @@ class Barrel(Container):
     def __init__(self, location, substance):
         Container.__init__(self, 'barrel',
                            [Material(substance, 0.075)], location, 0.25)
-        self.contents.append(Beverage())
+        self.contents.append(Beverage(self.capacity))
 
 class Task(object):
     def requirements(self):
