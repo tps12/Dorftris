@@ -9,7 +9,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Barrel, Creature, Entity, Oak, Thing, World
+from data import Barrel, Dwarf, Entity, Goblin, Oak, SmallSpider, Thing, Tortoise, World
 from glyphs import GlyphGraphics
 from pathing import PathManager
 
@@ -63,7 +63,7 @@ def main():
 
     sprites = Group()
 
-    kind = ('dwarf','goblin','tortoise','spider-small')
+    kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
     class Tile(object):
         def __init__(self, passable):
@@ -86,8 +86,8 @@ def main():
     world = World(Space(dimensions), [], [])
 
     for i in range(20):
-        creature = Creature(choice(kind), (randint(0,dimensions[0]-1),
-                                           randint(0,dimensions[1]-1)))
+        creature = choice(kind)((randint(0,dimensions[0]-1),
+                                 randint(0,dimensions[1]-1)))
         world.creatures.append(creature)
 
     for i in range(10):

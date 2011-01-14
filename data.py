@@ -95,7 +95,7 @@ class Container(Item, Storage):
         Storage.__init__(self, capacity)
 
     def volume(self):
-        return self.capacity
+        return Thing.volume(self) + self.capacity
 
     def mass(self):
         return Thing.mass(self) + sum([item.mass() for item in self.contents])
@@ -145,14 +145,6 @@ class GoToGoal(Task):
         self.subject.location = self.path[0][0:2]
         self.path = self.path[1:]
         return self.path == []
-
-class MagicallyHydrate(Task):
-    def __init__(self, subject):
-        self.subject = subject
-
-    def work(self):
-        self.subject.hydration += 36000
-        return True
 
 class TaskImpossible(Exception):
     pass
@@ -299,6 +291,22 @@ class Creature(Thing):
                 pass
                 
             self.rest = 20
+
+class Dwarf(Creature):
+    def __init__(self, location):
+        Creature.__init__(self, 'dwarf', location)
+        
+class Goblin(Creature):
+    def __init__(self, location):
+        Creature.__init__(self, 'goblin', location)
+
+class Tortoise(Creature):
+    def __init__(self, location):
+        Creature.__init__(self, 'tortoise', location)
+
+class SmallSpider(Creature):
+    def __init__(self, location):
+        Creature.__init__(self, 'spider-small', location)
 
 class World(object):
     def __init__(self, space, items, creatures):
