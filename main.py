@@ -161,6 +161,10 @@ def main():
                     descs.append(creature.kind)
 
         for item in world.items:
+            if item.location is None and item in entity_sprites:
+                sprites.remove(entity_sprites[item])
+                del entity_sprites[item]
+            
             if item in entity_sprites:
                 x, y = tile_location(item.location)
                 if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
