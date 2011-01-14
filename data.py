@@ -295,7 +295,7 @@ class Corpse(Item):
         self.origins = creature
 
     def description(self):
-        return _('{0} corpse').format(self.origins)
+        return _('corpse of {0}').format(self.origins.description())
 
 class Creature(Thing):
     def __init__(self, kind, materials, location):

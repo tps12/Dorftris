@@ -9,7 +9,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Barrel, Dwarf, Entity, Goblin, Oak, SmallSpider, Thing, Tortoise, World
+from data import Barrel, Corpse, Dwarf, Entity, Goblin, Oak, SmallSpider, Thing, Tortoise, World
 from glyphs import GlyphGraphics
 from pathing import PathManager
 
@@ -156,7 +156,13 @@ def main():
                 if item not in entity_sprites:
                     sprite = Sprite()
                     image = graphics[item][0].copy()
-                    image.fill((139,69,19), special_flags=BLEND_ADD)
+
+                    if isinstance(item, Corpse):
+                        image = graphics[item.origins][0].copy()
+                        image.fill((63,63,63), special_flags=BLEND_ADD)
+                    else:
+                        image.fill((139,69,19), special_flags=BLEND_ADD)
+                        
                     sprite.image = Surface(image.get_size())
                     sprite.image.fill((0,0,0))
                     sprite.image.blit(image, (0,0))

@@ -2,6 +2,7 @@ class GlyphGraphics(object):
     glyphs = {
         'barrel': u'\u2338',
         'chair': u'\u2441',
+        'corpse': u'\u20e0',
         'dwarf': u'\u263a',
         'goblin': u'\u263f',
         'ground': (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
