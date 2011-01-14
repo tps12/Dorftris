@@ -43,16 +43,28 @@ class Item(Thing):
         self.location = location
         self.reserved = False
 
-class Container(Item):
-    def __init__(self, kind, materials, location, capacity):
-        Item.__init__(self, kind, materials, location)
+class Storage(object):
+    def __init__(self, capacity):
         self.capacity = capacity
         self.contents = []
 
+    def find(self, kind):
+        for item in self.contents:
+            if isinstance(item, kind):
+                return item
+            elif isinstance(item, Storage):
+                value = item.find(kind)
+                if value is not None:
+                    return value
+        return None
+
     def has(self, kind):
-        return (any([isinstance(item, kind) for item in self.contents]) or
-                any([item.has(kind) for item in self.contents
-                     if isinstance(item, Container)]))
+        return self.find(kind) is not None
+
+class Container(Item, Storage):
+    def __init__(self, kind, materials, location, capacity):
+        Item.__init__(self, kind, materials, location)
+        Storage.__init__(self, capacity)
 
     def mass(self):
         return Thing.mass(self) + sum([item.mass() for item in self.contents])
@@ -145,9 +157,8 @@ class Acquire(Task):
             return reqs[0].requirements() + reqs
 
     def work(self):
-        self.nearest.reserved = False
         self.nearest.location = None
-        self.subject.inventory.append(self.nearest)
+        self.subject.inventory.contents.append(self.nearest)
         return True
 
 class Drink(Task):
@@ -156,14 +167,16 @@ class Drink(Task):
         self.world = world
 
     def requirements(self):
-        if self.subject.has(Beverage):
+        if self.subject.inventory.has(Beverage):
             return []
         else:
             reqs = [Acquire(self.subject, self.world, Beverage)]
             return reqs[0].requirements() + reqs
 
     def work(self):
+        bev = self.subject.inventory.find(Beverage)
         self.subject.hydration += 36000
+        bev.reserved = False
         return True
 
 class Job(object):
@@ -190,15 +203,10 @@ class Creature(Thing):
     def __init__(self, kind, location):
         Thing.__init__(self, kind, [Material(Meat, 0.075)])
         self.location = location
-        self.inventory = []
+        self.inventory = Storage(1.0)
         self.job = None
         self.hydration = randint(9000,36000)
         self.rest = randint(0,20)
-
-    def has(self, kind):
-        return (any([isinstance(item, kind) for item in self.inventory]) or
-                any([item.has(kind) for item in self.inventory
-                     if isinstance(item, Container)]))
 
     def step(self, world):
         self.hydration -= 1
@@ -208,7 +216,7 @@ class Creature(Thing):
         
         if self.rest > 0:
             self.rest -= 1
-        else:
+        else:           
             try:
                 if self.job is None:
                     if self.hydration < 1000:
