@@ -97,6 +97,19 @@ class Container(Item, Storage):
         Item.__init__(self, kind, materials, location)
         Storage.__init__(self, capacity)
 
+    def description(self):
+        n = len(self.contents)
+        if n == 0:
+            return _('empty {0}').format(self.kind)
+        elif n == 1:
+            return _('{0} of {1}').format(self.kind,
+                                          self.contents[0].description())
+        else:
+            return _('{0} containing {1}').format(self.kind,
+                                                  ', '.join([item.description()
+                                                             for item
+                                                             in self.contents]))
+
     def volume(self):
         return Thing.volume(self) + self.capacity
 
