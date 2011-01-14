@@ -263,11 +263,11 @@ class Creature(Thing):
         self.location = location
         self.inventory = Storage(1.0)
         self.job = None
-        self.hydration = randint(9000,36000)
-        self.rest = randint(0,20)
+        self.hydration = randint(9000, 36000)
+        self.rest = randint(0, self.speed)
 
     def step(self, world):
-        self.hydration -= 10
+        self.hydration -= self.thirst
 
         if self.hydration == 0:
             world.creatures.remove(self)
@@ -290,21 +290,33 @@ class Creature(Thing):
             except TaskImpossible:
                 pass
                 
-            self.rest = 20
+            self.rest = self.speed
 
 class Dwarf(Creature):
+    speed = 11
+    thirst = 0.03
+    
     def __init__(self, location):
         Creature.__init__(self, 'dwarf', [Material(Meat, 0.075)], location)
         
 class Goblin(Creature):
+    speed = 9
+    thirst = 0.01
+    
     def __init__(self, location):
         Creature.__init__(self, 'goblin', [Material(Meat, 0.05)], location)
 
 class Tortoise(Creature):
+    speed = 100
+    thirst = 0.1
+    
     def __init__(self, location):
         Creature.__init__(self, 'tortoise', [Material(Meat, 0.3)], location)
 
 class SmallSpider(Creature):
+    speed = 5
+    thirst = 0.0001
+    
     def __init__(self, location):
         Creature.__init__(self, 'spider-small', [Material(Meat, 0.0001)], location)
 
