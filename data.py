@@ -52,18 +52,18 @@ class Storage(object):
         self.capacity = capacity
         self.contents = []
 
-    def find(self, kind):
+    def find(self, test):
         for item in self.contents:
-            if isinstance(item, kind):
+            if test(item):
                 return item
             elif isinstance(item, Storage):
-                value = item.find(kind)
+                value = item.find(test)
                 if value is not None:
                     return value
         return None
 
     def has(self, kind):
-        return self.find(kind) is not None
+        return self.find(lambda item: isinstance(item, kind)) is not None
 
 class Container(Item, Storage):
     def __init__(self, kind, materials, location, capacity):
