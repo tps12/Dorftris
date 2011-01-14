@@ -302,10 +302,9 @@ class Corpse(Item):
         return _('corpse of {0}').format(self.origins.description())
 
 class Creature(Thing):
-    color = (128,128,128)
-    
-    def __init__(self, kind, materials, location):
+    def __init__(self, kind, materials, color, location):
         Thing.__init__(self, kind, materials)
+        self.color = color
         self.location = location
         self.inventory = Storage(1.0)
         self.job = None
@@ -347,28 +346,34 @@ class Dwarf(Creature):
     thirst = 0.03
     
     def __init__(self, location):
-        Creature.__init__(self, 'dwarf', [Material(Meat, 0.075)], location)
+        r = randint(80,255)
+        Creature.__init__(self, 'dwarf', [Material(Meat, 0.075)],
+                          (r, r-40, r-80), location)
         
 class Goblin(Creature):
     speed = 9
     thirst = 0.01
     
     def __init__(self, location):
-        Creature.__init__(self, 'goblin', [Material(Meat, 0.05)], location)
+        Creature.__init__(self, 'goblin', [Material(Meat, 0.05)],
+                          (32, 64+randint(0,127),64+randint(0,127)), location)
 
 class Tortoise(Creature):
     speed = 100
     thirst = 0.1
     
     def __init__(self, location):
-        Creature.__init__(self, 'tortoise', [Material(Meat, 0.3)], location)
+        d = randint(-20,10)
+        Creature.__init__(self, 'tortoise', [Material(Meat, 0.3)],
+                          (188+d,168+d,138+d), location)
 
 class SmallSpider(Creature):
     speed = 5
     thirst = 0.0001
     
     def __init__(self, location):
-        Creature.__init__(self, 'spider-small', [Material(Meat, 0.0001)], location)
+        Creature.__init__(self, 'spider-small', [Material(Meat, 0.0001)],
+                          (95, randint(0,40), 0), location)
 
 class World(object):
     def __init__(self, space, items, creatures):
