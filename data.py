@@ -140,14 +140,24 @@ class Acquire(Task):
     def requirements(self):
         if self.nearest is not None:
             return []
-        
+
+        test = None
+        if self.target.fluid:
+            test = lambda item: (isinstance(item, Storage) and
+                                 len(item.contents) == 1 and
+                                 isinstance(item.contents[0], self.target))
+        else:
+            test = lambda item: isinstance(item, self.target)
+
         try:
             self.nearest = sorted([item for item in self.world.items
-                          if not item.reserved],
-               key=lambda item: sqrt(
-                   sum([(self.subject.location[i]-item.location[i])**2
-                        for i in range(2)]))
-                                  if item.location is not None else float('inf'))[0]
+                                   if item.location is not None and
+                                   not item.reserved and
+                                   test(item)],
+                                  key = lambda item: sqrt(
+                                      sum([(self.subject.location[i]-item.location[i])**2
+                                           for i in range(2)])))[0]
+        
         except IndexError:
             raise TaskImpossible()
 
@@ -178,11 +188,11 @@ class Drink(Task):
             return reqs[0].requirements() + reqs
 
     def work(self):
-        bev = self.subject.inventory.find(lambda item:
-                                          isinstance(item, Storage) and
-                                          item.has(Beverage))
+        vessel = self.subject.inventory.find(lambda item:
+                                             isinstance(item, Storage) and
+                                             item.has(Beverage))
         self.subject.hydration += 36000
-        bev.reserved = False
+        vessel.reserved = False
         return True
 
 class Job(object):
@@ -215,7 +225,7 @@ class Creature(Thing):
         self.rest = randint(0,20)
 
     def step(self, world):
-        self.hydration -= 1
+        self.hydration -= 10
 
         if self.hydration == 0:
             world.creatures.remove(self)
