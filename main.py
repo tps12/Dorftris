@@ -99,8 +99,7 @@ def main():
     for creature in world.creatures:
         sprite = Sprite()
         image = graphics[creature][0].copy()
-        image.fill((randint(0,255),randint(0,255),randint(0,255)),
-                   special_flags=BLEND_ADD)
+        image.fill(creature.color, special_flags=BLEND_ADD)
         sprite.image = Surface(image.get_size())
         sprite.image.fill((0,0,0))
         sprite.image.blit(image, (0,0))

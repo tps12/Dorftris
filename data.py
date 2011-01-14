@@ -298,6 +298,8 @@ class Corpse(Item):
         return _('corpse of {0}').format(self.origins.description())
 
 class Creature(Thing):
+    color = (128,128,128)
+    
     def __init__(self, kind, materials, location):
         Thing.__init__(self, kind, materials)
         self.location = location
