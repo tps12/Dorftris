@@ -289,6 +289,14 @@ class DropExtraItems(Job):
         Job.__init__(self, [DropItems(subject, world,
                                       lambda item: not item.reserved)])
 
+class Corpse(Item):
+    def __init__(self, creature):
+        Item.__init__(self, 'corpse', creature.materials, creature.location)
+        self.origins = creature
+
+    def description(self):
+        return _('{0} corpse').format(self.origins)
+
 class Creature(Thing):
     def __init__(self, kind, materials, location):
         Thing.__init__(self, kind, materials)
@@ -298,12 +306,16 @@ class Creature(Thing):
         self.hydration = randint(9000, 36000)
         self.rest = randint(0, self.speed)
 
+    def die(self, world):
+        world.creatures.remove(self)
+        world.items.append(Corpse(self))
+
     def step(self, world):
         self.hydration -= 1
 
         if self.hydration == 0:
-            world.creatures.remove(self)
-        
+            self.die(world)
+       
         if self.rest > 0:
             self.rest -= 1
         else:
