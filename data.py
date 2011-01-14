@@ -25,6 +25,9 @@ class Entity(object):
     def __init__(self, kind):
         self.kind = kind
 
+    def description(self):
+        return self.kind
+
 class Thing(Entity):
     fluid = False
     

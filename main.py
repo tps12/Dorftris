@@ -145,7 +145,7 @@ def main():
                     sprite.rect.topleft = (x,y)
                     stepped = True
                 if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
-                    descs.append(creature.kind)
+                    descs.append(creature.description())
 
         for item in world.items:
             if item.location is None:
@@ -169,7 +169,7 @@ def main():
             if item in entity_sprites:
                 x, y = tile_location(item.location)
                 if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
-                    descs.append(item.kind)
+                    descs.append(item.description())
 
         sprites.clear(screen, background)
         sprites.draw(screen)
