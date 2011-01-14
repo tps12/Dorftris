@@ -75,6 +75,14 @@ class GoToRandomGoal(Task):
         self.path = self.path[1:]
         return self.path == []
 
+class MagicallyHydrate(Task):
+    def __init__(self, subject):
+        self.subject = subject
+
+    def work(self):
+        self.subject.hydration += 36000
+        return True
+
 class Job(object):
     def __init__(self, tasks):
         self.tasks = tasks
@@ -89,6 +97,10 @@ class Job(object):
 class GoToRandomPlace(Job):
     def __init__(self, subject, world):
         Job.__init__(self, [GoToRandomGoal(subject, world)])
+
+class Hydrate(Job):
+    def __init__(self, subject, world):
+        Job.__init__(self, [MagicallyHydrate(subject)])
 
 class Creature(Thing):
     def __init__(self, kind, location):
@@ -109,7 +121,10 @@ class Creature(Thing):
             self.rest -= 1
         else:
             if self.job is None:
-                self.job = GoToRandomPlace(self, world)
+                if self.hydration < 1000:
+                    self.job = Hydrate(self, world)
+                else:
+                    self.job = GoToRandomPlace(self, world)
 
             if self.job.work():
                 self.job = None
