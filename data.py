@@ -233,7 +233,16 @@ class Drink(Task):
         vessel = self.subject.inventory.find(lambda item:
                                              isinstance(item, Storage) and
                                              item.has(Beverage))
-        self.subject.hydration += 36000
+        
+        bev = vessel.find(lambda item: isinstance(item, Beverage))
+        sip = min(self.subject.thirst, bev.materials[0].amount)
+
+        if sip == bev.materials[0].amount:
+            vessel.remove(bev)
+        else:
+            bev.materials[0].amount -= sip
+        
+        self.subject.hydration += 36000 * (sip / self.subject.thirst)
         vessel.reserved = False
         return True
 
@@ -290,7 +299,7 @@ class Creature(Thing):
         self.rest = randint(0, self.speed)
 
     def step(self, world):
-        self.hydration -= self.thirst
+        self.hydration -= 1
 
         if self.hydration == 0:
             world.creatures.remove(self)
