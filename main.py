@@ -110,19 +110,6 @@ def main():
 
         entity_sprites[creature] = sprite
 
-    for item in world.items:
-        sprite = Sprite()
-        image = graphics[item][0].copy()
-        image.fill((139,69,19), special_flags=BLEND_ADD)
-        sprite.image = Surface(image.get_size())
-        sprite.image.fill((0,0,0))
-        sprite.image.blit(image, (0,0))
-        x, y = tile_location(item.location)
-        sprite.rect = sprite.image.get_rect().move(x, y)
-        sprites.add(sprite)
-
-        entity_sprites[item] = sprite
-
     step = Sound('38874__swuing__footstep_grass.wav')
 
     done = False
@@ -161,9 +148,23 @@ def main():
                     descs.append(creature.kind)
 
         for item in world.items:
-            if item.location is None and item in entity_sprites:
-                sprites.remove(entity_sprites[item])
-                del entity_sprites[item]
+            if item.location is None:
+                if item in entity_sprites:
+                    sprites.remove(entity_sprites[item])
+                    del entity_sprites[item]
+            else:
+                if item not in entity_sprites:
+                    sprite = Sprite()
+                    image = graphics[item][0].copy()
+                    image.fill((139,69,19), special_flags=BLEND_ADD)
+                    sprite.image = Surface(image.get_size())
+                    sprite.image.fill((0,0,0))
+                    sprite.image.blit(image, (0,0))
+                    x, y = tile_location(item.location)
+                    sprite.rect = sprite.image.get_rect().move(x, y)
+                    sprites.add(sprite)
+
+                    entity_sprites[item] = sprite
             
             if item in entity_sprites:
                 x, y = tile_location(item.location)

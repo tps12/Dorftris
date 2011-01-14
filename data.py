@@ -32,6 +32,9 @@ class Thing(Entity):
         Entity.__init__(self, kind)
         self.materials = materials
 
+    def volume(self):
+        return sum([m.amount for m in self.materials])
+
     def mass(self):
         return sum([m.mass() for m in self.materials])
 
@@ -46,6 +49,9 @@ class Item(Thing):
         Thing.__init__(self, kind, materials)
         self.location = location
         self.reserved = False
+
+class OutOfSpace(Exception):
+    pass
 
 class Storage(object):
     def __init__(self, capacity):
@@ -62,6 +68,24 @@ class Storage(object):
                     return value
         return None
 
+    def add(self, item):
+        if (self.capacity - sum([item.volume() for item in self.contents]) >
+            item.volume()):
+            self.contents.append(item)
+        else:
+            raise OutOfSpace()
+
+    def remove(self, item):
+        if item in self.contents:
+            self.contents.remove(item)
+            return True
+        else:
+            for container in [item for item in self.contents
+                              if isinstance(item, Storage)]:
+                if container.remove(item):
+                    return True
+        return False
+
     def has(self, kind):
         return self.find(lambda item: isinstance(item, kind)) is not None
 
@@ -69,6 +93,9 @@ class Container(Item, Storage):
     def __init__(self, kind, materials, location, capacity):
         Item.__init__(self, kind, materials, location)
         Storage.__init__(self, capacity)
+
+    def volume(self):
+        return self.capacity
 
     def mass(self):
         return Thing.mass(self) + sum([item.mass() for item in self.contents])
@@ -172,7 +199,7 @@ class Acquire(Task):
 
     def work(self):
         self.nearest.location = None
-        self.subject.inventory.contents.append(self.nearest)
+        self.subject.inventory.add(self.nearest)
         return True
 
 class Drink(Task):
@@ -195,6 +222,24 @@ class Drink(Task):
         vessel.reserved = False
         return True
 
+class DropItems(Task):
+    def __init__(self, subject, world, test):
+        self.subject = subject
+        self.world = world
+        self.test = test
+
+    def work(self):
+        item = self.subject.inventory.find(self.test)
+        if item is None:
+            return True
+
+        self.subject.inventory.remove(item)
+        
+        item.location = self.subject.location
+        item.reserved = False
+
+        return False
+
 class Job(object):
     def __init__(self, tasks):
         self.tasks = tasks
@@ -213,7 +258,12 @@ class GoToRandomPlace(Job):
 
 class Hydrate(Job):
     def __init__(self, subject, world):
-        Job.__init__(self, [Drink(subject,world)])
+        Job.__init__(self, [Drink(subject, world)])
+
+class DropExtraItems(Job):
+    def __init__(self, subject, world):
+        Job.__init__(self, [DropItems(subject, world,
+                                      lambda item: not item.reserved)])
 
 class Creature(Thing):
     def __init__(self, kind, location):
@@ -232,11 +282,13 @@ class Creature(Thing):
         
         if self.rest > 0:
             self.rest -= 1
-        else:           
+        else:
             try:
                 if self.job is None:
                     if self.hydration < 1000:
                         self.job = Hydrate(self, world)
+                    elif self.inventory.find(lambda item: not item.reserved):
+                        self.job = DropExtraItems(self, world)
                     else:
                         self.job = GoToRandomPlace(self, world)
 
