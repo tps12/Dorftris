@@ -53,7 +53,8 @@ def main():
 
     ground = Entity('ground')
 
-    hex_image = Surface((TILE_WIDTH, TILE_HEIGHT), flags=SRCALPHA)
+    hex_image = Surface((TILE_WIDTH, TILE_HEIGHT),
+                        flags=SRCALPHA)
     draw.lines(hex_image, (0, 0, 0), False,
                   [(TILE_HEIGHT/3,TILE_HEIGHT),
                    (0,TILE_HEIGHT/2),
@@ -79,7 +80,7 @@ def main():
 
     screen.blit(background, (0,0))
 
-    sprites = Group()
+    sprites = LayeredUpdates()
 
     mouse_sprite = Sprite()
     mouse_sprite.image = Surface((TILE_WIDTH, TILE_HEIGHT), flags=SRCALPHA)
@@ -204,7 +205,7 @@ def main():
         tile = location_tile(pos)
         if 0 <= tile[0] < dimensions[0] and 0 <= tile[1] < dimensions[1]:
             if mouse_sprite not in sprites:
-                sprites.add(mouse_sprite)
+                sprites.add(mouse_sprite, layer=1)
             mouse_sprite.rect.topleft = tile_location(tile)
             mouse_sprite.rect.move_ip(-TILE_HEIGHT/3, 0)
 
