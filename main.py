@@ -53,27 +53,38 @@ def main():
 
     ground = Entity('ground')
 
+    hex_image = Surface((TILE_WIDTH, TILE_HEIGHT), flags=SRCALPHA)
+    draw.lines(hex_image, (0, 0, 0), False,
+                  [(TILE_HEIGHT/3,TILE_HEIGHT),
+                   (0,TILE_HEIGHT/2),
+                   (TILE_HEIGHT/3,0),
+                   (TILE_WIDTH,0)],
+                  1)
+
+    grid_image = Surface((TILE_WIDTH, TILE_HEIGHT), flags=SRCALPHA)
+    if False:
+        grid_image.blit(hex_image, (0, 0))
+        grid_image.fill((32,32,32), special_flags=BLEND_ADD)
+
     for x in range(dimensions[0]):
         for y in range(dimensions[1]):
             dirt = choice(graphics[ground]).copy()
             dirt.fill((0,randint(65,189),0), special_flags=BLEND_ADD)
-            background.blit(dirt, tile_location((x,y)))
+
+            location = tile_location((x,y))
+            
+            background.blit(dirt, location)
+
+            background.blit(grid_image, (location[0]-TILE_HEIGHT/3,location[1]))
 
     screen.blit(background, (0,0))
 
     sprites = Group()
 
     mouse_sprite = Sprite()
-    mouse_sprite.image = Surface((TILE_WIDTH * 2, TILE_HEIGHT))
-    draw.polygon(mouse_sprite.image,
-                 (255, 255, 0),
-                  [(TILE_WIDTH/2, 0),
-                   (TILE_WIDTH*3/2, 0),
-                   (TILE_WIDTH*2, TILE_HEIGHT/2),
-                   (TILE_WIDTH*3/2, TILE_HEIGHT),
-                   (TILE_WIDTH/2, TILE_HEIGHT),
-                   (0, TILE_HEIGHT/2)],
-                  1)
+    mouse_sprite.image = Surface((TILE_WIDTH, TILE_HEIGHT), flags=SRCALPHA)
+    mouse_sprite.image.blit(hex_image, (0,0))
+    mouse_sprite.image.fill((255,255,0), special_flags=BLEND_ADD)
     mouse_sprite.rect = mouse_sprite.image.get_rect()
     sprites.add(mouse_sprite)
 
@@ -195,10 +206,14 @@ def main():
             if mouse_sprite not in sprites:
                 sprites.add(mouse_sprite)
             mouse_sprite.rect.topleft = tile_location(tile)
-            mouse_sprite.rect.move_ip(-TILE_WIDTH/2, 0)
+            mouse_sprite.rect.move_ip(-TILE_HEIGHT/3, 0)
+
+            mouse.set_visible(False)
         else:
             if mouse_sprite in sprites:
                 sprites.remove(mouse_sprite)
+
+            mouse.set_visible(True)
 
         sprites.clear(screen, background)
         sprites.draw(screen)
