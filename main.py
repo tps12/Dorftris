@@ -64,9 +64,16 @@ def main():
     sprites = Group()
 
     mouse_sprite = Sprite()
-    mouse_sprite.image = Surface((TILE_WIDTH, TILE_HEIGHT))
-    draw.rect(mouse_sprite.image,
-              (255, 255, 0), mouse_sprite.image.get_rect(), 1)
+    mouse_sprite.image = Surface((TILE_WIDTH * 2, TILE_HEIGHT))
+    draw.polygon(mouse_sprite.image,
+                 (255, 255, 0),
+                  [(TILE_WIDTH/2, 0),
+                   (TILE_WIDTH*3/2, 0),
+                   (TILE_WIDTH*2, TILE_HEIGHT/2),
+                   (TILE_WIDTH*3/2, TILE_HEIGHT),
+                   (TILE_WIDTH/2, TILE_HEIGHT),
+                   (0, TILE_HEIGHT/2)],
+                  1)
     mouse_sprite.rect = mouse_sprite.image.get_rect()
     sprites.add(mouse_sprite)
 
@@ -188,6 +195,7 @@ def main():
             if mouse_sprite not in sprites:
                 sprites.add(mouse_sprite)
             mouse_sprite.rect.topleft = tile_location(tile)
+            mouse_sprite.rect.move_ip(-TILE_WIDTH/2, 0)
         else:
             if mouse_sprite in sprites:
                 sprites.remove(mouse_sprite)
