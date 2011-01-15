@@ -319,6 +319,9 @@ class Creature(Thing):
         self.hydration -= 1
 
         if self.hydration == 0:
+            self.health -= 1
+
+        if self.health == 0:
             self.die(world)
        
         if self.rest > 0:
@@ -342,6 +345,7 @@ class Creature(Thing):
             self.rest = self.speed
 
 class Dwarf(Creature):
+    health = 10
     speed = 11
     thirst = 0.03
     
@@ -351,6 +355,7 @@ class Dwarf(Creature):
                           (r, r-40, r-80), location)
         
 class Goblin(Creature):
+    health = 10
     speed = 9
     thirst = 0.01
     
@@ -359,6 +364,7 @@ class Goblin(Creature):
                           (32, 64+randint(0,127),64+randint(0,127)), location)
 
 class Tortoise(Creature):
+    health = 10
     speed = 100
     thirst = 0.1
     
@@ -368,6 +374,7 @@ class Tortoise(Creature):
                           (188+d,168+d,138+d), location)
 
 class SmallSpider(Creature):
+    health = 10
     speed = 5
     thirst = 0.0001
     

@@ -75,9 +75,7 @@ def main():
             dirt.fill((0,randint(65,189),0), special_flags=BLEND_ADD)
 
             location = tile_location((x,y))
-            
             background.blit(dirt, location)
-
             background.blit(grid_image, (location[0]-TILE_HEIGHT/3,location[1]))
 
     screen.blit(background, (0,0))
