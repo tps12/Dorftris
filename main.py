@@ -63,6 +63,13 @@ def main():
 
     sprites = Group()
 
+    mouse_sprite = Sprite()
+    mouse_sprite.image = Surface((TILE_WIDTH, TILE_HEIGHT))
+    draw.rect(mouse_sprite.image,
+              (255, 255, 0), mouse_sprite.image.get_rect(), 1)
+    mouse_sprite.rect = mouse_sprite.image.get_rect()
+    sprites.add(mouse_sprite)
+
     kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
     class Tile(object):
@@ -175,6 +182,15 @@ def main():
                 x, y = tile_location(item.location)
                 if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
                     descs.append(item.description())
+
+        tile = location_tile(pos)
+        if 0 <= tile[0] < dimensions[0] and 0 <= tile[1] < dimensions[1]:
+            if mouse_sprite not in sprites:
+                sprites.add(mouse_sprite)
+            mouse_sprite.rect.topleft = tile_location(tile)
+        else:
+            if mouse_sprite in sprites:
+                sprites.remove(mouse_sprite)
 
         sprites.clear(screen, background)
         sprites.draw(screen)
