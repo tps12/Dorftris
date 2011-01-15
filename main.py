@@ -83,11 +83,18 @@ def main():
     sprites = LayeredUpdates()
 
     mouse_sprite = Sprite()
-    mouse_sprite.image = Surface((TILE_WIDTH, TILE_HEIGHT), flags=SRCALPHA)
-    mouse_sprite.image.blit(hex_image, (0,0))
+    mouse_sprite.image = Surface((TILE_WIDTH+TILE_HEIGHT/3, TILE_HEIGHT+1),
+                                 flags=SRCALPHA)
+    draw.lines(mouse_sprite.image, (0, 0, 0), True,
+                  [(TILE_HEIGHT/3,TILE_HEIGHT),
+                   (0,TILE_HEIGHT/2),
+                   (TILE_HEIGHT/3,0),
+                   (TILE_WIDTH,0),
+                   (TILE_WIDTH+TILE_HEIGHT/3,TILE_HEIGHT/2),
+                   (TILE_WIDTH,TILE_HEIGHT)],
+                  1)
     mouse_sprite.image.fill((255,255,0), special_flags=BLEND_ADD)
     mouse_sprite.rect = mouse_sprite.image.get_rect()
-    sprites.add(mouse_sprite)
 
     kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
