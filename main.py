@@ -53,19 +53,21 @@ def main():
 
     ground = Entity('ground')
 
-    hex_image = Surface((TILE_WIDTH, TILE_HEIGHT),
+    hex_image = Surface((TILE_WIDTH+TILE_HEIGHT/3, TILE_HEIGHT+1),
                         flags=SRCALPHA)
-    draw.lines(hex_image, (0, 0, 0), False,
+    draw.lines(hex_image, (0, 0, 0), True,
                   [(TILE_HEIGHT/3,TILE_HEIGHT),
                    (0,TILE_HEIGHT/2),
                    (TILE_HEIGHT/3,0),
-                   (TILE_WIDTH,0)],
+                   (TILE_WIDTH,0),
+                   (TILE_WIDTH+TILE_HEIGHT/3,TILE_HEIGHT/2),
+                   (TILE_WIDTH,TILE_HEIGHT)],
                   1)
 
-    grid_image = Surface((TILE_WIDTH, TILE_HEIGHT), flags=SRCALPHA)
+    grid_image = Surface(hex_image.get_size(), flags=SRCALPHA)
     if False:
         grid_image.blit(hex_image, (0, 0))
-        grid_image.fill((32,32,32), special_flags=BLEND_ADD)
+        grid_image.fill((16,16,16), special_flags=BLEND_ADD)
 
     for x in range(dimensions[0]):
         for y in range(dimensions[1]):
