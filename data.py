@@ -315,6 +315,14 @@ class Creature(Thing):
         world.creatures.remove(self)
         world.items.append(Corpse(self))
 
+    def findjob(self, world):
+        if self.hydration < 1000:
+            self.job = Hydrate(self, world)
+        elif self.inventory.find(lambda item: not item.reserved):
+            self.job = DropExtraItems(self, world)
+        else:
+            self.job = GoToRandomPlace(self, world)
+
     def step(self, world):
         self.hydration -= 1
 
@@ -329,12 +337,7 @@ class Creature(Thing):
         else:
             try:
                 if self.job is None:
-                    if self.hydration < 1000:
-                        self.job = Hydrate(self, world)
-                    elif self.inventory.find(lambda item: not item.reserved):
-                        self.job = DropExtraItems(self, world)
-                    else:
-                        self.job = GoToRandomPlace(self, world)
+                    self.findjob(world)
 
                 if self.job.work():
                     self.job = None
