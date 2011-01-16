@@ -1,7 +1,7 @@
 from random import choice, randint
 
 import pygame
-from pygame import display, draw, event, font, mouse, Rect, Surface
+from pygame import display, draw, event, font, key, mouse, Rect, Surface
 from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
@@ -150,20 +150,23 @@ class Renderer(object):
             if e.type == QUIT:
                 self.game.done = True
             elif e.type == KEYDOWN:
+                pressed = key.get_pressed()
+                scroll = 10 if pressed[K_LSHIFT] or pressed[K_RSHIFT] else 1
+                
                 if e.key == K_ESCAPE:
                     self.game.done = True
                 elif e.key == K_SPACE:
                     self.game.paused = not self.game.paused
                 elif e.key == K_UP:
-                    self.offset = (self.offset[0], max(self.offset[1]-1, 0))
+                    self.offset = (self.offset[0], max(self.offset[1]-scroll, 0))
                 elif e.key == K_DOWN:
                     self.offset = (self.offset[0],
-                                   min(self.offset[1]+1,
+                                   min(self.offset[1]+scroll,
                                        self.game.dimensions[1] - self.dimensions[1]))
                 elif e.key == K_LEFT:
-                    self.offset = (max(self.offset[0]-1, 0), self.offset[1])
+                    self.offset = (max(self.offset[0]-2*(scroll+1)/2, 0), self.offset[1])
                 elif e.key == K_RIGHT:
-                    self.offset = (min(self.offset[0]+1,
+                    self.offset = (min(self.offset[0]+2*(scroll+1)/2,
                                        self.game.dimensions[0] - self.dimensions[0]),
                                    self.offset[1])
             elif e.type == VIDEORESIZE:
