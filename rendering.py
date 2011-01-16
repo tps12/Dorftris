@@ -95,19 +95,6 @@ class Renderer(object):
 
         self.entity_sprites = {}
 
-        for creature in self.game.world.creatures:
-            sprite = Sprite()
-            image = self.graphics[creature][0].copy()
-            image.fill(creature.color, special_flags=BLEND_ADD)
-            sprite.image = Surface(image.get_size())
-            sprite.image.fill((0,0,0))
-            sprite.image.blit(image, (0,0))
-            x, y = tile_location(creature.location)
-            sprite.rect = sprite.image.get_rect().move(x, y)
-            self.sprites.add(sprite)
-
-            self.entity_sprites[creature] = sprite
-
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
     def step(self):
@@ -131,6 +118,20 @@ class Renderer(object):
                 # remove its sprite
                 self.sprites.remove(entity_sprites[creature])
                 del self.entity_sprites[creature]
+
+            # if it doesn't have a sprite
+            if creature not in self.entity_sprites:
+                sprite = Sprite()
+                image = self.graphics[creature][0].copy()
+                image.fill(creature.color, special_flags=BLEND_ADD)
+                sprite.image = Surface(image.get_size())
+                sprite.image.fill((0,0,0))
+                sprite.image.blit(image, (0,0))
+                x, y = tile_location(creature.location)
+                sprite.rect = sprite.image.get_rect().move(x, y)
+                self.sprites.add(sprite)
+
+                self.entity_sprites[creature] = sprite
 
             # if it has a sprite
             if creature in self.entity_sprites:
