@@ -32,12 +32,14 @@ class Game(object):
 
         for i in range(20):
             creature = choice(kind)((randint(0,self.dimensions[0]-1),
-                                     randint(0,self.dimensions[1]-1)))
+                                     randint(0,self.dimensions[1]-1),
+                                     1))
             self.world.creatures.append(creature)
 
         for i in range(10):
             self.world.items.append(Barrel((randint(0,self.dimensions[0]-1),
-                                            randint(0,self.dimensions[1]-1)),
+                                            randint(0,self.dimensions[1]-1),
+                                            1),
                                            Oak))
 
         self.done = False

@@ -145,15 +145,15 @@ class GoToRandomGoal(Task):
         self.subject = subject
         self.world = world
         self.path = self.world.space.pathing.find_path(
-            self.subject.location + (1,),
+            self.subject.location,
             tuple([randint(0, self.world.space.get_dimensions()[i]-1)
-                   for i in range(2)]) + (1,))
+                   for i in range(2)]) + (self.subject.location[2],))
 
     def work(self):
         if self.path == []:
             return True
         
-        self.subject.location = self.path[0][0:2]
+        self.subject.location = self.path[0]
         self.path = self.path[1:]
         return self.path == []
 
@@ -162,14 +162,14 @@ class GoToGoal(Task):
         self.subject = subject
         self.world = world
         self.path = self.world.space.pathing.find_path(
-            self.subject.location + (1,),
-            goal + (1,))
+            self.subject.location,
+            goal)
 
     def work(self):
         if self.path == []:
             return True
         
-        self.subject.location = self.path[0][0:2]
+        self.subject.location = self.path[0]
         self.path = self.path[1:]
         return self.path == []
 
@@ -192,14 +192,14 @@ class Follow(Task):
                 return True
             else:
                 self.path = self.world.space.pathing.find_path(
-                    self.subject.location + (1,),
-                    self.target.location + (1,))
+                    self.subject.location,
+                    self.target.location)
 
-        if self.path[-1][0:2] != self.target.location:
+        if self.path[-1] != self.target.location:
             self.path[-1:] = self.world.space.pathing.find_path(
-                self.path[-1] + (1,), self.target.location + (1,))
+                self.path[-1], self.target.location)
 
-        self.subject.location = self.path[0][0:2]
+        self.subject.location = self.path[0]
         self.path = self.path[1:]
         return self.path == []
 
