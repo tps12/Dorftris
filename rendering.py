@@ -38,7 +38,7 @@ class Renderer(object):
                                                              for d in padded]),
                                               HWSURFACE)
 
-        display.set_caption('Hex Grid')
+        display.set_caption(_('Hex Grid'))
 
         self.background = Surface(self.screen.get_size())
         
@@ -47,7 +47,7 @@ class Renderer(object):
         self.uifont = font.Font('FreeMono.ttf', max(TILE_WIDTH, TILE_HEIGHT))
         self.graphics = GlyphGraphics(self.uifont)
 
-        self.pause_notice = self.uifont.render('*** PAUSED ***', True,
+        self.pause_notice = self.uifont.render(_('*** PAUSED ***'), True,
                                                (255,255,255))
         self.pause_notice.fill((255,255,255), special_flags=BLEND_ADD)
 
@@ -139,7 +139,7 @@ class Renderer(object):
         for item in self.game.world.items:
             if item.location is None:
                 if item in self.entity_sprites:
-                    self.sprites.remove(entity_sprites[item])
+                    self.sprites.remove(self.entity_sprites[item])
                     del self.entity_sprites[item]
             else:
                 if item not in self.entity_sprites:
