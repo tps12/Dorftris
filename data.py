@@ -176,6 +176,61 @@ class GoToGoal(Task):
 class TaskImpossible(Exception):
     pass
 
+class Follow(Task):
+    def __init__(self, subject, world, target):
+        self.subject = subject
+        self.world = world
+        self.target = target
+        self.path = []
+
+    def work(self):
+        if self.path == []:
+            if self.subject.location == self.target.location:
+                return True
+            else:
+                self.path = self.world.space.pathing.find_path(
+                    self.subject.location + (1,),
+                    self.target.location + (1,))
+        
+        if self.path[-1][0:2] != self.target.location:
+            self.path[-1:] = self.world.space.pathing.find_path(
+                self.path[-1] + (1,), self.target.location + (1,))
+
+        self.subject.location = self.path[0][0:2]
+        self.path = self.path[1:]
+        return self.path == []
+
+class Attack(Task):
+    def __init__(self, subject, world, target):
+        self.subject = subject
+        self.world = world
+        self.target = target
+        self.nearest = None
+
+    def requirements(self):
+        if self.nearest is not None and self.nearest.health > 0:
+            return []
+
+        try:
+            self.nearest = sorted([c for c in self.world.creatures
+                                   if isinstance(c, self.target)],
+                                  key = lambda item: sqrt(
+                                      sum([(self.subject.location[i]-item.location[i])**2
+                                           for i in range(2)])))[0]
+        
+        except IndexError:
+            raise TaskImpossible()
+
+        if self.nearest.location == self.subject.location:
+            return []
+        else:
+            reqs = [Follow(self.subject, self.world, self.nearest)]
+            return reqs[0].requirements() + reqs
+
+    def work(self):
+        self.nearest.health -= 1
+        return self.nearest.health <= 0
+
 class Acquire(Task):
     def __init__(self, subject, world, target):
         self.subject = subject
@@ -293,6 +348,10 @@ class DropExtraItems(Job):
         Job.__init__(self, [DropItems(subject, world,
                                       lambda item: not item.reserved)])
 
+class SeekAndDestroy(Job):
+    def __init__(self, subject, world):
+        Job.__init__(self, [Attack(subject, world, Dwarf)])
+
 class Corpse(Item):
     def __init__(self, creature):
         Item.__init__(self, 'corpse', creature.materials, creature.location)
@@ -345,7 +404,7 @@ class Creature(Thing):
         if self.hydration == 0:
             self.health -= 1
 
-        if self.health == 0:
+        if self.health <= 0:
             self.die(world)
        
         if self.rest > 0:
@@ -375,15 +434,14 @@ class Dwarf(Creature):
         
 class Goblin(Creature):
     health = 10
+    jobs = sorted(Creature.jobs + [JobOption(SeekAndDestroy, lambda c: True, 10)],
+                  key = JobOption.prioritykey)
     speed = 9
     thirst = 0.01
     
     def __init__(self, location):
         Creature.__init__(self, 'goblin', [Material(Meat, 0.05)],
                           (32, 64+randint(0,127),64+randint(0,127)), location)
-
-    #def findjob(self, world):
-        
 
 class Tortoise(Creature):
     health = 10
