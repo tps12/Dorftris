@@ -97,6 +97,47 @@ class Renderer(object):
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
+    def update(self, entities, pos):
+        descs = []
+        stepped = False
+        
+        for entity in entities:
+            if entity.location is None:
+                if entity in self.entity_sprites:
+                    self.sprites.remove(self.entity_sprites[entity])
+                    del self.entity_sprites[entity]
+            elif entity not in self.entity_sprites:
+                sprite = Sprite()
+
+                if isinstance(entity, Corpse):
+                    image = self.graphics[entity.origins][0].copy()
+                else:
+                    image = self.graphics[entity][0].copy()
+                    
+                image.fill(entity.color, special_flags=BLEND_ADD)
+                    
+                sprite.image = Surface(image.get_size())
+                sprite.image.fill((0,0,0))
+                sprite.image.blit(image, (0,0))
+                x, y = tile_location(entity.location)
+                sprite.rect = sprite.image.get_rect().move(x, y)
+                self.sprites.add(sprite)
+
+                self.entity_sprites[entity] = sprite
+
+            if entity in self.entity_sprites:
+                sprite = self.entity_sprites[entity]
+                x, y = tile_location(entity.location)
+                
+                if sprite.rect.topleft != (x,y):
+                    sprite.rect.topleft = (x,y)
+                    stepped = True
+
+                if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
+                    descs.append(entity.description())
+
+        return descs, stepped
+
     def step(self):
         for e in event.get():
             if e.type == QUIT:
@@ -107,47 +148,9 @@ class Renderer(object):
                 elif e.key == K_SPACE:
                     self.game.paused = not self.game.paused
 
-        stepped = False
-
         pos = mouse.get_pos()
-        descs = []
 
-        for creature in self.game.world.creatures:
-            # if the creature doesn't exist
-            if creature not in self.game.world.creatures:
-                # remove its sprite
-                self.sprites.remove(entity_sprites[creature])
-                del self.entity_sprites[creature]
-
-            # if it doesn't have a sprite
-            if creature not in self.entity_sprites:
-                sprite = Sprite()
-                image = self.graphics[creature][0].copy()
-                image.fill(creature.color, special_flags=BLEND_ADD)
-                sprite.image = Surface(image.get_size())
-                sprite.image.fill((0,0,0))
-                sprite.image.blit(image, (0,0))
-                x, y = tile_location(creature.location)
-                sprite.rect = sprite.image.get_rect().move(x, y)
-                self.sprites.add(sprite)
-
-                self.entity_sprites[creature] = sprite
-
-            # if it has a sprite
-            if creature in self.entity_sprites:
-                sprite = self.entity_sprites[creature]
-                x, y = tile_location(creature.location)
-                
-                # if it's moved
-                if sprite.rect.topleft != (x,y):
-                    # move its sprite
-                    sprite.rect.topleft = (x,y)
-                    stepped = True
-
-                # if it's under the cursor
-                if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
-                    # remember its description
-                    descs.append(creature.description())
+        descs, stepped = self.update(self.game.world.creatures, pos)
 
         for item in self.game.world.items:
             # if the item doesn't exist
