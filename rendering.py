@@ -58,6 +58,10 @@ class Renderer(object):
 
         self.makescreen((1400, 800))
 
+        remainder = [self.game.dimensions[i] - self.dimensions[i]
+                     for i in range(2)]
+        self.offset = tuple([r/2 if r > 0 else 0 for r in remainder])
+
         display.set_caption(_('Hex Grid'))
 
         self.sprites = LayeredUpdates()
