@@ -184,6 +184,9 @@ class Follow(Task):
         self.path = []
 
     def work(self):
+        if self.target not in self.world.creatures:
+            return True
+        
         if self.path == []:
             if self.subject.location == self.target.location:
                 return True
@@ -191,7 +194,7 @@ class Follow(Task):
                 self.path = self.world.space.pathing.find_path(
                     self.subject.location + (1,),
                     self.target.location + (1,))
-        
+
         if self.path[-1][0:2] != self.target.location:
             self.path[-1:] = self.world.space.pathing.find_path(
                 self.path[-1] + (1,), self.target.location + (1,))
@@ -208,7 +211,9 @@ class Attack(Task):
         self.nearest = None
 
     def requirements(self):
-        if self.nearest is not None and self.nearest.health > 0:
+        if (self.nearest is not None and
+            self.nearest.location == self.subject.location and
+            self.nearest.health > 0):
             return []
 
         try:
