@@ -68,7 +68,7 @@ class Renderer(object):
                       1)
 
         self.grid_image = Surface(self.hex_image.get_size(), flags=SRCALPHA)
-        if False: # set true to show grid
+        if True: # set true to show grid
             self.grid_image.blit(self.hex_image, (0, 0))
             self.grid_image.fill((16,16,16), special_flags=BLEND_ADD)
 
