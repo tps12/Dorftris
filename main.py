@@ -148,9 +148,6 @@ def main():
                     done = True
                 elif e.key == K_SPACE:
                     paused = not paused
-                elif e.key == K_d:
-                    import pdb
-                    pdb.set_trace()
 
         stepped = False
 
