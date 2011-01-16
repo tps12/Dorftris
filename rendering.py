@@ -58,10 +58,6 @@ class Renderer(object):
 
         self.makescreen((1400, 800))
 
-        remainder = [self.game.dimensions[i] - self.dimensions[i]
-                     for i in range(2)]
-        self.offset = tuple([r/2 if r > 0 else 0 for r in remainder])
-
         display.set_caption(_('Hex Grid'))
 
         self.sprites = LayeredUpdates()
@@ -77,20 +73,18 @@ class Renderer(object):
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
-    def makescreen(self, size):
-        self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
-
-        tile = location_tile(size)
-        self.dimensions = tile[0]-INFO_WIDTH, tile[1]-STATUS_HEIGHT
-
+    def makebackground(self):
         self.background = Surface(self.screen.get_size())
         
         self.background.fill((0,0,0))
 
         for x in range(self.dimensions[0]):
             for y in range(self.dimensions[1]):
-                dirt = choice(self.graphics[self.ground]).copy()
-                dirt.fill((0,randint(65,189),0), special_flags=BLEND_ADD)
+                tile = self.game.world.space[(self.offset[0] + x,
+                                              self.offset[1] + y,
+                                              1)]
+                dirt = self.graphics[self.ground][tile.varient].copy()
+                dirt.fill((0,tile.shade,0), special_flags=BLEND_ADD)
 
                 location = tile_location((x,y,1))
                 self.background.blit(dirt, location)
@@ -98,6 +92,21 @@ class Renderer(object):
                                      (location[0]-TILE_HEIGHT/3,location[1]))
 
         self.screen.blit(self.background, (0,0))
+
+    def makescreen(self, size):
+        self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
+
+        tile = location_tile(size)
+        self.dimensions = tile[0]-INFO_WIDTH, tile[1]-STATUS_HEIGHT
+
+        try:
+            self.offset
+        except AttributeError:            
+            remainder = [self.game.dimensions[i] - self.dimensions[i]
+                         for i in range(2)]
+            self.offset = tuple([r/2 if r > 0 else 0 for r in remainder])
+
+        self.makebackground()
 
     def visible(self, location):
         return all([self.offset[i] <= location[i] < self.offset[i] + self.dimensions[i]
@@ -159,16 +168,20 @@ class Renderer(object):
                     self.game.paused = not self.game.paused
                 elif e.key == K_UP:
                     self.offset = (self.offset[0], max(self.offset[1]-scroll, 0))
+                    self.makebackground()
                 elif e.key == K_DOWN:
                     self.offset = (self.offset[0],
                                    min(self.offset[1]+scroll,
                                        self.game.dimensions[1] - self.dimensions[1]))
+                    self.makebackground()
                 elif e.key == K_LEFT:
                     self.offset = (max(self.offset[0]-2*(scroll+1)/2, 0), self.offset[1])
+                    self.makebackground()
                 elif e.key == K_RIGHT:
                     self.offset = (min(self.offset[0]+2*(scroll+1)/2,
                                        self.game.dimensions[0] - self.dimensions[0]),
                                    self.offset[1])
+                    self.makebackground()
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
 

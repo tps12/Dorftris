@@ -11,8 +11,13 @@ class Game(object):
         kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
         class Tile(object):
-            def __init__(self, passable):
+            def __init__(self, passable, shade, varient):
                 self.passable = passable
+                self.shade = shade
+                self.varient = varient
+
+            def varient(self):
+                return self.varient
                 
             def is_passable(self):
                 return self.passable
@@ -21,12 +26,17 @@ class Game(object):
             def __init__(self, dim):
                 self.dim = (dim[0], dim[1], dim[2])
                 self.pathing = PathManager(self)
+                self.cache = {}
 
             def get_dimensions(self):
                 return self.dim
 
             def __getitem__(self, loc):
-                return Tile(loc[2] == 1)
+                if loc not in self.cache:
+                    self.cache[loc] = Tile(loc[2] == 1,
+                                           randint(65, 189),
+                                           randint(0,3))
+                return self.cache[loc]
 
         self.world = World(Space(self.dimensions), [], [])
 
