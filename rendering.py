@@ -126,26 +126,41 @@ class Renderer(object):
         descs = []
 
         for creature in self.game.world.creatures:
+            # if the creature doesn't exist
             if creature not in self.game.world.creatures:
+                # remove its sprite
                 self.sprites.remove(entity_sprites[creature])
                 del self.entity_sprites[creature]
 
+            # if it has a sprite
             if creature in self.entity_sprites:
                 sprite = self.entity_sprites[creature]
                 x, y = tile_location(creature.location)
+                
+                # if it's moved
                 if sprite.rect.topleft != (x,y):
+                    # move its sprite
                     sprite.rect.topleft = (x,y)
                     stepped = True
+
+                # if it's under the cursor
                 if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
+                    # remember its description
                     descs.append(creature.description())
 
         for item in self.game.world.items:
+            # if the item doesn't exist
             if item.location is None:
+                # if it has a sprite
                 if item in self.entity_sprites:
+                    # remove the sprite
                     self.sprites.remove(self.entity_sprites[item])
                     del self.entity_sprites[item]
+            # if it does exist
             else:
+                # if it doesn't have a sprite
                 if item not in self.entity_sprites:
+                    # add a sprite for it
                     sprite = Sprite()
 
                     if isinstance(item, Corpse):
@@ -163,10 +178,13 @@ class Renderer(object):
                     self.sprites.add(sprite)
 
                     self.entity_sprites[item] = sprite
-            
+
+            # if it has a sprite
             if item in self.entity_sprites:
                 x, y = tile_location(item.location)
+                # if it's under the cursor
                 if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
+                    # remember it
                     descs.append(item.description())
 
         tile = location_tile(pos)
