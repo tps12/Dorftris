@@ -179,6 +179,12 @@ class Renderer(object):
 
         moved = self.update(self.game.world.items, pos, descs)
 
+        for entity in self.entity_sprites.keys():
+            if (entity not in self.game.world.creatures and
+                entity not in self.game.world.items):
+                self.sprites.remove(self.entity_sprites[entity])
+                del self.entity_sprites[entity]
+
         tile = location_tile(pos)
         if (0 <= tile[0] < self.dimensions[0] and
             0 <= tile[1] < self.dimensions[1]):
