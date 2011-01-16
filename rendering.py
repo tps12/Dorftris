@@ -23,23 +23,13 @@ def tile_location(c):
 def location_tile(c):
     px, py = c
     x = (px - TILE_WIDTH/2)/TILE_WIDTH
-    return x, (py - TILE_HEIGHT/2 - (x&1) * TILE_HEIGHT/2)/TILE_HEIGHT, 1
+    return x, (py - TILE_HEIGHT/2 - (x&1) * TILE_HEIGHT/2)/TILE_HEIGHT
 
 class Renderer(object):
     def __init__(self, game):
         self.game = game
         
         pygame.init()
-
-        self.dimensions = 80, 50
-        
-        padded = (self.dimensions[0] + INFO_WIDTH,
-                  self.dimensions[1] + STATUS_HEIGHT,
-                  1)
-
-        self.makescreen(tile_location([d+1 for d in padded]))
-
-        display.set_caption(_('Hex Grid'))
 
         self.uifont = font.Font('FreeMono.ttf', max(TILE_WIDTH, TILE_HEIGHT))
         self.graphics = GlyphGraphics(self.uifont)
@@ -48,7 +38,7 @@ class Renderer(object):
                                                (255,255,255))
         self.pause_notice.fill((255,255,255), special_flags=BLEND_ADD)
 
-        ground = Entity('ground')
+        self.ground = Entity('ground')
 
         self.hex_image = Surface((TILE_WIDTH+TILE_HEIGHT/3, TILE_HEIGHT+1),
                             flags=SRCALPHA)
@@ -66,17 +56,9 @@ class Renderer(object):
             self.grid_image.blit(self.hex_image, (0, 0))
             self.grid_image.fill((16,16,16), special_flags=BLEND_ADD)
 
-        for x in range(self.dimensions[0]):
-            for y in range(self.dimensions[1]):
-                dirt = choice(self.graphics[ground]).copy()
-                dirt.fill((0,randint(65,189),0), special_flags=BLEND_ADD)
+        self.makescreen((1400, 800))
 
-                location = tile_location((x,y,1))
-                self.background.blit(dirt, location)
-                self.background.blit(self.grid_image,
-                                     (location[0]-TILE_HEIGHT/3,location[1]))
-
-        self.screen.blit(self.background, (0,0))
+        display.set_caption(_('Hex Grid'))
 
         self.sprites = LayeredUpdates()
 
@@ -94,9 +76,24 @@ class Renderer(object):
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
+        self.dimensions = location_tile((size[0]-INFO_WIDTH,
+                                         size[1]-STATUS_HEIGHT))
+
         self.background = Surface(self.screen.get_size())
         
         self.background.fill((0,0,0))
+
+        for x in range(self.dimensions[0]):
+            for y in range(self.dimensions[1]):
+                dirt = choice(self.graphics[self.ground]).copy()
+                dirt.fill((0,randint(65,189),0), special_flags=BLEND_ADD)
+
+                location = tile_location((x,y,1))
+                self.background.blit(dirt, location)
+                self.background.blit(self.grid_image,
+                                     (location[0]-TILE_HEIGHT/3,location[1]))
+
+        self.screen.blit(self.background, (0,0))
 
     def update(self, entities, pos, descs):
         moved = False
@@ -162,7 +159,7 @@ class Renderer(object):
             0 <= tile[1] < self.dimensions[1]):
             if self.mouse_sprite not in self.sprites:
                 self.sprites.add(self.mouse_sprite, layer=1)
-            self.mouse_sprite.rect.topleft = tile_location(tile)
+            self.mouse_sprite.rect.topleft = tile_location(tile + (1,))
             self.mouse_sprite.rect.move_ip(-TILE_HEIGHT/3, 0)
 
             mouse.set_visible(False)
