@@ -97,9 +97,8 @@ class Renderer(object):
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
-    def update(self, entities, pos):
-        descs = []
-        stepped = False
+    def update(self, entities, pos, descs):
+        moved = False
         
         for entity in entities:
             if entity.location is None:
@@ -131,12 +130,12 @@ class Renderer(object):
                 
                 if sprite.rect.topleft != (x,y):
                     sprite.rect.topleft = (x,y)
-                    stepped = True
+                    moved = True
 
                 if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
                     descs.append(entity.description())
 
-        return descs, stepped
+        return moved
 
     def step(self):
         for e in event.get():
@@ -149,47 +148,11 @@ class Renderer(object):
                     self.game.paused = not self.game.paused
 
         pos = mouse.get_pos()
+        descs = []
 
-        descs, stepped = self.update(self.game.world.creatures, pos)
+        moved = self.update(self.game.world.creatures, pos, descs)
 
-        for item in self.game.world.items:
-            # if the item doesn't exist
-            if item.location is None:
-                # if it has a sprite
-                if item in self.entity_sprites:
-                    # remove the sprite
-                    self.sprites.remove(self.entity_sprites[item])
-                    del self.entity_sprites[item]
-            # if it does exist
-            else:
-                # if it doesn't have a sprite
-                if item not in self.entity_sprites:
-                    # add a sprite for it
-                    sprite = Sprite()
-
-                    if isinstance(item, Corpse):
-                        image = self.graphics[item.origins][0].copy()
-                    else:
-                        image = self.graphics[item][0].copy()
-                        
-                    image.fill(item.color, special_flags=BLEND_ADD)
-                        
-                    sprite.image = Surface(image.get_size())
-                    sprite.image.fill((0,0,0))
-                    sprite.image.blit(image, (0,0))
-                    x, y = tile_location(item.location)
-                    sprite.rect = sprite.image.get_rect().move(x, y)
-                    self.sprites.add(sprite)
-
-                    self.entity_sprites[item] = sprite
-
-            # if it has a sprite
-            if item in self.entity_sprites:
-                x, y = tile_location(item.location)
-                # if it's under the cursor
-                if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
-                    # remember it
-                    descs.append(item.description())
+        moved = self.update(self.game.world.items, pos, descs)
 
         tile = location_tile(pos)
         if (0 <= tile[0] < self.dimensions[0] and
@@ -221,7 +184,7 @@ class Renderer(object):
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
 
-        if stepped:
+        if moved:
             self.stepsound.play()
 
         display.flip()
