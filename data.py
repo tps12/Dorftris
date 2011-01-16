@@ -416,15 +416,15 @@ class Creature(Thing):
         if self.rest > 0:
             self.rest -= 1
         else:
-            try:
+            try:                
                 if self.job is None:
                     self.findjob(world)
-
+                
                 if self.job.work():
                     self.job = None
                     
             except TaskImpossible:
-                pass
+                self.job = None
                 
             self.rest = self.speed
 
