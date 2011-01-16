@@ -435,7 +435,11 @@ class Dwarf(Creature):
         
 class Goblin(Creature):
     health = 10
-    jobs = sorted(Creature.jobs + [JobOption(SeekAndDestroy, lambda c, w: True, 10)],
+    jobs = sorted(Creature.jobs +
+                  [JobOption(SeekAndDestroy,
+                             lambda c, w: any([isinstance(c, Dwarf)
+                                               for c in w.creatures]),
+                             10)],
                   key = JobOption.prioritykey)
     speed = 9
     thirst = 0.01
