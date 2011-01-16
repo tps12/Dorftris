@@ -372,11 +372,11 @@ class JobOption(object):
 
 class Creature(Thing):
     jobs = sorted([
-                   JobOption(Hydrate, lambda c: c.hydration < 1000, 0),
+                   JobOption(Hydrate, lambda c, w: c.hydration < 1000, 0),
                    JobOption(DropExtraItems,
-                             lambda c: c.inventory.find(lambda i:
+                             lambda c, w: c.inventory.find(lambda i:
                                                         not i.reserved), 99),
-                   JobOption(GoToRandomPlace, lambda c: True, 100)
+                   JobOption(GoToRandomPlace, lambda c, w: True, 100)
                    ],
                   key = JobOption.prioritykey)
     
@@ -394,7 +394,8 @@ class Creature(Thing):
         world.items.append(Corpse(self))
 
     def findjob(self, world):
-        job = sorted([option for option in self.jobs if option.condition(self)],
+        job = sorted([option for option in self.jobs
+                      if option.condition(self, world)],
                      key = lambda option: option.priority)[0]
         self.job = job.definition(self, world)
 
@@ -434,7 +435,7 @@ class Dwarf(Creature):
         
 class Goblin(Creature):
     health = 10
-    jobs = sorted(Creature.jobs + [JobOption(SeekAndDestroy, lambda c: True, 10)],
+    jobs = sorted(Creature.jobs + [JobOption(SeekAndDestroy, lambda c, w: True, 10)],
                   key = JobOption.prioritykey)
     speed = 9
     thirst = 0.01
