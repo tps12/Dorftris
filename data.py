@@ -301,7 +301,20 @@ class Corpse(Item):
     def description(self):
         return _('corpse of {0}').format(self.origins.description())
 
+class JobOption(object):
+    def __init__(self, definition, condition, priority):
+        self.definition = definition
+        self.condition = condition
+        self.priority = priority
+
 class Creature(Thing):
+    jobs = [
+        JobOption(Hydrate, lambda c: c.hydration < 1000, 0),
+        JobOption(DropExtraItems,
+                  lambda c: c.inventory.find(lambda i: not i.reserved), 99),
+        JobOption(GoToRandomPlace, lambda c: True, 100)
+        ]
+    
     def __init__(self, kind, materials, color, location):
         Thing.__init__(self, kind, materials)
         self.color = color
@@ -316,12 +329,9 @@ class Creature(Thing):
         world.items.append(Corpse(self))
 
     def findjob(self, world):
-        if self.hydration < 1000:
-            self.job = Hydrate(self, world)
-        elif self.inventory.find(lambda item: not item.reserved):
-            self.job = DropExtraItems(self, world)
-        else:
-            self.job = GoToRandomPlace(self, world)
+        job = sorted([option for option in self.jobs if option.condition(self)],
+                     key = lambda option: option.priority)[0]
+        self.job = job.definition(self, world)
 
     def step(self, world):
         self.hydration -= 1
@@ -365,6 +375,9 @@ class Goblin(Creature):
     def __init__(self, location):
         Creature.__init__(self, 'goblin', [Material(Meat, 0.05)],
                           (32, 64+randint(0,127),64+randint(0,127)), location)
+
+    #def findjob(self, world):
+        
 
 class Tortoise(Creature):
     health = 10
