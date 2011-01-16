@@ -99,11 +99,15 @@ class Renderer(object):
 
         self.screen.blit(self.background, (0,0))
 
+    def visible(self, location):
+        return all([self.offset[i] <= location[i] < self.offset[i] + self.dimensions[i]
+                    for i in range(2)]) and location[2] == 1
+
     def update(self, entities, pos, descs):
         moved = False
         
         for entity in entities:
-            if entity.location is None:
+            if entity.location is None or not self.visible(entity.location):
                 if entity in self.entity_sprites:
                     self.sprites.remove(self.entity_sprites[entity])
                     del self.entity_sprites[entity]
@@ -120,7 +124,8 @@ class Renderer(object):
                 sprite.image = Surface(image.get_size())
                 sprite.image.fill((0,0,0))
                 sprite.image.blit(image, (0,0))
-                x, y = tile_location(entity.location)
+                x, y = tile_location([entity.location[i] - self.offset[i]
+                                      for i in range(2)] + [entity.location[2]])
                 sprite.rect = sprite.image.get_rect().move(x, y)
                 self.sprites.add(sprite)
 
@@ -128,7 +133,8 @@ class Renderer(object):
 
             if entity in self.entity_sprites:
                 sprite = self.entity_sprites[entity]
-                x, y = tile_location(entity.location)
+                x, y = tile_location([entity.location[i] - self.offset[i]
+                                      for i in range(2)] + [entity.location[2]])
                 
                 if sprite.rect.topleft != (x,y):
                     sprite.rect.topleft = (x,y)
@@ -148,6 +154,18 @@ class Renderer(object):
                     self.game.done = True
                 elif e.key == K_SPACE:
                     self.game.paused = not self.game.paused
+                elif e.key == K_UP:
+                    self.offset = (self.offset[0], max(self.offset[1]-1, 0))
+                elif e.key == K_DOWN:
+                    self.offset = (self.offset[0],
+                                   min(self.offset[1]+1,
+                                       self.game.dimensions[1] - self.dimensions[1]))
+                elif e.key == K_LEFT:
+                    self.offset = (max(self.offset[0]-1, 0), self.offset[1])
+                elif e.key == K_RIGHT:
+                    self.offset = (min(self.offset[0]+1,
+                                       self.game.dimensions[0] - self.dimensions[0]),
+                                   self.offset[1])
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
 
