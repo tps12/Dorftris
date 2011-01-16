@@ -302,17 +302,16 @@ class Corpse(Item):
         return _('corpse of {0}').format(self.origins.description())
 
 class JobOption(object):
-    def __init__(self, definition, condition, priority):
+    def __init__(self, definition, condition):
         self.definition = definition
         self.condition = condition
-        self.priority = priority
 
 class Creature(Thing):
     jobs = [
-        JobOption(Hydrate, lambda c: c.hydration < 1000, 0),
+        JobOption(Hydrate, lambda c: c.hydration < 1000),
         JobOption(DropExtraItems,
-                  lambda c: c.inventory.find(lambda i: not i.reserved), 99),
-        JobOption(GoToRandomPlace, lambda c: True, 100)
+                  lambda c: c.inventory.find(lambda i: not i.reserved)),
+        JobOption(GoToRandomPlace, lambda c: True)
         ]
     
     def __init__(self, kind, materials, color, location):
@@ -329,8 +328,7 @@ class Creature(Thing):
         world.items.append(Corpse(self))
 
     def findjob(self, world):
-        job = sorted([option for option in self.jobs if option.condition(self)],
-                     key = lambda option: option.priority)[0]
+        job = [option for option in self.jobs if option.condition(self)][0]
         self.job = job.definition(self, world)
 
     def step(self, world):
