@@ -37,15 +37,9 @@ class Renderer(object):
                   self.dimensions[1] + STATUS_HEIGHT,
                   1)
 
-        self.screen = pygame.display.set_mode(tile_location([d+1
-                                                             for d in padded]),
-                                              HWSURFACE)
+        self.makescreen(tile_location([d+1 for d in padded]))
 
         display.set_caption(_('Hex Grid'))
-
-        self.background = Surface(self.screen.get_size())
-        
-        self.background.fill((0,0,0))
 
         self.uifont = font.Font('FreeMono.ttf', max(TILE_WIDTH, TILE_HEIGHT))
         self.graphics = GlyphGraphics(self.uifont)
@@ -97,6 +91,13 @@ class Renderer(object):
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
+    def makescreen(self, size):
+        self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
+
+        self.background = Surface(self.screen.get_size())
+        
+        self.background.fill((0,0,0))
+
     def update(self, entities, pos, descs):
         moved = False
         
@@ -146,6 +147,8 @@ class Renderer(object):
                     self.game.done = True
                 elif e.key == K_SPACE:
                     self.game.paused = not self.game.paused
+            elif e.type == VIDEORESIZE:
+                self.makescreen(e.size)
 
         pos = mouse.get_pos()
         descs = []
