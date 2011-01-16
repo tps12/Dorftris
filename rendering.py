@@ -76,8 +76,8 @@ class Renderer(object):
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
-        self.dimensions = location_tile((size[0]-INFO_WIDTH,
-                                         size[1]-STATUS_HEIGHT))
+        tile = location_tile(size)
+        self.dimensions = tile[0]-INFO_WIDTH, tile[1]-STATUS_HEIGHT
 
         self.background = Surface(self.screen.get_size())
         
