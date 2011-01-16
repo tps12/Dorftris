@@ -1,11 +1,13 @@
 class GlyphGraphics(object):
     glyphs = {
+        'bag': u'\u01d2',
         'barrel': u'\u2338',
         'chair': u'\u2441',
         'corpse': u'\u20e0',
         'dwarf': u'\u263a',
         'goblin': u'\u263f',
         'ground': (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
+        'harp': u'\u01f7',
         'pipe': u'\u221b',
         'spider-big': u'\u046a',
         'spider-small': u'\u046b',
