@@ -30,9 +30,11 @@ class Renderer(object):
         self.game = game
         
         pygame.init()
+
+        self.dimensions = 80, 50
         
-        padded = (self.game.dimensions[0] + INFO_WIDTH,
-                  self.game.dimensions[1] + STATUS_HEIGHT)
+        padded = (self.dimensions[0] + INFO_WIDTH,
+                  self.dimensions[1] + STATUS_HEIGHT)
 
         self.screen = pygame.display.set_mode(tile_location([d+1
                                                              for d in padded]),
@@ -69,8 +71,8 @@ class Renderer(object):
             self.grid_image.blit(self.hex_image, (0, 0))
             self.grid_image.fill((16,16,16), special_flags=BLEND_ADD)
 
-        for x in range(self.game.dimensions[0]):
-            for y in range(self.game.dimensions[1]):
+        for x in range(self.dimensions[0]):
+            for y in range(self.dimensions[1]):
                 dirt = choice(self.graphics[ground]).copy()
                 dirt.fill((0,randint(65,189),0), special_flags=BLEND_ADD)
 
@@ -167,8 +169,8 @@ class Renderer(object):
                     descs.append(item.description())
 
         tile = location_tile(pos)
-        if (0 <= tile[0] < self.game.dimensions[0] and
-            0 <= tile[1] < self.game.dimensions[1]):
+        if (0 <= tile[0] < self.dimensions[0] and
+            0 <= tile[1] < self.dimensions[1]):
             if self.mouse_sprite not in self.sprites:
                 self.sprites.add(self.mouse_sprite, layer=1)
             self.mouse_sprite.rect.topleft = tile_location(tile)
@@ -184,14 +186,14 @@ class Renderer(object):
         self.sprites.clear(self.screen, self.background)
         self.sprites.draw(self.screen)
 
-        info_loc = tile_location((self.game.dimensions[0]+1,0))
+        info_loc = tile_location((self.dimensions[0]+1,0))
         self.screen.fill((0,0,0), Rect(info_loc, self.screen.get_size()))
         for d in descs:
             line = self.uifont.render(d, True, (255,255,255))
             self.screen.blit(line, info_loc)
             info_loc = (info_loc[0], info_loc[1] + line.get_height())
 
-        msg_loc = tile_location((0,self.game.dimensions[1]+1))
+        msg_loc = tile_location((0,self.dimensions[1]+1))
         self.screen.fill((0,0,0), Rect(msg_loc, self.pause_notice.get_size()))        
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)

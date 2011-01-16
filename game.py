@@ -6,7 +6,7 @@ from pathing import PathManager
 class Game(object):
     def __init__(self):
      
-        self.dimensions = 80, 50
+        self.dimensions = 128, 128, 128
 
         kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
@@ -19,7 +19,7 @@ class Game(object):
 
         class Space(object):
             def __init__(self, dim):
-                self.dim = (dim[0], dim[1], 2)
+                self.dim = (dim[0], dim[1], dim[2])
                 self.pathing = PathManager(self)
 
             def get_dimensions(self):
