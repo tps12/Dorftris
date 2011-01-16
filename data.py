@@ -307,6 +307,10 @@ class JobOption(object):
         self.condition = condition
         self.priority = priority
 
+    @staticmethod
+    def prioritykey(option):
+        return option.priority
+
 class Creature(Thing):
     jobs = sorted([
                    JobOption(Hydrate, lambda c: c.hydration < 1000, 0),
@@ -315,7 +319,7 @@ class Creature(Thing):
                                                         not i.reserved), 99),
                    JobOption(GoToRandomPlace, lambda c: True, 100)
                    ],
-                  key = lambda o: o.priority)
+                  key = JobOption.prioritykey)
     
     def __init__(self, kind, materials, color, location):
         Thing.__init__(self, kind, materials)
