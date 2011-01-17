@@ -5,6 +5,7 @@ class GlyphGraphics(object):
             'air': u'\u00b7',
             'bag': u'\u01d2',
             'barrel': u'\u2338',
+            'branch': (u'\u2b06',u'\u2b07',u'\u2b08',u'\u2b09',u'\u2b0a',u'\u2b0b'),
             'chair': u'\u2441',
             'corpse': u'\u20e0',
             'dwarf': u'\u263a',

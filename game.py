@@ -29,14 +29,44 @@ class Game(object):
                 self.pathing = PathManager(self)
                 self.cache = {}
 
-                self.trees = {}
                 for i in range(20):
                     self.maketree((randint(0, self.dim[0]-1),
                                    randint(0, self.dim[1]-1),
                                    1))
 
             def maketree(self, loc):
-                self.cache[loc] = Tile('tree-trunk', False, Oak.color[1], 0)
+                surround = self.pathing.adjacent_xy(loc[0:2])
+                height = randint(6,18)
+                branch = None
+                for i in range(height):
+                    trunk = (loc[0], loc[1], loc[2] + i)
+                    self.cache[trunk] = Tile('tree-trunk', False,
+                                             Oak.color[1], 0)
+                    if i > 3:
+                        branch = choice([b for b in surround
+                                         if b != branch] + [None])
+                        if branch is not None:
+                            varient = -1
+                            if branch[0] == loc[0]:
+                                if branch[1] == loc[1] - 1:
+                                    varient = 1
+                                elif branch[1] == loc[1] + 1:
+                                    varient = 0
+                            elif branch[0] < loc[0]:
+                                if branch[1] >= loc[1]:
+                                    varient = 2
+                                elif branch[1] <= loc[1]:
+                                    varient = 4
+                            elif branch[0] > loc[0]:
+                                if branch[1] >= loc[1]:
+                                    varient = 3
+                                elif branch[1] <= loc[1]:
+                                    varient = 5
+                            self.cache[branch + (loc[2]+i,)] = Tile('branch',
+                                                                    False,
+                                                                    Oak.color[1],
+                                                                    varient)
+                                                                          
 
             def get_dimensions(self):
                 return self.dim

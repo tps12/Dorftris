@@ -99,7 +99,7 @@ class Renderer(object):
                         foundation = self.game.world.space[(self.offset[0] + x,
                                                             self.offset[1] + y,
                                                             self.level - 1)]
-                        if not foundation.is_passable():
+                        if not foundation.is_passable() and foundation.kind is None:
                             dirt = self.graphics[self.ground][foundation.varient].copy()
                             dirt.fill((0,foundation.shade,0), special_flags=BLEND_ADD)
 
@@ -129,6 +129,10 @@ class Renderer(object):
                         rings = self.graphics[tile][2].copy()
                         rings.fill(Oak.color, special_flags=BLEND_ADD)
                         image.blit(rings, (0,0))
+                        self.background.blit(image, location)
+                    else:
+                        image = self.graphics[tile][tile.varient].copy()
+                        image.fill(Oak.color, special_flags=BLEND_ADD)
                         self.background.blit(image, location)
 
                 self.background.blit(self.grid_image,
