@@ -101,23 +101,23 @@ class Renderer(object):
                         foundation = self.game.world.space[(self.offset[0] + x,
                                                             self.offset[1] + y,
                                                             self.level - 1)]
-                        if not foundation.is_passable() and foundation.kind is None:
-                            dirt = self.graphics[self.ground][foundation.varient].copy()
-                            dirt.fill(foundation.color, special_flags=BLEND_ADD)
+                        if not foundation.is_passable():
+                            if foundation.kind is None:
+                                dirt = self.graphics[self.ground][foundation.varient].copy()
+                                dirt.fill(foundation.color, special_flags=BLEND_ADD)
 
-                            self.background.blit(dirt, location)
-                        elif self.level > 1:
-                            if not foundation.is_passable():
+                                self.background.blit(dirt, location)
+                            else:
                                 air = self.graphics[self.air][0].copy()
                                 air.fill(foundation.color, special_flags=BLEND_ADD)
 
                                 self.background.blit(air, location)
-                            else:
-                                space = self.hex_fill.copy()
+                        else:
+                            space = self.hex_fill.copy()
 
-                                self.background.blit(space,
-                                                     (location[0]-TILE_HEIGHT/3,
-                                                      location[1]))
+                            self.background.blit(space,
+                                                 (location[0]-TILE_HEIGHT/3,
+                                                  location[1]))
                 elif tile.kind is not None:
                     if tile.kind == 'tree-trunk':
                         image = self.graphics[tile][0].copy()
