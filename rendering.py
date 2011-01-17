@@ -46,7 +46,7 @@ class Renderer(object):
         gfxdraw.polygon(self.hex_image, self.hexpoints(), (0, 0, 0))
 
         self.hex_fill = Surface(self.hex_image.get_size(), flags=SRCALPHA)
-        gfxdraw.filled_polygon(self.hex_fill, self.hexpoints(), (0, 170, 170))
+        gfxdraw.filled_polygon(self.hex_fill, self.hexpoints(), (0, 85, 85))
 
         self.grid_image = Surface(self.hex_image.get_size(), flags=SRCALPHA)
         if True: # set true to show grid
