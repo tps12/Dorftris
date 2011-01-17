@@ -12,8 +12,7 @@ class GlyphGraphics(object):
         'pipe': u'\u221b',
         'spider-big': u'\u046a',
         'spider-small': u'\u046b',
-        'tree-trunk-exterior': u'\u2b21',
-        'tree-trunk-interior': u'\u2b22',
+        'tree-trunk': (u'\u2b22', u'\u2b21'),
         'tortoise': u'\u237e'
         }
 

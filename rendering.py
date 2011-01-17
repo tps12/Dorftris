@@ -6,7 +6,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Corpse, Entity
+from data import Corpse, Entity, OakTree
 from glyphs import GlyphGraphics
 
 TILE_WIDTH = 16
@@ -158,7 +158,14 @@ class Renderer(object):
                     image = self.graphics[entity][0].copy()
                     
                 image.fill(entity.color, special_flags=BLEND_ADD)
-                    
+
+                if isinstance(entity, OakTree):
+                    image = self.graphics[entity][0].copy()
+                    image.fill((150,110,50), special_flags=BLEND_ADD)
+                    exterior = self.graphics[entity][1].copy()
+                    exterior.fill(entity.color, special_flags=BLEND_ADD)
+                    image.blit(exterior, (0,0))
+                
                 sprite.image = Surface(image.get_size())
                 sprite.image.fill((0,0,0))
                 sprite.image.blit(image, (0,0))
