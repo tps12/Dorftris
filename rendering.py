@@ -56,6 +56,8 @@ class Renderer(object):
             self.grid_image.blit(self.hex_image, (0, 0))
             self.grid_image.fill((16,16,16), special_flags=BLEND_ADD)
 
+        self.level = 1
+
         self.makescreen((1400, 800))
 
         display.set_caption(_('Hex Grid'))
@@ -82,11 +84,11 @@ class Renderer(object):
             for y in range(self.dimensions[1]):
                 tile = self.game.world.space[(self.offset[0] + x,
                                               self.offset[1] + y,
-                                              1)]
+                                              self.level)]
                 dirt = self.graphics[self.ground][tile.varient].copy()
                 dirt.fill((0,tile.shade,0), special_flags=BLEND_ADD)
 
-                location = tile_location((x,y,1))
+                location = tile_location((x,y,self.level))
                 self.background.blit(dirt, location)
                 self.background.blit(self.grid_image,
                                      (location[0]-TILE_HEIGHT/3,location[1]))
@@ -110,7 +112,7 @@ class Renderer(object):
 
     def visible(self, location):
         return all([self.offset[i] <= location[i] < self.offset[i] + self.dimensions[i]
-                    for i in range(2)]) and location[2] == 1
+                    for i in range(2)]) and location[2] == self.level
 
     def update(self, entities, pos, descs):
         moved = False
@@ -216,14 +218,14 @@ class Renderer(object):
         self.sprites.clear(self.screen, self.background)
         self.sprites.draw(self.screen)
 
-        info_loc = tile_location((self.dimensions[0]+1,0,1))
+        info_loc = tile_location((self.dimensions[0]+1,0,self.level))
         self.screen.fill((0,0,0), Rect(info_loc, self.screen.get_size()))
         for d in descs:
             line = self.uifont.render(d, True, (255,255,255))
             self.screen.blit(line, info_loc)
             info_loc = (info_loc[0], info_loc[1] + line.get_height())
 
-        msg_loc = tile_location((0,self.dimensions[1]+1,1))
+        msg_loc = tile_location((0,self.dimensions[1]+1,self.level))
         self.screen.fill((0,0,0), Rect(msg_loc, self.pause_notice.get_size()))        
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
