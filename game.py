@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice, randint, sample
 
 from data import Barrel, Corpse, Dwarf, Entity, Goblin, Oak, SmallSpider, Thing, Tortoise, World
 from pathing import PathManager
@@ -66,7 +66,19 @@ class Game(object):
                                                                     False,
                                                                     Oak.color,
                                                                     varient)
-                                                                          
+                    if i > 2:
+                        available = [s for s in surround
+                                     if s + (loc[2]+i,) not in self.cache]
+                        leaves = sample(available, len(available)-1)
+                        for leaf in leaves:
+                            self.cache[leaf + (loc[2]+i,)] = Tile('leaves',
+                                                                  False,
+                                                                  (0,randint(65,189),0),
+                                                                  0)
+                self.cache[loc[0:2] + (height+1,)] = Tile('leaves',
+                                                          False,
+                                                          (0,randint(65,189),0),
+                                                          0)
 
             def get_dimensions(self):
                 return self.dim
