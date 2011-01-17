@@ -1,6 +1,6 @@
 from random import choice, randint
 
-from data import Barrel, Corpse, Dwarf, Entity, Goblin, Oak, OakTree, SmallSpider, Thing, Tortoise, World
+from data import Barrel, Corpse, Dwarf, Entity, Goblin, Oak, SmallSpider, Thing, Tortoise, World
 from pathing import PathManager
 
 class Game(object):
@@ -11,7 +11,8 @@ class Game(object):
         kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
         class Tile(object):
-            def __init__(self, passable, shade, varient):
+            def __init__(self, kind, passable, shade, varient):
+                self.kind = kind
                 self.passable = passable
                 self.shade = shade
                 self.varient = varient
@@ -28,12 +29,19 @@ class Game(object):
                 self.pathing = PathManager(self)
                 self.cache = {}
 
+                self.trees = {}
+                for i in range(20):
+                    self.trees[(randint(0, self.dim[0]-1),
+                                randint(0, self.dim[1]-1),
+                                1)] = True
+
             def get_dimensions(self):
                 return self.dim
 
             def __getitem__(self, loc):
                 if loc not in self.cache:
-                    self.cache[loc] = Tile(loc[2] >= 1,
+                    self.cache[loc] = Tile('tree-trunk' if loc in self.trees else None,
+                                           loc[2] >= 1 and loc not in self.trees,
                                            randint(65, 189),
                                            randint(0,3))
                 return self.cache[loc]
@@ -51,13 +59,7 @@ class Game(object):
                                             randint(0,self.dimensions[1]-1),
                                             1),
                                            Oak))
-
-        for i in range(20):
-            loc = (randint(0,self.dimensions[0]-1),
-                   randint(0,self.dimensions[1]-1),
-                   1)
-            self.world.items.append(OakTree(loc))
-
+            
         self.done = False
         self.paused = False
 

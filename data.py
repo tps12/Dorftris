@@ -64,10 +64,6 @@ class Item(Thing):
         self.location = location
         self.reserved = False
 
-class OakTree(Item):
-    def __init__(self, location):
-        Item.__init__(self, 'tree-trunk', [Material(Oak, 0)], location)
-
 class OutOfSpace(Exception):
     pass
 

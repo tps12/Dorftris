@@ -11,6 +11,7 @@ class GlyphGraphics(object):
             'goblin': u'\u263f',
             'ground': (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
             'harp': u'\u01f7',
+            'leaves': u'\u2042',
             'pipe': u'\u221b',
             'spider-big': u'\u046a',
             'spider-small': u'\u046b',

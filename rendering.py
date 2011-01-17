@@ -6,7 +6,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Corpse, Entity, OakTree
+from data import Corpse, Entity, Oak
 from glyphs import GlyphGraphics
 
 TILE_WIDTH = 16
@@ -68,7 +68,7 @@ class Renderer(object):
         gfxdraw.filled_polygon(self.hex_fill, self.hexpoints(), (0, 85, 85))
 
         self.grid_image = Surface(self.hex_image.get_size(), flags=SRCALPHA)
-        if True: # set true to show grid
+        if False: # set true to show grid
             self.grid_image.blit(self.hex_image, (0, 0))
             self.grid_image.fill((16,16,16), special_flags=BLEND_ADD)
 
@@ -119,7 +119,18 @@ class Renderer(object):
                                 self.background.blit(space,
                                                      (location[0]-TILE_HEIGHT/3,
                                                       location[1]))
-                    
+                elif tile.kind is not None:
+                    if tile.kind == 'tree-trunk':
+                        image = self.graphics[tile][0].copy()
+                        image.fill((150,110,50), special_flags=BLEND_ADD)
+                        exterior = self.graphics[tile][1].copy()
+                        exterior.fill(Oak.color, special_flags=BLEND_ADD)
+                        image.blit(exterior, (0,0))
+                        rings = self.graphics[tile][2].copy()
+                        rings.fill(Oak.color, special_flags=BLEND_ADD)
+                        image.blit(rings, (0,0))
+                        self.background.blit(image, location)
+
                 self.background.blit(self.grid_image,
                                      (location[0]-TILE_HEIGHT/3,location[1]))
 
@@ -161,16 +172,6 @@ class Renderer(object):
                     image = self.graphics[entity][0].copy()
                     
                 image.fill(entity.color, special_flags=BLEND_ADD)
-
-                if isinstance(entity, OakTree):
-                    image = self.graphics[entity][0].copy()
-                    image.fill((150,110,50), special_flags=BLEND_ADD)
-                    exterior = self.graphics[entity][1].copy()
-                    exterior.fill(entity.color, special_flags=BLEND_ADD)
-                    image.blit(exterior, (0,0))
-                    rings = self.graphics[entity][2].copy()
-                    rings.fill(entity.color, special_flags=BLEND_ADD)
-                    image.blit(rings, (0,0))
                 
                 sprite.image = Surface(image.get_size())
                 sprite.image.fill((0,0,0))
