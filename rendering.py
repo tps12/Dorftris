@@ -1,7 +1,7 @@
 from random import choice, randint
 
 import pygame
-from pygame import display, draw, event, font, key, mouse, Rect, Surface
+from pygame import display, event, font, gfxdraw, key, mouse, Rect, Surface
 from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
@@ -43,7 +43,10 @@ class Renderer(object):
 
         self.hex_image = Surface((TILE_WIDTH+TILE_HEIGHT/3, TILE_HEIGHT+1),
                             flags=SRCALPHA)
-        draw.lines(self.hex_image, (0, 0, 0), True, self.hexpoints(), 1)
+        gfxdraw.polygon(self.hex_image, self.hexpoints(), (0, 0, 0))
+
+        self.hex_fill = Surface(self.hex_image.get_size(), flags=SRCALPHA)
+        gfxdraw.filled_polygon(self.hex_fill, self.hexpoints(), (0, 170, 170))
 
         self.grid_image = Surface(self.hex_image.get_size(), flags=SRCALPHA)
         if True: # set true to show grid
@@ -107,6 +110,12 @@ class Renderer(object):
                                 air.fill((0,below.shade,0), special_flags=BLEND_ADD)
 
                                 self.background.blit(air, location)
+                            else:
+                                space = self.hex_fill.copy()
+
+                                self.background.blit(space,
+                                                     (location[0]-TILE_HEIGHT/3,
+                                                      location[1]))
                     
                 self.background.blit(self.grid_image,
                                      (location[0]-TILE_HEIGHT/3,location[1]))
