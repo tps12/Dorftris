@@ -31,17 +31,20 @@ class Game(object):
 
                 self.trees = {}
                 for i in range(20):
-                    self.trees[(randint(0, self.dim[0]-1),
-                                randint(0, self.dim[1]-1),
-                                1)] = True
+                    self.maketree((randint(0, self.dim[0]-1),
+                                   randint(0, self.dim[1]-1),
+                                   1))
+
+            def maketree(self, loc):
+                self.cache[loc] = Tile('tree-trunk', False, Oak.color[1], 0)
 
             def get_dimensions(self):
                 return self.dim
 
             def __getitem__(self, loc):
                 if loc not in self.cache:
-                    self.cache[loc] = Tile('tree-trunk' if loc in self.trees else None,
-                                           loc[2] >= 1 and loc not in self.trees,
+                    self.cache[loc] = Tile(None,
+                                           loc[2] >= 1,
                                            randint(65, 189),
                                            randint(0,3))
                 return self.cache[loc]
