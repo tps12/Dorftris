@@ -15,16 +15,6 @@ TILE_HEIGHT = 18
 INFO_WIDTH = 20
 STATUS_HEIGHT = 2
 
-def tile_location(c):
-    x, y, z = c
-    return (TILE_WIDTH/2 + x * TILE_WIDTH,
-            TILE_HEIGHT/2 + y * TILE_HEIGHT + (x&1) * TILE_HEIGHT/2)
-
-def location_tile(c):
-    px, py = c
-    x = (px - TILE_WIDTH/2)/TILE_WIDTH
-    return x, (py - TILE_HEIGHT/2 - (x&1) * TILE_HEIGHT/2)/TILE_HEIGHT
-
 class Renderer(object):
     def __init__(self, game):
         self.game = game
@@ -40,6 +30,16 @@ class Renderer(object):
         display.set_caption(_('Hex Grid'))
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
+
+    def tile_location(self, c):
+        x, y, z = c
+        return (TILE_WIDTH/2 + x * TILE_WIDTH,
+                TILE_HEIGHT/2 + y * TILE_HEIGHT + (x&1) * TILE_HEIGHT/2)
+
+    def location_tile(self, c):
+        px, py = c
+        x = (px - TILE_WIDTH/2)/TILE_WIDTH
+        return x, (py - TILE_HEIGHT/2 - (x&1) * TILE_HEIGHT/2)/TILE_HEIGHT
 
     def hexpoints(self):
         return [(TILE_HEIGHT/3,TILE_HEIGHT),
@@ -90,7 +90,7 @@ class Renderer(object):
 
         for x in range(self.dimensions[0]):
             for y in range(self.dimensions[1]):
-                location = tile_location((x,y,self.level))
+                location = self.tile_location((x,y,self.level))
                 tile = self.game.world.space[(self.offset[0] + x,
                                               self.offset[1] + y,
                                               self.level)]
@@ -156,7 +156,7 @@ class Renderer(object):
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
-        tile = location_tile(size)
+        tile = self.location_tile(size)
         self.dimensions = tile[0]-INFO_WIDTH, tile[1]-STATUS_HEIGHT
 
         try:
@@ -193,8 +193,9 @@ class Renderer(object):
                 sprite.image = Surface(image.get_size())
                 sprite.image.fill((0,0,0))
                 sprite.image.blit(image, (0,0))
-                x, y = tile_location([entity.location[i] - self.offset[i]
-                                      for i in range(2)] + [entity.location[2]])
+                x, y = self.tile_location([entity.location[i] - self.offset[i]
+                                           for i in range(2)] +
+                                          [entity.location[2]])
                 sprite.rect = sprite.image.get_rect().move(x, y)
                 self.sprites.add(sprite)
 
@@ -202,8 +203,9 @@ class Renderer(object):
 
             if entity in self.entity_sprites:
                 sprite = self.entity_sprites[entity]
-                x, y = tile_location([entity.location[i] - self.offset[i]
-                                      for i in range(2)] + [entity.location[2]])
+                x, y = self.tile_location([entity.location[i] - self.offset[i]
+                                           for i in range(2)] +
+                                          [entity.location[2]])
                 
                 if sprite.rect.topleft != (x,y):
                     sprite.rect.topleft = (x,y)
@@ -216,7 +218,7 @@ class Renderer(object):
 
     def step(self):
         pos = mouse.get_pos()
-        tile = location_tile(pos)
+        tile = self.location_tile(pos)
         if not (0 <= tile[0] < self.dimensions[0] and
                 0 <= tile[1] < self.dimensions[1]):
             tile = None
@@ -264,7 +266,7 @@ class Renderer(object):
                     self.definetiles()
 
                     if tile is not None:
-                        newtile = location_tile(pos)
+                        newtile = self.location_tile(pos)
                         if (0 <= newtile[0] < self.dimensions[0] and
                             0 <= newtile[1] < self.dimensions[1]):
                             self.offset = tuple(
@@ -279,7 +281,7 @@ class Renderer(object):
                     self.definetiles()
 
                     if tile is not None:
-                        newtile = location_tile(pos)
+                        newtile = self.location_tile(pos)
                         if (0 <= newtile[0] < self.dimensions[0] and
                             0 <= newtile[1] < self.dimensions[1]):
                             self.offset = tuple(
@@ -306,7 +308,8 @@ class Renderer(object):
         if tile is not None:
             if self.mouse_sprite not in self.sprites:
                 self.sprites.add(self.mouse_sprite, layer=1)
-            self.mouse_sprite.rect.topleft = tile_location(tile + (self.level,))
+            self.mouse_sprite.rect.topleft = self.tile_location(
+                tile + (self.level,))
             self.mouse_sprite.rect.move_ip(-TILE_HEIGHT/3, 0)
 
             mouse.set_visible(False)
@@ -319,14 +322,14 @@ class Renderer(object):
         self.sprites.clear(self.screen, self.background)
         self.sprites.draw(self.screen)
 
-        info_loc = tile_location((self.dimensions[0]+1,0,self.level))
+        info_loc = self.tile_location((self.dimensions[0]+1,0,self.level))
         self.screen.fill((0,0,0), Rect(info_loc, self.screen.get_size()))
         for d in descs:
             line = self.uifont.render(d, True, (255,255,255))
             self.screen.blit(line, info_loc)
             info_loc = (info_loc[0], info_loc[1] + line.get_height())
 
-        msg_loc = tile_location((0,self.dimensions[1]+1,self.level))
+        msg_loc = self.tile_location((0,self.dimensions[1]+1,self.level))
         self.screen.fill((0,0,0), Rect(msg_loc, self.pause_notice.get_size()))        
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
