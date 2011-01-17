@@ -228,6 +228,17 @@ class Renderer(object):
                 elif e.unicode == '<':
                     self.level = min(self.level+1, self.game.dimensions[2])
                     self.makebackground()
+            elif e.type == MOUSEBUTTONUP:
+                global TILE_WIDTH
+                global TILE_HEIGHT
+                if e.button == 4:
+                    TILE_WIDTH += 2
+                    TILE_HEIGHT += 2
+                    self.makescreen(self.screen.get_size())
+                elif e.button == 5:
+                    TILE_WIDTH = max(TILE_WIDTH - 2, 2)
+                    TILE_HEIGHT = max(TILE_HEIGHT - 2, 4)
+                    self.makescreen(self.screen.get_size())
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
 
