@@ -101,7 +101,7 @@ class Renderer(object):
                                                             self.level - 1)]
                         if not foundation.is_passable() and foundation.kind is None:
                             dirt = self.graphics[self.ground][foundation.varient].copy()
-                            dirt.fill((0,foundation.shade,0), special_flags=BLEND_ADD)
+                            dirt.fill(foundation.color, special_flags=BLEND_ADD)
 
                             self.background.blit(dirt, location)
                         elif self.level > 1:
@@ -110,7 +110,7 @@ class Renderer(object):
                                                            self.level - 2)]
                             if not below.is_passable():
                                 air = self.graphics[self.air][0].copy()
-                                air.fill((0,below.shade,0), special_flags=BLEND_ADD)
+                                air.fill(below.color, special_flags=BLEND_ADD)
 
                                 self.background.blit(air, location)
                             else:
@@ -132,7 +132,7 @@ class Renderer(object):
                         self.background.blit(image, location)
                     else:
                         image = self.graphics[tile][tile.varient].copy()
-                        image.fill(Oak.color, special_flags=BLEND_ADD)
+                        image.fill(tile.color, special_flags=BLEND_ADD)
                         self.background.blit(image, location)
 
                 self.background.blit(self.grid_image,

@@ -11,10 +11,10 @@ class Game(object):
         kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
         class Tile(object):
-            def __init__(self, kind, passable, shade, varient):
+            def __init__(self, kind, passable, color, varient):
                 self.kind = kind
                 self.passable = passable
-                self.shade = shade
+                self.color = color
                 self.varient = varient
 
             def varient(self):
@@ -41,7 +41,7 @@ class Game(object):
                 for i in range(height):
                     trunk = (loc[0], loc[1], loc[2] + i)
                     self.cache[trunk] = Tile('tree-trunk', False,
-                                             Oak.color[1], 0)
+                                             Oak.color, 0)
                     if i > 3:
                         branch = choice([b for b in surround
                                          if b != branch] + [None])
@@ -64,7 +64,7 @@ class Game(object):
                                     varient = 5 # NE
                             self.cache[branch + (loc[2]+i,)] = Tile('branch',
                                                                     False,
-                                                                    Oak.color[1],
+                                                                    Oak.color,
                                                                     varient)
                                                                           
 
@@ -75,7 +75,7 @@ class Game(object):
                 if loc not in self.cache:
                     self.cache[loc] = Tile(None,
                                            loc[2] >= 1,
-                                           randint(65, 189),
+                                           (0,randint(65, 189),0),
                                            randint(0,3))
                 return self.cache[loc]
 
