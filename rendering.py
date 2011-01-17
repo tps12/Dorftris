@@ -165,6 +165,9 @@ class Renderer(object):
                     exterior = self.graphics[entity][1].copy()
                     exterior.fill(entity.color, special_flags=BLEND_ADD)
                     image.blit(exterior, (0,0))
+                    rings = self.graphics[entity][2].copy()
+                    rings.fill(entity.color, special_flags=BLEND_ADD)
+                    image.blit(rings, (0,0))
                 
                 sprite.image = Surface(image.get_size())
                 sprite.image.fill((0,0,0))
