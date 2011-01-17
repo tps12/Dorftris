@@ -144,10 +144,12 @@ class GoToRandomGoal(Task):
     def __init__(self, subject, world):
         self.subject = subject
         self.world = world
+        goal = None
+        while goal is None or not self.world.space[goal].is_passable():
+            goal = tuple([randint(0, self.world.space.get_dimensions()[i]-1)
+                          for i in range(2)]) + (self.subject.location[2],)
         self.path = self.world.space.pathing.find_path(
-            self.subject.location,
-            tuple([randint(0, self.world.space.get_dimensions()[i]-1)
-                   for i in range(2)]) + (self.subject.location[2],))
+            self.subject.location, goal)
 
     def work(self):
         if self.path == []:

@@ -107,7 +107,7 @@ class PathManager:
         between Z levels doesn't carry any additional cost, walls and cliffs
         are just like obstacles.
         
-        """       
+        """
         for p in (a,b):
             for i in range(3):
                 if p[i] < 0 or p[i] >= self.dim[i]:
@@ -141,9 +141,6 @@ class PathManager:
                     heappush(o, (g+h, h, (n, cur))) # h included as tie-breaker
 
             loops = loops + 1
-
-            if loops > self.dim[0] * self.dim[1] * self.dim[2]:
-                print 'stuck', loops
         else:
             return None
 
