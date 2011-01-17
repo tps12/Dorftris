@@ -9,9 +9,6 @@ from pygame.sprite import *
 from data import Corpse, Entity
 from glyphs import GlyphGraphics
 
-TILE_WIDTH = 16
-TILE_HEIGHT = 18
-
 INFO_WIDTH = 20
 STATUS_HEIGHT = 2
 
@@ -20,6 +17,9 @@ class Renderer(object):
         self.game = game
         
         pygame.init()
+
+        self.tile_width = 16
+        self.tile_height = 18
 
         self.definetiles()
         
@@ -33,24 +33,24 @@ class Renderer(object):
 
     def tile_location(self, c):
         x, y, z = c
-        return (TILE_WIDTH/2 + x * TILE_WIDTH,
-                TILE_HEIGHT/2 + y * TILE_HEIGHT + (x&1) * TILE_HEIGHT/2)
+        return (self.tile_width/2 + x * self.tile_width,
+                self.tile_height/2 + y * self.tile_height + (x&1) * self.tile_height/2)
 
     def location_tile(self, c):
         px, py = c
-        x = (px - TILE_WIDTH/2)/TILE_WIDTH
-        return x, (py - TILE_HEIGHT/2 - (x&1) * TILE_HEIGHT/2)/TILE_HEIGHT
+        x = (px - self.tile_width/2)/self.tile_width
+        return x, (py - self.tile_height/2 - (x&1) * self.tile_height/2)/self.tile_height
 
     def hexpoints(self):
-        return [(TILE_HEIGHT/3,TILE_HEIGHT),
-                (0,TILE_HEIGHT/2),
-                (TILE_HEIGHT/3,0),
-                (TILE_WIDTH,0),
-                (TILE_WIDTH+TILE_HEIGHT/3,TILE_HEIGHT/2),
-                (TILE_WIDTH,TILE_HEIGHT)]
+        return [(self.tile_height/3,self.tile_height),
+                (0,self.tile_height/2),
+                (self.tile_height/3,0),
+                (self.tile_width,0),
+                (self.tile_width+self.tile_height/3,self.tile_height/2),
+                (self.tile_width,self.tile_height)]
 
     def definetiles(self):
-        self.uifont = font.Font('FreeMono.ttf', max(TILE_WIDTH, TILE_HEIGHT))
+        self.uifont = font.Font('FreeMono.ttf', max(self.tile_width, self.tile_height))
         self.graphics = GlyphGraphics(self.uifont)
 
         self.pause_notice = self.uifont.render(_('*** PAUSED ***'), True,
@@ -60,7 +60,7 @@ class Renderer(object):
         self.air = Entity('air')
         self.ground = Entity('ground')
 
-        self.hex_image = Surface((TILE_WIDTH+TILE_HEIGHT/3, TILE_HEIGHT+1),
+        self.hex_image = Surface((self.tile_width+self.tile_height/3, self.tile_height+1),
                             flags=SRCALPHA)
         gfxdraw.polygon(self.hex_image, self.hexpoints(), (0, 0, 0))
 
@@ -128,7 +128,7 @@ class Renderer(object):
                                 space = self.hex_fill.copy()
 
                                 self.background.blit(space,
-                                                     (location[0]-TILE_HEIGHT/3,
+                                                     (location[0]-self.tile_height/3,
                                                       location[1]))
                                 
                 elif tile.kind is not None:
@@ -149,7 +149,7 @@ class Renderer(object):
                         self.background.blit(image, location)
 
                 self.background.blit(self.grid_image,
-                                     (location[0]-TILE_HEIGHT/3,location[1]))
+                                     (location[0]-self.tile_height/3,location[1]))
 
         self.screen.blit(self.background, (0,0))
 
@@ -211,7 +211,7 @@ class Renderer(object):
                     sprite.rect.topleft = (x,y)
                     moved = True
 
-                if Rect(x, y, TILE_WIDTH, TILE_HEIGHT).collidepoint(pos):
+                if Rect(x, y, self.tile_width, self.tile_height).collidepoint(pos):
                     descs.append(entity.description())
 
         return moved
@@ -258,11 +258,9 @@ class Renderer(object):
                     self.level = min(self.level+1, self.game.dimensions[2])
                     self.makebackground()
             elif e.type == MOUSEBUTTONUP:
-                global TILE_WIDTH
-                global TILE_HEIGHT
                 if e.button == 4:
-                    TILE_WIDTH += 2
-                    TILE_HEIGHT += 2
+                    self.tile_width += 2
+                    self.tile_height += 2
                     self.definetiles()
 
                     if tile is not None:
@@ -276,8 +274,8 @@ class Renderer(object):
                     self.makescreen(self.screen.get_size())
                     
                 elif e.button == 5:
-                    TILE_WIDTH = max(TILE_WIDTH - 2, 2)
-                    TILE_HEIGHT = max(TILE_HEIGHT - 2, 4)
+                    self.tile_width = max(self.tile_width - 2, 2)
+                    self.tile_height = max(self.tile_height - 2, 4)
                     self.definetiles()
 
                     if tile is not None:
@@ -310,7 +308,7 @@ class Renderer(object):
                 self.sprites.add(self.mouse_sprite, layer=1)
             self.mouse_sprite.rect.topleft = self.tile_location(
                 tile + (self.level,))
-            self.mouse_sprite.rect.move_ip(-TILE_HEIGHT/3, 0)
+            self.mouse_sprite.rect.move_ip(-self.tile_height/3, 0)
 
             mouse.set_visible(False)
         else:
