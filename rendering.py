@@ -197,6 +197,12 @@ class Renderer(object):
         return moved
 
     def step(self):
+        pos = mouse.get_pos()
+        tile = location_tile(pos)
+        if not (0 <= tile[0] < self.dimensions[0] and
+                0 <= tile[1] < self.dimensions[1]):
+            tile = None
+
         for e in event.get():
             if e.type == QUIT:
                 self.game.done = True
@@ -247,7 +253,6 @@ class Renderer(object):
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
 
-        pos = mouse.get_pos()
         descs = []
 
         moved = self.update(self.game.world.creatures, pos, descs)
@@ -260,9 +265,7 @@ class Renderer(object):
                 self.sprites.remove(self.entity_sprites[entity])
                 del self.entity_sprites[entity]
 
-        tile = location_tile(pos)
-        if (0 <= tile[0] < self.dimensions[0] and
-            0 <= tile[1] < self.dimensions[1]):
+        if tile is not None:
             if self.mouse_sprite not in self.sprites:
                 self.sprites.add(self.mouse_sprite, layer=1)
             self.mouse_sprite.rect.topleft = tile_location(tile + (self.level,))
