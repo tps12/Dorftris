@@ -244,12 +244,32 @@ class Renderer(object):
                     TILE_WIDTH += 2
                     TILE_HEIGHT += 2
                     self.definetiles()
+
+                    if tile is not None:
+                        newtile = location_tile(pos)
+                        if (0 <= newtile[0] < self.dimensions[0] and
+                            0 <= newtile[1] < self.dimensions[1]):
+                            self.offset = tuple(
+                                [self.offset[i] - (newtile[i] - tile[i])
+                                 for i in range(2)])
+                    
                     self.makescreen(self.screen.get_size())
+                    
                 elif e.button == 5:
                     TILE_WIDTH = max(TILE_WIDTH - 2, 2)
                     TILE_HEIGHT = max(TILE_HEIGHT - 2, 4)
                     self.definetiles()
+
+                    if tile is not None:
+                        newtile = location_tile(pos)
+                        if (0 <= newtile[0] < self.dimensions[0] and
+                            0 <= newtile[1] < self.dimensions[1]):
+                            self.offset = tuple(
+                                [self.offset[i] - (newtile[i] - tile[i])
+                                 for i in range(2)])
+
                     self.makescreen(self.screen.get_size())
+                    
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
 
