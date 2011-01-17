@@ -107,12 +107,9 @@ class Renderer(object):
 
                             self.background.blit(dirt, location)
                         elif self.level > 1:
-                            below = self.game.world.space[(self.offset[0] + x,
-                                                           self.offset[1] + y,
-                                                           self.level - 2)]
-                            if not below.is_passable():
+                            if not foundation.is_passable():
                                 air = self.graphics[self.air][0].copy()
-                                air.fill(below.color, special_flags=BLEND_ADD)
+                                air.fill(foundation.color, special_flags=BLEND_ADD)
 
                                 self.background.blit(air, location)
                             else:

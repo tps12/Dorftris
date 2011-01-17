@@ -141,6 +141,9 @@ class PathManager:
                     heappush(o, (g+h, h, (n, cur))) # h included as tie-breaker
 
             loops = loops + 1
+
+            if loops > self.dim[0] * self.dim[1] * self.dim[2]:
+                print 'stuck', loops
         else:
             return None
 
