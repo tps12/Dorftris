@@ -162,7 +162,8 @@ class Renderer(object):
                 self.game.done = True
             elif e.type == KEYDOWN:
                 pressed = key.get_pressed()
-                scroll = 10 if pressed[K_LSHIFT] or pressed[K_RSHIFT] else 1
+                shifted = pressed[K_LSHIFT] or pressed[K_RSHIFT]
+                scroll = 10 if shifted else 1
                 
                 if e.key == K_ESCAPE:
                     self.game.done = True
@@ -183,6 +184,12 @@ class Renderer(object):
                     self.offset = (min(self.offset[0]+2*(scroll+1)/2,
                                        self.game.dimensions[0] - self.dimensions[0]),
                                    self.offset[1])
+                    self.makebackground()
+                elif e.unicode == '>':
+                    self.level = max(self.level-1, 0)
+                    self.makebackground()
+                elif e.unicode == '<':
+                    self.level = min(self.level+1, self.game.dimensions[2])
                     self.makebackground()
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
