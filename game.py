@@ -1,6 +1,6 @@
 from random import choice, randint
 
-from data import Barrel, Corpse, Dwarf, Entity, Goblin, Oak, SmallSpider, Thing, Tortoise, World
+from data import Barrel, Corpse, Dwarf, Entity, Goblin, Oak, OakTreeInterior, OakTreeExterior, SmallSpider, Thing, Tortoise, World
 from pathing import PathManager
 
 class Game(object):
@@ -51,6 +51,13 @@ class Game(object):
                                             randint(0,self.dimensions[1]-1),
                                             1),
                                            Oak))
+
+        for i in range(20):
+            loc = (randint(0,self.dimensions[0]-1),
+                   randint(0,self.dimensions[1]-1),
+                   1)
+            self.world.items.append(OakTreeInterior(loc))
+            self.world.items.append(OakTreeExterior(loc))
 
         self.done = False
         self.paused = False
