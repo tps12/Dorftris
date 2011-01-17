@@ -49,19 +49,19 @@ class Game(object):
                             varient = -1
                             if branch[0] == loc[0]:
                                 if branch[1] == loc[1] - 1:
-                                    varient = 1
-                                elif branch[1] == loc[1] + 1:
-                                    varient = 0
+                                    varient = 1 # N
+                                else:
+                                    varient = 0 # S
                             elif branch[0] < loc[0]:
-                                if branch[1] >= loc[1]:
-                                    varient = 2
-                                elif branch[1] <= loc[1]:
-                                    varient = 4
-                            elif branch[0] > loc[0]:
-                                if branch[1] >= loc[1]:
-                                    varient = 3
-                                elif branch[1] <= loc[1]:
-                                    varient = 5
+                                if branch[1] == loc[1] + (loc[0]&1):
+                                    varient = 2 # SW
+                                else:
+                                    varient = 4 # NW
+                            else:
+                                if branch[1] == loc[1] + (loc[0]&1):
+                                    varient = 3 # SE
+                                else:
+                                    varient = 5 # NE
                             self.cache[branch + (loc[2]+i,)] = Tile('branch',
                                                                     False,
                                                                     Oak.color[1],
