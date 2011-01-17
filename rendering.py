@@ -6,7 +6,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Corpse, Entity, Oak
+from data import Corpse, Entity
 from glyphs import GlyphGraphics
 
 TILE_WIDTH = 16
@@ -124,12 +124,13 @@ class Renderer(object):
                 elif tile.kind is not None:
                     if tile.kind == 'tree-trunk':
                         image = self.graphics[tile][0].copy()
-                        image.fill((150,110,50), special_flags=BLEND_ADD)
+                        image.fill(tile.color, special_flags=BLEND_ADD)
+                        image.fill((48,48,48), special_flags=BLEND_ADD)
                         exterior = self.graphics[tile][1].copy()
-                        exterior.fill(Oak.color, special_flags=BLEND_ADD)
+                        exterior.fill(tile.color, special_flags=BLEND_ADD)
                         image.blit(exterior, (0,0))
                         rings = self.graphics[tile][2].copy()
-                        rings.fill(Oak.color, special_flags=BLEND_ADD)
+                        rings.fill(tile.color, special_flags=BLEND_ADD)
                         image.blit(rings, (0,0))
                         self.background.blit(image, location)
                     else:
