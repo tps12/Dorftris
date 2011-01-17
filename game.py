@@ -33,7 +33,7 @@ class Game(object):
 
             def __getitem__(self, loc):
                 if loc not in self.cache:
-                    self.cache[loc] = Tile(loc[2] == 1,
+                    self.cache[loc] = Tile(loc[2] >= 1,
                                            randint(65, 189),
                                            randint(0,3))
                 return self.cache[loc]

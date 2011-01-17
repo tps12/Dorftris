@@ -38,6 +38,7 @@ class Renderer(object):
                                                (255,255,255))
         self.pause_notice.fill((255,255,255), special_flags=BLEND_ADD)
 
+        self.air = Entity('air')
         self.ground = Entity('ground')
 
         self.hex_image = Surface((TILE_WIDTH+TILE_HEIGHT/3, TILE_HEIGHT+1),
@@ -82,14 +83,30 @@ class Renderer(object):
 
         for x in range(self.dimensions[0]):
             for y in range(self.dimensions[1]):
+                location = tile_location((x,y,self.level))
                 tile = self.game.world.space[(self.offset[0] + x,
                                               self.offset[1] + y,
                                               self.level)]
-                dirt = self.graphics[self.ground][tile.varient].copy()
-                dirt.fill((0,tile.shade,0), special_flags=BLEND_ADD)
+                if tile.is_passable():
+                    if self.level > 0:
+                        foundation = self.game.world.space[(self.offset[0] + x,
+                                                            self.offset[1] + y,
+                                                            self.level - 1)]
+                        if not foundation.is_passable():
+                            dirt = self.graphics[self.ground][foundation.varient].copy()
+                            dirt.fill((0,foundation.shade,0), special_flags=BLEND_ADD)
 
-                location = tile_location((x,y,self.level))
-                self.background.blit(dirt, location)
+                            self.background.blit(dirt, location)
+                        elif self.level > 1:
+                            below = self.game.world.space[(self.offset[0] + x,
+                                                           self.offset[1] + y,
+                                                           self.level - 2)]
+                            if not below.is_passable():
+                                air = self.graphics[self.air][0].copy()
+                                air.fill((0,below.shade,0), special_flags=BLEND_ADD)
+
+                                self.background.blit(air, location)
+                    
                 self.background.blit(self.grid_image,
                                      (location[0]-TILE_HEIGHT/3,location[1]))
 
@@ -212,7 +229,7 @@ class Renderer(object):
             0 <= tile[1] < self.dimensions[1]):
             if self.mouse_sprite not in self.sprites:
                 self.sprites.add(self.mouse_sprite, layer=1)
-            self.mouse_sprite.rect.topleft = tile_location(tile + (1,))
+            self.mouse_sprite.rect.topleft = tile_location(tile + (self.level,))
             self.mouse_sprite.rect.move_ip(-TILE_HEIGHT/3, 0)
 
             mouse.set_visible(False)
