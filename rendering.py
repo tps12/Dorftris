@@ -43,14 +43,7 @@ class Renderer(object):
 
         self.hex_image = Surface((TILE_WIDTH+TILE_HEIGHT/3, TILE_HEIGHT+1),
                             flags=SRCALPHA)
-        draw.lines(self.hex_image, (0, 0, 0), True,
-                      [(TILE_HEIGHT/3,TILE_HEIGHT),
-                       (0,TILE_HEIGHT/2),
-                       (TILE_HEIGHT/3,0),
-                       (TILE_WIDTH,0),
-                       (TILE_WIDTH+TILE_HEIGHT/3,TILE_HEIGHT/2),
-                       (TILE_WIDTH,TILE_HEIGHT)],
-                      1)
+        draw.lines(self.hex_image, (0, 0, 0), True, self.hexpoints(), 1)
 
         self.grid_image = Surface(self.hex_image.get_size(), flags=SRCALPHA)
         if True: # set true to show grid
@@ -76,6 +69,14 @@ class Renderer(object):
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
+    def hexpoints(self):
+        return [(TILE_HEIGHT/3,TILE_HEIGHT),
+                (0,TILE_HEIGHT/2),
+                (TILE_HEIGHT/3,0),
+                (TILE_WIDTH,0),
+                (TILE_WIDTH+TILE_HEIGHT/3,TILE_HEIGHT/2),
+                (TILE_WIDTH,TILE_HEIGHT)]
+    
     def makebackground(self):
         self.background = Surface(self.screen.get_size())
         
