@@ -84,6 +84,9 @@ class Game(object):
                 return self.dim
 
             def __getitem__(self, loc):
+                if not all([0 <= loc[i] < self.dim[i] for i in range(3)]):
+                    return None
+                
                 if loc not in self.cache:
                     self.cache[loc] = Tile(None,
                                            loc[2] >= 1,

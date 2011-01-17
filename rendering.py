@@ -94,6 +94,8 @@ class Renderer(object):
                 tile = self.game.world.space[(self.offset[0] + x,
                                               self.offset[1] + y,
                                               self.level)]
+                if tile is None:
+                    continue
                 if tile.is_passable():
                     if self.level > 0:
                         foundation = self.game.world.space[(self.offset[0] + x,
