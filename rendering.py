@@ -237,10 +237,12 @@ class Renderer(object):
                 if e.button == 4:
                     TILE_WIDTH += 2
                     TILE_HEIGHT += 2
+                    self.definetiles()
                     self.makescreen(self.screen.get_size())
                 elif e.button == 5:
                     TILE_WIDTH = max(TILE_WIDTH - 2, 2)
                     TILE_HEIGHT = max(TILE_HEIGHT - 2, 4)
+                    self.definetiles()
                     self.makescreen(self.screen.get_size())
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
