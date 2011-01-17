@@ -113,11 +113,24 @@ class Renderer(object):
 
                                 self.background.blit(air, location)
                         else:
-                            space = self.hex_fill.copy()
+                            drawn = False
+                            if self.level > 1:
+                                below = self.game.world.space[(self.offset[0]+x,
+                                                               self.offset[1]+y,
+                                                               self.level-2)]
+                                if not below.is_passable() and below.kind is None:
+                                    air = self.graphics[self.air][0].copy()
+                                    air.fill(below.color, special_flags=BLEND_ADD)
+                                    self.background.blit(air, location)
+                                    drawn = True
 
-                            self.background.blit(space,
-                                                 (location[0]-TILE_HEIGHT/3,
-                                                  location[1]))
+                            if not drawn:
+                                space = self.hex_fill.copy()
+
+                                self.background.blit(space,
+                                                     (location[0]-TILE_HEIGHT/3,
+                                                      location[1]))
+                                
                 elif tile.kind is not None:
                     if tile.kind == 'tree-trunk':
                         image = self.graphics[tile][0].copy()
