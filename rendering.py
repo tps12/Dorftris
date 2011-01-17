@@ -31,6 +31,25 @@ class Renderer(object):
         
         pygame.init()
 
+        self.definetiles()
+        
+        self.level = 1
+
+        self.makescreen((1400, 800))
+
+        display.set_caption(_('Hex Grid'))
+
+        self.stepsound = Sound('38874__swuing__footstep_grass.wav')
+
+    def hexpoints(self):
+        return [(TILE_HEIGHT/3,TILE_HEIGHT),
+                (0,TILE_HEIGHT/2),
+                (TILE_HEIGHT/3,0),
+                (TILE_WIDTH,0),
+                (TILE_WIDTH+TILE_HEIGHT/3,TILE_HEIGHT/2),
+                (TILE_WIDTH,TILE_HEIGHT)]
+
+    def definetiles(self):
         self.uifont = font.Font('FreeMono.ttf', max(TILE_WIDTH, TILE_HEIGHT))
         self.graphics = GlyphGraphics(self.uifont)
 
@@ -53,12 +72,6 @@ class Renderer(object):
             self.grid_image.blit(self.hex_image, (0, 0))
             self.grid_image.fill((16,16,16), special_flags=BLEND_ADD)
 
-        self.level = 1
-
-        self.makescreen((1400, 800))
-
-        display.set_caption(_('Hex Grid'))
-
         self.sprites = LayeredUpdates()
 
         self.mouse_sprite = Sprite()
@@ -69,16 +82,6 @@ class Renderer(object):
         self.mouse_sprite.rect = self.mouse_sprite.image.get_rect()
 
         self.entity_sprites = {}
-
-        self.stepsound = Sound('38874__swuing__footstep_grass.wav')
-
-    def hexpoints(self):
-        return [(TILE_HEIGHT/3,TILE_HEIGHT),
-                (0,TILE_HEIGHT/2),
-                (TILE_HEIGHT/3,0),
-                (TILE_WIDTH,0),
-                (TILE_WIDTH+TILE_HEIGHT/3,TILE_HEIGHT/2),
-                (TILE_WIDTH,TILE_HEIGHT)]
     
     def makebackground(self):
         self.background = Surface(self.screen.get_size())
