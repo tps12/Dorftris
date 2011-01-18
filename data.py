@@ -330,6 +330,32 @@ class DropItems(Task):
 
         return False
 
+class AttemptDigDesignation(Task):
+    def __init__(self, subject, world):
+        self.subject = subject
+        self.world = world
+        self.designation = self.world.designations.pop(0)
+
+    def requirements(self):
+        x, y, z = self.designation
+        for loc in [(x,y,z+1)] + [(x,y,z)
+                                  for x,y in
+                                  self.world.space.pathing.adjacent_xy((x,y))]:
+            if self.subject.location == loc:
+                return []
+            elif self.world.space[loc].is_passable():
+                reqs = [GoToGoal(self.subject, self.world, loc)]
+                return reqs[0].requirements() + reqs
+
+        self.world.designations.append(self.designation)
+
+        raise TaskImpossible()
+
+    def work(self):
+        self.world.space[self.designation].passable = True
+        print 'dug', self.designation
+        return True
+
 class Job(object):
     def __init__(self, tasks):
         self.tasks = tasks
@@ -358,6 +384,10 @@ class DropExtraItems(Job):
 class SeekAndDestroy(Job):
     def __init__(self, subject, world):
         Job.__init__(self, [Attack(subject, world, Dwarf)])
+
+class DigDesignation(Job):
+    def __init__(self, subject, world):
+        Job.__init__(self, [AttemptDigDesignation(subject, world)])
 
 class Corpse(Item):
     def __init__(self, creature):
@@ -432,6 +462,11 @@ class Creature(Thing):
 
 class Dwarf(Creature):
     health = 10
+    jobs = sorted(Creature.jobs +
+                  [JobOption(DigDesignation,
+                             lambda c, w: len(w.designations) > 0,
+                             10)],
+                  key = JobOption.prioritykey)
     speed = 11
     thirst = 0.03
     
@@ -479,3 +514,4 @@ class World(object):
         self.space = space
         self.items = items
         self.creatures = creatures
+        self.designations = []

@@ -258,7 +258,19 @@ class Renderer(object):
                     self.level = min(self.level+1, self.game.dimensions[2])
                     self.makebackground()
             elif e.type == MOUSEBUTTONUP:
-                if e.button == 4:
+                if e.button == 1:
+                    if tile is not None:
+                        x, y, z = (self.offset[0] + tile[0],
+                                   self.offset[1] + tile[1],
+                                   self.level)
+                        target = self.game.world.space[(x,y,z)]
+                        if target.is_passable() and z > 0:
+                            z -= 1
+                            target = self.game.world.space[(x,y,z)]
+                        if not target.is_passable():
+                            self.game.world.designations.append((x,y,z))
+                    
+                elif e.button == 4:
                     self.tile_width += 2
                     self.tile_height += 2
                     self.definetiles()
