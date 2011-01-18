@@ -303,6 +303,10 @@ class Renderer(object):
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
 
+        if self.game.world.space.changed:
+            self.makebackground()
+            self.game.world.space.changed = False
+
         descs = []
 
         moved = self.update(self.game.world.creatures, pos, descs)

@@ -28,6 +28,7 @@ class Game(object):
                 self.dim = (dim[0], dim[1], dim[2])
                 self.pathing = PathManager(self)
                 self.cache = {}
+                self.changed = False
 
                 for i in range(20):
                     self.maketree((randint(0, self.dim[0]-1),
@@ -96,6 +97,7 @@ class Game(object):
 
             def remove(self, loc):
                 self.cache[loc] = Tile(None, True, (0,0,0), 0)
+                self.changed = True
 
         self.world = World(Space(self.dimensions), [], [])
 
