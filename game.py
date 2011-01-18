@@ -94,6 +94,9 @@ class Game(object):
                                            randint(0,3))
                 return self.cache[loc]
 
+            def remove(self, loc):
+                self.cache[loc] = Tile(None, True, (0,0,0), 0)
+
         self.world = World(Space(self.dimensions), [], [])
 
         for i in range(20):

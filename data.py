@@ -353,8 +353,7 @@ class AttemptDigDesignation(Task):
         raise TaskImpossible()
 
     def work(self):
-        self.world.space[self.designation].passable = True
-        print 'dug', self.designation
+        self.world.space.remove(self.designation)
         return True
 
 class Job(object):
