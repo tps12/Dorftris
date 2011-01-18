@@ -23,7 +23,7 @@ class Renderer(object):
 
         self.definetiles()
         
-        self.level = 1
+        self.level = 64
 
         self.makescreen((1400, 800))
 

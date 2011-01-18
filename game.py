@@ -89,7 +89,7 @@ class Game(object):
                 
                 if loc not in self.cache:
                     self.cache[loc] = Tile(None,
-                                           loc[2] >= 1,
+                                           loc[2] >= 64,
                                            (0,randint(65, 189),0),
                                            randint(0,3))
                 return self.cache[loc]
@@ -102,13 +102,13 @@ class Game(object):
         for i in range(20):
             creature = choice(kind)((randint(0,self.dimensions[0]-1),
                                      randint(0,self.dimensions[1]-1),
-                                     1))
+                                     64))
             self.world.creatures.append(creature)
 
         for i in range(10):
             self.world.items.append(Barrel((randint(0,self.dimensions[0]-1),
                                             randint(0,self.dimensions[1]-1),
-                                            1),
+                                            64),
                                            Oak))
             
         self.done = False
