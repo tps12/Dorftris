@@ -354,6 +354,8 @@ class AttemptDigDesignation(Task):
 
     def work(self):
         self.world.space.remove(self.designation)
+        if self.subject.location[2] == self.designation[2]+1:
+            self.subject.location = self.designation
         return True
 
 class Job(object):
@@ -476,7 +478,7 @@ class Dwarf(Creature):
                           (r, r-40, r-80), location)
         
 class Goblin(Creature):
-    health = 10
+    health = 0
     jobs = sorted(Creature.jobs +
                   [JobOption(SeekAndDestroy,
                              lambda c, w: any([isinstance(c, Dwarf)
