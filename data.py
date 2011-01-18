@@ -1,3 +1,4 @@
+from collections import deque
 from math import sqrt
 from random import randint
 
@@ -334,7 +335,7 @@ class AttemptDigDesignation(Task):
     def __init__(self, subject, world):
         self.subject = subject
         self.world = world
-        self.designation = self.world.designations.pop(0)
+        self.designation = self.world.designations.popleft()
 
     def requirements(self):
         x, y, z = self.designation
@@ -514,4 +515,4 @@ class World(object):
         self.space = space
         self.items = items
         self.creatures = creatures
-        self.designations = []
+        self.designations = deque()
