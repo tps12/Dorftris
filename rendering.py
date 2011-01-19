@@ -258,14 +258,27 @@ class Renderer(object):
     def scroll(self, axis, amount):
         size = self.tile_width if axis == 0 else self.tile_height
 
+        pos, tile = self.mousepos()
+
+        while (tile is not None and
+               ((amount < 0 and
+                 tile[axis] + self.offset[axis] >
+                 self.game.dimensions[axis] - self.dimensions[axis]/2) or
+                (amount > 0 and
+                 tile[axis] + self.offset[axis] <
+                 self.dimensions[axis]/2))):
+            pos, tile = self.mousepos(tuple([pos[i] +
+                                             (size * amount/abs(amount)
+                                              if i == axis else 0)
+                                             for i in range(2)]))
+            amount -= amount/abs(amount)
+
         dest, remainder = self.clamp(
             self.offset[axis] + amount,
             (0, self.game.dimensions[axis] - self.dimensions[axis]))
         
         self.offset = tuple([dest if i == axis else self.offset[i]
                              for i in range(2)])
-
-        pos, tile = self.mousepos()
 
         while tile is not None and ((remainder < 0 and 0 < tile[axis]) or
                (remainder > 0 and tile[axis] < self.dimensions[axis]-1)):
