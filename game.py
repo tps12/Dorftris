@@ -89,9 +89,17 @@ class Game(object):
                     return None
                 
                 if loc not in self.cache:
+                    shade = randint(65, 189)
+                    if loc[2] == 63:
+                        color = (0,shade,0)
+                    elif loc[2] >= 61:
+                        color = (shade,shade/2,0)
+                    else:
+                        color = (shade,shade,shade)
+                        
                     self.cache[loc] = Tile(None,
                                            loc[2] >= 64,
-                                           (0,randint(65, 189),0),
+                                           color,
                                            randint(0,3))
                 return self.cache[loc]
 
