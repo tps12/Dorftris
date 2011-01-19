@@ -70,6 +70,10 @@ class Renderer(object):
         self.sky = self.hex_fill.copy()
         self.sky.fill((0, 85, 85), special_flags=BLEND_ADD)
 
+        self.designation = self.hex_fill.copy()
+        self.designation.fill((0, 0, 0, 85), special_flags=BLEND_RGBA_MULT)
+        self.designation.fill((85, 85, 0), special_flags=BLEND_ADD)
+
         self.grid_image = Surface(self.hex_image.get_size(), flags=SRCALPHA)
         if False: # set true to show grid
             self.grid_image.blit(self.hex_image, (0, 0))
@@ -110,6 +114,11 @@ class Renderer(object):
                                 dirt.fill(foundation.color, special_flags=BLEND_ADD)
 
                                 self.background.blit(dirt, location)
+                                if (self.offset[0] + x, self.offset[1] + y,
+                                    self.level -1) in self.game.world.designations:
+                                    self.background.blit(self.designation,
+                                                         (location[0]-self.tile_height/3,
+                                                          location[1]))
                             else:
                                 air = self.graphics[self.air][0].copy()
                                 air.fill(foundation.color, special_flags=BLEND_ADD)
@@ -273,6 +282,7 @@ class Renderer(object):
                             target = self.game.world.space[(x,y,z)]
                         if not target.is_passable():
                             self.game.world.designations.append((x,y,z))
+                            self.makebackground()
                     
                 elif e.button == 4:
                     self.tile_width += 2
