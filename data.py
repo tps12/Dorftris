@@ -1,6 +1,6 @@
 from collections import deque
 from math import sqrt
-from random import randint
+from random import choice, randint
 
 class Substance(object):
     color = None
@@ -141,24 +141,17 @@ class Task(object):
     def work(self):
         return True
 
-class GoToRandomGoal(Task):
+class GoToRandomAdjacency(Task):
     def __init__(self, subject, world):
         self.subject = subject
         self.world = world
-        goal = None
-        while goal is None or not self.world.space[goal].is_passable():
-            goal = tuple([randint(0, self.world.space.get_dimensions()[i]-1)
-                          for i in range(2)]) + (64,)
-        self.path = self.world.space.pathing.find_path(
-            self.subject.location, goal)
 
     def work(self):
-        if self.path == []:
-            return True
-        
-        self.subject.location = self.path[0]
-        self.path = self.path[1:]
-        return self.path == []
+        adjacent = self.world.space.pathing.open_adjacent(
+            self.subject.location)
+        if len(adjacent) > 0:
+            self.subject.location = choice([a for a in adjacent])
+        return True
 
 class GoToGoal(Task):
     def __init__(self, subject, world, goal):
@@ -370,9 +363,9 @@ class Job(object):
         self.tasks = self.tasks[1:] if self.tasks[0].work() else self.tasks
         return self.tasks == []
 
-class GoToRandomPlace(Job):
+class Meander(Job):
     def __init__(self, subject, world):
-        Job.__init__(self, [GoToRandomGoal(subject, world)])
+        Job.__init__(self, [GoToRandomAdjacency(subject, world)])
 
 class Hydrate(Job):
     def __init__(self, subject, world):
@@ -415,7 +408,7 @@ class Creature(Thing):
                    JobOption(DropExtraItems,
                              lambda c, w: c.inventory.find(lambda i:
                                                         not i.reserved), 99),
-                   JobOption(GoToRandomPlace, lambda c, w: True, 100)
+                   JobOption(Meander, lambda c, w: True, 100)
                    ],
                   key = JobOption.prioritykey)
     
