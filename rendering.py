@@ -65,7 +65,10 @@ class Renderer(object):
         gfxdraw.polygon(self.hex_image, self.hexpoints(), (0, 0, 0))
 
         self.hex_fill = Surface(self.hex_image.get_size(), flags=SRCALPHA)
-        gfxdraw.filled_polygon(self.hex_fill, self.hexpoints(), (0, 85, 85))
+        gfxdraw.filled_polygon(self.hex_fill, self.hexpoints(), (0,0, 0, 255))
+
+        self.sky = self.hex_fill.copy()
+        self.sky.fill((0, 85, 85), special_flags=BLEND_ADD)
 
         self.grid_image = Surface(self.hex_image.get_size(), flags=SRCALPHA)
         if False: # set true to show grid
@@ -125,9 +128,7 @@ class Renderer(object):
                                     drawn = True
 
                             if not drawn:
-                                space = self.hex_fill.copy()
-
-                                self.background.blit(space,
+                                self.background.blit(self.sky,
                                                      (location[0]-self.tile_height/3,
                                                       location[1]))
                                 
