@@ -18,6 +18,8 @@ class Renderer(object):
         
         pygame.init()
 
+        key.set_repeat(50, 50)
+
         self.tile_width = 16
         self.tile_height = 18
 
