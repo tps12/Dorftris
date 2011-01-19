@@ -413,13 +413,19 @@ class Renderer(object):
         self.sprites.draw(self.screen)
 
         info_loc = self.tile_location((self.dimensions[0]+1,0,self.level))
+        if self.offset[0]&1:
+            info_loc = info_loc[0], info_loc[1] - self.tile_height/2
         self.screen.fill((0,0,0), Rect(info_loc, self.screen.get_size()))
         for d in descs:
             line = self.uifont.render(d, True, (255,255,255))
             self.screen.blit(line, info_loc)
             info_loc = (info_loc[0], info_loc[1] + line.get_height())
 
-        msg_loc = self.tile_location((0,self.dimensions[1]+1,self.level))
+        msg_loc = self.tile_location((0,
+                                      self.dimensions[1]+1,
+                                      self.level))
+        if self.offset[0]&1:
+            msg_loc = msg_loc[0], msg_loc[1] - self.tile_height/2
         self.screen.fill((0,0,0), Rect(msg_loc, self.pause_notice.get_size()))        
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
