@@ -257,6 +257,9 @@ class Renderer(object):
                 elif e.unicode == '<':
                     self.level = min(self.level+1, self.game.dimensions[2])
                     self.makebackground()
+                elif e.unicode == 'd':
+                    import pdb
+                    pdb.set_trace()
             elif e.type == MOUSEBUTTONUP:
                 if e.button == 1:
                     if tile is not None:

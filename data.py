@@ -148,7 +148,7 @@ class GoToRandomGoal(Task):
         goal = None
         while goal is None or not self.world.space[goal].is_passable():
             goal = tuple([randint(0, self.world.space.get_dimensions()[i]-1)
-                          for i in range(2)]) + (self.subject.location[2],)
+                          for i in range(2)]) + (64,)
         self.path = self.world.space.pathing.find_path(
             self.subject.location, goal)
 
@@ -439,7 +439,7 @@ class Creature(Thing):
         self.job = job.definition(self, world)
 
     def step(self, world):
-        self.hydration -= 1
+        self.hydration = max(self.hydration - 1, 0)
 
         if self.hydration == 0:
             self.health -= 1

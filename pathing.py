@@ -140,7 +140,11 @@ class PathManager:
                     h = self.distance_xy(n, b)
                     heappush(o, (g+h, h, (n, cur))) # h included as tie-breaker
 
-            loops = loops + 1
+            loops += 1
+
+            if loops > self.dim[0] * self.dim[1]:
+                import pdb
+                pdb.set_trace()
         else:
             return None
 

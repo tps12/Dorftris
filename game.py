@@ -101,17 +101,19 @@ class Game(object):
 
         self.world = World(Space(self.dimensions), [], [])
 
-        for i in range(20):
-            creature = choice(kind)((randint(0,self.dimensions[0]-1),
-                                     randint(0,self.dimensions[1]-1),
-                                     64))
-            self.world.creatures.append(creature)
+##        for i in range(20):
+##            creature = choice(kind)((randint(0,self.dimensions[0]-1),
+##                                     randint(0,self.dimensions[1]-1),
+##                                     64))
+##            self.world.creatures.append(creature)
+##
+##        for i in range(10):
+##            self.world.items.append(Barrel((randint(0,self.dimensions[0]-1),
+##                                            randint(0,self.dimensions[1]-1),
+##                                            64),
+##                                           Oak))
 
-        for i in range(10):
-            self.world.items.append(Barrel((randint(0,self.dimensions[0]-1),
-                                            randint(0,self.dimensions[1]-1),
-                                            64),
-                                           Oak))
+        self.world.creatures.append(Dwarf((64,64,64)))
             
         self.done = False
         self.paused = False
