@@ -256,20 +256,26 @@ class Renderer(object):
             return value, 0
 
     def scroll(self, dx, dy):
-        dest, remainder = self.clamp(
-            self.offset[1] + dy,
-            (0, self.game.dimensions[1] - self.dimensions[1]))
-
-        self.offset = (self.offset[0], dest)
+        amt = dx, dy
+        size = self.tile_width, self.tile_height
 
         pos, tile = self.mousepos()
 
-        while tile is not None and ((remainder < 0 and 0 < tile[1]) or
-               (remainder > 0 and tile[1] < self.dimensions[1]-1)):
-            pos, tile = self.mousepos((pos[0],
-                                       pos[1] +
-                                       self.tile_height * remainder/abs(remainder)))
-            remainder -= remainder/abs(remainder)
+        for i in range(2):
+            dest, remainder = self.clamp(
+                self.offset[i] + amt[i],
+                (0, self.game.dimensions[i] - self.dimensions[i]))
+            
+            self.offset = tuple([dest if j == i else self.offset[j]
+                                 for j in range(2)])
+
+            while tile is not None and ((remainder < 0 and 0 < tile[i]) or
+                   (remainder > 0 and tile[i] < self.dimensions[i]-1)):
+                pos, tile = self.mousepos(tuple([pos[j] +
+                                                 (size[j] * remainder/abs(remainder)
+                                                  if j == i else 0)
+                                                 for j in range(2)]))
+                remainder -= remainder/abs(remainder)
 
         return pos, tile
 
@@ -286,24 +292,26 @@ class Renderer(object):
                 
                 if e.key == K_ESCAPE:
                     self.game.done = True
+                    
                 elif e.key == K_SPACE:
                     self.game.paused = not self.game.paused
+                    
                 elif e.key == K_UP:
-                    pos, tile = self.scroll(0, -scroll)
-                                        
+                    pos, tile = self.scroll(0, -scroll)                                        
                     self.makebackground()
+                    
                 elif e.key == K_DOWN:
                     pos, tile = self.scroll(0, scroll)
-
                     self.makebackground()
+                    
                 elif e.key == K_LEFT:
-                    self.offset = (max(self.offset[0]-scroll, 0), self.offset[1])
+                    pos, tile = self.scroll(-scroll, 0)
                     self.makebackground()
+                    
                 elif e.key == K_RIGHT:
-                    self.offset = (min(self.offset[0]+scroll,
-                                       self.game.dimensions[0] - self.dimensions[0]),
-                                   self.offset[1])
+                    pos, tile = self.scroll(scroll, 0)
                     self.makebackground()
+                    
                 elif e.unicode == '>':
                     self.level = max(self.level-1, 0)
                     self.makebackground()
