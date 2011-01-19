@@ -34,7 +34,8 @@ class Renderer(object):
     def tile_location(self, c):
         x, y, z = c
         return (self.tile_width/2 + x * self.tile_width,
-                self.tile_height/2 + y * self.tile_height + (x&1) * self.tile_height/2)
+                self.tile_height/2 + y * self.tile_height +
+                ((x+self.offset[0])&1) * self.tile_height/2)
 
     def location_tile(self, c):
         px, py = c
@@ -261,10 +262,10 @@ class Renderer(object):
                                        self.game.dimensions[1] - self.dimensions[1]))
                     self.makebackground()
                 elif e.key == K_LEFT:
-                    self.offset = (max(self.offset[0]-2*(scroll+1)/2, 0), self.offset[1])
+                    self.offset = (max(self.offset[0]-scroll, 0), self.offset[1])
                     self.makebackground()
                 elif e.key == K_RIGHT:
-                    self.offset = (min(self.offset[0]+2*(scroll+1)/2,
+                    self.offset = (min(self.offset[0]+scroll,
                                        self.game.dimensions[0] - self.dimensions[0]),
                                    self.offset[1])
                     self.makebackground()
