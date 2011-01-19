@@ -276,9 +276,18 @@ class Renderer(object):
                     
                     self.makebackground()
                 elif e.key == K_DOWN:
-                    self.offset = (self.offset[0],
-                                   min(self.offset[1]+scroll,
-                                       self.game.dimensions[1] - self.dimensions[1]))
+                    dest = self.offset[1] + scroll
+
+                    if dest < self.game.dimensions[1] - self.dimensions[1]:
+                        self.offset = (self.offset[0], dest)
+                    else:
+                        self.offset = (self.offset[0],
+                                       self.game.dimensions[1] - self.dimensions[1])
+                        while scroll > 0 and tile[1] < self.dimensions[1]-1:
+                            pos, tile = self.mousepos((pos[0],
+                                                       pos[1] + self.tile_height))
+                            scroll -= 1
+
                     self.makebackground()
                 elif e.key == K_LEFT:
                     self.offset = (max(self.offset[0]-scroll, 0), self.offset[1])
