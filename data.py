@@ -222,6 +222,11 @@ class Attack(Task):
         except IndexError:
             raise TaskImpossible()
 
+        if self.world.space.pathing.distance_xy(
+            self.subject.location[0:2],
+            self.nearest.location[0:2]) > self.subject.eyesight:
+            raise TaskImpossible()
+
         if self.nearest.location == self.subject.location:
             return []
         else:
@@ -426,11 +431,17 @@ class Creature(Thing):
         world.creatures.remove(self)
         world.items.append(Corpse(self))
 
-    def findjob(self, world):
-        job = sorted([option for option in self.jobs
-                      if option.condition(self, world)],
-                     key = lambda option: option.priority)[0]
-        self.job = job.definition(self, world)
+    def newjob(self, world):
+        for job in sorted([option for option in self.jobs
+                           if option.condition(self, world)],
+                          key = lambda option: option.priority):
+            try:
+                self.job = job.definition(self, world)
+                if self.job.work():
+                    self.job = None
+                return
+            except TaskImpossible:
+                continue
 
     def step(self, world):
         self.hydration = max(self.hydration - 1, 0)
@@ -446,9 +457,8 @@ class Creature(Thing):
         else:
             try:                
                 if self.job is None:
-                    self.findjob(world)
-                
-                if self.job.work():
+                    self.newjob(world)
+                elif self.job.work():
                     self.job = None
                     
             except TaskImpossible:
@@ -457,6 +467,7 @@ class Creature(Thing):
             self.rest = self.speed
 
 class Dwarf(Creature):
+    eyesight = 10
     health = 10
     jobs = sorted(Creature.jobs +
                   [JobOption(DigDesignation,
@@ -472,6 +483,7 @@ class Dwarf(Creature):
                           (r, r-40, r-80), location)
         
 class Goblin(Creature):
+    eyesight = 16
     health = 10
     jobs = sorted(Creature.jobs +
                   [JobOption(SeekAndDestroy,
@@ -487,6 +499,7 @@ class Goblin(Creature):
                           (32, 64+randint(0,127),64+randint(0,127)), location)
 
 class Tortoise(Creature):
+    eyesight = 4
     health = 10
     speed = 100
     thirst = 0.1
@@ -497,6 +510,7 @@ class Tortoise(Creature):
                           (188+d,168+d,138+d), location)
 
 class SmallSpider(Creature):
+    eyesight = 1
     health = 10
     speed = 5
     thirst = 0.0001
