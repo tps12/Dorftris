@@ -1,5 +1,4 @@
 from collections import deque
-from math import sqrt
 from random import choice, randint
 
 class Substance(object):
@@ -215,9 +214,10 @@ class Attack(Task):
         try:
             self.nearest = sorted([c for c in self.world.creatures
                                    if isinstance(c, self.target)],
-                                  key = lambda item: sqrt(
-                                      sum([(self.subject.location[i]-item.location[i])**2
-                                           for i in range(2)])))[0]
+                                  key = lambda c:
+                                  self.world.space.pathing.distance_xy(
+                                      self.subject.location[0:2],
+                                      c.location[0:2]))[0]
         
         except IndexError:
             raise TaskImpossible()
@@ -256,9 +256,10 @@ class Acquire(Task):
                                    if item.location is not None and
                                    not item.reserved and
                                    test(item)],
-                                  key = lambda item: sqrt(
-                                      sum([(self.subject.location[i]-item.location[i])**2
-                                           for i in range(2)])))[0]
+                                  key = lambda item:
+                                  self.world.space.pathing.distance_xy(
+                                      self.subject.location[0:2],
+                                      item.location[0:2]))[0]
         
         except IndexError:
             raise TaskImpossible()
@@ -471,7 +472,7 @@ class Dwarf(Creature):
                           (r, r-40, r-80), location)
         
 class Goblin(Creature):
-    health = 0
+    health = 10
     jobs = sorted(Creature.jobs +
                   [JobOption(SeekAndDestroy,
                              lambda c, w: any([isinstance(c, Dwarf)
