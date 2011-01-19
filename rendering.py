@@ -264,7 +264,7 @@ class Renderer(object):
 
         pos, tile = self.mousepos()
 
-        while ((remainder < 0 and 0 < tile[1]) or
+        while tile is not None and ((remainder < 0 and 0 < tile[1]) or
                (remainder > 0 and tile[1] < self.dimensions[1]-1)):
             pos, tile = self.mousepos((pos[0],
                                        pos[1] +
@@ -293,17 +293,7 @@ class Renderer(object):
                                         
                     self.makebackground()
                 elif e.key == K_DOWN:
-                    dest = self.offset[1] + scroll
-
-                    if dest < self.game.dimensions[1] - self.dimensions[1]:
-                        self.offset = (self.offset[0], dest)
-                    else:
-                        self.offset = (self.offset[0],
-                                       self.game.dimensions[1] - self.dimensions[1])
-                        while scroll > 0 and tile[1] < self.dimensions[1]-1:
-                            pos, tile = self.mousepos((pos[0],
-                                                       pos[1] + self.tile_height))
-                            scroll -= 1
+                    pos, tile = self.scroll(0, scroll)
 
                     self.makebackground()
                 elif e.key == K_LEFT:
