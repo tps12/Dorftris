@@ -236,12 +236,19 @@ class Renderer(object):
 
         return moved
 
-    def step(self):
-        pos = mouse.get_pos()
+    def mousepos(self, pos = None):
+        if pos is None:
+            pos = mouse.get_pos()
+        else:
+            mouse.set_pos(pos)
         tile = self.location_tile(pos)
         if not (0 <= tile[0] < self.dimensions[0] and
                 0 <= tile[1] < self.dimensions[1]):
             tile = None
+        return pos, tile
+
+    def step(self):
+        pos, tile = self.mousepos()
 
         for e in event.get():
             if e.type == QUIT:
@@ -256,7 +263,17 @@ class Renderer(object):
                 elif e.key == K_SPACE:
                     self.game.paused = not self.game.paused
                 elif e.key == K_UP:
-                    self.offset = (self.offset[0], max(self.offset[1]-scroll, 0))
+                    dest = self.offset[1] - scroll
+
+                    if dest > 0:
+                        self.offset = (self.offset[0], dest)
+                    else:
+                        self.offset = (self.offset[0], 0)
+                        while scroll > 0 and tile[1] > 0:
+                            pos, tile = self.mousepos((pos[0],
+                                                       pos[1] - self.tile_height))
+                            scroll -= 1
+                    
                     self.makebackground()
                 elif e.key == K_DOWN:
                     self.offset = (self.offset[0],
