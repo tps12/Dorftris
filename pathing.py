@@ -1,5 +1,3 @@
-from heapq import *
-
 class PathManager:
     """
     Class dealing with finding adjacent spaces and paths.
@@ -129,16 +127,16 @@ class PathManager:
                         cmp(self.h, other.h) or
                         cmp(self.node, other.node))
         
-        o = []
-        heappush(o, Node(a, 0, self.heuristic(a,b), None))
-        visited = {o[0].node:o[0]}
+        o = {a: Node(a, 0, self.heuristic(a,b), None)}
+        visited = {a:o[a]}
         loops = 0
-        while len(o):
-            cur = o[0]
+        
+        while o:
+            cur = sorted(o.values())[0]
             if cur.node == b:
                 break
 
-            heappop(o)
+            del o[cur.node]
 
             for n in self.open_adjacent(cur.node):
                 g = cur.g + 1 + (n[2] - cur.node[2])/10.0
@@ -150,10 +148,8 @@ class PathManager:
                     visited[n] = e
 
                 if g < e.g:                    
-                    n_o = next((node for node in o
-                                if node.node == n), None)
-                    if n_o is None:
-                        heappush(o, e)
+                    if n not in o:
+                        o[n] = e
 
                     e.g = g
                     e.h = self.heuristic(n, b)
@@ -169,7 +165,7 @@ class PathManager:
             pdb.set_trace()
 
         res = []
-        p = o[0]
+        p = o[b]
         while p:
             res.append(p.node)
             p = p.parent
