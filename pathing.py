@@ -117,10 +117,11 @@ class PathManager:
                     raise IndexError
 
         class Node(object):
-            def __init__(self, node, f, h, parent):
+            def __init__(self, node, g, h, parent):
                 self.node = node
-                self.f = f
+                self.g = g
                 self.h = h
+                self.f = self.g + self.h
                 self.parent = parent
 
             def __cmp__(self, other):
@@ -130,7 +131,7 @@ class PathManager:
         
         o = []
         heappush(o, Node(a, 0, self.heuristic(a,b), None))
-        c = []
+        visited = {o[0].node:o[0]}
         loops = 0
         while len(o):
             cur = o[0]
@@ -138,23 +139,27 @@ class PathManager:
                 break
 
             heappop(o)
-            c.append((cur.f, cur.node))
 
             for n in self.open_adjacent(cur.node):
-                g = cur.f - cur.h + 1 + (n[2] - cur.node[2])/10.0
-                
-                n_o = next((node for node in o
-                            if node.node == n), None)
-                if n_o and n_o.f > g:
-                    o.remove(n_o)
-                n_c = next(((f2,n2) for (f2,n2) in c
-                            if n2 == n), None)
-                if n_c and n_c[0] > g:
-                    c.remove(n_c)
-                if not n_o and not n_c:
-                    h = self.heuristic(n, b)
-                    heappush(o, Node(n, g+h, h, cur)) # h included as tie-breaker
+                g = cur.g + 1 + (n[2] - cur.node[2])/10.0
 
+                try:
+                    e = visited[n]
+                except KeyError:
+                    e = Node(n, float('inf'), 0, None)
+                    visited[n] = e
+
+                if g < e.g:                    
+                    n_o = next((node for node in o
+                                if node.node == n), None)
+                    if n_o is None:
+                        heappush(o, e)
+
+                    e.g = g
+                    e.h = self.heuristic(n, b)
+                    e.f = g + e.h
+                    e.parent = cur
+                    
             loops += 1
         else:
             return None
