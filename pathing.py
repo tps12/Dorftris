@@ -141,7 +141,7 @@ class PathManager:
             c.append((cur.f, cur.node))
 
             for n in self.open_adjacent(cur.node):
-                g = cur.f - cur.h + 1
+                g = cur.f - cur.h + 1 + (n[2] - cur.node[2])/10.0
                 
                 n_o = next((node for node in o
                             if node.node == n), None)
