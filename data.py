@@ -484,7 +484,7 @@ class Dwarf(Creature):
         
 class Goblin(Creature):
     eyesight = 16
-    health = 10
+    health = 0
     jobs = sorted(Creature.jobs +
                   [JobOption(SeekAndDestroy,
                              lambda c, w: any([isinstance(c, Dwarf)

@@ -112,33 +112,45 @@ class PathManager:
             for i in range(3):
                 if p[i] < 0 or p[i] >= self.dim[i]:
                     raise IndexError
+
+        class Node(object):
+            def __init__(self, node, f, h, path):
+                self.node = node
+                self.f = f
+                self.h = h
+                self.path = path
+
+            def __cmp__(self, other):
+                return (cmp(self.f, other.f) or
+                        cmp(self.h, other.h) or
+                        cmp(self.node, other.node))
         
         o = []
-        heappush(o, (0, self.distance_xy(a,b), (a, None)))
+        heappush(o, Node(a, 0, self.distance_xy(a,b), (a, None)))
         c = []
         loops = 0
         while len(o):
-            (f,h,cur) = o[0]
-            if cur[0] == b:
+            cur = o[0]
+            if cur.node == b:
                 break
 
             heappop(o)
-            c.append((f,cur))
+            c.append((cur.f, cur.node))
 
-            for n in self.open_adjacent(cur[0]):
-                g = f - h + 1
+            for n in self.open_adjacent(cur.node):
+                g = cur.f - cur.h + 1
                 
-                n_o = next(((f2,h2,n2) for (f2,h2,n2) in o
-                            if n2[0] == n), None)
-                if n_o and n_o[0] > g:
+                n_o = next((node for node in o
+                            if node.node == n), None)
+                if n_o and n_o.f > g:
                     o.remove(n_o)
                 n_c = next(((f2,n2) for (f2,n2) in c
-                            if n2[0] == n), None)
+                            if n2 == n), None)
                 if n_c and n_c[0] > g:
                     c.remove(n_c)
                 if not n_o and not n_c:
                     h = self.distance_xy(n, b)
-                    heappush(o, (g+h, h, (n, cur))) # h included as tie-breaker
+                    heappush(o, Node(n, g+h, h, (n, cur.path))) # h included as tie-breaker
 
             loops += 1
 
@@ -149,9 +161,9 @@ class PathManager:
             return None
 
         res = []
-        p = o[0][2]
+        p = o[0].path
         while p:
-            (l, p) = p
+            l, p = p
             res.append(l)
         res.reverse()
         return res[1:]
