@@ -168,6 +168,9 @@ class PathManager:
             self.path = res[1:]
             self.done = True
 
+    def path_op(self, start, goal):
+        return PathManager.PathOperation(self, start, goal)
+
     def find_path(self, a, b):
         """
         Use A* to get the list of spaces to traverse to reach b from a.
