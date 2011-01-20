@@ -156,9 +156,20 @@ class GoToGoal(Task):
     def __init__(self, subject, world, goal):
         self.subject = subject
         self.world = world
-        self.path = self.world.space.pathing.find_path(
-            self.subject.location,
-            goal)
+
+        p1 = self.world.space.pathing.path_op(
+            self.subject.location, goal)
+        p2 = self.world.space.pathing.path_op(
+            goal, self.subject.location)
+        while not p1.done and not p2.done:
+            p1.iterate(250)
+            p2.iterate(250)
+
+        if p1.done:
+            self.path = p1.path
+        elif p2.path is not None:
+            self.path = p2.path[::-1]
+
         if self.path is None:
             raise TaskImpossible()
 
