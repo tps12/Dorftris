@@ -100,7 +100,7 @@ class PathManager:
             d = d + 1
 
     def heuristic(self, a, b):
-        return self.distance_xy(a, b)
+        return self.distance_xy(a, b) + (b[2] - a[2])/10.0
 
     def find_path(self, a, b):
         """
