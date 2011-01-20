@@ -159,6 +159,8 @@ class GoToGoal(Task):
         self.path = self.world.space.pathing.find_path(
             self.subject.location,
             goal)
+        if self.path is None:
+            raise TaskImpossible()
 
     def work(self):
         if self.path == []:

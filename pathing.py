@@ -100,6 +100,74 @@ class PathManager:
     def heuristic(self, a, b):
         return self.distance_xy(a, b)
 
+    class PathOperation(object):
+        def __init__(self, pathing, start, goal):
+            self.pathing = pathing
+            self.start = start
+            self.goal = goal
+            
+            self.path = None
+            self.done = False
+
+            self.o = { start:
+                       PathManager.PathOperation.Node(start, 0, self.pathing.heuristic(start,goal), None) }
+            self.visited = { start: self.o[start] }
+
+        class Node(object):
+            def __init__(self, node, g, h, parent):
+                self.node = node
+                self.g = g
+                self.h = h
+                self.f = self.g + self.h
+                self.parent = parent
+
+            def __cmp__(self, other):
+                return (cmp(self.f, other.f) or
+                        cmp(self.h, other.h) or
+                        cmp(self.node, other.node))
+
+        def iterate(self, steps=None):
+            loops = 0
+            while self.o and loops != steps:
+                cur = sorted(self.o.values())[0]
+                if cur.node == self.goal:
+                    break
+
+                del self.o[cur.node]
+
+                for n in self.pathing.open_adjacent(cur.node):
+                    g = cur.g + 1 + (n[2] - cur.node[2])/10.0
+
+                    try:
+                        e = self.visited[n]
+                    except KeyError:
+                        e = PathManager.PathOperation.Node(n, float('inf'), 0, None)
+                        self.visited[n] = e
+
+                    if g < e.g:                    
+                        if n not in self.o:
+                            self.o[n] = e
+
+                        e.g = g
+                        e.h = self.pathing.heuristic(n, self.goal)
+                        e.f = g + e.h
+                        e.parent = cur
+                        
+                loops += 1
+            else:
+                self.done = True
+                return
+
+            res = []
+            p = self.o[self.goal]
+            while p:
+                res.append(p.node)
+                p = p.parent
+            res.reverse()
+            
+            self.path = res[1:]
+            self.done = True
+
     def find_path(self, a, b):
         """
         Use A* to get the list of spaces to traverse to reach b from a.
@@ -114,60 +182,6 @@ class PathManager:
                 if p[i] < 0 or p[i] >= self.dim[i]:
                     raise IndexError
 
-        class Node(object):
-            def __init__(self, node, g, h, parent):
-                self.node = node
-                self.g = g
-                self.h = h
-                self.f = self.g + self.h
-                self.parent = parent
-
-            def __cmp__(self, other):
-                return (cmp(self.f, other.f) or
-                        cmp(self.h, other.h) or
-                        cmp(self.node, other.node))
-        
-        o = {a: Node(a, 0, self.heuristic(a,b), None)}
-        visited = {a:o[a]}
-        loops = 0
-        
-        while o:
-            cur = sorted(o.values())[0]
-            if cur.node == b:
-                break
-
-            del o[cur.node]
-
-            for n in self.open_adjacent(cur.node):
-                g = cur.g + 1 + (n[2] - cur.node[2])/10.0
-
-                try:
-                    e = visited[n]
-                except KeyError:
-                    e = Node(n, float('inf'), 0, None)
-                    visited[n] = e
-
-                if g < e.g:                    
-                    if n not in o:
-                        o[n] = e
-
-                    e.g = g
-                    e.h = self.heuristic(n, b)
-                    e.f = g + e.h
-                    e.parent = cur
-                    
-            loops += 1
-        else:
-            return None
-
-        if loops > self.dim[0] * self.dim[1]:
-            import pdb
-            pdb.set_trace()
-
-        res = []
-        p = o[b]
-        while p:
-            res.append(p.node)
-            p = p.parent
-        res.reverse()
-        return res[1:]
+        op = PathManager.PathOperation(self, a, b)
+        op.iterate()
+        return op.path
