@@ -117,11 +117,11 @@ class PathManager:
                     raise IndexError
 
         class Node(object):
-            def __init__(self, node, f, h, path):
+            def __init__(self, node, f, h, parent):
                 self.node = node
                 self.f = f
                 self.h = h
-                self.path = path
+                self.parent = parent
 
             def __cmp__(self, other):
                 return (cmp(self.f, other.f) or
@@ -129,7 +129,7 @@ class PathManager:
                         cmp(self.node, other.node))
         
         o = []
-        heappush(o, Node(a, 0, self.heuristic(a,b), (a, None)))
+        heappush(o, Node(a, 0, self.heuristic(a,b), None))
         c = []
         loops = 0
         while len(o):
@@ -153,16 +153,20 @@ class PathManager:
                     c.remove(n_c)
                 if not n_o and not n_c:
                     h = self.heuristic(n, b)
-                    heappush(o, Node(n, g+h, h, (n, cur.path))) # h included as tie-breaker
+                    heappush(o, Node(n, g+h, h, cur)) # h included as tie-breaker
 
             loops += 1
         else:
             return None
 
+        if loops > self.dim[0] * self.dim[1]:
+            import pdb
+            pdb.set_trace()
+
         res = []
-        p = o[0].path
+        p = o[0]
         while p:
-            l, p = p
-            res.append(l)
+            res.append(p.node)
+            p = p.parent
         res.reverse()
         return res[1:]

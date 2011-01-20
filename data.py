@@ -216,7 +216,7 @@ class Attack(Task):
                                    if isinstance(c, self.target)],
                                   key = lambda c:
                                   self.world.space.pathing.distance_xy(
-                                      self.subject.location[0:2],
+                                      self.subject.location,
                                       c.location[0:2]))[0]
         
         except IndexError:
