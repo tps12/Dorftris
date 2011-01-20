@@ -99,6 +99,9 @@ class PathManager:
                  a[1] + dy/abs(dy) if (dy>0)==a[0]&1 else a[1])
             d = d + 1
 
+    def heuristic(self, a, b):
+        return self.distance_xy(a, b)
+
     def find_path(self, a, b):
         """
         Use A* to get the list of spaces to traverse to reach b from a.
@@ -126,7 +129,7 @@ class PathManager:
                         cmp(self.node, other.node))
         
         o = []
-        heappush(o, Node(a, 0, self.distance_xy(a,b), (a, None)))
+        heappush(o, Node(a, 0, self.heuristic(a,b), (a, None)))
         c = []
         loops = 0
         while len(o):
@@ -149,7 +152,7 @@ class PathManager:
                 if n_c and n_c[0] > g:
                     c.remove(n_c)
                 if not n_o and not n_c:
-                    h = self.distance_xy(n, b)
+                    h = self.heuristic(n, b)
                     heappush(o, Node(n, g+h, h, (n, cur.path))) # h included as tie-breaker
 
             loops += 1
