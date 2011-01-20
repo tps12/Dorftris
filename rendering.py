@@ -161,11 +161,19 @@ class Renderer(object):
                         image.fill(tile.color, special_flags=BLEND_ADD)
                         self.background.blit(image, location)
 
-                elif (self.offset[0] + x, self.offset[1] + y,
-                      self.level) in self.game.world.designations:
-                    self.background.blit(self.designation,
-                                         (location[0]-self.tile_height/3,
-                                          location[1]))
+                else:
+                    if tile.revealed:
+                        image = self.hex_fill.copy()
+                        image.fill(tile.color, special_flags=BLEND_ADD)
+                        self.background.blit(image,
+                                             (location[0]-self.tile_height/3,
+                                              location[1]))
+
+                    if (self.offset[0] + x, self.offset[1] + y,
+                          self.level) in self.game.world.designations:
+                        self.background.blit(self.designation,
+                                             (location[0]-self.tile_height/3,
+                                              location[1]))
 
 
                 self.background.blit(self.grid_image,

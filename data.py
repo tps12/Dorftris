@@ -168,7 +168,7 @@ class GoToGoal(Task):
         if p1.done:
             self.path = p1.path
         elif p2.path is not None:
-            self.path = p2.path[::-1]
+            self.path = p2.path[::-1][1:] + [goal]
 
         if self.path is None:
             raise TaskImpossible()

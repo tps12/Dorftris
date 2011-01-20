@@ -13,9 +13,12 @@ class GlyphGraphics(object):
             'ground': (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
             'harp': u'\u01f7',
             'leaves': u'\u2042',
+            'piller': u'\u2161',
             'pipe': u'\u221b',
+            'shovel': u'\u020a',
             'spider-big': u'\u046a',
             'spider-small': u'\u046b',
+            'stockpile': u'\u2264',
             'tree-trunk': (u'\u2b22', u'\u2b21', u'\u25ce'),
             'tortoise': u'\u237e'
             }

@@ -14,6 +14,7 @@ class Game(object):
             def __init__(self, kind, passable, color, varient):
                 self.kind = kind
                 self.passable = passable
+                self.revealed = False
                 self.color = color
                 self.varient = varient
 
@@ -93,7 +94,7 @@ class Game(object):
                     if loc[2] == 63:
                         color = (0,shade,0)
                     elif loc[2] >= 61:
-                        color = (shade,shade/2,0)
+                        color = (shade*3/4,shade/2,0)
                     else:
                         color = (shade,shade,shade)
                         
@@ -105,6 +106,8 @@ class Game(object):
 
             def remove(self, loc):
                 self.cache[loc] = Tile(None, True, (0,0,0), 0)
+                for n in self.pathing.adjacent_xy(loc[0:2]):
+                    self[n + (loc[2],)].revealed = True
                 self.changed = True
 
         self.world = World(Space(self.dimensions), [], [])
