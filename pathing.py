@@ -156,10 +156,6 @@ class PathManager:
                     heappush(o, Node(n, g+h, h, (n, cur.path))) # h included as tie-breaker
 
             loops += 1
-
-            if loops > self.dim[0] * self.dim[1]:
-                import pdb
-                pdb.set_trace()
         else:
             return None
 
