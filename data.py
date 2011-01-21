@@ -126,11 +126,14 @@ class WrongItemType(Exception):
     pass
 
 class Stockpile(Storage, Entity):
+    color = (255,255,255)
+    
     def __init__(self, region, types):
         Storage.__init__(self, 0)
         Entity.__init__(self, 'stockpile')
         self.components = []
         self.types = types
+        self.changed = False
         for location in region:
             self.annex(location)
 
@@ -139,12 +142,19 @@ class Stockpile(Storage, Entity):
             (isinstance(item, Container) and
              any([item.has(t) for t in self.types]))):
             Storage.add(self, item)
+            self.changed = True
         else:
             raise WrongItemType()
+
+    def remove(self, item):
+        success = Storage.remove(self, item)
+        self.changed = success
+        return success
         
     def annex(self, location):
         self.capacity += 1
         self.components.append(StockpileComponent(self, location))
+        self.changed = True
 
 class Container(Item, Storage):
     def __init__(self, kind, materials, location, capacity):

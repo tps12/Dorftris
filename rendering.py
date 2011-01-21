@@ -6,7 +6,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Corpse, Entity
+from data import Corpse, Entity, Stockpile
 from glyphs import GlyphGraphics
 
 INFO_WIDTH = 20
@@ -204,6 +204,10 @@ class Renderer(object):
         moved = False
 
         for entity in entities:
+            if isinstance(entity, Stockpile):
+                self.updatestockpile(entity, pos, descs)
+                continue
+            
             if entity.location is None or not self.visible(entity.location):
                 if entity in self.entity_sprites:
                     self.sprites.remove(self.entity_sprites[entity])
@@ -243,6 +247,65 @@ class Renderer(object):
                     descs.append(entity.description())
 
         return moved
+
+    def updatestockpile(self, stockpile, pos, descs):
+        if stockpile.changed:
+            if stockpile in self.entity_sprites:
+                del self.entity_sprites[stockpile]
+            stockpile.changed = False
+        
+        if stockpile not in self.entity_sprites:                    
+            sprite = Sprite()
+
+            image = self.graphics[stockpile][0].copy()
+                
+            image.fill(stockpile.color, special_flags=BLEND_ADD)
+
+            locations = []
+            for component in stockpile.components:
+                locations.append(self.tile_location(
+                    [component.location[i] - self.offset[i] for i in range(2)] +
+                    [component.location[2]]))
+
+            x, y = tuple([min([p[i] for p in locations])
+                          for i in range(2)])
+            size = tuple([max([p[i] for p in locations]) - (x,y)[i] +
+                          (self.tile_width, self.tile_height)[i]
+                          for i in range(2)])
+            
+            sprite.image = Surface(size)
+            sprite.image.fill((0,0,0))
+            
+            for px,py in locations:
+                sprite.image.blit(image, (px-x,py-y))
+                if Rect(px-x, py-y,
+                        self.tile_width, self.tile_height).collidepoint(pos):
+                    descs.append(stockpile.description())
+                    
+            sprite.rect = sprite.image.get_rect().move(x, y)
+            self.sprites.add(sprite)
+
+            self.entity_sprites[stockpile] = sprite
+
+        if stockpile in self.entity_sprites:                    
+            sprite = self.entity_sprites[stockpile]
+
+            locations = []
+            for component in stockpile.components:
+                locations.append(self.tile_location(
+                    [component.location[i] - self.offset[i] for i in range(2)] +
+                    [component.location[2]]))
+
+            x, y = tuple([min([p[i] for p in locations])
+                          for i in range(2)])
+
+            if sprite.rect.topleft != (x,y):
+                sprite.rect.topleft = (x,y)
+
+            for px,py in locations:
+                if Rect(px, py,
+                        self.tile_width, self.tile_height).collidepoint(pos):
+                    descs.append(stockpile.description())
 
     def mousepos(self, pos = None):
         if pos is None:
@@ -395,16 +458,14 @@ class Renderer(object):
 
         creature_moved = self.update(self.game.world.creatures, pos, descs)
 
-        for stockpile in self.game.world.stockpiles:
-            self.update(stockpile.components, pos, descs)
+        self.update(self.game.world.stockpiles, pos, descs)
 
         self.update(self.game.world.items, pos, descs)
 
         for entity in self.entity_sprites.keys():
             if (entity not in self.game.world.creatures and
                 entity not in self.game.world.items and
-                entity not in sum([stockpile.components for stockpile in
-                                   self.game.world.stockpiles], [])):
+                entity not in self.game.world.stockpiles):
                 self.sprites.remove(self.entity_sprites[entity])
                 del self.entity_sprites[entity]
 
