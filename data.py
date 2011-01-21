@@ -103,6 +103,16 @@ class Storage(object):
     def has(self, kind):
         return self.find(lambda item: isinstance(item, kind)) is not None
 
+class Stockpile(Storage, Entity):
+    def __init__(self, region):
+        Storage.__init__(self, float(len(region)))
+        Entity.__init__(self, 'stockpile')
+        self.region = region
+
+    def annex(self, location):
+        self.capacity += 1
+        self.region += [location]
+
 class Container(Item, Storage):
     def __init__(self, kind, materials, location, capacity):
         Item.__init__(self, kind, materials, location)
