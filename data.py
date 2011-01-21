@@ -548,3 +548,4 @@ class World(object):
         self.items = items
         self.creatures = creatures
         self.designations = deque()
+        self.stockpiles = []
