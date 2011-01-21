@@ -100,11 +100,13 @@ class Storage(object):
         return None
 
     def add(self, item):
-        if (self.capacity - sum([item.volume() for item in self.contents]) >
-            item.volume()):
+        if (self.space() > item.volume()):
             self.contents.append(item)
         else:
             raise OutOfSpace()
+
+    def space(self):
+        return self.capacity - sum([item.volume() for item in self.contents])
 
     def remove(self, item):
         if item in self.contents:
@@ -120,14 +122,26 @@ class Storage(object):
     def has(self, kind):
         return self.find(lambda item: isinstance(item, kind)) is not None
 
+class WrongItemType(Exception):
+    pass
+
 class Stockpile(Storage, Entity):
-    def __init__(self, region):
+    def __init__(self, region, types):
         Storage.__init__(self, 0)
         Entity.__init__(self, 'stockpile')
         self.components = []
+        self.types = types
         for location in region:
             self.annex(location)
 
+    def add(self, item):
+        if (any([isinstance(item, t) for t in self.types]) or
+            (isinstance(item, Container) and
+             any([item.has(t) for t in self.types]))):
+            Storage.add(self, item)
+        else:
+            raise WrongItemType()
+        
     def annex(self, location):
         self.capacity += 1
         self.components.append(StockpileComponent(self, location))
@@ -276,35 +290,39 @@ class Attack(Task):
         return self.nearest.health <= 0
 
 class Acquire(Task):
-    def __init__(self, subject, world, target):
+    def __init__(self, subject, world, targets):
         self.subject = subject
         self.world = world
-        self.target = target
+        self.targets = targets
         self.nearest = None
 
     def requirements(self):
         if self.nearest is not None:
             return []
 
-        test = None
-        if self.target.fluid:
-            test = lambda item: (isinstance(item, Storage) and
-                                 len(item.contents) == 1 and
-                                 isinstance(item.contents[0], self.target))
-        else:
-            test = lambda item: isinstance(item, self.target)
+        for target in self.targets:
+            test = None
+            if target.fluid:
+                test = lambda item: (isinstance(item, Storage) and
+                                     len(item.contents) == 1 and
+                                     isinstance(item.contents[0], target))
+            else:
+                test = lambda item: isinstance(item, target)
 
-        try:
-            self.nearest = sorted([item for item in self.world.items
-                                   if item.location is not None and
-                                   not item.reserved and
-                                   test(item)],
-                                  key = lambda item:
-                                  self.world.space.pathing.distance_xy(
-                                      self.subject.location[0:2],
-                                      item.location[0:2]))[0]
-        
-        except IndexError:
+            try:
+                self.nearest = sorted([item for item in self.world.items
+                                       if item.location is not None and
+                                       not item.reserved and
+                                       test(item)],
+                                      key = lambda item:
+                                      self.world.space.pathing.distance_xy(
+                                          self.subject.location[0:2],
+                                          item.location[0:2]))[0]
+                break
+            
+            except IndexError:
+                continue
+        else:
             raise TaskImpossible()
 
         if self.nearest.location is None:
@@ -330,7 +348,7 @@ class Drink(Task):
         if self.subject.inventory.has(Beverage):
             return []
         else:
-            reqs = [Acquire(self.subject, self.world, Beverage)]
+            reqs = [Acquire(self.subject, self.world, [Beverage])]
             return reqs[0].requirements() + reqs
 
     def work(self):
@@ -380,9 +398,12 @@ class StoreItem(Task):
                              self.stockpile.components[0].location)]
         else:
             reqs = []
-        
-        if not self.subject.inventory.has(Item):
-            reqs = [Acquire(self.subject, self.world, Item)] + reqs
+
+        for t in self.stockpile.types:
+            if self.subject.inventory.has(t):
+                break
+        else:
+            reqs = [Acquire(self.subject, self.world, self.stockpile.types)] + reqs
 
         return reqs[0].requirements() + reqs if len(reqs) else reqs
 
@@ -400,7 +421,12 @@ class FillStockpile(Task):
         self.world = world
 
     def requirements(self):
-        reqs = [StoreItem(self.subject, self.world, self.world.stockpiles[0])]
+        stockpile = next((stockpile for stockpile in self.world.stockpiles
+                          if stockpile.space()), None)
+        if stockpile is None:
+            return []
+        
+        reqs = [StoreItem(self.subject, self.world, stockpile)]
         return reqs[0].requirements() + reqs
 
     def work(self):
