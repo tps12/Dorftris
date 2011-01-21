@@ -360,6 +360,41 @@ class DropItems(Task):
 
         return False
 
+class StoreItem(Task):
+    def __init__(self, subject, world, stockpile):
+        self.subject = subject
+        self.world = world
+        self.stockpile = stockpile
+
+    def requirements(self):
+        reqs = [GoToGoal(self.subject, self.world,
+                         self.stockpile.components[0].location)]
+        
+        if not self.subject.inventory.has(Item):
+            reqs = [Acquire(self.subject, self.world, Item)] + reqs
+                    
+        return reqs[0].requirements() + reqs
+
+    def work(self):
+        item = self.subject.inventory[0]
+
+        self.subject.inventory.remove(item)
+        self.stockpile.add(item)
+                
+        return True
+
+class FillStockpile(Task):
+    def __init__(self, subject, world):
+        self.subject = subject
+        self.world = world
+
+    def requirements(self):
+        reqs = [StoreItem(self.subject, self.world, self.world.stockpiles[0])]
+        return reqs[0].requirements() + reqs
+
+    def work(self):
+        return True
+
 class AttemptDigDesignation(Task):
     def __init__(self, subject, world):
         self.subject = subject
@@ -411,6 +446,10 @@ class DropExtraItems(Job):
     def __init__(self, subject, world):
         Job.__init__(self, [DropItems(subject, world,
                                       lambda item: not item.reserved)])
+
+class StoreInStockpile(Job):
+    def __init__(self, subject, world):
+        Job.__init__(self, [FillStockpile(subject, world)])
 
 class SeekAndDestroy(Job):
     def __init__(self, subject, world):
@@ -502,7 +541,10 @@ class Dwarf(Creature):
     jobs = sorted(Creature.jobs +
                   [JobOption(DigDesignation,
                              lambda c, w: len(w.designations) > 0,
-                             10)],
+                             10),
+                   JobOption(StoreInStockpile,
+                             lambda c, w: len(w.stockpiles) > 0,
+                             90)],
                   key = JobOption.prioritykey)
     speed = 11
     thirst = 0.03
