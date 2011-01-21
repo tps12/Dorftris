@@ -275,9 +275,26 @@ class Renderer(object):
             
             sprite.image = Surface(size)
             sprite.image.fill((0,0,0))
+
+            items = [item for item in stockpile.contents]
             
             for px,py in locations:
                 sprite.image.blit(image, (px-x,py-y))
+                
+                if items:
+                    item = items[0]
+                    
+                    if isinstance(item, Corpse):
+                        itemimage = self.graphics[item.origins][0].copy()
+                    else:
+                        itemimage = self.graphics[item][0].copy()
+                        
+                    itemimage.fill(item.color, special_flags=BLEND_ADD)
+                    
+                    sprite.image.blit(itemimage, (px-x,py-y))
+                    
+                    items = items[1:]
+                    
                 if Rect(px-x, py-y,
                         self.tile_width, self.tile_height).collidepoint(pos):
                     descs.append(stockpile.description())
