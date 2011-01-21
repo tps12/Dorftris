@@ -22,7 +22,7 @@ class GlyphGraphics(object):
             'spear': u'\u16cf',
             'spider-big': u'\u046a',
             'spider-small': u'\u046b',
-            'stockpile': u'\u2264',
+            'stockpile': u'\u2263',
             'tree-trunk': (u'\u2b22', u'\u2b21', u'\u25ce'),
             'tortoise': u'\u237e'
             }

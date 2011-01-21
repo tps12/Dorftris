@@ -202,13 +202,13 @@ class Renderer(object):
 
     def update(self, entities, pos, descs):
         moved = False
-        
+
         for entity in entities:
             if entity.location is None or not self.visible(entity.location):
                 if entity in self.entity_sprites:
                     self.sprites.remove(self.entity_sprites[entity])
                     del self.entity_sprites[entity]
-            elif entity not in self.entity_sprites:
+            elif entity not in self.entity_sprites:                    
                 sprite = Sprite()
 
                 if isinstance(entity, Corpse):
@@ -393,13 +393,18 @@ class Renderer(object):
 
         descs = []
 
-        moved = self.update(self.game.world.creatures, pos, descs)
+        creature_moved = self.update(self.game.world.creatures, pos, descs)
 
-        moved = self.update(self.game.world.items, pos, descs)
+        for stockpile in self.game.world.stockpiles:
+            self.update(stockpile.components, pos, descs)
+
+        self.update(self.game.world.items, pos, descs)
 
         for entity in self.entity_sprites.keys():
             if (entity not in self.game.world.creatures and
-                entity not in self.game.world.items):
+                entity not in self.game.world.items and
+                entity not in sum([stockpile.components for stockpile in
+                                   self.game.world.stockpiles], [])):
                 self.sprites.remove(self.entity_sprites[entity])
                 del self.entity_sprites[entity]
 
@@ -438,7 +443,7 @@ class Renderer(object):
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
 
-        if moved:
+        if creature_moved:
             self.stepsound.play()
 
         display.flip()

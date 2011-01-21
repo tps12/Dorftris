@@ -5,6 +5,10 @@ class Substance(object):
     color = None
     density = None
 
+class AEther(Substance):
+    color = (255,255,255)
+    density = 0
+
 class Wood(Substance):
     pass
 
@@ -105,13 +109,16 @@ class Storage(object):
 
 class Stockpile(Storage, Entity):
     def __init__(self, region):
-        Storage.__init__(self, float(len(region)))
+        Storage.__init__(self, 0)
         Entity.__init__(self, 'stockpile')
-        self.region = region
+        self.components = []
+        for location in region:
+            self.annex(location)
 
     def annex(self, location):
         self.capacity += 1
-        self.region += [location]
+        self.components.append(Container(self.kind, [Material(AEther, 0)],
+                                         location, 1.0))
 
 class Container(Item, Storage):
     def __init__(self, kind, materials, location, capacity):

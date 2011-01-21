@@ -134,7 +134,7 @@ class Game(object):
                 self.world.stockpiles.append(
                     Stockpile([p for p in [c] +
                                sample(neighbors, randint(0, len(neighbors)))
-                               if self.world.space[p].is_passable()]))                               
+                               if self.world.space[p].is_passable()]))
             
         self.done = False
         self.paused = False
