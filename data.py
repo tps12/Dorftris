@@ -411,7 +411,11 @@ class StoreItem(Task):
         item = self.subject.inventory.find(lambda item: True)
 
         self.subject.inventory.remove(item)
-        self.stockpile.add(item)
+
+        if self.stockpile.space() >= item.volume():
+            self.stockpile.add(item)
+        else:
+            item.location = self.subject.location
                 
         return True
 
