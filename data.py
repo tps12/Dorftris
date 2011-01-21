@@ -414,6 +414,7 @@ class StoreItem(Task):
 
         if self.stockpile.space() >= item.volume():
             self.stockpile.add(item)
+            item.location = self.stockpile.components[0].location
         else:
             item.location = self.subject.location
                 
