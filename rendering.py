@@ -310,12 +310,6 @@ class Renderer(object):
         if stockpile in self.entity_sprites:                    
             sprite = self.entity_sprites[stockpile]
 
-            locations = []
-            for component in stockpile.components:
-                locations.append(self.tile_location(
-                    [component.location[i] - self.offset[i] for i in range(2)] +
-                    [component.location[2]]))
-
             x, y = tuple([min([p[i] for p in locations])
                           for i in range(2)])
 
