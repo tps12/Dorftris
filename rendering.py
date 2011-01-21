@@ -249,63 +249,63 @@ class Renderer(object):
         return moved
 
     def updatestockpile(self, stockpile, pos, descs):
-        if stockpile.changed:
+        locations = []
+        for component in stockpile.components:
+            if self.visible(component.location):
+                locations.append(self.tile_location(
+                    [component.location[i] - self.offset[i] for i in range(2)] +
+                    [component.location[2]]))
+
+        if not locations or stockpile.changed:
             if stockpile in self.entity_sprites:
+                self.sprites.remove(self.entity_sprites[stockpile])
                 del self.entity_sprites[stockpile]
             stockpile.changed = False
         
-        if stockpile not in self.entity_sprites:                    
-            locations = []
-            for component in stockpile.components:
-                if self.visible(component.location):
-                    locations.append(self.tile_location(
-                        [component.location[i] - self.offset[i] for i in range(2)] +
-                        [component.location[2]]))
+        if locations and stockpile not in self.entity_sprites:                    
 
-            if locations:
+            sprite = Sprite()
 
-                sprite = Sprite()
+            image = self.graphics[stockpile][0].copy()
+                
+            image.fill(stockpile.color, special_flags=BLEND_ADD)
+            
+            x, y = tuple([min([p[i] for p in locations])
+                          for i in range(2)])
+            size = tuple([max([p[i] for p in locations]) - (x,y)[i] +
+                          (self.tile_width, self.tile_height)[i]
+                          for i in range(2)])
+            
+            sprite.image = Surface(size)
+            sprite.image.fill((0,0,0))
 
-                image = self.graphics[stockpile][0].copy()
+            items = [item for item in stockpile.contents]
+            
+            for px,py in locations:
+                sprite.image.blit(image, (px-x,py-y))
+                
+                if items:
+                    item = items[0]
                     
-                image.fill(stockpile.color, special_flags=BLEND_ADD)
-                
-                x, y = tuple([min([p[i] for p in locations])
-                              for i in range(2)])
-                size = tuple([max([p[i] for p in locations]) - (x,y)[i] +
-                              (self.tile_width, self.tile_height)[i]
-                              for i in range(2)])
-                
-                sprite.image = Surface(size)
-                sprite.image.fill((0,0,0))
-
-                items = [item for item in stockpile.contents]
-                
-                for px,py in locations:
-                    sprite.image.blit(image, (px-x,py-y))
+                    if isinstance(item, Corpse):
+                        itemimage = self.graphics[item.origins][0].copy()
+                    else:
+                        itemimage = self.graphics[item][0].copy()
+                        
+                    itemimage.fill(item.color, special_flags=BLEND_ADD)
                     
-                    if items:
-                        item = items[0]
-                        
-                        if isinstance(item, Corpse):
-                            itemimage = self.graphics[item.origins][0].copy()
-                        else:
-                            itemimage = self.graphics[item][0].copy()
-                            
-                        itemimage.fill(item.color, special_flags=BLEND_ADD)
-                        
-                        sprite.image.blit(itemimage, (px-x,py-y))
-                        
-                        items = items[1:]
-                        
-                    if Rect(px-x, py-y,
-                            self.tile_width, self.tile_height).collidepoint(pos):
-                        descs.append(stockpile.description())
-                        
-                sprite.rect = sprite.image.get_rect().move(x, y)
-                self.sprites.add(sprite)
+                    sprite.image.blit(itemimage, (px-x,py-y))
+                    
+                    items = items[1:]
+                    
+                if Rect(px-x, py-y,
+                        self.tile_width, self.tile_height).collidepoint(pos):
+                    descs.append(stockpile.description())
+                    
+            sprite.rect = sprite.image.get_rect().move(x, y)
+            self.sprites.add(sprite)
 
-                self.entity_sprites[stockpile] = sprite
+            self.entity_sprites[stockpile] = sprite
 
         if stockpile in self.entity_sprites:                    
             sprite = self.entity_sprites[stockpile]
