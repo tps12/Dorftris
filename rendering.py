@@ -263,10 +263,14 @@ class Renderer(object):
 
             locations = []
             for component in stockpile.components:
-                locations.append(self.tile_location(
-                    [component.location[i] - self.offset[i] for i in range(2)] +
-                    [component.location[2]]))
+                if self.visible(component.location):
+                    locations.append(self.tile_location(
+                        [component.location[i] - self.offset[i] for i in range(2)] +
+                        [component.location[2]]))
 
+            if not locations:
+                return
+            
             x, y = tuple([min([p[i] for p in locations])
                           for i in range(2)])
             size = tuple([max([p[i] for p in locations]) - (x,y)[i] +
