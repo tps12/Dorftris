@@ -255,12 +255,6 @@ class Renderer(object):
             stockpile.changed = False
         
         if stockpile not in self.entity_sprites:                    
-            sprite = Sprite()
-
-            image = self.graphics[stockpile][0].copy()
-                
-            image.fill(stockpile.color, special_flags=BLEND_ADD)
-
             locations = []
             for component in stockpile.components:
                 if self.visible(component.location):
@@ -268,45 +262,50 @@ class Renderer(object):
                         [component.location[i] - self.offset[i] for i in range(2)] +
                         [component.location[2]]))
 
-            if not locations:
-                return
-            
-            x, y = tuple([min([p[i] for p in locations])
-                          for i in range(2)])
-            size = tuple([max([p[i] for p in locations]) - (x,y)[i] +
-                          (self.tile_width, self.tile_height)[i]
-                          for i in range(2)])
-            
-            sprite.image = Surface(size)
-            sprite.image.fill((0,0,0))
+            if locations:
 
-            items = [item for item in stockpile.contents]
-            
-            for px,py in locations:
-                sprite.image.blit(image, (px-x,py-y))
+                sprite = Sprite()
+
+                image = self.graphics[stockpile][0].copy()
+                    
+                image.fill(stockpile.color, special_flags=BLEND_ADD)
                 
-                if items:
-                    item = items[0]
-                    
-                    if isinstance(item, Corpse):
-                        itemimage = self.graphics[item.origins][0].copy()
-                    else:
-                        itemimage = self.graphics[item][0].copy()
-                        
-                    itemimage.fill(item.color, special_flags=BLEND_ADD)
-                    
-                    sprite.image.blit(itemimage, (px-x,py-y))
-                    
-                    items = items[1:]
-                    
-                if Rect(px-x, py-y,
-                        self.tile_width, self.tile_height).collidepoint(pos):
-                    descs.append(stockpile.description())
-                    
-            sprite.rect = sprite.image.get_rect().move(x, y)
-            self.sprites.add(sprite)
+                x, y = tuple([min([p[i] for p in locations])
+                              for i in range(2)])
+                size = tuple([max([p[i] for p in locations]) - (x,y)[i] +
+                              (self.tile_width, self.tile_height)[i]
+                              for i in range(2)])
+                
+                sprite.image = Surface(size)
+                sprite.image.fill((0,0,0))
 
-            self.entity_sprites[stockpile] = sprite
+                items = [item for item in stockpile.contents]
+                
+                for px,py in locations:
+                    sprite.image.blit(image, (px-x,py-y))
+                    
+                    if items:
+                        item = items[0]
+                        
+                        if isinstance(item, Corpse):
+                            itemimage = self.graphics[item.origins][0].copy()
+                        else:
+                            itemimage = self.graphics[item][0].copy()
+                            
+                        itemimage.fill(item.color, special_flags=BLEND_ADD)
+                        
+                        sprite.image.blit(itemimage, (px-x,py-y))
+                        
+                        items = items[1:]
+                        
+                    if Rect(px-x, py-y,
+                            self.tile_width, self.tile_height).collidepoint(pos):
+                        descs.append(stockpile.description())
+                        
+                sprite.rect = sprite.image.get_rect().move(x, y)
+                self.sprites.add(sprite)
+
+                self.entity_sprites[stockpile] = sprite
 
         if stockpile in self.entity_sprites:                    
             sprite = self.entity_sprites[stockpile]
