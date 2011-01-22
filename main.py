@@ -12,6 +12,11 @@ def main():
     game = Game((156, 104, 128))
     renderer = Renderer(game)
 
+    for i in range(20):
+        game.world.space.maketree((randint(0, game.dimensions[0]-1),
+                       randint(0, game.dimensions[1]-1),
+                       64))    
+
     kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
     for i in range(20):

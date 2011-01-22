@@ -29,11 +29,6 @@ class Game(object):
                 self.cache = {}
                 self.changed = False
 
-                for i in range(20):
-                    self.maketree((randint(0, self.dim[0]-1),
-                                   randint(0, self.dim[1]-1),
-                                   64))
-
             def maketree(self, loc):
                 surround = self.pathing.adjacent_xy(loc[0:2])
                 height = randint(6,18)
