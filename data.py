@@ -202,29 +202,36 @@ class GoToRandomAdjacency(Task):
         return True
 
 class GoToGoal(Task):
+    steps = 256
+    
     def __init__(self, subject, world, goal):
         self.subject = subject
         self.world = world
+        self.goal = goal
 
-        p1 = self.world.space.pathing.path_op(
-            self.subject.location, goal)
-        p2 = self.world.space.pathing.path_op(
-            goal, self.subject.location)
-        while not p1.done and not p2.done:
-            p1.iterate(250)
-            p2.iterate(250)
-
-        if p1.done:
-            self.path = p1.path
-        elif p2.path is not None:
-            self.path = p2.path[::-1][1:] + [goal]
-
-        if self.path is None:
-            raise TaskImpossible()
+        self.p1 = self.world.space.pathing.path_op(
+                      self.subject.location, goal)
+        self.p2 = self.world.space.pathing.path_op(
+                      goal, self.subject.location)
+        self.path = None
 
     def work(self):
         if self.path == []:
             return True
+
+        if self.path is None:
+            if not self.p1.done and not self.p2.done:
+                self.p1.iterate(self.steps)
+                self.p2.iterate(self.steps)
+                return False
+
+            if self.p1.done:
+                self.path = self.p1.path
+            elif self.p2.path is not None:
+                self.path = self.p2.path[::-1][1:] + [self.goal]
+
+            if self.path is None:
+                raise TaskImpossible()
         
         self.subject.location = self.path[0]
         self.path = self.path[1:]
