@@ -300,10 +300,11 @@ class Attack(Task):
         return self.nearest.health <= 0
 
 class Acquire(Task):
-    def __init__(self, subject, world, targets):
+    def __init__(self, subject, world, targets, capacity):
         self.subject = subject
         self.world = world
         self.targets = targets
+        self.capacity = capacity
         self.nearest = None
 
     def requirements(self):
@@ -313,11 +314,13 @@ class Acquire(Task):
         for target in self.targets:
             test = None
             if target.fluid:
-                test = lambda item: (isinstance(item, Storage) and
+                test = lambda item: (item.volume() <= self.capacity and
+                                     isinstance(item, Storage) and
                                      len(item.contents) == 1 and
                                      isinstance(item.contents[0], target))
             else:
-                test = lambda item: isinstance(item, target)
+                test = lambda item: (item.volume() <= self.capacity and
+                                     isinstance(item, target))
 
             try:
                 self.nearest = sorted([item for item in self.world.items
@@ -358,7 +361,8 @@ class Drink(Task):
         if self.subject.inventory.has(Beverage):
             return []
         else:
-            reqs = [Acquire(self.subject, self.world, [Beverage])]
+            reqs = [Acquire(self.subject, self.world,
+                            [Beverage], self.subject.inventory.space())]
             return reqs[0].requirements() + reqs
 
     def work(self):
@@ -413,7 +417,8 @@ class StoreItem(Task):
             if self.subject.inventory.has(t):
                 break
         else:
-            reqs = [Acquire(self.subject, self.world, self.stockpile.types)] + reqs
+            reqs = [Acquire(self.subject, self.world,
+                            self.stockpile.types, self.stockpile.space())] + reqs
 
         return reqs[0].requirements() + reqs if len(reqs) else reqs
 
@@ -441,6 +446,9 @@ class FillStockpile(Task):
                           if stockpile.space()), None)
         if stockpile is None:
             return []
+
+        self.world.stockpiles.remove(stockpile)
+        self.world.stockpiles.append(stockpile)
         
         reqs = [StoreItem(self.subject, self.world, stockpile)]
         return reqs[0].requirements() + reqs
