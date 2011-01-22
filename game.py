@@ -1,14 +1,12 @@
 from random import choice, randint, sample
 
-from data import Barrel, Corpse, Dwarf, Entity, Goblin, Oak, SmallSpider, Stockpile, Thing, Tortoise, World
+from data import Oak, World
 from pathing import PathManager
 
 class Game(object):
     def __init__(self):
      
         self.dimensions = 156, 104, 128
-
-        kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
         class Tile(object):
             def __init__(self, kind, passable, color, varient):
@@ -111,31 +109,6 @@ class Game(object):
                 self.changed = True
 
         self.world = World(Space(self.dimensions), [], [])
-
-        for i in range(20):
-            creature = choice(kind)((randint(0,self.dimensions[0]-1),
-                                     randint(0,self.dimensions[1]-1),
-                                     64))
-            self.world.creatures.append(creature)
-
-        for i in range(10):
-            self.world.items.append(Barrel((randint(0,self.dimensions[0]-1),
-                                            randint(0,self.dimensions[1]-1),
-                                            64),
-                                           Oak))
-
-        for i in range(10):
-            c = (randint(0,self.dimensions[0]-1),
-                 randint(0,self.dimensions[1]-1),
-                 64)
-            if self.world.space[c].is_passable():
-                neighbors = [(x,y,c[2]) for (x,y) in
-                             self.world.space.pathing.adjacent_xy((c[0:2]))]
-                self.world.stockpiles.append(
-                    Stockpile([p for p in [c] +
-                               sample(neighbors, randint(0, len(neighbors)))
-                               if self.world.space[p].is_passable()],
-                              [Barrel]))
             
         self.done = False
         self.paused = False
