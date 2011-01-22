@@ -256,8 +256,17 @@ class Renderer(object):
                     [component.location[i] - self.offset[i] for i in range(2)] +
                     [component.location[2]]))
 
-        if not locations or stockpile.changed:
-            if stockpile in self.entity_sprites:
+        if stockpile in self.entity_sprites:
+            changed = stockpile.changed
+
+            if not changed:
+                changed = (len(locations) !=
+                           len(self.entity_sprites[stockpile].locations) or
+                           any([locations[i] !=
+                                self.entity_sprites[stockpile].locations[i]
+                                for i in range(len(locations))]))
+
+            if changed:
                 self.sprites.remove(self.entity_sprites[stockpile])
                 del self.entity_sprites[stockpile]
             stockpile.changed = False
@@ -303,6 +312,7 @@ class Renderer(object):
                     descs.append(stockpile.description())
                     
             sprite.rect = sprite.image.get_rect().move(x, y)
+            sprite.locations = locations
             self.sprites.add(sprite)
 
             self.entity_sprites[stockpile] = sprite
