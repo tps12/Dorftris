@@ -4,9 +4,9 @@ from data import Oak, World
 from pathing import PathManager
 
 class Game(object):
-    def __init__(self):
+    def __init__(self, dimensions):
      
-        self.dimensions = 156, 104, 128
+        self.dimensions = dimensions
 
         class Tile(object):
             def __init__(self, kind, passable, color, varient):

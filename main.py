@@ -9,7 +9,7 @@ from rendering import Renderer
 from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Stockpile, Tortoise
 
 def main():
-    game = Game()
+    game = Game((156, 104, 128))
     renderer = Renderer(game)
 
     kind = (Dwarf,Goblin,Tortoise,SmallSpider)
