@@ -436,18 +436,17 @@ class StoreItem(Task):
         self.stockpile = stockpile
 
     def requirements(self):
-        if self.subject.location != self.stockpile.components[0].location:
-            reqs = [GoToGoal(self.subject, self.world,
-                             self.stockpile.components[0].location)]
-        else:
-            reqs = []
-
         for t in self.stockpile.types:
             if self.subject.inventory.has(t):
+                reqs = []
                 break
         else:
             reqs = [AcquireNonStockpiled(self.subject, self.world,
-                            self.stockpile.types, self.stockpile.space())] + reqs
+                            self.stockpile.types, self.stockpile.space())]
+
+        if self.subject.location != self.stockpile.components[0].location:
+            reqs = reqs + [GoToGoal(self.subject, self.world,
+                                    self.stockpile.components[0].location)]
 
         return reqs[0].requirements() + reqs if len(reqs) else reqs
 
