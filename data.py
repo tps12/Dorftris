@@ -300,10 +300,10 @@ class Attack(Task):
         return self.nearest.health <= 0
 
 class Acquire(Task):
-    def __init__(self, subject, world, targets, capacity):
+    def __init__(self, subject, world, test, capacity):
         self.subject = subject
         self.world = world
-        self.targets = targets
+        self.test = test
         self.capacity = capacity
         self.nearest = None
 
@@ -312,21 +312,11 @@ class Acquire(Task):
             return []
 
         for target in self.targets:
-            test = None
-            if target.fluid:
-                test = lambda item: (item.volume() <= self.capacity and
-                                     isinstance(item, Storage) and
-                                     len(item.contents) == 1 and
-                                     isinstance(item.contents[0], target))
-            else:
-                test = lambda item: (item.volume() <= self.capacity and
-                                     isinstance(item, target))
-
             try:
                 self.nearest = sorted([item for item in self.world.items
                                        if item.location is not None and
                                        not item.reserved and
-                                       test(item)],
+                                       self.test(item)],
                                       key = lambda item:
                                       self.world.space.pathing.distance_xy(
                                           self.subject.location[0:2],
@@ -352,6 +342,16 @@ class Acquire(Task):
         self.subject.inventory.add(self.nearest)
         return True
 
+class AcquireKind(Acquire):
+    def __init__(self, subject, world, targets, capacity):
+        Acquire.__init__(self, subject, world, self.istarget, capacity)
+        self.targets = targets
+
+    def istarget(self, item):
+        return any([(target.fluid and
+                     isinstance(item, Storage) and item.has(target)) or
+                    isinstance(item, target) for target in self.targets])
+                    
 class Drink(Task):
     def __init__(self, subject, world):
         self.subject = subject
@@ -361,7 +361,7 @@ class Drink(Task):
         if self.subject.inventory.has(Beverage):
             return []
         else:
-            reqs = [Acquire(self.subject, self.world,
+            reqs = [AcquireKind(self.subject, self.world,
                             [Beverage], self.subject.inventory.space())]
             return reqs[0].requirements() + reqs
 
@@ -417,7 +417,7 @@ class StoreItem(Task):
             if self.subject.inventory.has(t):
                 break
         else:
-            reqs = [Acquire(self.subject, self.world,
+            reqs = [AcquireKind(self.subject, self.world,
                             self.stockpile.types, self.stockpile.space())] + reqs
 
         return reqs[0].requirements() + reqs if len(reqs) else reqs
