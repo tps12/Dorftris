@@ -330,21 +330,25 @@ class Acquire(Task):
             else:
                 raise TaskImpossible()
 
-        if self.nearest.location is None:
+        location = (self.stockpile.components[0].location
+                    if self.stockpile is not None
+                    else self.nearest.location)
+
+        if location is None:
             raise TaskImpossible()
-        elif self.nearest.location == self.subject.location:
+        elif location == self.subject.location:
             return []
         else:
             self.nearest.reserved = True
-            reqs = [GoToGoal(self.subject, self.world, self.nearest.location)]
+            reqs = [GoToGoal(self.subject, self.world, location)]
             return reqs[0].requirements() + reqs
 
     def searchstockpiles(self):
         for stockpile in self.world.stockpiles:
             for target in self.targets:
-                if stockpile.has(target):
+                self.nearest = stockpile.find(self.test)
+                if self.nearest is not None:
                     self.stockpile = stockpile
-                    self.nearest = self.stockpile.find(self.test)
                     return
 
     def work(self):
