@@ -306,25 +306,29 @@ class Acquire(Task):
         self.test = test
         self.capacity = capacity
         self.nearest = None
+        self.stockpile = None
 
     def requirements(self):
-        if self.nearest is not None:
+        if self.stockpile is not None or self.nearest is not None:
             return []
 
-        for target in self.targets:
-            try:
-                self.nearest = sorted([item for item in self.items()
-                                       if self.test(item)],
-                                      key = lambda item:
-                                      self.world.space.pathing.distance_xy(
-                                          self.subject.location[0:2],
-                                          item.location[0:2]))[0]
-                break
-            
-            except IndexError:
-                continue
-        else:
-            raise TaskImpossible()
+        self.searchstockpiles()
+
+        if self.nearest is None:
+            for target in self.targets:
+                try:
+                    self.nearest = sorted([item for item in self.items()
+                                           if self.test(item)],
+                                          key = lambda item:
+                                          self.world.space.pathing.distance_xy(
+                                              self.subject.location[0:2],
+                                              item.location[0:2]))[0]
+                    break
+                
+                except IndexError:
+                    continue
+            else:
+                raise TaskImpossible()
 
         if self.nearest.location is None:
             raise TaskImpossible()
@@ -335,8 +339,18 @@ class Acquire(Task):
             reqs = [GoToGoal(self.subject, self.world, self.nearest.location)]
             return reqs[0].requirements() + reqs
 
+    def searchstockpiles(self):
+        for stockpile in self.world.stockpiles:
+            for target in self.targets:
+                if stockpile.has(target):
+                    self.stockpile = stockpile
+                    self.nearest = self.stockpile.find(self.test)
+                    return
+
     def work(self):
         self.nearest.location = None
+        if self.stockpile is not None:
+            self.stockpile.remove(self.nearest)
         self.subject.inventory.add(self.nearest)
         return True
 
@@ -354,7 +368,15 @@ class AcquireKind(Acquire):
         return any([(target.fluid and
                      isinstance(item, Storage) and item.has(target)) or
                     isinstance(item, target) for target in self.targets])
-                    
+
+class AcquireNonStockpiled(AcquireKind):
+    def __init__(self, subject, world, targets, capacity):
+        AcquireKind.__init__(self, subject, world, targets, capacity)
+        self.targets = targets
+
+    def searchstockpiles(self):
+        return
+    
 class Drink(Task):
     def __init__(self, subject, world):
         self.subject = subject
@@ -420,7 +442,7 @@ class StoreItem(Task):
             if self.subject.inventory.has(t):
                 break
         else:
-            reqs = [AcquireKind(self.subject, self.world,
+            reqs = [AcquireNonStockpiled(self.subject, self.world,
                             self.stockpile.types, self.stockpile.space())] + reqs
 
         return reqs[0].requirements() + reqs if len(reqs) else reqs
