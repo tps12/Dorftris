@@ -313,10 +313,8 @@ class Acquire(Task):
 
         for target in self.targets:
             try:
-                self.nearest = sorted([item for item in self.world.items
-                                       if item.location is not None and
-                                       not item.reserved and
-                                       self.test(item)],
+                self.nearest = sorted([item for item in self.items()
+                                       if self.test(item)],
                                       key = lambda item:
                                       self.world.space.pathing.distance_xy(
                                           self.subject.location[0:2],
@@ -346,6 +344,11 @@ class AcquireKind(Acquire):
     def __init__(self, subject, world, targets, capacity):
         Acquire.__init__(self, subject, world, self.istarget, capacity)
         self.targets = targets
+
+    def items(self):
+        return [item for item in self.world.items
+                if item.location is not None and
+                not item.reserved]
 
     def istarget(self, item):
         return any([(target.fluid and
