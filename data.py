@@ -426,6 +426,8 @@ class StoreItem(Task):
             self.stockpile.add(item)
         else:
             item.location = self.subject.location
+
+        item.reserved = False
                 
         return True
 
