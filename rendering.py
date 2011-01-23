@@ -539,6 +539,8 @@ class Renderer(object):
                                       self.game.world.space.pathing.adjacent_xy(
                                           abstile[0:2])]):
                                 self.selection.append(abstile)
+                            else:
+                                self.selection = [abstile]
                         else:
                             self.selection.append(abstile)
                         
