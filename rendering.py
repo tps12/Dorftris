@@ -405,6 +405,17 @@ class Renderer(object):
 
         return pos, tile
 
+    def arefloor(self, locations):
+        return all([self.game.world.space[location].is_passable() and
+                    location[2] > 0 and
+                    not self.game.world.space[
+                        location[0:2] + (location[2]-1,)].is_passable()
+                    for location in locations])
+
+    def arewall(self, locations):
+        return all([not self.game.world.space[location].is_passable()
+                    for location in locations])
+
     def designate(self, tile):
         x, y, z = (self.offset[0] + tile[0],
                    self.offset[1] + tile[1],
