@@ -63,7 +63,8 @@ class Renderer(object):
         self.air = Entity('air')
         self.ground = Entity('ground')
 
-        self.hex_image = Surface((self.tile_width+self.tile_height/3, self.tile_height+1),
+        self.hex_image = Surface((self.tile_width+self.tile_height/3,
+                                  self.tile_height+1),
                             flags=SRCALPHA)
         gfxdraw.polygon(self.hex_image, self.hexpoints(), (0, 0, 0))
 
@@ -535,7 +536,8 @@ class Renderer(object):
                 
                 x, y = [min([p[i] for p in locations]) for i in range(2)]
                 size = [max([p[i] for p in locations]) - (x,y)[i] +
-                        (self.tile_width, self.tile_height)[i]
+                        (self.tile_width+self.tile_height/3,
+                         self.tile_height+1)[i]
                         for i in range(2)]
 
                 self.selection_sprite.image = Surface(size, flags=SRCALPHA)
