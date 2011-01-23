@@ -63,6 +63,7 @@ class Renderer(object):
         self.pause_notice.fill((255,255,255), special_flags=BLEND_ADD)
 
         self.air = Entity('air')
+        self.button = Entity('button')
         self.ground = Entity('ground')
 
         self.hex_image = Surface((self.tile_width+self.tile_height/3,
@@ -633,6 +634,49 @@ class Renderer(object):
         self.screen.fill((0,0,0), Rect(msg_loc, self.pause_notice.get_size()))        
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
+
+        button_loc = self.tile_location((self.dimensions[0]+1,
+                                         self.dimensions[1]+1,
+                                         self.level))
+        if self.offset[0]&1:
+            button_loc = button_loc[0], button_loc[1] - self.tile_height/2
+        if self.selection:
+            if self.arefloor(self.selection) or self.arewall(self.selection):
+                outlines = self.graphics[self.button]
+                text = self.uifont.render(_('Dig'), True, (255,255,255))
+                
+                w = 0
+                while w * outlines[0].get_width() < text.get_width():
+                    w += 1
+                h = 0
+                while h * outlines[0].get_height() < text.get_height():
+                    h += 1
+
+                button = Surface(((w+2)*outlines[0].get_width(),
+                                  (h+2)*outlines[1].get_height()),
+                                 flags=SRCALPHA)
+                
+                button.blit(outlines[0], (0,0))
+                button.blit(outlines[2], ((w+2)*outlines[0].get_width(),0))
+                button.blit(outlines[4], ((w+2)*outlines[0].get_width(),
+                                          (h+2)*outlines[0].get_height()))
+                button.blit(outlines[6], (0,(h+2)*outlines[0].get_height()))
+                
+                for i in range(w):
+                    button.blit(outlines[1], ((i+1)*outlines[0].get_width(),0))
+                    button.blit(outlines[5], ((i+1)*outlines[0].get_width(),
+                                              (h+2)*outlines[0].get_height()))
+                for i in range(h):
+                    button.blit(outlines[3], ((w+2)*outlines[0].get_width(),
+                                              (i+1)*outlines[0].get_height()))
+                    button.blit(outlines[7], (0,(i+2)*outlines[0].get_height()))
+
+                button.fill((255,255,255), special_flags=BLEND_ADD)
+                
+                button.blit(text, outlines[0].get_size())
+
+                self.screen.blit(button, (button_loc[0],
+                                          button_loc[1] - button.get_height()))
 
         if creature_moved:
             self.stepsound.play()
