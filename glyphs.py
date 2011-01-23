@@ -10,6 +10,7 @@ class GlyphGraphics(object):
             'corpse': u'\u20e0',
             'dwarf': u'\u263a',
             'goblin': u'\u263f',
+            'grapes': u'\u2031',
             'ground': (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
             'harp': u'\u01f7',
             'leaves': u'\u2042',

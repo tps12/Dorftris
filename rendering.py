@@ -385,6 +385,18 @@ class Renderer(object):
 
         return pos, tile
 
+    def designate(self, tile):
+        x, y, z = (self.offset[0] + tile[0],
+                   self.offset[1] + tile[1],
+                   self.level)
+        target = self.game.world.space[(x,y,z)]
+        if target.is_passable() and z > 0:
+            z -= 1
+            target = self.game.world.space[(x,y,z)]
+        if not target.is_passable():
+            self.game.world.designations.append((x,y,z))
+            self.makebackground()
+
     def step(self):
         pos, tile = self.mousepos()
 
@@ -430,16 +442,7 @@ class Renderer(object):
             elif e.type == MOUSEBUTTONUP:
                 if e.button == 1:
                     if tile is not None:
-                        x, y, z = (self.offset[0] + tile[0],
-                                   self.offset[1] + tile[1],
-                                   self.level)
-                        target = self.game.world.space[(x,y,z)]
-                        if target.is_passable() and z > 0:
-                            z -= 1
-                            target = self.game.world.space[(x,y,z)]
-                        if not target.is_passable():
-                            self.game.world.designations.append((x,y,z))
-                            self.makebackground()
+                        self.designate(tile)
                     
                 elif e.button == 4:
                     self.tile_width += 2
@@ -495,7 +498,7 @@ class Renderer(object):
 
         if tile is not None:
             if self.mouse_sprite not in self.sprites:
-                self.sprites.add(self.mouse_sprite, layer=1)
+                self.sprites.add(self.mouse_sprite, layer=2)
             self.mouse_sprite.rect.topleft = self.tile_location(
                 tile + (self.level,))
             self.mouse_sprite.rect.move_ip(-self.tile_height/3, 0)
