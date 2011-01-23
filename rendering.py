@@ -211,6 +211,11 @@ class Renderer(object):
             if isinstance(entity, Stockpile):
                 self.updatestockpile(entity, pos, descs)
                 continue
+
+            described = False
+            if self.selection and entity.location in self.selection:
+                descs.append(entity.description())
+                described = True
             
             if entity.location is None or not self.visible(entity.location):
                 if entity in self.entity_sprites:
@@ -247,8 +252,11 @@ class Renderer(object):
                     sprite.rect.topleft = (x,y)
                     moved = True
 
-                if Rect(x, y, self.tile_width, self.tile_height).collidepoint(pos):
+                if not described and Rect(x, y,
+                                          self.tile_width,
+                                          self.tile_height).collidepoint(pos):
                     descs.append(entity.description())
+                    described = True
 
         return moved
 
@@ -274,6 +282,12 @@ class Renderer(object):
                 self.sprites.remove(self.entity_sprites[stockpile])
                 del self.entity_sprites[stockpile]
             stockpile.changed = False
+
+        described = False
+        if self.selection and any([c.location in self.selection
+                                   for c in stockpile.components]):
+            descs.append(stockpile.description())
+            described = True
         
         if locations and stockpile not in self.entity_sprites:                    
 
@@ -310,10 +324,12 @@ class Renderer(object):
                     sprite.image.blit(itemimage, (px-x,py-y))
                     
                     items = items[1:]
-                    
-                if Rect(px-x, py-y,
-                        self.tile_width, self.tile_height).collidepoint(pos):
+
+                if not described and Rect(px-x, py-y,
+                                          self.tile_width,
+                                          self.tile_height).collidepoint(pos):
                     descs.append(stockpile.description())
+                    described = True
                     
             sprite.rect = sprite.image.get_rect().move(x, y)
             sprite.locations = locations
