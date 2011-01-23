@@ -91,6 +91,9 @@ class Renderer(object):
         self.mouse_sprite.image.fill((255,255,0), special_flags=BLEND_ADD)
         self.mouse_sprite.rect = self.mouse_sprite.image.get_rect()
 
+        self.selection = []
+        self.selection_sprite = None
+
         self.entity_sprites = {}
     
     def makebackground(self):
@@ -433,18 +436,34 @@ class Renderer(object):
                 elif e.unicode == '>':
                     self.level = max(self.level-1, 0)
                     self.makebackground()
+                    self.selection = []
                 elif e.unicode == '<':
                     self.level = min(self.level+1, self.game.dimensions[2])
                     self.makebackground()
+                    self.selection = []
                 elif e.unicode == 'd':
                     import pdb
                     pdb.set_trace()
-            elif e.type == MOUSEBUTTONUP:
+                    
+            elif e.type == MOUSEBUTTONDOWN:
                 if e.button == 1:
                     if tile is not None:
-                        self.designate(tile)
-                    
-                elif e.button == 4:
+                        abstile = (tile[0] + self.offset[0],
+                                   tile[1] + self.offset[1],
+                                   self.level)
+                        if self.selection:
+                            if abstile in self.selection:
+                                self.selection.remove(abstile)
+                            elif any([(x,y,self.level) in self.selection
+                                      for x,y in
+                                      self.game.world.space.pathing.adjacent_xy(
+                                          abstile[0:2])]):
+                                self.selection.append(abstile)
+                        else:
+                            self.selection.append(abstile)
+                        
+            elif e.type == MOUSEBUTTONUP:
+                if e.button == 4:
                     self.tile_width += 2
                     self.tile_height += 2
                     self.definetiles()
@@ -495,6 +514,55 @@ class Renderer(object):
                 entity not in self.game.world.stockpiles):
                 self.sprites.remove(self.entity_sprites[entity])
                 del self.entity_sprites[entity]
+
+        if self.selection:
+            locations = [self.tile_location((p[0] - self.offset[0],
+                                             p[1] - self.offset[1],
+                                             p[2]))
+                         for p in self.selection
+                         if self.visible(p)]
+
+            if (not self.selection_sprite or
+                len(self.selection_sprite.locations) != len(locations) or
+                any([self.selection_sprite.locations[i] != locations[i]
+                     for i in range(len(locations))])):
+                
+                if self.selection_sprite in self.sprites:
+                    self.sprites.remove(self.selection_sprite)
+                    
+                self.selection_sprite = Sprite()
+                self.selection_sprite.locations = locations
+                
+                x, y = [min([p[i] for p in locations]) for i in range(2)]
+                size = [max([p[i] for p in locations]) - (x,y)[i] +
+                        (self.tile_width, self.tile_height)[i]
+                        for i in range(2)]
+
+                self.selection_sprite.image = Surface(size, flags=SRCALPHA)
+
+                for p in self.selection_sprite.locations:
+                    self.selection_sprite.image.blit(self.hex_image,
+                                                     (p[0]-x,p[1]-y))
+                    
+                self.selection_sprite.image.fill((255,0,0),
+                                                 special_flags=BLEND_ADD)
+                self.selection_sprite.rect = self.mouse_sprite.image.get_rect()
+                self.selection_sprite.rect.move_ip(x - self.tile_height/3, y)
+
+                self.sprites.add(self.selection_sprite, layer=1)
+                
+            if self.selection_sprite:                    
+                x, y = tuple([min([p[i] for p in locations])
+                              for i in range(2)])
+
+                x -= self.tile_height/3
+
+                if self.selection_sprite.rect.topleft != (x,y):
+                    self.selection_sprite.rect.topleft = (x,y)
+                    
+        elif self.selection_sprite:
+            self.sprites.remove(self.selection_sprite)
+            self.selection_sprite = None
 
         if tile is not None:
             if self.mouse_sprite not in self.sprites:
