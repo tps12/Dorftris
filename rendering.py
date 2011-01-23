@@ -20,6 +20,8 @@ class Renderer(object):
 
         key.set_repeat(50, 50)
 
+        self.selection = []
+
         self.tile_width = 16
         self.tile_height = 18
 
@@ -92,7 +94,6 @@ class Renderer(object):
         self.mouse_sprite.image.fill((255,255,0), special_flags=BLEND_ADD)
         self.mouse_sprite.rect = self.mouse_sprite.image.get_rect()
 
-        self.selection = []
         self.selection_sprite = None
 
         self.entity_sprites = {}
@@ -428,6 +429,57 @@ class Renderer(object):
             self.game.world.designations.append((x,y,z))
             self.makebackground()
 
+    def updateselection(self):
+        if self.selection:
+            locations = [self.tile_location((p[0] - self.offset[0],
+                                             p[1] - self.offset[1],
+                                             p[2]))
+                         for p in self.selection
+                         if self.visible(p)]
+
+            if (not self.selection_sprite or
+                len(self.selection_sprite.locations) != len(locations) or
+                any([self.selection_sprite.locations[i] != locations[i]
+                     for i in range(len(locations))])):
+                
+                if self.selection_sprite in self.sprites:
+                    self.sprites.remove(self.selection_sprite)
+                    
+                self.selection_sprite = Sprite()
+                self.selection_sprite.locations = locations
+                
+                x, y = [min([p[i] for p in locations]) for i in range(2)]
+                size = [max([p[i] for p in locations]) - (x,y)[i] +
+                        (self.tile_width+self.tile_height/3,
+                         self.tile_height+1)[i]
+                        for i in range(2)]
+
+                self.selection_sprite.image = Surface(size, flags=SRCALPHA)
+
+                for p in self.selection_sprite.locations:
+                    self.selection_sprite.image.blit(self.hex_image,
+                                                     (p[0]-x,p[1]-y))
+                    
+                self.selection_sprite.image.fill((255,0,0),
+                                                 special_flags=BLEND_ADD)
+                self.selection_sprite.rect = self.mouse_sprite.image.get_rect()
+                self.selection_sprite.rect.move_ip(x - self.tile_height/3, y)
+
+                self.sprites.add(self.selection_sprite, layer=1)
+                
+            if self.selection_sprite:                    
+                x, y = tuple([min([p[i] for p in locations])
+                              for i in range(2)])
+
+                x -= self.tile_height/3
+
+                if self.selection_sprite.rect.topleft != (x,y):
+                    self.selection_sprite.rect.topleft = (x,y)
+                    
+        elif self.selection_sprite:
+            self.sprites.remove(self.selection_sprite)
+            self.selection_sprite = None
+
     def step(self):
         pos, tile = self.mousepos()
 
@@ -543,55 +595,7 @@ class Renderer(object):
                 self.sprites.remove(self.entity_sprites[entity])
                 del self.entity_sprites[entity]
 
-        if self.selection:
-            locations = [self.tile_location((p[0] - self.offset[0],
-                                             p[1] - self.offset[1],
-                                             p[2]))
-                         for p in self.selection
-                         if self.visible(p)]
-
-            if (not self.selection_sprite or
-                len(self.selection_sprite.locations) != len(locations) or
-                any([self.selection_sprite.locations[i] != locations[i]
-                     for i in range(len(locations))])):
-                
-                if self.selection_sprite in self.sprites:
-                    self.sprites.remove(self.selection_sprite)
-                    
-                self.selection_sprite = Sprite()
-                self.selection_sprite.locations = locations
-                
-                x, y = [min([p[i] for p in locations]) for i in range(2)]
-                size = [max([p[i] for p in locations]) - (x,y)[i] +
-                        (self.tile_width+self.tile_height/3,
-                         self.tile_height+1)[i]
-                        for i in range(2)]
-
-                self.selection_sprite.image = Surface(size, flags=SRCALPHA)
-
-                for p in self.selection_sprite.locations:
-                    self.selection_sprite.image.blit(self.hex_image,
-                                                     (p[0]-x,p[1]-y))
-                    
-                self.selection_sprite.image.fill((255,0,0),
-                                                 special_flags=BLEND_ADD)
-                self.selection_sprite.rect = self.mouse_sprite.image.get_rect()
-                self.selection_sprite.rect.move_ip(x - self.tile_height/3, y)
-
-                self.sprites.add(self.selection_sprite, layer=1)
-                
-            if self.selection_sprite:                    
-                x, y = tuple([min([p[i] for p in locations])
-                              for i in range(2)])
-
-                x -= self.tile_height/3
-
-                if self.selection_sprite.rect.topleft != (x,y):
-                    self.selection_sprite.rect.topleft = (x,y)
-                    
-        elif self.selection_sprite:
-            self.sprites.remove(self.selection_sprite)
-            self.selection_sprite = None
+        self.updateselection()
 
         if tile is not None:
             if self.mouse_sprite not in self.sprites:
