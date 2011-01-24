@@ -653,23 +653,23 @@ class Renderer(object):
                     h += 1
 
                 button = Surface(((w+2)*outlines[0].get_width(),
-                                  (h+2)*outlines[1].get_height()),
+                                  (h+2)*outlines[0].get_height()),
                                  flags=SRCALPHA)
                 
                 button.blit(outlines[0], (0,0))
-                button.blit(outlines[2], ((w+2)*outlines[0].get_width(),0))
-                button.blit(outlines[4], ((w+2)*outlines[0].get_width(),
-                                          (h+2)*outlines[0].get_height()))
-                button.blit(outlines[6], (0,(h+2)*outlines[0].get_height()))
+                button.blit(outlines[2], ((w+1)*outlines[0].get_width(),0))
+                button.blit(outlines[4], ((w+1)*outlines[0].get_width(),
+                                          (h+1)*outlines[0].get_height()))
+                button.blit(outlines[6], (0,(h+1)*outlines[0].get_height()))
                 
                 for i in range(w):
                     button.blit(outlines[1], ((i+1)*outlines[0].get_width(),0))
                     button.blit(outlines[5], ((i+1)*outlines[0].get_width(),
-                                              (h+2)*outlines[0].get_height()))
+                                              (h+1)*outlines[0].get_height()))
                 for i in range(h):
-                    button.blit(outlines[3], ((w+2)*outlines[0].get_width(),
+                    button.blit(outlines[3], ((w+1)*outlines[0].get_width(),
                                               (i+1)*outlines[0].get_height()))
-                    button.blit(outlines[7], (0,(i+2)*outlines[0].get_height()))
+                    button.blit(outlines[7], (0,(i+1)*outlines[0].get_height()))
 
                 button.fill((255,255,255), special_flags=BLEND_ADD)
                 
