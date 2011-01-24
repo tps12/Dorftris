@@ -483,6 +483,45 @@ class Renderer(object):
             self.sprites.remove(self.selection_sprite)
             self.selection_sprite = None
 
+    def drawbutton(self, title, button_loc):
+        outlines = self.graphics[self.button]
+        text = self.uifont.render(' ' + title + ' ', True, (255,255,255))
+        
+        w = 0
+        while w * outlines[0].get_width() < text.get_width():
+            w += 1
+        h = 0
+        while h * outlines[0].get_height() < text.get_height():
+            h += 1
+
+        button = Surface(((w+2)*outlines[0].get_width(),
+                          (h+2)*outlines[0].get_height()),
+                         flags=SRCALPHA)
+        
+        button.blit(outlines[0], (0,0))
+        button.blit(outlines[2], ((w+1)*outlines[0].get_width(),0))
+        button.blit(outlines[4], ((w+1)*outlines[0].get_width(),
+                                  (h+1)*outlines[0].get_height()))
+        button.blit(outlines[6], (0,(h+1)*outlines[0].get_height()))
+        
+        for i in range(w):
+            button.blit(outlines[1], ((i+1)*outlines[0].get_width(),0))
+            button.blit(outlines[5], ((i+1)*outlines[0].get_width(),
+                                      (h+1)*outlines[0].get_height()))
+        for i in range(h):
+            button.blit(outlines[3], ((w+1)*outlines[0].get_width(),
+                                      (i+1)*outlines[0].get_height()))
+            button.blit(outlines[7], (0,(i+1)*outlines[0].get_height()))
+
+        button.fill((255,255,255), special_flags=BLEND_ADD)
+        
+        button.blit(text, outlines[0].get_size())
+
+        self.screen.blit(button, (button_loc[0],
+                                  button_loc[1] - button.get_height()))
+
+        return button_loc
+
     def step(self):
         pos, tile = self.mousepos()
 
@@ -642,41 +681,7 @@ class Renderer(object):
             button_loc = button_loc[0], button_loc[1] - self.tile_height/2
         if self.selection:
             if self.arefloor(self.selection) or self.arewall(self.selection):
-                outlines = self.graphics[self.button]
-                text = self.uifont.render(' ' + _('Dig') + ' ', True, (255,255,255))
-                
-                w = 0
-                while w * outlines[0].get_width() < text.get_width():
-                    w += 1
-                h = 0
-                while h * outlines[0].get_height() < text.get_height():
-                    h += 1
-
-                button = Surface(((w+2)*outlines[0].get_width(),
-                                  (h+2)*outlines[0].get_height()),
-                                 flags=SRCALPHA)
-                
-                button.blit(outlines[0], (0,0))
-                button.blit(outlines[2], ((w+1)*outlines[0].get_width(),0))
-                button.blit(outlines[4], ((w+1)*outlines[0].get_width(),
-                                          (h+1)*outlines[0].get_height()))
-                button.blit(outlines[6], (0,(h+1)*outlines[0].get_height()))
-                
-                for i in range(w):
-                    button.blit(outlines[1], ((i+1)*outlines[0].get_width(),0))
-                    button.blit(outlines[5], ((i+1)*outlines[0].get_width(),
-                                              (h+1)*outlines[0].get_height()))
-                for i in range(h):
-                    button.blit(outlines[3], ((w+1)*outlines[0].get_width(),
-                                              (i+1)*outlines[0].get_height()))
-                    button.blit(outlines[7], (0,(i+1)*outlines[0].get_height()))
-
-                button.fill((255,255,255), special_flags=BLEND_ADD)
-                
-                button.blit(text, outlines[0].get_size())
-
-                self.screen.blit(button, (button_loc[0],
-                                          button_loc[1] - button.get_height()))
+                button_loc = self.drawbutton(_('Dig'), button_loc)
 
         if creature_moved:
             self.stepsound.play()
