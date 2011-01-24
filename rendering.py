@@ -517,8 +517,9 @@ class Renderer(object):
         
         button.blit(text, outlines[0].get_size())
 
-        self.screen.blit(button, (button_loc[0],
-                                  button_loc[1] - button.get_height()))
+        button_loc = button_loc[0], button_loc[1] - button.get_height()
+
+        self.screen.blit(button, button_loc)
 
         return button_loc
 
@@ -680,8 +681,16 @@ class Renderer(object):
         if self.offset[0]&1:
             button_loc = button_loc[0], button_loc[1] - self.tile_height/2
         if self.selection:
-            if self.arefloor(self.selection) or self.arewall(self.selection):
+            arefloor = self.arefloor(self.selection)
+            if arefloor or self.arewall(self.selection):
                 button_loc = self.drawbutton(_('Dig'), button_loc)
+            if (arefloor and all([self.game.world.space[loc].is_passable()
+                                  for loc in self.selection]) and
+                all([comp.location not in self.selection
+                     for pile in self.game.world.stockpiles
+                     for comp in pile.components])):
+                button_loc = self.drawbutton(_('Stockpile'), button_loc)
+                     
 
         if creature_moved:
             self.stepsound.play()
