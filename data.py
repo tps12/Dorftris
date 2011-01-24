@@ -578,7 +578,8 @@ class Creature(Thing):
                    JobOption(Hydrate, lambda c, w: c.hydration < 1000, 0),
                    JobOption(DropExtraItems,
                              lambda c, w: c.inventory.find(lambda i:
-                                                        not i.reserved), 99),
+                                                        isinstance(i, Item) and
+                                                           not i.reserved), 99),
                    JobOption(Meander, lambda c, w: True, 100)
                    ],
                   key = JobOption.prioritykey)
