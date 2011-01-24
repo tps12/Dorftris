@@ -6,7 +6,7 @@ class GlyphGraphics(object):
             'bag': u'\u01d2',
             'barrel': u'\u2338',
             'branch': (u'\u2b06',u'\u2b07',u'\u2b08',u'\u2b09',u'\u2b0a',u'\u2b0b'),
-            'button': (u'\u250c',u'\u2500',u'\u2512',u'\u2503',u'\u251b',u'\u2501',u'\u2515',u'\u2502'),
+            'button': (u'\u250c',u'\u2500',u'\u2556',u'\u2551',u'\u255d',u'\u2550',u'\u2558',u'\u2502'),
             'chair': u'\u2441',
             'corpse': u'\u20e0',
             'dwarf': u'\u263a',

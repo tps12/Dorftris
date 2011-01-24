@@ -643,7 +643,7 @@ class Renderer(object):
         if self.selection:
             if self.arefloor(self.selection) or self.arewall(self.selection):
                 outlines = self.graphics[self.button]
-                text = self.uifont.render(_('Dig'), True, (255,255,255))
+                text = self.uifont.render(' ' + _('Dig') + ' ', True, (255,255,255))
                 
                 w = 0
                 while w * outlines[0].get_width() < text.get_width():
