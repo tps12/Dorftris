@@ -6,7 +6,7 @@ from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
 
-from data import Corpse, Entity, Stockpile
+from data import Barrel, Corpse, Entity, Stockpile
 from glyphs import GlyphGraphics
 
 INFO_WIDTH = 20
@@ -483,7 +483,14 @@ class Renderer(object):
             self.sprites.remove(self.selection_sprite)
             self.selection_sprite = None
 
-    def drawbutton(self, title, button_loc):
+    def designateselection(self):
+        for tile in self.selection:
+            self.designate(tile)
+
+    def makestockpile(self):
+        self.game.world.stockpiles.append(Stockpile(self.selection, [Barrel]))
+
+    def drawbutton(self, title, button_loc, handler):
         outlines = self.graphics[self.button]
         text = self.uifont.render(' ' + title + ' ', True, (255,255,255))
         
@@ -520,6 +527,8 @@ class Renderer(object):
         button_loc = button_loc[0], button_loc[1] - button.get_height()
 
         self.screen.blit(button, button_loc)
+
+        self.buttonhandlers[(button_loc, button.get_size())] = handler
 
         return button_loc
 
@@ -584,6 +593,10 @@ class Renderer(object):
                                 self.selection = [abstile]
                         else:
                             self.selection.append(abstile)
+                    else:
+                        for r in self.buttonhandlers:
+                            if Rect(r[0],r[1]).collidepoint(pos):
+                                self.buttonhandlers[r]()
                         
             elif e.type == MOUSEBUTTONUP:
                 if e.button == 4:
@@ -675,6 +688,7 @@ class Renderer(object):
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
 
+        self.buttonhandlers = {}
         button_loc = self.tile_location((self.dimensions[0]+1,
                                          self.dimensions[1]+1,
                                          self.level))
@@ -683,13 +697,13 @@ class Renderer(object):
         if self.selection:
             arefloor = self.arefloor(self.selection)
             if arefloor or self.arewall(self.selection):
-                button_loc = self.drawbutton(_('Dig'), button_loc)
+                button_loc = self.drawbutton(_('Dig'), button_loc, self.designateselection)
             if (arefloor and all([self.game.world.space[loc].is_passable()
                                   for loc in self.selection]) and
                 all([comp.location not in self.selection
                      for pile in self.game.world.stockpiles
                      for comp in pile.components])):
-                button_loc = self.drawbutton(_('Stockpile'), button_loc)
+                button_loc = self.drawbutton(_('Stockpile'), button_loc, self.makestockpile)
                      
 
         if creature_moved:

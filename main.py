@@ -31,19 +31,6 @@ def main():
                                         randint(0,game.dimensions[1]-1),
                                         64),
                                        Oak))
-
-    for i in range(10):
-        c = (randint(0,game.dimensions[0]-1),
-             randint(0,game.dimensions[1]-1),
-             64)
-        if game.world.space[c].is_passable():
-            neighbors = [(x,y,c[2]) for (x,y) in
-                         game.world.space.pathing.adjacent_xy((c[0:2]))]
-            game.world.stockpiles.append(
-                Stockpile([p for p in [c] +
-                           sample(neighbors, randint(0, len(neighbors)))
-                           if game.world.space[p].is_passable()],
-                          [Barrel]))
     
     while not game.done:
         game.step()
