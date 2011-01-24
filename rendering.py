@@ -419,9 +419,7 @@ class Renderer(object):
                     for location in locations])
 
     def designate(self, tile):
-        x, y, z = (self.offset[0] + tile[0],
-                   self.offset[1] + tile[1],
-                   self.level)
+        x, y, z = tile
         target = self.game.world.space[(x,y,z)]
         if target.is_passable() and z > 0:
             z -= 1
