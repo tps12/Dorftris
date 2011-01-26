@@ -136,8 +136,11 @@ class Game(object):
                 self.schedule.append([])
                 for creature in creatures:
                     creature.step(self.world)
-                    self.schedule[creature.rest].append(creature)
-                    creature.rest = 0
+                    if creature.remove:
+                        self.world.creatures.remove(creature)
+                    else:
+                        self.schedule[creature.rest].append(creature)
+                        creature.rest = 0
                 self.t += 1
                 steps += 1
                     

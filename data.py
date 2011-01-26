@@ -592,9 +592,10 @@ class Creature(Thing):
         self.job = None
         self.hydration = randint(9000, 36000)
         self.rest = randint(0, self.speed)
+        self.remove = False
 
     def die(self, world):
-        world.creatures.remove(self)
+        self.remove = True
         world.items.append(Corpse(self))
 
     def newjob(self, world):
