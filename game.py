@@ -1,3 +1,4 @@
+from collections import deque
 from random import choice, randint, sample
 from time import time
 
@@ -105,6 +106,7 @@ class Game(object):
                 self.changed = True
 
         self.world = World(Space(self.dimensions), [], [])
+        self.schedule = None
 
         self.t = 0
         self.lasttime = None
@@ -113,14 +115,23 @@ class Game(object):
         self.done = False
         self.paused = False
 
-    def step(self):       
+    def step(self):
+        if self.schedule is None:
+            self.schedule = deque([[] for i in range(32)])
+            for c in self.world.creatures:
+                self.schedule[c.rest].append(c)
+        
         if not self.paused:
             t = time()
             elapsed = 0
             
             while elapsed < self.targettime:
-                for creature in self.world.creatures:
+                creatures = self.schedule.popleft()
+                self.schedule.append([])
+                for creature in creatures:
                     creature.step(self.world)
+                    self.schedule[creature.rest].append(creature)
+                    creature.rest = 0
                 self.t += 1
                     
                 self.lasttime = t
