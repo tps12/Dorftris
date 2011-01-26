@@ -9,7 +9,7 @@ from rendering import Renderer
 from data import Dwarf
 
 def main():
-    n = 2000
+    n = 1500
     
     print 'How fast can a world with {0} guys run.'.format(n)
     
