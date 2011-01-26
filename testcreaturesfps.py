@@ -2,6 +2,7 @@ import gettext
 gettext.install('dorftris')
 
 from random import randint
+from time import time
 
 from game import Game
 from rendering import Renderer
@@ -18,10 +19,14 @@ def main():
 
     for i in range(n):
         game.world.creatures.append(Dwarf((randint(0,255),randint(0,255),64)))
+
+    start = time()
     
     while not game.done:
         game.step()
         renderer.step()
+
+    print game.t/(time() - start), 'FPS'
 
 if __name__ == '__main__':
     main()

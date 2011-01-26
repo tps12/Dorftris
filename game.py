@@ -109,8 +109,9 @@ class Game(object):
         self.schedule = None
 
         self.t = 0
-        self.lasttime = None
-        self.targettime = 1/60.0
+        
+        self.lasttime = time()
+        self.targettime = 1/15.0
             
         self.done = False
         self.paused = False
@@ -123,9 +124,14 @@ class Game(object):
         
         if not self.paused:
             t = time()
+            elapsed = max(0, min(0.125, t - self.lasttime))
+            steps = 0
+
+            targetsteps = 1 if elapsed > 0.1 else 0
+
             elapsed = 0
             
-            while elapsed < self.targettime:
+            while elapsed < self.targettime and steps < targetsteps:
                 creatures = self.schedule.popleft()
                 self.schedule.append([])
                 for creature in creatures:
@@ -133,9 +139,10 @@ class Game(object):
                     self.schedule[creature.rest].append(creature)
                     creature.rest = 0
                 self.t += 1
+                steps += 1
                     
                 self.lasttime = t
                 t = time()
                 elapsed += max(0, min(0.125, t - self.lasttime))
-
-        self.lasttime = time()
+        else:
+            self.lasttime = time()
