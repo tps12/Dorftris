@@ -695,3 +695,6 @@ class World(object):
         self.creatures = creatures
         self.designations = deque()
         self.stockpiles = []
+
+    def addstockpile(self, stockpile):
+        self.stockpiles.append(stockpile)

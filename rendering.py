@@ -486,7 +486,7 @@ class Renderer(object):
             self.designate(tile)
 
     def makestockpile(self):
-        self.game.world.stockpiles.append(Stockpile(self.selection, [Barrel]))
+        self.game.world.addstockpile(Stockpile(self.selection, [Barrel]))
 
     def drawbutton(self, title, button_loc, handler):
         outlines = self.graphics[self.button]
