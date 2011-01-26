@@ -645,14 +645,14 @@ class Renderer(object):
 
         for x in range(self.dimensions[0]):
             for y in range(self.dimensions[1]):
-                creature_moved = self.update(
-                    self.game.world.space[(self.offset[0] + x,
-                                        self.offset[1] + y,
-                                        self.level)].contents, pos, descs) or creature_moved
+                this = self.game.world.space[(self.offset[0] + x,
+                                              self.offset[1] + y,
+                                              self.level)]
+                creature_moved = self.update(this.contents,
+                                             pos, descs) or creature_moved
+                self.update(this.items, pos, descs)
 
         self.update(self.game.world.stockpiles, pos, descs)
-
-        self.update(self.game.world.items, pos, descs)
 
         for entity in self.entity_sprites.keys():
             if not self.visible(entity.location):
