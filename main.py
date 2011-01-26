@@ -51,9 +51,9 @@ def main():
         while game_acc > game_dt:
             game.step()
             game_acc -= game_dt
-        while render_acc > render_dt:
+        if render_acc > render_dt:
             renderer.step()
-            render_acc -= render_dt
+            render_acc = 0
 
         last = current
 
