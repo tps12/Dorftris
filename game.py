@@ -17,6 +17,7 @@ class Game(object):
                 self.color = color
                 self.varient = varient
                 self.contents = []
+                self.items = []
 
             def varient(self):
                 return self.varient

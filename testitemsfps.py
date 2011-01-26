@@ -18,7 +18,9 @@ def main():
     renderer = Renderer(game)
 
     for i in range(n):
-        game.world.items.append(Barrel((randint(0,255),randint(0,255),64), Oak))
+        b = Barrel((randint(0,255),randint(0,255),64), Oak)
+        game.world.items.append(b)
+        game.world.space[b.location].items.append(b)
 
     start = time()
     
