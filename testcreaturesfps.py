@@ -18,7 +18,9 @@ def main():
     renderer = Renderer(game)
 
     for i in range(n):
-        game.world.creatures.append(Dwarf((randint(0,255),randint(0,255),64)))
+        d = Dwarf((randint(0,255),randint(0,255),64))
+        game.world.creatures.append(d)
+        game.world.space[d.location].contents.append(d)
 
     start = time()
     
