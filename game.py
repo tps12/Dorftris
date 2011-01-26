@@ -117,7 +117,7 @@ class Game(object):
 
     def step(self):
         if self.schedule is None:
-            self.schedule = deque([[] for i in range(32)])
+            self.schedule = deque([[] for i in range(128)])
             for c in self.world.creatures:
                 self.schedule[c.rest].append(c)
         
