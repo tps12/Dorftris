@@ -1,6 +1,5 @@
 from collections import deque
 from random import choice, randint, sample
-from time import time
 
 from data import Oak, World
 from pathing import PathManager
@@ -109,9 +108,6 @@ class Game(object):
         self.schedule = None
 
         self.t = 0
-        
-        self.lasttime = time()
-        self.targettime = 1/15.0
             
         self.done = False
         self.paused = False
@@ -123,29 +119,13 @@ class Game(object):
                 self.schedule[c.rest].append(c)
         
         if not self.paused:
-            t = time()
-            elapsed = max(0, min(0.125, t - self.lasttime))
-            steps = 0
-
-            targetsteps = 1 if elapsed > 0.1 else 0
-
-            elapsed = 0
-            
-            while elapsed < self.targettime and steps < targetsteps:
-                creatures = self.schedule.popleft()
-                self.schedule.append([])
-                for creature in creatures:
-                    creature.step(self.world)
-                    if creature.remove:
-                        self.world.creatures.remove(creature)
-                    else:
-                        self.schedule[creature.rest].append(creature)
-                        creature.rest = 0
-                self.t += 1
-                steps += 1
-                    
-                self.lasttime = t
-                t = time()
-                elapsed += max(0, min(0.125, t - self.lasttime))
-        else:
-            self.lasttime = time()
+            creatures = self.schedule.popleft()
+            self.schedule.append([])
+            for creature in creatures:
+                creature.step(self.world)
+                if creature.remove:
+                    self.world.creatures.remove(creature)
+                else:
+                    self.schedule[creature.rest].append(creature)
+                    creature.rest = 0
+            self.t += 1
