@@ -6,6 +6,7 @@ from pygame import display, event, font, gfxdraw, key, mouse, Rect, Surface
 from pygame.locals import *
 from pygame.mixer import Sound
 from pygame.sprite import *
+from pygame.time import Clock
 
 from data import Barrel, Corpse, Entity, Stockpile
 from glyphs import GlyphGraphics
@@ -36,6 +37,7 @@ class Renderer(object):
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
+        self.clock = Clock()
         self.lastt = None
 
     def tile_location(self, c):
@@ -685,7 +687,9 @@ class Renderer(object):
                                       self.level))
         if self.offset[0]&1:
             msg_loc = msg_loc[0], msg_loc[1] - self.tile_height/2
-        self.screen.fill((0,0,0), Rect(msg_loc, self.pause_notice.get_size()))        
+        self.screen.fill((0,0,0), Rect(msg_loc,
+                                       (2*self.pause_notice.get_width(),
+                                        self.pause_notice.get_height())))        
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
             self.lastt = None
@@ -700,6 +704,10 @@ class Renderer(object):
                     self.screen.blit(self.uifont.render(_('{0:d} FPS').format(
                         int(frames/secs+0.5)), True, (255,255,255)), msg_loc)
                 self.lastt = self.game.t, t
+
+        self.screen.blit(self.uifont.render(_('{0:d} GFPS').format(
+            int(self.clock.get_fps()+0.5)), True, (255,255,255)),
+                         (msg_loc[0] + self.pause_notice.get_width(), msg_loc[1]))
 
         self.buttonhandlers = {}
         button_loc = self.tile_location((self.dimensions[0]+1,
@@ -723,3 +731,4 @@ class Renderer(object):
             self.stepsound.play()
 
         display.flip()
+        self.clock.tick()
