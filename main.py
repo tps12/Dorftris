@@ -2,6 +2,7 @@ import gettext
 gettext.install('dorftris')
 
 from random import choice, randint, sample
+from time import time
 
 from game import Game
 from rendering import Renderer
@@ -31,10 +32,30 @@ def main():
                                         randint(0,game.dimensions[1]-1),
                                         64),
                                        Oak))
+
+    game_acc = 0
+    render_acc = 0
+
+    game_dt = 0.1
+    render_dt = 0.05
+
+    last = time()
     
     while not game.done:
-        game.step()
-        renderer.step()
+        current = time()
+        delta = min(0.125, max(0, current - last))
+
+        game_acc += delta
+        render_acc += delta
+
+        while game_acc > game_dt:
+            game.step()
+            game_acc -= game_dt
+        while render_acc > render_dt:
+            renderer.step()
+            render_acc -= render_dt
+
+        last = current
 
 if __name__ == '__main__':
     main()
