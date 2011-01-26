@@ -104,12 +104,14 @@ class Game(object):
                 self.changed = True
 
         self.world = World(Space(self.dimensions), [], [])
+
+        self.t = 0
             
         self.done = False
         self.paused = False
 
     def step(self):
-        for creature in self.world.creatures:
-            if not self.paused:
+        if not self.paused:
+            for creature in self.world.creatures:
                 creature.step(self.world)
-           
+            self.t += 1        
