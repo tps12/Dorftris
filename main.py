@@ -26,12 +26,15 @@ def main():
                                  randint(0,game.dimensions[1]-1),
                                  64))
         game.world.creatures.append(creature)
+        game.world.space[creature.location].contents.append(creature)
 
     for i in range(10):
-        game.world.items.append(Barrel((randint(0,game.dimensions[0]-1),
+        barrel = Barrel((randint(0,game.dimensions[0]-1),
                                         randint(0,game.dimensions[1]-1),
                                         64),
-                                       Oak))
+                                       Oak)
+        game.world.items.append(barrel)
+        game.world.space[barrel.location].items.append(barrel)
 
     game_acc = 0
     render_acc = 0

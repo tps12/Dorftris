@@ -366,6 +366,7 @@ class Acquire(Task):
                     return
 
     def work(self):
+        self.world.space[self.nearest.location].items.remove(self.nearest)
         self.nearest.location = None
         if self.stockpile is not None:
             self.stockpile.remove(self.nearest)
@@ -439,6 +440,7 @@ class DropItems(Task):
         self.subject.inventory.remove(item)
         
         item.location = self.subject.location
+        self.world.space[item.location].items.append(item)
         item.reserved = False
 
         return False
@@ -473,6 +475,7 @@ class StoreItem(Task):
             self.stockpile.add(item)
         else:
             item.location = self.subject.location
+            self.world.space[item.location].items.append(item)
 
         item.reserved = False
                 

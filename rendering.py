@@ -655,7 +655,10 @@ class Renderer(object):
         self.update(self.game.world.stockpiles, pos, descs)
 
         for entity in self.entity_sprites.keys():
-            if not self.visible(entity.location):
+            if ((isinstance(entity, Stockpile) and
+                 entity not in self.game.world.stockpiles) or
+                (not isinstance(entity, Stockpile) and
+                 not self.visible(entity.location))):
                 self.sprites.remove(self.entity_sprites[entity])
                 del self.entity_sprites[entity]
 
