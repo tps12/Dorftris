@@ -1,4 +1,5 @@
 from random import choice, randint, sample
+from time import time
 
 from data import Oak, World
 from pathing import PathManager
@@ -106,12 +107,24 @@ class Game(object):
         self.world = World(Space(self.dimensions), [], [])
 
         self.t = 0
+        self.lasttime = None
+        self.targettime = 1/60.0
             
         self.done = False
         self.paused = False
 
-    def step(self):
+    def step(self):       
         if not self.paused:
-            for creature in self.world.creatures:
-                creature.step(self.world)
-            self.t += 1        
+            t = time()
+            elapsed = 0
+            
+            while elapsed < self.targettime:
+                for creature in self.world.creatures:
+                    creature.step(self.world)
+                self.t += 1
+                    
+                self.lasttime = t
+                t = time()
+                elapsed += max(0, min(0.125, t - self.lasttime))
+
+        self.lasttime = time()
