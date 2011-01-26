@@ -37,8 +37,14 @@ class Renderer(object):
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
-        self.timescales = [ 0.1, 0.2, 0.5, 1.0, 2.0, 5.0 ]
-        self.timeindex = self.timescales.index(0.1 / self.game.dt)
+        self.timestrings = [
+            _(u'\u2155 speed'),
+            _(u'\u00bd speed'),
+            _('Normal speed'),
+            _(u'2\u00d7 speed'),
+            _(u'5\u00d7 speed')
+            ]
+        self.timeindex = self.game.timescales.index(0.1 / self.game.dt)
 
         self.clock = Clock()
         self.lastt = None
@@ -582,11 +588,11 @@ class Renderer(object):
                 elif e.unicode == '-':
                     if self.timeindex > 0:
                         self.timeindex -= 1
-                        self.game.dt = 0.1 / self.timescales[self.timeindex]
+                        self.game.dt = 0.1 / self.game.timescales[self.timeindex]
                 elif e.unicode == '+':
-                    if self.timeindex < len(self.timescales)-1:
+                    if self.timeindex < len(self.game.timescales)-1:
                         self.timeindex += 1
-                        self.game.dt = 0.1 / self.timescales[self.timeindex]
+                        self.game.dt = 0.1 / self.game.timescales[self.timeindex]
                     
                 elif e.unicode == 'd':
                     import pdb
@@ -709,7 +715,7 @@ class Renderer(object):
         if self.offset[0]&1:
             msg_loc = msg_loc[0], msg_loc[1] - self.tile_height/2
         self.screen.fill((0,0,0), Rect(msg_loc,
-                                       (2*self.pause_notice.get_width(),
+                                       (3*self.pause_notice.get_width(),
                                         self.pause_notice.get_height())))        
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
@@ -733,6 +739,10 @@ class Renderer(object):
         self.screen.blit(self.uifont.render(_('{0:d} GFPS').format(
             int(self.clock.get_fps()+0.5)), True, (255,255,255)),
                          (msg_loc[0] + self.pause_notice.get_width(), msg_loc[1]))
+
+        self.screen.blit(self.uifont.render(self.timestrings[self.timeindex],
+                                            True, (255,255,255)),
+                         (msg_loc[0] + 2 * self.pause_notice.get_width(), msg_loc[1]))
 
         self.buttonhandlers = {}
         button_loc = self.tile_location((self.dimensions[0]+1,

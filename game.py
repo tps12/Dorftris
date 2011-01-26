@@ -8,6 +8,8 @@ class Game(object):
     def __init__(self, dimensions):
      
         self.dimensions = dimensions
+
+        self.timescales = [ 0.2, 0.5, 1.0, 2.0, 5.0 ]
         self.dt = 0.1
 
         class Tile(object):
