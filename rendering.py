@@ -37,6 +37,9 @@ class Renderer(object):
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
+        self.timescales = [ 0.1, 0.2, 0.5, 1.0, 2.0, 5.0 ]
+        self.timeindex = self.timescales.index(0.1 / self.game.dt)
+
         self.clock = Clock()
         self.lastt = None
         self.fps = []
@@ -575,6 +578,16 @@ class Renderer(object):
                 elif e.unicode == '<':
                     self.level = min(self.level+1, self.game.dimensions[2])
                     self.makebackground()
+
+                elif e.unicode == '-':
+                    if self.timeindex > 0:
+                        self.timeindex -= 1
+                        self.game.dt = 0.1 / self.timescales[self.timeindex]
+                elif e.unicode == '+':
+                    if self.timeindex < len(self.timescales)-1:
+                        self.timeindex += 1
+                        self.game.dt = 0.1 / self.timescales[self.timeindex]
+                    
                 elif e.unicode == 'd':
                     import pdb
                     pdb.set_trace()
