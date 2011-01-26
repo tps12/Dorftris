@@ -39,6 +39,7 @@ class Renderer(object):
 
         self.clock = Clock()
         self.lastt = None
+        self.fps = []
 
     def tile_location(self, c):
         x, y, z = c
@@ -701,8 +702,12 @@ class Renderer(object):
                 t = time()
                 secs = t - self.lastt[1]
                 if secs > 0:
+                    if len(self.fps) > 20:
+                        self.fps.pop(0)
+                    self.fps.append(frames/secs)
+                    fps = sum(self.fps)/len(self.fps)
                     self.screen.blit(self.uifont.render(_('{0:d} FPS').format(
-                        int(frames/secs+0.5)), True, (255,255,255)), msg_loc)
+                        int(fps+0.5)), True, (255,255,255)), msg_loc)
                 self.lastt = self.game.t, t
 
         self.screen.blit(self.uifont.render(_('{0:d} GFPS').format(
