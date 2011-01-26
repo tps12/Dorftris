@@ -39,7 +39,6 @@ def main():
     game_acc = 0
     render_acc = 0
 
-    game_dt = 0.1
     render_dt = 0.05
 
     last = time()
@@ -51,9 +50,9 @@ def main():
         game_acc += delta
         render_acc += delta
 
-        while game_acc > game_dt:
+        while game_acc > game.dt:
             game.step()
-            game_acc -= game_dt
+            game_acc -= game.dt
         if render_acc > render_dt:
             renderer.step()
             render_acc = 0

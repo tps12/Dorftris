@@ -8,6 +8,7 @@ class Game(object):
     def __init__(self, dimensions):
      
         self.dimensions = dimensions
+        self.dt = 0.1
 
         class Tile(object):
             def __init__(self, kind, passable, color, varient):
