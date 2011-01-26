@@ -1,4 +1,5 @@
 from random import choice, randint
+from time import time
 
 import pygame
 from pygame import display, event, font, gfxdraw, key, mouse, Rect, Surface
@@ -34,6 +35,8 @@ class Renderer(object):
         display.set_caption(_('Hex Grid'))
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
+
+        self.lastt = None
 
     def tile_location(self, c):
         x, y, z = c
@@ -685,6 +688,18 @@ class Renderer(object):
         self.screen.fill((0,0,0), Rect(msg_loc, self.pause_notice.get_size()))        
         if self.game.paused:
             self.screen.blit(self.pause_notice, msg_loc)
+            self.lastt = None
+        else:
+            if self.lastt is None:
+                self.lastt = self.game.t, time()
+            else:
+                frames = self.game.t - self.lastt[0]
+                t = time()
+                secs = t - self.lastt[1]
+                if secs > 0:
+                    self.screen.blit(self.uifont.render(_('{0:d} FPS').format(
+                        int(frames/secs+0.5)), True, (255,255,255)), msg_loc)
+                self.lastt = self.game.t, t
 
         self.buttonhandlers = {}
         button_loc = self.tile_location((self.dimensions[0]+1,
