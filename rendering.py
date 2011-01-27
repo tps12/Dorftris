@@ -218,7 +218,7 @@ class Renderer(object):
         self.makebackground()
 
     def visible(self, location):
-        return all([self.offset[i] <= location[i] < self.offset[i] + self.dimensions[i]
+        return location and all([self.offset[i] <= location[i] < self.offset[i] + self.dimensions[i]
                     for i in range(2)]) and location[2] == self.level
 
     def update(self, entities, pos, descs):
@@ -667,9 +667,10 @@ class Renderer(object):
                 this = self.game.world.space[(self.offset[0] + x,
                                               self.offset[1] + y,
                                               self.level)]
-                creature_moved = self.update(this.contents,
-                                             pos, descs) or creature_moved
-                self.update(this.items, pos, descs)
+                if this:
+                    creature_moved = self.update(this.contents,
+                                                 pos, descs) or creature_moved
+                    self.update(this.items, pos, descs)
 
         self.update(self.game.world.stockpiles, pos, descs)
 

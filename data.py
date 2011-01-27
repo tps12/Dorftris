@@ -252,7 +252,7 @@ class Follow(Task):
         self.path = []
 
     def work(self):
-        if self.target not in self.world.creatures:
+        if self.target.remove:
             return True
         
         if self.path == []:
@@ -702,10 +702,10 @@ class SmallSpider(Creature):
                           (95, randint(0,40), 0), location)
 
 class World(object):
-    def __init__(self, space, items, creatures):
+    def __init__(self, space, items):
         self.space = space
         self.items = items
-        self.creatures = creatures
+        self.creatures = []
         self.designations = deque()
         self.stockpiles = []
 

@@ -109,28 +109,34 @@ class Game(object):
                     self[n + (loc[2],)].revealed = True
                 self.changed = True
 
-        self.world = World(Space(self.dimensions), [], [])
-        self.schedule = None
+        self.world = World(Space(self.dimensions), [])
+        self._schedule = deque([[] for i in range(128)])
 
         self.t = 0
             
         self.done = False
         self.paused = False
 
-    def step(self):
-        if self.schedule is None:
-            self.schedule = deque([[] for i in range(128)])
-            for c in self.world.creatures:
-                self.schedule[c.rest].append(c)
-        
+    def schedule(self, creature):
+        self.world.creatures.append(creature)
+        self.reschedule(creature)
+
+    def reschedule(self, creature):
+        self._schedule[creature.rest].append(creature)
+        creature.rest = 0
+
+    def getscheduled(self):
+        scheduled = self._schedule.popleft()
+        self._schedule.append([])
+        return scheduled
+
+    def step(self):       
         if not self.paused:
-            creatures = self.schedule.popleft()
-            self.schedule.append([])
+            creatures = self.getscheduled()
             for creature in creatures:
                 creature.step(self.world)
                 if creature.remove:
                     self.world.creatures.remove(creature)
                 else:
-                    self.schedule[creature.rest].append(creature)
-                    creature.rest = 0
+                    self.reschedule(creature)
             self.t += 1

@@ -19,8 +19,8 @@ def main():
 
     for i in range(n):
         d = Dwarf((randint(0,255),randint(0,255),64))
-        game.world.creatures.append(d)
         game.world.space[d.location].contents.append(d)
+        game.schedule(d)
 
     start = time()
     
