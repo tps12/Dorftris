@@ -28,13 +28,11 @@ def main():
         game.schedule(creature)
 
     for i in range(10):
-        barrel = Barrel((randint(0,game.dimensions[0]-1),
+        game.world.additem(Barrel((randint(0,game.dimensions[0]-1),
                                         randint(0,game.dimensions[1]-1),
                                         64),
-                                       Oak)
-        game.world.items.append(barrel)
-        game.world.space[barrel.location].items.append(barrel)
-
+                                       Oak))
+        
     game_acc = 0
     render_acc = 0
 

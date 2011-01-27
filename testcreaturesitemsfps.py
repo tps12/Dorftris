@@ -19,9 +19,7 @@ def main():
     renderer = Renderer(game)
 
     for i in range(n):
-        b = Barrel((randint(0,255),randint(0,255),64), Oak)
-        game.world.items.append(b)
-        game.world.space[b.location].items.append(b)
+        game.world.additem(Barrel((randint(0,255),randint(0,255),64), Oak))
 
     for i in range(m):
         game.schedule(Dwarf((randint(0,255),randint(0,255),64)))

@@ -654,7 +654,7 @@ class Creature(Thing):
 
     def die(self, world):
         self.remove = True
-        world.items.append(Corpse(self))
+        world.additem(Corpse(self))
 
     def newjob(self, world):
         for job in sorted([option for option in self.jobs
@@ -754,3 +754,13 @@ class World(object):
 
     def addstockpile(self, stockpile):
         self.stockpiles.append(stockpile)
+
+    def additem(self, item):
+        if item.location is not None:
+            self.space[item.location].items.append(item)
+        self.items.append(item)
+
+    def removeitem(self, item):
+        if item.location is not None:
+            self.space[item.location].items.remove(item)
+        self.items.remove(item)

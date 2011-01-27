@@ -19,8 +19,7 @@ def main():
 
     barrel = Barrel((8,4,64), Oak)
     
-    game.world.items.append(barrel)
-    game.world.space[barrel.location].items.append(barrel)
+    game.world.additem(barrel)
 
     game.world.addstockpile(Stockpile([(2,5,64)], [Beverage.stocktype]))
     
