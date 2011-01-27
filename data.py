@@ -631,19 +631,16 @@ class Creature(Thing):
         if self.health <= 0:
             self.die(world)
        
-        if self.rest > 0:
-            self.rest -= 1
-        else:
-            try:                
-                if self.job is None:
-                    self.newjob(world)
-                elif self.job.work():
-                    self.job = None
-                    
-            except TaskImpossible:
+        try:                
+            if self.job is None:
+                self.newjob(world)
+            elif self.job.work():
                 self.job = None
                 
-            self.rest = self.speed
+        except TaskImpossible:
+            self.job = None
+            
+        self.rest = self.speed
 
 class Dwarf(Creature):
     eyesight = 10
@@ -656,7 +653,7 @@ class Dwarf(Creature):
                              lambda c, w: len(w.stockpiles) > 0,
                              90)],
                   key = JobOption.prioritykey)
-    speed = 11
+    speed = 3
     thirst = 0.03
     
     def __init__(self, location):
@@ -673,7 +670,7 @@ class Goblin(Creature):
                                                for c in w.creatures]),
                              10)],
                   key = JobOption.prioritykey)
-    speed = 9
+    speed = 2
     thirst = 0.01
     
     def __init__(self, location):
@@ -683,7 +680,7 @@ class Goblin(Creature):
 class Tortoise(Creature):
     eyesight = 4
     health = 10
-    speed = 100
+    speed = 20
     thirst = 0.1
     
     def __init__(self, location):
@@ -694,7 +691,7 @@ class Tortoise(Creature):
 class SmallSpider(Creature):
     eyesight = 1
     health = 10
-    speed = 5
+    speed = 1
     thirst = 0.0001
     
     def __init__(self, location):
