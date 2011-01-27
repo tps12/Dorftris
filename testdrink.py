@@ -22,7 +22,7 @@ def main():
     game.world.items.append(barrel)
     game.world.space[barrel.location].items.append(barrel)
 
-    game.world.stockpiles.append(Stockpile([(2,5,64)], [Barrel]))
+    game.world.addstockpile(Stockpile([(2,5,64)], [Barrel]))
     
     while not game.done:
         pre = barrel.contents[0].materials[0].amount

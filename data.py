@@ -51,8 +51,13 @@ class Thing(Entity):
     def mass(self):
         return sum([m.mass() for m in self.materials])
 
+class StockpileType(object):
+    def __init__(self, description):
+        self.description = description
+
 class Beverage(Thing):
     fluid = True
+    stocktype = StockpileType(_('Generic beverage'))
     
     def __init__(self, amount):
         Thing.__init__(self, 'beverage', [Material(Water, amount)])
@@ -132,15 +137,16 @@ class Stockpile(Storage, Entity):
         Storage.__init__(self, 0)
         Entity.__init__(self, 'stockpile')
         self.components = []
-        self.types = types
+        self._types = types
         self.changed = False
         for location in region:
             self.annex(location)
 
+    def accepts(self, option):
+        return option in self._types
+
     def add(self, item):
-        if (any([isinstance(item, t) for t in self.types]) or
-            (isinstance(item, Container) and
-             any([item.has(t) for t in self.types]))):
+        if self.accepts(item.stocktype):
             Storage.add(self, item)
             self.changed = True
         else:
@@ -161,6 +167,16 @@ class Container(Item, Storage):
         Item.__init__(self, kind, materials, location)
         Storage.__init__(self, capacity)
 
+    @property
+    def stocktype(self):
+        if self.contents:
+            first = self.contents[0].stocktype
+            return (first
+                    if all([c.stocktype == first for c in self.contents[1:]])
+                    else None)
+        else:
+            return self.containerstocktype
+
     def volume(self):
         return Thing.volume(self) + self.capacity
 
@@ -177,10 +193,34 @@ class StockpileComponent(Container):
         return Storage.description(self.stockpile)
 
 class Barrel(Container):
+    containerstocktype = StockpileType(_('Empty barrel'))
+    
     def __init__(self, location, substance):
         Container.__init__(self, 'barrel',
                            [Material(substance, 0.075)], location, 0.25)
         self.contents.append(Beverage(self.capacity))
+
+Arms = _('Weapons and armor'), []
+BuildingMaterials = _('Building materials'), []
+Clothing = _('Clothing'), []
+Drinks = _('Drink'), [Beverage.stocktype]
+Food = _('Food'), []
+Furniture = _('Furnishings'), []
+Products = _('Trade products'), [Barrel.containerstocktype]
+Resources = _('Raw materials'), []
+Tools = _('Tools and equipment'), []
+
+StockpileCategories = [
+    Arms,
+    BuildingMaterials,
+    Clothing,
+    Drinks,
+    Food,
+    Furniture,
+    Products,
+    Resources,
+    Tools
+    ]
 
 class Task(object):
     def requirements(self):
@@ -329,19 +369,14 @@ class Acquire(Task):
         self.searchstockpiles()
 
         if self.nearest is None:
-            for target in self.targets:
-                try:
-                    self.nearest = sorted([item for item in self.items()
-                                           if self.test(item)],
-                                          key = lambda item:
-                                          self.world.space.pathing.distance_xy(
-                                              self.subject.location[0:2],
-                                              item.location[0:2]))[0]
-                    break
-                
-                except IndexError:
-                    continue
-            else:
+            try:
+                self.nearest = sorted([item for item in self.items()
+                                       if self.test(item)],
+                                      key = lambda item:
+                                      self.world.space.pathing.distance_xy(
+                                          self.subject.location[0:2],
+                                          item.location[0:2]))[0]
+            except IndexError:
                 raise TaskImpossible()
 
         location = (self.stockpile.components[0].location
@@ -388,10 +423,18 @@ class AcquireKind(Acquire):
                      isinstance(item, Storage) and item.has(target)) or
                     isinstance(item, target) for target in self.targets])
 
-class AcquireNonStockpiled(AcquireKind):
-    def __init__(self, subject, world, targets, capacity):
-        AcquireKind.__init__(self, subject, world, targets, capacity)
-        self.targets = targets
+class AcquireNonStockpiled(Acquire):
+    def __init__(self, subject, world, stockpile):
+        Acquire.__init__(self, subject, world, self.istarget, stockpile.capacity)
+        self.destination = stockpile
+
+    def items(self):
+        return [item for item in self.world.items
+                if item.location is not None and
+                not item.reserved]
+
+    def istarget(self, item):
+        return self.destination.accepts(item.stocktype)
 
     def searchstockpiles(self):
         return
@@ -452,13 +495,13 @@ class StoreItem(Task):
         self.stockpile = stockpile
 
     def requirements(self):
-        for t in self.stockpile.types:
-            if self.subject.inventory.has(t):
+        for item in self.subject.inventory.contents:
+            if self.stockpile.accepts(item.stocktype):
                 reqs = []
                 break
         else:
             reqs = [AcquireNonStockpiled(self.subject, self.world,
-                            self.stockpile.types, self.stockpile.space())]
+                            self.stockpile)]
 
         if self.subject.location != self.stockpile.components[0].location:
             reqs = reqs + [GoToGoal(self.subject, self.world,
