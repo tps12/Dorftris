@@ -198,9 +198,9 @@ class GoToRandomAdjacency(Task):
         adjacent = self.world.space.pathing.open_adjacent(
             self.subject.location)
         if len(adjacent) > 0:
-            self.world.space[self.subject.location].contents.remove(self.subject)
+            self.world.space[self.subject.location].creatures.remove(self.subject)
             self.subject.location = choice([a for a in adjacent])
-            self.world.space[self.subject.location].contents.append(self.subject)
+            self.world.space[self.subject.location].creatures.append(self.subject)
         return True
 
 class GoToGoal(Task):
@@ -235,9 +235,9 @@ class GoToGoal(Task):
             if self.path is None:
                 raise TaskImpossible()
         
-        self.world.space[self.subject.location].contents.remove(self.subject)
+        self.world.space[self.subject.location].creatures.remove(self.subject)
         self.subject.location = self.path[0]
-        self.world.space[self.subject.location].contents.append(self.subject)
+        self.world.space[self.subject.location].creatures.append(self.subject)
         self.path = self.path[1:]
         return self.path == []
 
@@ -267,9 +267,9 @@ class Follow(Task):
             self.path[-1:] = self.world.space.pathing.find_path(
                 self.path[-1], self.target.location)
 
-        self.world.space[self.subject.location].contents.remove(self.subject)
+        self.world.space[self.subject.location].creatures.remove(self.subject)
         self.subject.location = self.path[0]
-        self.world.space[self.subject.location].contents.append(self.subject)
+        self.world.space[self.subject.location].creatures.append(self.subject)
         
         self.path = self.path[1:]
         return self.path == []
@@ -525,9 +525,9 @@ class AttemptDigDesignation(Task):
     def work(self):
         self.world.space.remove(self.designation)
         if self.subject.location[2] == self.designation[2]+1:
-            self.world.space[self.subject.location].contents.remove(self.subject)
+            self.world.space[self.subject.location].creatures.remove(self.subject)
             self.subject.location = self.designation
-            self.world.space[self.subject.location].contents.append(self.subject)
+            self.world.space[self.subject.location].creatures.append(self.subject)
         return True
 
 class Job(object):

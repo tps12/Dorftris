@@ -668,7 +668,7 @@ class Renderer(object):
                                               self.offset[1] + y,
                                               self.level)]
                 if this:
-                    creature_moved = self.update(this.contents,
+                    creature_moved = self.update(this.creatures,
                                                  pos, descs) or creature_moved
                     self.update(this.items, pos, descs)
 

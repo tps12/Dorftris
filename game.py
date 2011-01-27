@@ -19,7 +19,7 @@ class Game(object):
                 self.revealed = False
                 self.color = color
                 self.varient = varient
-                self.contents = []
+                self.creatures = []
                 self.items = []
 
             def varient(self):
@@ -118,7 +118,7 @@ class Game(object):
         self.paused = False
 
     def schedule(self, creature):
-        self.world.space[creature.location].contents.append(creature)
+        self.world.space[creature.location].creatures.append(creature)
         self.world.creatures.append(creature)
         self.reschedule(creature)
 
