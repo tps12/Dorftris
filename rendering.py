@@ -20,7 +20,7 @@ class Renderer(object):
         
         pygame.init()
 
-        key.set_repeat(50, 50)
+        key.set_repeat(100, 100)
 
         self.selection = []
 
@@ -670,7 +670,7 @@ class Renderer(object):
                 if this:
                     creature_moved = self.update(this.creatures,
                                                  pos, descs) or creature_moved
-                    self.update(this.items, pos, descs)
+                    self.update(this.items[0:1], pos, descs)
 
         self.update(self.game.world.stockpiles, pos, descs)
 
