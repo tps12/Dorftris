@@ -10,7 +10,7 @@ from rendering import Renderer
 from data import Barrel, Oak
 
 def main():
-    n = 10000
+    n = 100000
     
     print 'How fast can a world with {0} items run.'.format(n)
     
@@ -22,13 +22,28 @@ def main():
         game.world.items.append(b)
         game.world.space[b.location].items.append(b)
 
-    start = time()
+    game_acc = 0
+    render_acc = 0
+
+    render_dt = 0.05
+
+    last = time()
     
     while not game.done:
-        game.step()
-        renderer.step()
+        current = time()
+        delta = min(0.125, max(0, current - last))
 
-    print game.t/(time() - start), 'FPS'
+        game_acc += delta
+        render_acc += delta
+
+        while game_acc > game.dt:
+            game.step()
+            game_acc -= game.dt
+        if render_acc > render_dt:
+            renderer.step()
+            render_acc = 0
+
+        last = current
 
 if __name__ == '__main__':
     main()
