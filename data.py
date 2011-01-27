@@ -422,7 +422,7 @@ class Drink(Task):
         else:
             bev.materials[0].amount -= sip
         
-        self.subject.hydration += 36000 * (sip / self.subject.thirst)
+        self.subject.hydration += 3600 * (sip / self.subject.thirst)
         vessel.reserved = False
         return True
 
@@ -602,7 +602,7 @@ class Creature(Thing):
         self.location = location
         self.inventory = Storage(1.0)
         self.job = None
-        self.hydration = randint(9000, 36000)
+        self.hydration = randint(900, 3600)
         self.rest = randint(0, self.speed)
         self.remove = False
 

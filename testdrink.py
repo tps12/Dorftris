@@ -13,7 +13,7 @@ def main():
     renderer = Renderer(game)
 
     dwarf = Dwarf((3,3,64))
-    dwarf.hydration = 1200
+    dwarf.hydration = 120
     
     game.schedule(dwarf)
 
@@ -25,7 +25,11 @@ def main():
     game.world.stockpiles.append(Stockpile([(2,5,64)], [Barrel]))
     
     while not game.done:
+        pre = barrel.contents[0].materials[0].amount
         game.step()
+        if barrel.contents[0].materials[0].amount != pre:
+            print 'Dwarf drank'
+        
         renderer.step()
 
 if __name__ == '__main__':
