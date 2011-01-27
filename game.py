@@ -118,6 +118,7 @@ class Game(object):
         self.paused = False
 
     def schedule(self, creature):
+        self.world.space[creature.location].contents.append(creature)
         self.world.creatures.append(creature)
         self.reschedule(creature)
 

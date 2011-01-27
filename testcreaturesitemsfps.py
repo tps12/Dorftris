@@ -24,9 +24,7 @@ def main():
         game.world.space[b.location].items.append(b)
 
     for i in range(m):
-        d = Dwarf((randint(0,255),randint(0,255),64))
-        game.world.space[d.location].contents.append(d)
-        game.schedule(d)
+        game.schedule(Dwarf((randint(0,255),randint(0,255),64)))
 
     start = time()
     

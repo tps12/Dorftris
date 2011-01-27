@@ -15,7 +15,6 @@ def main():
     dwarf = Dwarf((3,3,64))
     dwarf.hydration = 1200
     
-    game.world.space[dwarf.location].contents.append(dwarf)
     game.schedule(dwarf)
 
     barrel = Barrel((8,4,64), Oak)

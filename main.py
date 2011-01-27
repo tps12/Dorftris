@@ -25,7 +25,6 @@ def main():
         creature = choice(kind)((randint(0,game.dimensions[0]-1),
                                  randint(0,game.dimensions[1]-1),
                                  64))
-        game.world.space[creature.location].contents.append(creature)
         game.schedule(creature)
 
     for i in range(10):

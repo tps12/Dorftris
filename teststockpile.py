@@ -12,10 +12,7 @@ def main():
     game = Game((10,6,128))
     renderer = Renderer(game)
 
-    dwarf = Dwarf((3,3,64))
-    
-    game.world.space[dwarf.location].contents.append(dwarf)
-    game.schedule(dwarf)
+    game.schedule(Dwarf((3,3,64)))
 
     for i in range(4):
         barrel = Barrel((8,i,64), Oak)    
