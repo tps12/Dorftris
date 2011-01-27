@@ -8,7 +8,7 @@ from pygame.mixer import Sound
 from pygame.sprite import *
 from pygame.time import Clock
 
-from data import Barrel, Corpse, Entity, Stockpile
+from data import Barrel, Beverage, Corpse, Entity, Stockpile
 from glyphs import GlyphGraphics
 
 INFO_WIDTH = 20
@@ -501,7 +501,7 @@ class Renderer(object):
             self.designate(tile)
 
     def makestockpile(self):
-        self.game.world.addstockpile(Stockpile(self.selection, [Barrel]))
+        self.game.world.addstockpile(Stockpile(self.selection, [Beverage.stocktype]))
 
     def drawbutton(self, title, button_loc, handler):
         outlines = self.graphics[self.button]

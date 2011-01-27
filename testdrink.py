@@ -4,7 +4,7 @@ gettext.install('dorftris')
 from game import Game
 from rendering import Renderer
 
-from data import Barrel, Dwarf, Oak, Stockpile
+from data import Barrel, Beverage, Dwarf, Oak, Stockpile
 
 def main():
     print 'Dwarf should store barrel in stockpile, then drink from it.'
@@ -22,7 +22,7 @@ def main():
     game.world.items.append(barrel)
     game.world.space[barrel.location].items.append(barrel)
 
-    game.world.addstockpile(Stockpile([(2,5,64)], [Barrel]))
+    game.world.addstockpile(Stockpile([(2,5,64)], [Beverage.stocktype]))
     
     while not game.done:
         pre = barrel.contents[0].materials[0].amount

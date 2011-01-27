@@ -192,6 +192,16 @@ class StockpileComponent(Container):
     def description(self):
         return Storage.description(self.stockpile)
 
+class Corpse(Item):
+    stocktype = StockpileType(_('Corpse'))
+        
+    def __init__(self, creature):
+        Item.__init__(self, 'corpse', creature.materials, creature.location)
+        self.origins = creature
+
+    def description(self):
+        return _('corpse of {0}').format(self.origins.description())
+
 class Barrel(Container):
     containerstocktype = StockpileType(_('Empty barrel'))
     
@@ -206,7 +216,8 @@ Clothing = _('Clothing'), []
 Drinks = _('Drink'), [Beverage.stocktype]
 Food = _('Food'), []
 Furniture = _('Furnishings'), []
-Products = _('Trade products'), [Barrel.containerstocktype]
+Products = _('Trade products and supplies'), [Barrel.containerstocktype]
+Refuse = _('Refuse'), [Corpse.stocktype]
 Resources = _('Raw materials'), []
 Tools = _('Tools and equipment'), []
 
@@ -609,14 +620,6 @@ class SeekAndDestroy(Job):
 class DigDesignation(Job):
     def __init__(self, subject, world):
         Job.__init__(self, [AttemptDigDesignation(subject, world)])
-
-class Corpse(Item):
-    def __init__(self, creature):
-        Item.__init__(self, 'corpse', creature.materials, creature.location)
-        self.origins = creature
-
-    def description(self):
-        return _('corpse of {0}').format(self.origins.description())
 
 class JobOption(object):
     def __init__(self, definition, condition, priority):
