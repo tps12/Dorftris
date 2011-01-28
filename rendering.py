@@ -599,10 +599,12 @@ class Renderer(object):
                     if self.timeindex > 0:
                         self.timeindex -= 1
                         self.game.dt = 0.1 / self.game.timescales[self.timeindex]
+                        self.fps = []
                 elif e.unicode == '+':
                     if self.timeindex < len(self.game.timescales)-1:
                         self.timeindex += 1
                         self.game.dt = 0.1 / self.game.timescales[self.timeindex]
+                        self.fps = []
                     
                 elif e.unicode == 'd':
                     import pdb
