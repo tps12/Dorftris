@@ -1,5 +1,7 @@
 from collections import deque
 from random import choice, gauss, randint, random
+from re import search
+from unicodedata import name as unicodename
 
 class Substance(object):
     color = None
@@ -766,6 +768,10 @@ class Toughness(PhysicalAttribute):
 def sampleattributes(attributes):
     return dict((a, gauss(attributes[a], 10)) for a in attributes.keys())
 
+def indefinitearticle(noun):
+    m = search('LETTER ([^ ])', unicodename(unicode(noun[0])))
+    return _('an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _('a')
+
 class Creature(Thing):
     __slots__ = (
         'attributes',
@@ -798,6 +804,15 @@ class Creature(Thing):
         self.hydration = randint(900, 3600)
         self.rest = random() * self.speed()
         self.remove = False
+
+    def objectpronoun(self):
+        return _('it')
+
+    def subjectpronoun(self):
+        return _('it')
+
+    def sexdescription(self):
+        return _('neuter')
 
     def die(self, world):
         self.remove = True
@@ -845,11 +860,18 @@ class Creature(Thing):
         return value
 
     def physical(self):
-        return ', '.join([t for t in
-                          [self.attributetext(a)
-                           for a in self.attributes.keys()]
-                          if t])
-    
+        pronoun = self.subjectpronoun().capitalize()
+        
+        value = pronoun + ' ' + _('is') + ' ' + indefinitearticle(self.noun) + ' ' + self.noun + '. '
+        
+        for text in [self.attributetext(a) for a in self.attributes.keys()]:
+            if not text:
+                continue
+
+            value += pronoun + ' ' + _('has') + ' ' + text + '. '
+
+        return value + pronoun + ' ' + _('is physically') + ' ' + self.sexdescription() + '.'
+            
     def step(self, world):
         self.hydration = max(self.hydration - 1, 0)
 
@@ -870,7 +892,62 @@ class Creature(Thing):
             
         self.rest += self.speed()
 
-class Dwarf(Creature):
+class Sex(object):
+    pass
+
+class Male(Sex):
+    description = _('male')
+
+class Female(Sex):
+    description = _('female')
+
+class Gender(object):
+    pass
+
+class Woman(Gender):
+    objectpronoun = 'her'
+    subjectpronoun = 'she'
+
+class Man(Gender):
+    objectpronoun = 'him'
+    subjectpronoun = 'he'
+
+class SexualCreature(Creature):
+    __slots__ = 'sex'
+    
+    def __init__(self, kind, materials, color, location, sex):
+        Creature.__init__(self, kind, materials, color, location)
+        self.sex = sex
+
+    def sexdescription(self):
+        return self.sex.description
+
+class GenderedCreature(SexualCreature):
+    __slots__ = 'gender'
+
+    def __init__(self, kind, materials, color, location, sex, gender):
+        SexualCreature.__init__(self, kind, materials, color, location, sex)
+        self.gender = gender
+
+    def objectpronoun(self):
+        return self.gender.objectpronoun
+
+    def subjectpronoun(self):
+        return self.gender.subjectpronoun
+
+class DemographicFigure(object):
+    pass
+
+class Maleness(DemographicFigure):
+    pass
+
+class MaleWomen(DemographicFigure):
+    pass
+
+class FemaleMen(DemographicFigure):
+    pass
+
+class Dwarf(GenderedCreature):
     __slots__ = ()
 
     noun = _('dwarf')
@@ -893,13 +970,26 @@ class Dwarf(Creature):
         Dexterity : 120,
         Toughness : 120
         }
+    culture = {
+        Maleness : 0.5,
+        MaleWomen : 0.01,
+        FemaleMen : 0.01
+        }
     
     def __init__(self, location):
         r = randint(80,255)
-        Creature.__init__(self, 'dwarf', [Material(Meat, 0.075)],
-                          (r, r-40, r-80), location)
         
-class Goblin(Creature):
+        if random() < self.culture[Maleness]:
+            sex = Male
+            gender = Woman if random() < self.culture[MaleWomen] else Man
+        else:
+            sex = Female
+            gender = Man if random() < self.culture[FemaleMen] else Woman
+
+        GenderedCreature.__init__(self, 'dwarf', [Material(Meat, 0.075)],
+                                  (r, r-40, r-80), location, sex, gender)
+        
+class Goblin(GenderedCreature):
     __slots__ = ()
     
     noun = _('goblin')
@@ -920,13 +1010,25 @@ class Goblin(Creature):
         Dexterity : 110,
         Toughness : 80
         }
+    culture = {
+        Maleness : 0.25,
+        MaleWomen : 0,
+        FemaleMen : 0.5
+        }
     
     def __init__(self, location):
-        Creature.__init__(self, 'goblin', [Material(Meat, 0.05)],
-                          (32, 64+randint(0,127),64+randint(0,127)),
-                          location)
+        if random() < self.culture[Maleness]:
+            sex = Male
+            gender = Woman if random() < self.culture[MaleWomen] else Man
+        else:
+            sex = Female
+            gender = Man if random() < self.culture[FemaleMen] else Woman
 
-class Tortoise(Creature):
+        GenderedCreature.__init__(self, 'goblin', [Material(Meat, 0.05)],
+                                  (32, 64+randint(0,127),64+randint(0,127)),
+                                  location, sex, gender)
+
+class Tortoise(SexualCreature):
     __slots__ = ()
     
     health = 10
@@ -944,13 +1046,14 @@ class Tortoise(Creature):
     
     def __init__(self, location):
         d = randint(-20,10)
-        Creature.__init__(self, 'tortoise', [Material(Meat, 0.3)],
-                          (188+d,168+d,138+d), location)
+        SexualCreature.__init__(self, 'tortoise', [Material(Meat, 0.3)],
+                                (188+d,168+d,138+d), location,
+                                choice([Male,Female]))
 
-class SmallSpider(Creature):
+class SmallSpider(SexualCreature):
     __slots__ = ()
     
-    noun = _('small spider')
+    noun = _('spider')
     health = 10
     thirst = 0.0001
     race = {
@@ -964,8 +1067,9 @@ class SmallSpider(Creature):
         }
     
     def __init__(self, location):
-        Creature.__init__(self, 'spider-small', [Material(Meat, 0.0001)],
-                          (95, randint(0,40), 0), location)
+        SexualCreature.__init__(self, 'spider-small', [Material(Meat, 0.0001)],
+                                (95, randint(0,40), 0), location,
+                                choice([Male,Female]))
 
 class World(object):
     def __init__(self, space, items):
