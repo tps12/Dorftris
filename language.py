@@ -1,4 +1,5 @@
 from codecs import open
+from random import random
 from string import whitespace
 from sys import argv
 from unicodedata import name
@@ -54,8 +55,22 @@ class Generator(object):
                     last = c
                     word = 1
 
+    def calculate(self):
+        total = float(sum(self.lengths))
+        ps = [l/total for l in self.lengths]
+        self.thresholds = []
+        running = 0
+        for p in ps:
+            running += p
+            self.thresholds.append(running)
+            if running >= 1:
+                break
+
     def randomlength(self):
-        return 12
+        r = random()
+        for i in range(len(self.thresholds)):
+            if r <= self.thresholds[i]:
+                return i
 
     def randomsuccessor(self, c):
         import random
@@ -82,4 +97,5 @@ if __name__ == '__main__':
     with open(argv[1], 'r', 'utf_8') as f:
         g = Generator(f.read())
         g.process()
+        g.calculate()
         print g.generate()

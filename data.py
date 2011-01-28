@@ -3,6 +3,8 @@ from random import choice, gauss, randint, random
 from re import search
 from unicodedata import name as unicodename
 
+from colordb import match as describecolor
+
 class Substance(object):
     color = None
     density = None
@@ -757,7 +759,7 @@ class Hearing(Sense):
     description = _('hearing')
 
 class Smell(Sense):
-    description = _('sense of smell')
+    description = _('olfactory powers')
 
 class Dexterity(PhysicalAttribute):
     description = _('dexterity')
@@ -814,6 +816,9 @@ class Creature(Thing):
     def sexdescription(self):
         return _('neuter')
 
+    def colordescription(self):
+        return _('is the color') + ' ' + describecolor(self.color)
+
     def die(self, world):
         self.remove = True
         world.additem(Corpse(self))
@@ -863,6 +868,8 @@ class Creature(Thing):
         pronoun = self.subjectpronoun().capitalize()
         
         value = pronoun + ' ' + _('is') + ' ' + indefinitearticle(self.noun) + ' ' + self.noun + '. '
+
+        value += pronoun + ' ' + self.colordescription() + '. '
         
         for text in [self.attributetext(a) for a in self.attributes.keys()]:
             if not text:
@@ -988,6 +995,9 @@ class Dwarf(GenderedCreature):
 
         GenderedCreature.__init__(self, 'dwarf', [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location, sex, gender)
+
+    def colordescription(self):
+        return _('has') + ' ' + describecolor(self.color) + ' ' + _('skin')
         
 class Goblin(GenderedCreature):
     __slots__ = ()
@@ -1028,6 +1038,9 @@ class Goblin(GenderedCreature):
                                   (32, 64+randint(0,127),64+randint(0,127)),
                                   location, sex, gender)
 
+    def colordescription(self):
+        return _('has') + ' ' + describecolor(self.color) + ' ' + _('skin')        
+
 class Tortoise(SexualCreature):
     __slots__ = ()
     
@@ -1049,7 +1062,10 @@ class Tortoise(SexualCreature):
         SexualCreature.__init__(self, 'tortoise', [Material(Meat, 0.3)],
                                 (188+d,168+d,138+d), location,
                                 choice([Male,Female]))
-
+        
+    def colordescription(self):
+        return _('has a shell of') + ' ' + describecolor(self.color)
+        
 class SmallSpider(SexualCreature):
     __slots__ = ()
     
@@ -1071,6 +1087,9 @@ class SmallSpider(SexualCreature):
                                 (95, randint(0,40), 0), location,
                                 choice([Male,Female]))
 
+    def colordescription(self):
+        return _('has a') + ' ' + describecolor(self.color) + ' ' + _('body')
+        
 class World(object):
     def __init__(self, space, items):
         self.space = space
