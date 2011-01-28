@@ -135,70 +135,51 @@ class Stockpile(Entity):
     
     def __init__(self, region, types):
         Entity.__init__(self, 'stockpile')
-        self.capacity = 0
-        self.contents = []
+        self.storage = Storage(0)
         self.components = []
         self.types = types
         self.changed = False
         for location in region:
             self.annex(location)
+
+    @property
+    def capacity(self):
+        return self.storage.capacity
+
+    @property
+    def contents(self):
+        return self.storage.contents
             
     def description(self):
-        n = len(self.contents)
-        if n == 0:
-            return _('empty {0}').format(self.kind)
-        elif n == 1:
-            return _('{0} of {1}').format(self.kind,
-                                          self.contents[0].description())
-        else:
-            return _('{0} containing {1}').format(self.kind,
-                                                  ', '.join([item.description()
-                                                             for item
-                                                             in self.contents]))
+        return self.storage.description()
+    
     def find(self, test):
-        for item in self.contents:
-            if test(item):
-                return item
-            elif isinstance(item, Storage):
-                value = item.find(test)
-                if value is not None:
-                    return value
-        return None
+        return self.storage.find(test)
 
     def space(self):
-        return self.capacity - sum([item.volume() for item in self.contents])
-
+        return self.storage.space()
+    
     def has(self, kind):
-        return self.find(lambda item: isinstance(item, kind)) is not None
+        return self.storage.has(kind)
 
     def accepts(self, option):
         return option in self.types
 
     def add(self, item):
         if self.accepts(item.stocktype):
-            if (self.space() > item.volume()):
-                self.contents.append(item)
-            else:
-                raise OutOfSpace()
+            self.storage.add(item)
             self.changed = True
         else:
             raise WrongItemType()
 
     def remove(self, item):
-        if item in self.contents:
-            self.contents.remove(item)
+        success = self.storage.remove(item)
+        if success:
             self.changed = True
-            return True
-        else:
-            for container in [item for item in self.contents
-                              if isinstance(item, Storage)]:
-                if container.remove(item):
-                    self.changed = True
-                    return True
-        return False
+        return success
         
     def annex(self, location):
-        self.capacity += 1
+        self.storage.capacity += 1.0
         self.components.append(StockpileComponent(self, location))
         self.changed = True
 
