@@ -1,5 +1,5 @@
 from collections import deque
-from random import choice, randint
+from random import choice, gauss, randint
 
 class Substance(object):
     color = None
@@ -725,8 +725,54 @@ class JobOption(object):
     def prioritykey(option):
         return option.priority
 
+class NormalDistribution(object):
+    __slots__ = 'mu', 'sigma'
+    
+    def __init__(self, mu, sigma):
+        self.mu = mu
+        self.sigma = sigma
+
+    def sample(self):
+        return gauss(mu, sigma)
+
+class PhysicalAttribute(object):
+    description = None
+
+class Strength(PhysicalAttribute):
+    description = _('strength')
+
+class Speed(PhysicalAttribute):
+    description = _('speed')
+
+class Sight(PhysicalAttribute):
+    description = _('eyesight')
+
+class Hearing(PhysicalAttribute):
+    description = _('hearing')
+
+class Smell(PhysicalAttribute):
+    description = _('sense of smell')
+
+class Dexterity(PhysicalAttribute):
+    description = _('dexterity')
+
+class Toughness(PhysicalAttribute):
+    description = _('toughness')
+
+def sampleattributes(attributes):
+    return dict((a, gauss(attributes[a], 10)) for a in attributes.keys())
+
 class Creature(Thing):
-    __slots__ = 'color', 'location', 'inventory', 'job', 'hydration', 'rest', 'remove'
+    __slots__ = (
+        'attributes',
+        'color',
+        'location',
+        'inventory',
+        'job',
+        'hydration',
+        'rest',
+        'remove'
+        )
     
     jobs = sorted([
                    JobOption(Hydrate, lambda c, w: c.hydration < 1000, 0),
@@ -740,12 +786,13 @@ class Creature(Thing):
     
     def __init__(self, kind, materials, color, location):
         Thing.__init__(self, kind, materials)
+        self.attributes = sampleattributes(self.race)
         self.color = color
         self.location = location
         self.inventory = Storage(1.0)
         self.job = None
         self.hydration = randint(900, 3600)
-        self.rest = randint(0, int(self.speed))
+        self.rest = randint(0, int(self.speed()))
         self.remove = False
 
     def die(self, world):
@@ -764,6 +811,9 @@ class Creature(Thing):
             except TaskImpossible:
                 continue
 
+    def speed(self):
+        return 20 - gauss(self.attributes[Speed],10) / 10
+    
     def step(self, world):
         self.hydration = max(self.hydration - 1, 0)
 
@@ -782,7 +832,7 @@ class Creature(Thing):
         except TaskImpossible:
             self.job = None
             
-        self.rest = self.speed
+        self.rest += self.speed()
 
 class Dwarf(Creature):
     __slots__ = ()
@@ -797,8 +847,16 @@ class Dwarf(Creature):
                              lambda c, w: w.stockjobs,
                              90)],
                   key = JobOption.prioritykey)
-    speed = 2.5
     thirst = 0.03
+    race = {
+        Strength : 120,
+        Speed : 80,
+        Sight : 120,
+        Hearing : 60,
+        Smell : 80,
+        Dexterity : 120,
+        Toughness : 120
+        }
     
     def __init__(self, location):
         r = randint(80,255)
@@ -816,20 +874,37 @@ class Goblin(Creature):
                                                for c in w.creatures]),
                              10)],
                   key = JobOption.prioritykey)
-    speed = 2
     thirst = 0.01
+    race = {
+        Strength : 90,
+        Speed : 120,
+        Sight : 80,
+        Hearing : 120,
+        Smell : 120,
+        Dexterity : 110,
+        Toughness : 80
+        }
     
     def __init__(self, location):
         Creature.__init__(self, 'goblin', [Material(Meat, 0.05)],
-                          (32, 64+randint(0,127),64+randint(0,127)), location)
+                          (32, 64+randint(0,127),64+randint(0,127)),
+                          location)
 
 class Tortoise(Creature):
     __slots__ = ()
     
     eyesight = 4
     health = 10
-    speed = 20
     thirst = 0.1
+    race = {
+        Strength : 120,
+        Speed : 20,
+        Sight : 20,
+        Hearing : 100,
+        Smell : 100,
+        Dexterity : 20,
+        Toughness : 120
+        }
     
     def __init__(self, location):
         d = randint(-20,10)
@@ -841,8 +916,16 @@ class SmallSpider(Creature):
     
     eyesight = 1
     health = 10
-    speed = 1
     thirst = 0.0001
+    race = {
+        Strength : 20,
+        Speed : 180,
+        Sight : 20,
+        Hearing : 20,
+        Smell : 20,
+        Dexterity : 180,
+        Toughness : 20
+        }
     
     def __init__(self, location):
         Creature.__init__(self, 'spider-small', [Material(Meat, 0.0001)],
