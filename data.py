@@ -80,6 +80,9 @@ class Item(object):
                           for m in self.kind.materials] if 'materials' in self.kind.__dict__ else []
         self.reserved = False
 
+    def description(self):
+        return self.kind.description()
+
     @property
     def color(self):
         return self.kind.color()
@@ -123,7 +126,7 @@ class Storage(object):
 
     @classmethod
     def add(cls, item, storage):
-        if (storage.kind.space(storage) > item.volume()):
+        if (cls.space(storage) > item.volume()):
             storage.contents.append(item)
         else:
             raise OutOfSpace()
@@ -154,6 +157,10 @@ class WrongItemType(Exception):
 class StockpileStorage(Storage):
     kind = 'stockpile'
 
+    @classmethod
+    def space(cls, storage):
+        return storage.capacity - sum([item.volume() for item in storage.contents])
+
 class Stockpile(object):
     color = (255,255,255)
     kind = 'stockpile'
@@ -171,8 +178,8 @@ class Stockpile(object):
         return option in self.types
 
     def add(self, item):
-        if self.accepts(item.stocktype):
-            Storage.add(item, self)
+        if self.accepts(item.kind.stocktype(item)):
+            StockpileStorage.add(item, self)
             self.changed = True
         else:
             raise WrongItemType()
@@ -190,13 +197,16 @@ class Stockpile(object):
     def description(self):
         return StockpileStorage.description(self)
 
+    def space(self):
+        return StockpileStorage.space(self)
+
 class Container(Article, Storage):
     @classmethod
     def stocktype(cls, container):
         if container.contents:
-            first = container.contents[0].stocktype
+            first = container.contents[0].kind.stocktype
             return (first
-                    if all([c.stocktype == first for c in container.contents[1:]])
+                    if all([c.kind.stocktype == first for c in container.contents[1:]])
                     else None)
         else:
             return cls.containerstocktype
@@ -410,7 +420,7 @@ class AcquireItem(Task):
         self.world.removefromstockjobs(self.item)
         self.world.space[self.item.location].items.remove(self.item)
         self.item.location = None
-        self.subject.inventory.add(self.item)
+        self.subject.inventory.kind.add(self.item, self.subject.inventory)
         return True
 
 class Acquire(Task):
@@ -559,7 +569,7 @@ class StoreItem(Task):
         return item == self.item
 
     def requirements(self):
-        if self.subject.inventory.find(self.find) is None:
+        if self.subject.inventory.kind.find(self.find, self.subject.inventory) is None:
             reqs = [AcquireItem(self.subject, self.world, self.item)]
         else:
             reqs = []
@@ -571,9 +581,11 @@ class StoreItem(Task):
         return reqs[0].requirements() + reqs if len(reqs) else reqs
 
     def work(self):
-        item = self.subject.inventory.find(self.find)
+        item = self.subject.inventory.kind.find(self.find,
+                                                self.subject.inventory)
 
-        self.subject.inventory.remove(item)
+        self.subject.inventory.kind.remove(item,
+                                           self.subject.inventory)
 
         if self.stockpile.space() >= item.volume():
             self.stockpile.add(item)
@@ -705,6 +717,9 @@ class Creature(object):
         self.rest = randint(0, self.speed)
         self.remove = False
 
+    def description(self):
+        return self.kind
+
     def die(self, world):
         self.remove = True
         world.additem(Corpse(self))
@@ -823,15 +838,15 @@ class World(object):
             try:
                 self.addtostockjobs(item)
             except KeyError:
-                self.stockjobs[item.kind.stocktype] = deque(), deque([item])
+                self.stockjobs[item.kind.stocktype(item)] = deque(), deque([item])
             
         self.items.append(item)
 
     def addtostockjobs(self, item):
-        self.stockjobs[item.kind.stocktype][1].append(item)
+        self.stockjobs[item.kind.stocktype(item)][1].append(item)
 
     def removefromstockjobs(self, item):
-        self.stockjobs[item.kind.stocktype][1].remove(item)        
+        self.stockjobs[item.kind.stocktype(item)][1].remove(item)        
 
     def removeitem(self, item, stockpiled = None):
         if item.location is not None:

@@ -15,7 +15,9 @@ def main():
     game.schedule(Dwarf((3,3,64)))
 
     for i in range(4):
-        game.world.additem(Item(Barrel, (8,i,64), 1.0))
+        barrel = Item(Barrel, (8,i,64), 1.0)
+        barrel.contents.append(Item(Beverage, None, Barrel.capacity))
+        game.world.additem(barrel)
 
     game.world.addstockpile(Stockpile([(2,5,64)], [Beverage.stocktype]))
 

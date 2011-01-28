@@ -338,9 +338,11 @@ class Renderer(object):
                 
                 if items:
                     item = items[0]
-                    
-                    if isinstance(item, Corpse):
+
+                    if item.kind == Corpse:
                         itemimage = self.graphics[item.origins][0].copy()
+                    elif isinstance(item, Item):
+                        itemimage = self.graphics[item.kind][0].copy()
                     else:
                         itemimage = self.graphics[item][0].copy()
                         
