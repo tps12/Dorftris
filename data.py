@@ -98,7 +98,7 @@ class Storage(object):
         for item in self.contents:
             if test(item):
                 return item
-            elif isinstance(item, Storage):
+            elif hasattr(item, 'find'):
                 value = item.find(test)
                 if value is not None:
                     return value
@@ -119,7 +119,7 @@ class Storage(object):
             return True
         else:
             for container in [item for item in self.contents
-                              if isinstance(item, Storage)]:
+                              if hasattr(item, 'contents')]:
                 if container.remove(item):
                     return True
         return False
@@ -183,11 +183,18 @@ class Stockpile(Entity):
         self.components.append(StockpileComponent(self, location))
         self.changed = True
 
-class Container(Item, Storage):
+class Container(Item):
     def __init__(self, kind, materials, location, capacity):
         Item.__init__(self, kind, materials, location)
-        self.capacity = capacity
-        self.contents = []
+        self.storage = Storage(capacity)
+
+    @property
+    def capacity(self):
+        return self.storage.capacity
+
+    @property
+    def contents(self):
+        return self.storage.contents
 
     @property
     def stocktype(self):
@@ -206,50 +213,22 @@ class Container(Item, Storage):
         return Thing.mass(self) + sum([item.mass() for item in self.contents])
 
     def description(self):
-        n = len(self.contents)
-        if n == 0:
-            return _('empty {0}').format(self.kind)
-        elif n == 1:
-            return _('{0} of {1}').format(self.kind,
-                                          self.contents[0].description())
-        else:
-            return _('{0} containing {1}').format(self.kind,
-                                                  ', '.join([item.description()
-                                                             for item
-                                                             in self.contents]))
+        return self.storage.description()
 
     def find(self, test):
-        for item in self.contents:
-            if test(item):
-                return item
-            elif isinstance(item, Storage):
-                value = item.find(test)
-                if value is not None:
-                    return value
-        return None
+        return self.storage.find(test)
 
     def add(self, item):
-        if (self.space() > item.volume()):
-            self.contents.append(item)
-        else:
-            raise OutOfSpace()
+        return self.storage.add(item)
 
     def space(self):
-        return self.capacity - sum([item.volume() for item in self.contents])
+        return self.storage.space()
 
     def remove(self, item):
-        if item in self.contents:
-            self.contents.remove(item)
-            return True
-        else:
-            for container in [item for item in self.contents
-                              if isinstance(item, Storage)]:
-                if container.remove(item):
-                    return True
-        return False
+        return self.storage.remove(item)
 
     def has(self, kind):
-        return self.find(lambda item: isinstance(item, kind)) is not None
+        return self.storage.has(kind)
 
 class StockpileComponent(Container):
     def __init__(self, stockpile, location):
@@ -258,7 +237,7 @@ class StockpileComponent(Container):
         self.stockpile = stockpile
 
     def description(self):
-        return Storage.description(self.stockpile)
+        return self.stockpile.description
 
 class Corpse(Item):
     stocktype = StockpileType(_('Corpse'))
@@ -524,7 +503,7 @@ class AcquireKind(Acquire):
 
     def istarget(self, item):
         return any([(target.fluid and
-                     isinstance(item, Storage) and item.has(target)) or
+                     hasattr(item, 'has') and item.has(target)) or
                     isinstance(item, target) for target in self.targets])
 
 class AcquireNonStockpiled(Acquire):
@@ -558,7 +537,7 @@ class Drink(Task):
 
     def work(self):
         vessel = self.subject.inventory.find(lambda item:
-                                             isinstance(item, Storage) and
+                                             hasattr(item, 'has') and
                                              item.has(Beverage))
         
         bev = vessel.find(lambda item: isinstance(item, Beverage))
