@@ -21,6 +21,8 @@ class Meat(Substance):
     density = 1000.0
 
 class Material(object):
+    __slots__ = 'amount', 'substance'
+    
     def __init__(self, substance, amount):
         self.substance = substance
         self.amount = amount
