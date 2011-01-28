@@ -81,15 +81,15 @@ class Storage(object):
         self.capacity = capacity
         self.contents = []
 
-    def description(self):
+    def description(self, kind):
         n = len(self.contents)
         if n == 0:
-            return _('empty {0}').format(self.kind)
+            return _('empty {0}').format(kind)
         elif n == 1:
-            return _('{0} of {1}').format(self.kind,
+            return _('{0} of {1}').format(kind,
                                           self.contents[0].description())
         else:
-            return _('{0} containing {1}').format(self.kind,
+            return _('{0} containing {1}').format(kind,
                                                   ', '.join([item.description()
                                                              for item
                                                              in self.contents]))
@@ -151,7 +151,7 @@ class Stockpile(Entity):
         return self.storage.contents
             
     def description(self):
-        return self.storage.description()
+        return self.storage.description(self.kind)
     
     def find(self, test):
         return self.storage.find(test)
@@ -213,7 +213,7 @@ class Container(Item):
         return Thing.mass(self) + sum([item.mass() for item in self.contents])
 
     def description(self):
-        return self.storage.description()
+        return self.storage.description(self.kind)
 
     def find(self, test):
         return self.storage.find(test)
