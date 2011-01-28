@@ -10,15 +10,17 @@ from rendering import Renderer
 from data import Barrel, Item
 
 def main():
-    n = 1000000
+    n = 100000
     
     print 'How fast can a world with {0} items run.'.format(n)
     
     game = Game((256,256,128))
     renderer = Renderer(game)
 
+    start = time()
     for i in range(n):
         game.world.additem(Item(Barrel, (randint(0,255),randint(0,255),64), 1.0))
+    print time() - start
 
     game_acc = 0
     render_acc = 0
