@@ -380,6 +380,7 @@ class AcquireItem(Task):
         return reqs[0].requirements() + reqs if reqs else reqs
 
     def work(self):
+        self.world.removefromstockjobs(self.item)
         self.world.space[self.item.location].items.remove(self.item)
         self.item.location = None
         self.subject.inventory.add(self.item)
@@ -568,7 +569,7 @@ class FillStockpile(Task):
         if stockjob is None:
             raise TaskImpossible()
 
-        stockpile, item = [q.popleft() for q in stockjob]
+        stockpile, item = [q[0] for q in stockjob]
         
         reqs = [StoreItem(self.subject, self.world, stockpile, item)]
         return reqs[0].requirements() + reqs
@@ -789,17 +790,23 @@ class World(object):
 
         if not stockpiled:
             try:
-                self.stockjobs[item.stocktype][1].append(item)
+                self.addtostockjobs(item)
             except KeyError:
                 self.stockjobs[item.stocktype] = deque(), deque([item])
             
         self.items.append(item)
+
+    def addtostockjobs(self, item):
+        self.stockjobs[item.stocktype][1].append(item)
+
+    def removefromstockjobs(self, item):
+        self.stockjobs[item.stocktype][1].remove(item)        
 
     def removeitem(self, item, stockpiled = None):
         if item.location is not None:
             self.space[item.location].items.remove(item)
 
         if not stockpiled:
-            self.stockjobs[item.stocktype][1].remove(item)
+            self.removefromstockjobs(item)
             
         self.items.remove(item)
