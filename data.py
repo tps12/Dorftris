@@ -1,5 +1,5 @@
 from collections import deque
-from random import choice, gauss, randint
+from random import choice, gauss, randint, random
 
 class Substance(object):
     color = None
@@ -737,6 +737,10 @@ class NormalDistribution(object):
 
 class PhysicalAttribute(object):
     description = None
+    adverbs = _('great'), _('considerable'), _('average'), _('unremarkable'), _('not much')
+
+class Sense(PhysicalAttribute):
+    adverbs = _('excellent'), _('keen'), _('average'), _('dull'), _('extremely dull')
 
 class Strength(PhysicalAttribute):
     description = _('strength')
@@ -744,20 +748,20 @@ class Strength(PhysicalAttribute):
 class Speed(PhysicalAttribute):
     description = _('speed')
 
-class Sight(PhysicalAttribute):
+class Sight(Sense):
     description = _('eyesight')
 
-class Hearing(PhysicalAttribute):
+class Hearing(Sense):
     description = _('hearing')
 
-class Smell(PhysicalAttribute):
+class Smell(Sense):
     description = _('sense of smell')
 
 class Dexterity(PhysicalAttribute):
     description = _('dexterity')
 
 class Toughness(PhysicalAttribute):
-    description = _('toughness')
+    description = _('physical fortitude')
 
 def sampleattributes(attributes):
     return dict((a, gauss(attributes[a], 10)) for a in attributes.keys())
@@ -792,7 +796,7 @@ class Creature(Thing):
         self.inventory = Storage(1.0)
         self.job = None
         self.hydration = randint(900, 3600)
-        self.rest = randint(0, int(self.speed()))
+        self.rest = random() * self.speed()
         self.remove = False
 
     def die(self, world):
@@ -816,6 +820,35 @@ class Creature(Thing):
 
     def speed(self):
         return 20 - gauss(self.attributes[Speed],10) / 10
+
+    def attributetext(self, attribute):
+        normal = self.race[attribute]
+        d = self.attributes[attribute] - normal
+        if d > 20:
+            value = attribute.adverbs[0]
+        elif d > 10:
+            value = attribute.adverbs[1]
+        elif d < -20:
+            value = attribute.adverbs[3]
+        elif d < -10:
+            value = attribute.adverbs[4]
+        else:
+            return None
+
+        value += ' ' + attribute.description
+            
+        if (d > 15 and normal < 90) or (d < -15 and normal > 110):
+            value += ' ' + _('for a') + ' ' + self.noun
+        elif (d > 25 and normal > 110) or (d < -25 and normal < -90):
+            value += ', ' + _('even for a') + ' ' + self.noun
+            
+        return value
+
+    def physical(self):
+        return ', '.join([t for t in
+                          [self.attributetext(a)
+                           for a in self.attributes.keys()]
+                          if t])
     
     def step(self, world):
         self.hydration = max(self.hydration - 1, 0)
@@ -839,7 +872,8 @@ class Creature(Thing):
 
 class Dwarf(Creature):
     __slots__ = ()
-    
+
+    noun = _('dwarf')
     health = 10
     jobs = sorted(Creature.jobs +
                   [JobOption(DigDesignation,
@@ -868,6 +902,7 @@ class Dwarf(Creature):
 class Goblin(Creature):
     __slots__ = ()
     
+    noun = _('goblin')
     health = 0
     jobs = sorted(Creature.jobs +
                   [JobOption(SeekAndDestroy,
@@ -895,6 +930,7 @@ class Tortoise(Creature):
     __slots__ = ()
     
     health = 10
+    noun = _('giant tortoise')
     thirst = 0.1
     race = {
         Strength : 120,
@@ -914,6 +950,7 @@ class Tortoise(Creature):
 class SmallSpider(Creature):
     __slots__ = ()
     
+    noun = _('small spider')
     health = 10
     thirst = 0.0001
     race = {
