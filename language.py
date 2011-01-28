@@ -57,30 +57,49 @@ class Generator(object):
 
     def calculate(self):
         total = float(sum(self.lengths))
-        ps = [l/total for l in self.lengths]
-        self.thresholds = []
+        self.thresholds = self.tothresholds([l/total for l in self.lengths])
+
+        self.successorthresholds = {}
+        for c in self.successors.keys():
+            successors = []
+            total = float(sum(self.successors[c].values()))
+            running = 0
+            for s in self.successors[c].keys():
+                p = self.successors[c][s]/total
+                running += p
+                successors.append((running, s))
+                if running >= 1:
+                    break
+            self.successorthresholds[c] = successors
+
+    @staticmethod
+    def tothresholds(ps):
+        thresholds = []
         running = 0
         for p in ps:
             running += p
-            self.thresholds.append(running)
+            thresholds.append(running)
             if running >= 1:
-                break
+                return thresholds
 
-    def randomlength(self):
+    @staticmethod
+    def randomindex(thresholds):
         r = random()
-        for i in range(len(self.thresholds)):
-            if r <= self.thresholds[i]:
+        for i in range(len(thresholds)):
+            if r <= thresholds[i]:
                 return i
 
+    def randomlength(self):
+        return self.randomindex(self.thresholds)
+
     def randomsuccessor(self, c):
-        import random
-        value = None
-        while not value:
-            keys = self.successors[c].keys()
-            if len(keys) == 1 and keys[0] == None:
-                return None
-            value = random.choice(keys)
-        return value
+        successors = self.successorthresholds[c]
+        if len(successors) == 1 and successors[0] == None:
+            return None
+        r = random()
+        for t, s in successors:
+            if r <= t and s:
+                return s
 
     def generate(self):
         length = self.randomlength()
