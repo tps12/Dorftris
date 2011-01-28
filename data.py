@@ -21,6 +21,8 @@ class Meat(Substance):
     density = 1000.0
 
 class Material(object):
+    __slots__ = 'substance', 'amount'
+    
     def __init__(self, substance, amount):
         self.substance = substance
         self.amount = amount
@@ -32,6 +34,8 @@ class Water(Substance):
     density = 1000.0
 
 class Entity(object):
+    __slots__ = 'kind',
+    
     def __init__(self, kind):
         self.kind = kind
 
@@ -39,6 +43,8 @@ class Entity(object):
         return self.kind
 
 class Thing(Entity):
+    __slots__ = 'materials',
+
     fluid = False
     
     def __init__(self, kind, materials):
@@ -56,6 +62,8 @@ class StockpileType(object):
         self.description = description
 
 class Beverage(Thing):
+    __slots__ = ()
+    
     fluid = True
     stocktype = StockpileType(_('Generic beverage'))
     
@@ -67,6 +75,8 @@ class Beverage(Thing):
                                           self.materials[0].amount * 1000)
 
 class Item(Thing):
+    __slots__ = 'color', 'location', 'reserved'
+    
     def __init__(self, kind, materials, location):
         Thing.__init__(self, kind, materials)
         self.color = self.materials[0].substance.color
@@ -77,6 +87,8 @@ class OutOfSpace(Exception):
     pass
 
 class Storage(object):
+    __slots__ = 'capacity', 'contents'
+    
     def __init__(self, capacity):
         self.capacity = capacity
         self.contents = []
@@ -131,6 +143,8 @@ class WrongItemType(Exception):
     pass
 
 class Stockpile(Entity):
+    __slots__ = 'storage', 'components', 'types', 'changed'
+    
     color = (255,255,255)
     
     def __init__(self, region, types):
@@ -184,6 +198,8 @@ class Stockpile(Entity):
         self.changed = True
 
 class Container(Item):
+    __slots__ = 'storage',
+    
     def __init__(self, kind, materials, location, capacity):
         Item.__init__(self, kind, materials, location)
         self.storage = Storage(capacity)
@@ -231,6 +247,8 @@ class Container(Item):
         return self.storage.has(kind)
 
 class StockpileComponent(Container):
+    __slots__ = 'stockpile',
+    
     def __init__(self, stockpile, location):
         Container.__init__(self, stockpile.kind,
                            [Material(AEther, 0)], location, 1.0)
@@ -240,6 +258,8 @@ class StockpileComponent(Container):
         return self.stockpile.description
 
 class Corpse(Item):
+    __slots__ = 'origins',
+    
     stocktype = StockpileType(_('Corpse'))
         
     def __init__(self, creature):
@@ -250,6 +270,8 @@ class Corpse(Item):
         return _('corpse of {0}').format(self.origins.description())
 
 class Barrel(Container):
+    __slots__ = ()
+    
     containerstocktype = StockpileType(_('Empty barrel'))
     
     def __init__(self, location, substance):
@@ -704,6 +726,8 @@ class JobOption(object):
         return option.priority
 
 class Creature(Thing):
+    __slots__ = 'color', 'location', 'inventory', 'job', 'hydration', 'rest', 'remove'
+    
     jobs = sorted([
                    JobOption(Hydrate, lambda c, w: c.hydration < 1000, 0),
                    JobOption(DropExtraItems,
@@ -761,6 +785,8 @@ class Creature(Thing):
         self.rest = self.speed
 
 class Dwarf(Creature):
+    __slots__ = ()
+    
     eyesight = 10
     health = 10
     jobs = sorted(Creature.jobs +
@@ -780,6 +806,8 @@ class Dwarf(Creature):
                           (r, r-40, r-80), location)
         
 class Goblin(Creature):
+    __slots__ = ()
+    
     eyesight = 16
     health = 0
     jobs = sorted(Creature.jobs +
@@ -796,6 +824,8 @@ class Goblin(Creature):
                           (32, 64+randint(0,127),64+randint(0,127)), location)
 
 class Tortoise(Creature):
+    __slots__ = ()
+    
     eyesight = 4
     health = 10
     speed = 20
@@ -807,6 +837,8 @@ class Tortoise(Creature):
                           (188+d,168+d,138+d), location)
 
 class SmallSpider(Creature):
+    __slots__ = ()
+    
     eyesight = 1
     health = 10
     speed = 1

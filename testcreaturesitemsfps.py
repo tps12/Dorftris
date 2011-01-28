@@ -10,7 +10,7 @@ from rendering import Renderer
 from data import Barrel, Dwarf, Oak
 
 def main():
-    n = 10000
+    n = 100000
     m = 300
     
     print 'How fast can a world with {0} items and {1} creatures run.'.format(n, m)
