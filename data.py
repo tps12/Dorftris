@@ -81,15 +81,15 @@ class Storage(object):
         self.capacity = capacity
         self.contents = []
 
-    def description(self, kind):
+    def description(self, name):
         n = len(self.contents)
         if n == 0:
-            return _('empty {0}').format(kind)
+            return _('empty {0}').format(name)
         elif n == 1:
-            return _('{0} of {1}').format(kind,
+            return _('{0} of {1}').format(name,
                                           self.contents[0].description())
         else:
-            return _('{0} containing {1}').format(kind,
+            return _('{0} containing {1}').format(name,
                                                   ', '.join([item.description()
                                                              for item
                                                              in self.contents]))
