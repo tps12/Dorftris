@@ -4,7 +4,7 @@ gettext.install('dorftris')
 from game import Game
 from rendering import Renderer
 
-from data import Barrel, Beverage, Dwarf, Oak, Stockpile
+from data import Barrel, Beverage, Dwarf, Item, Oak, Stockpile
 
 def main():
     print 'Dwarf should not keep moving barrels around.'
@@ -15,7 +15,7 @@ def main():
     game.schedule(Dwarf((3,3,64)))
 
     for i in range(4):
-        game.world.additem(Barrel((8,i,64), Oak))
+        game.world.additem(Item(Barrel, (8,i,64), 1.0))
 
     game.world.addstockpile(Stockpile([(2,5,64)], [Beverage.stocktype]))
 

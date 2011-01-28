@@ -34,24 +34,15 @@ class Water(Substance):
     density = 1000.0
 
 class Entity(object):
-    def __init__(self, kind):
-        self.kind = kind
+    kind = None
 
-    def description(self):
-        return self.kind
+    @classmethod
+    def description(cls):
+        return cls.kind
 
 class Thing(Entity):
     fluid = False
-    
-    def __init__(self, kind, materials):
-        Entity.__init__(self, kind)
-        self.materials = materials
-
-    def volume(self):
-        return sum([m.amount for m in self.materials])
-
-    def mass(self):
-        return sum([m.mass() for m in self.materials])
+    materials = []
 
 class StockpileType(object):
     def __init__(self, description):
@@ -60,85 +51,117 @@ class StockpileType(object):
 class Beverage(Thing):
     fluid = True
     stocktype = StockpileType(_('Generic beverage'))
-    
-    def __init__(self, amount):
-        Thing.__init__(self, 'beverage', [Material(Water, amount)])
+    kind = 'beverage'
+    materials = [Material(Water, 1.0)]
 
-    def description(self):
-        return _('{0} ({1} L)').format(self.kind,
-                                          self.materials[0].amount * 1000)
+    @classmethod
+    def description(cls, quantity):
+        return _('{0} ({1} L)').format(cls.kind,
+                                       quantity * self.materials[0].amount * 1000)
 
-class Item(Thing):
-    def __init__(self, kind, materials, location):
-        Thing.__init__(self, kind, materials)
-        self.color = self.materials[0].substance.color
+class Article(Thing):
+    @classmethod
+    def color(cls):
+        return cls.materials[0].substance.color
+
+class Item(object):
+    __slots__ = ('location',
+                 'kind',
+                 'contents',
+                 'materials',
+                 'origins',
+                 'reserved')
+
+    def __init__(self, kind, location, quantity):
+        self.contents = []
+        self.kind = kind
         self.location = location
+        self.materials = [Material(m.substance, quantity * m.amount)
+                          for m in self.kind.materials] if 'materials' in self.kind.__dict__ else []
         self.reserved = False
+
+    @property
+    def color(self):
+        return self.kind.color()
+
+    def volume(self):
+        return sum([m.amount for m in self.materials])
+
+    def mass(self):
+        return sum([m.mass() for m in self.materials])
 
 class OutOfSpace(Exception):
     pass
 
 class Storage(object):
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.contents = []
+    capacity = None
 
-    def description(self):
-        n = len(self.contents)
+    @classmethod
+    def description(cls, storage):
+        n = len(storage.contents)
         if n == 0:
-            return _('empty {0}').format(self.kind)
+            return _('empty {0}').format(cls.kind)
         elif n == 1:
-            return _('{0} of {1}').format(self.kind,
-                                          self.contents[0].description())
+            return _('{0} of {1}').format(cls.kind,
+                                          storage.contents[0].description())
         else:
-            return _('{0} containing {1}').format(self.kind,
+            return _('{0} containing {1}').format(cls.kind,
                                                   ', '.join([item.description()
                                                              for item
-                                                             in self.contents]))
+                                                             in storage.contents]))
 
-    def find(self, test):
-        for item in self.contents:
+    @classmethod
+    def find(cls, test, storage):
+        for item in storage.contents:
             if test(item):
                 return item
-            elif isinstance(item, Storage):
-                value = item.find(test)
+            elif issubclass(item.kind, Storage):
+                value = item.kind.find(test, item)
                 if value is not None:
                     return value
         return None
 
-    def add(self, item):
-        if (self.space() > item.volume()):
-            self.contents.append(item)
+    @classmethod
+    def add(cls, item, storage):
+        if (storage.kind.space(storage) > item.volume()):
+            storage.contents.append(item)
         else:
             raise OutOfSpace()
 
-    def space(self):
-        return self.capacity - sum([item.volume() for item in self.contents])
+    @classmethod
+    def space(cls, storage):
+        return cls.capacity - sum([item.volume() for item in storage.contents])
 
-    def remove(self, item):
-        if item in self.contents:
-            self.contents.remove(item)
+    @classmethod
+    def remove(cls, item, storage):
+        if item in storage.contents:
+            storage.contents.remove(item)
             return True
         else:
-            for container in [item for item in self.contents
-                              if isinstance(item, Storage)]:
-                if container.remove(item):
+            for container in [item for item in storage.contents
+                              if issubclass(item.kind, Storage)]:
+                if container.kind.remove(item, container):
                     return True
         return False
 
-    def has(self, kind):
-        return self.find(lambda item: isinstance(item, kind)) is not None
+    @classmethod
+    def has(cls, kind, storage):
+        return bool(cls.find(lambda item: issubclass(item.kind, kind), storage))
 
 class WrongItemType(Exception):
     pass
 
-class Stockpile(Storage, Entity):
+class StockpileStorage(Storage):
+    kind = 'stockpile'
+
+class Stockpile(object):
     color = (255,255,255)
+    kind = 'stockpile'
     
     def __init__(self, region, types):
-        Storage.__init__(self, 0)
-        Entity.__init__(self, 'stockpile')
+        self.capacity = 0
         self.components = []
+        self.contents = []
         self.types = types
         self.changed = False
         for location in region:
@@ -149,13 +172,13 @@ class Stockpile(Storage, Entity):
 
     def add(self, item):
         if self.accepts(item.stocktype):
-            Storage.add(self, item)
+            Storage.add(item, self)
             self.changed = True
         else:
             raise WrongItemType()
 
     def remove(self, item):
-        success = Storage.remove(self, item)
+        success = Storage.remove(item, self)
         self.changed = success
         return success
         
@@ -164,54 +187,53 @@ class Stockpile(Storage, Entity):
         self.components.append(StockpileComponent(self, location))
         self.changed = True
 
-class Container(Item, Storage):
-    def __init__(self, kind, materials, location, capacity):
-        Item.__init__(self, kind, materials, location)
-        Storage.__init__(self, capacity)
+    def description(self):
+        return StockpileStorage.description(self)
 
-    @property
-    def stocktype(self):
-        if self.contents:
-            first = self.contents[0].stocktype
+class Container(Article, Storage):
+    @classmethod
+    def stocktype(cls, container):
+        if container.contents:
+            first = container.contents[0].stocktype
             return (first
-                    if all([c.stocktype == first for c in self.contents[1:]])
+                    if all([c.stocktype == first for c in container.contents[1:]])
                     else None)
         else:
-            return self.containerstocktype
+            return cls.containerstocktype
 
-    def volume(self):
-        return Thing.volume(self) + self.capacity
+    @classmethod
+    def volume(cls, container):
+        return container.volume() + cls.capacity
 
-    def mass(self):
-        return Thing.mass(self) + sum([item.mass() for item in self.contents])
+    @classmethod
+    def mass(cls, container):
+        return container.mass() + sum([item.mass() for item in container.contents])
 
-class StockpileComponent(Container):
+class StockpileComponent(object):
+    capacity = 1.0
+    kind = Stockpile.kind
+    materials = [Material(AEther, 0)]
+    
     def __init__(self, stockpile, location):
-        Container.__init__(self, stockpile.kind,
-                           [Material(AEther, 0)], location, 1.0)
+        self.location = location
         self.stockpile = stockpile
 
     def description(self):
         return Storage.description(self.stockpile)
 
-class Corpse(Item):
+class Corpse(Article):
     stocktype = StockpileType(_('Corpse'))
         
-    def __init__(self, creature):
-        Item.__init__(self, 'corpse', creature.materials, creature.location)
-        self.origins = creature
-
-    def description(self):
-        return _('corpse of {0}').format(self.origins.description())
+    @classmethod
+    def description(cls, corpse):
+        return _('corpse of {0}').format(corpse.origins.description())
 
 class Barrel(Container):
+    capacity = 0.25
     containerstocktype = StockpileType(_('Empty barrel'))
+    kind = 'barrel'
+    materials = [Material(Oak, 0.075)]
     
-    def __init__(self, location, substance):
-        Container.__init__(self, 'barrel',
-                           [Material(substance, 0.075)], location, 0.25)
-        self.contents.append(Beverage(self.capacity))
-
 Arms = _('Weapons and armor'), []
 BuildingMaterials = _('Building materials'), []
 Clothing = _('Clothing'), []
@@ -658,22 +680,26 @@ class JobOption(object):
     def prioritykey(option):
         return option.priority
 
-class Creature(Thing):
+class Inventory(Storage):
+    capacity = 1.0
+
+class Creature(object):
     jobs = sorted([
                    JobOption(Hydrate, lambda c, w: c.hydration < 1000, 0),
                    JobOption(DropExtraItems,
-                             lambda c, w: c.inventory.find(lambda i:
+                             lambda c, w: c.inventory.kind.find(lambda i:
                                                         isinstance(i, Item) and
-                                                           not i.reserved), 99),
+                                                           not i.reserved, c.inventory), 99),
                    JobOption(Meander, lambda c, w: True, 100)
                    ],
                   key = JobOption.prioritykey)
     
     def __init__(self, kind, materials, color, location):
-        Thing.__init__(self, kind, materials)
+        self.kind = kind
+        self.materials = materials
         self.color = color
         self.location = location
-        self.inventory = Storage(1.0)
+        self.inventory = Item(Inventory, None, 1.0)
         self.job = None
         self.hydration = randint(900, 3600)
         self.rest = randint(0, self.speed)
@@ -797,15 +823,15 @@ class World(object):
             try:
                 self.addtostockjobs(item)
             except KeyError:
-                self.stockjobs[item.stocktype] = deque(), deque([item])
+                self.stockjobs[item.kind.stocktype] = deque(), deque([item])
             
         self.items.append(item)
 
     def addtostockjobs(self, item):
-        self.stockjobs[item.stocktype][1].append(item)
+        self.stockjobs[item.kind.stocktype][1].append(item)
 
     def removefromstockjobs(self, item):
-        self.stockjobs[item.stocktype][1].remove(item)        
+        self.stockjobs[item.kind.stocktype][1].remove(item)        
 
     def removeitem(self, item, stockpiled = None):
         if item.location is not None:

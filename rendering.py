@@ -8,7 +8,7 @@ from pygame.mixer import Sound
 from pygame.sprite import *
 from pygame.time import Clock
 
-from data import Barrel, Beverage, Corpse, Entity, Stockpile
+from data import Barrel, Beverage, Corpse, Entity, Item, Stockpile
 from glyphs import GlyphGraphics
 
 INFO_WIDTH = 20
@@ -77,9 +77,15 @@ class Renderer(object):
                                                (255,255,255))
         self.pause_notice.fill((255,255,255), special_flags=BLEND_ADD)
 
-        self.air = Entity('air')
-        self.button = Entity('button')
-        self.ground = Entity('ground')
+        class Air(Entity):
+            kind = 'air'
+        self.air = Air
+        class Button(Entity):
+            kind = 'button'
+        self.button = Button
+        class Ground(Entity):
+            kind = 'ground'
+        self.ground = Ground
 
         self.hex_image = Surface((self.tile_width+self.tile_height/3,
                                   self.tile_height+1),
@@ -241,8 +247,10 @@ class Renderer(object):
             elif entity not in self.entity_sprites:                    
                 sprite = Sprite()
 
-                if isinstance(entity, Corpse):
+                if entity.kind == Corpse:
                     image = self.graphics[entity.origins][0].copy()
+                elif isinstance(entity, Item):
+                    image = self.graphics[entity.kind][0].copy()
                 else:
                     image = self.graphics[entity][0].copy()
                     
