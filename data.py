@@ -420,7 +420,7 @@ class Attack(Task):
 
         if self.world.space.pathing.distance_xy(
             self.subject.location[0:2],
-            self.nearest.location[0:2]) > self.subject.eyesight:
+            self.nearest.location[0:2]) > self.subject.eyesight():
             raise TaskImpossible()
 
         if self.nearest.location == self.subject.location:
@@ -811,6 +811,9 @@ class Creature(Thing):
             except TaskImpossible:
                 continue
 
+    def eyesight(self):
+        return gauss(self.attributes[Sight],10) / 10
+
     def speed(self):
         return 20 - gauss(self.attributes[Speed],10) / 10
     
@@ -837,7 +840,6 @@ class Creature(Thing):
 class Dwarf(Creature):
     __slots__ = ()
     
-    eyesight = 10
     health = 10
     jobs = sorted(Creature.jobs +
                   [JobOption(DigDesignation,
@@ -866,7 +868,6 @@ class Dwarf(Creature):
 class Goblin(Creature):
     __slots__ = ()
     
-    eyesight = 16
     health = 0
     jobs = sorted(Creature.jobs +
                   [JobOption(SeekAndDestroy,
@@ -893,7 +894,6 @@ class Goblin(Creature):
 class Tortoise(Creature):
     __slots__ = ()
     
-    eyesight = 4
     health = 10
     thirst = 0.1
     race = {
@@ -914,7 +914,6 @@ class Tortoise(Creature):
 class SmallSpider(Creature):
     __slots__ = ()
     
-    eyesight = 1
     health = 10
     thirst = 0.0001
     race = {
