@@ -17,10 +17,8 @@ def main():
     game = Game((256,256,128))
     renderer = Renderer(game)
 
-    start = time()
     for i in range(n):
         game.world.additem(Item(Barrel, (randint(0,255),randint(0,255),64), 1.0))
-    print time() - start
 
     game_acc = 0
     render_acc = 0
