@@ -372,8 +372,11 @@ class AcquireItem(Task):
 
     def requirements(self):
         if self.subject.location != self.item.location:
-            reqs = [GoToGoal(self.subject, self.world,
-                                    self.item.location)]
+            try:
+                reqs = [GoToGoal(self.subject, self.world,
+                                        self.item.location)]
+            except:
+                raise TaskImpossible()
         else:
             reqs = []
 
