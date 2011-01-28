@@ -1,9 +1,11 @@
+from codecs import open as openunicode
 from collections import deque
 from random import choice, gauss, randint, random
 from re import search
 from unicodedata import name as unicodename
 
 from colordb import match as describecolor
+from language import Generator
 
 class Substance(object):
     color = None
@@ -807,6 +809,9 @@ class Creature(Thing):
         self.rest = random() * self.speed()
         self.remove = False
 
+    def propername(self):
+        return _('this')
+
     def objectpronoun(self):
         return _('it')
 
@@ -867,7 +872,7 @@ class Creature(Thing):
     def physical(self):
         pronoun = self.subjectpronoun().capitalize()
         
-        value = pronoun + ' ' + _('is') + ' ' + indefinitearticle(self.noun) + ' ' + self.noun + '. '
+        value = self.propername().title() + ' ' + _('is') + ' ' + indefinitearticle(self.noun) + ' ' + self.noun + '. '
 
         value += pronoun + ' ' + self.colordescription() + '. '
         
@@ -929,12 +934,16 @@ class SexualCreature(Creature):
     def sexdescription(self):
         return self.sex.description
 
-class GenderedCreature(SexualCreature):
-    __slots__ = 'gender'
+class CulturedCreature(SexualCreature):
+    __slots__ = 'gender', 'name'
 
     def __init__(self, kind, materials, color, location, sex, gender):
         SexualCreature.__init__(self, kind, materials, color, location, sex)
+        self.name = self.culture[NameSource].generate()
         self.gender = gender
+
+    def propername(self):
+        return self.name
 
     def objectpronoun(self):
         return self.gender.objectpronoun
@@ -954,7 +963,22 @@ class MaleWomen(DemographicFigure):
 class FemaleMen(DemographicFigure):
     pass
 
-class Dwarf(GenderedCreature):
+class NameSource(object):
+    pass
+
+class NameGenerator(object):
+    def __init__(self, lexicon, count):
+        self.count = count
+        with openunicode(lexicon, 'r', 'utf_8') as f:
+            self.generator = Generator(f.read())
+            self.generator.process()
+            self.generator.calculate()
+
+    def generate(self):
+        return ' '.join([self.generator.generate().capitalize()
+                         for i in range(self.count)])
+
+class Dwarf(CulturedCreature):
     __slots__ = ()
 
     noun = _('dwarf')
@@ -980,7 +1004,8 @@ class Dwarf(GenderedCreature):
     culture = {
         Maleness : 0.5,
         MaleWomen : 0.01,
-        FemaleMen : 0.01
+        FemaleMen : 0.01,
+        NameSource : NameGenerator('gd.txt', 2)
         }
     
     def __init__(self, location):
@@ -993,13 +1018,13 @@ class Dwarf(GenderedCreature):
             sex = Female
             gender = Man if random() < self.culture[FemaleMen] else Woman
 
-        GenderedCreature.__init__(self, 'dwarf', [Material(Meat, 0.075)],
+        CulturedCreature.__init__(self, 'dwarf', [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location, sex, gender)
 
     def colordescription(self):
         return _('has') + ' ' + describecolor(self.color) + ' ' + _('skin')
         
-class Goblin(GenderedCreature):
+class Goblin(CulturedCreature):
     __slots__ = ()
     
     noun = _('goblin')
@@ -1023,7 +1048,8 @@ class Goblin(GenderedCreature):
     culture = {
         Maleness : 0.25,
         MaleWomen : 0,
-        FemaleMen : 0.5
+        FemaleMen : 0.5,
+        NameSource : NameGenerator('no.txt', 1)
         }
     
     def __init__(self, location):
@@ -1034,7 +1060,7 @@ class Goblin(GenderedCreature):
             sex = Female
             gender = Man if random() < self.culture[FemaleMen] else Woman
 
-        GenderedCreature.__init__(self, 'goblin', [Material(Meat, 0.05)],
+        CulturedCreature.__init__(self, 'goblin', [Material(Meat, 0.05)],
                                   (32, 64+randint(0,127),64+randint(0,127)),
                                   location, sex, gender)
 
