@@ -7,7 +7,7 @@ from time import time
 from game import Game
 from rendering import Renderer
 
-from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Stockpile, Tortoise
+from data import Barrel, Dwarf, Goblin, Item, SmallSpider, Stockpile, Tortoise
 
 def main():
     game = Game((156, 104, 128))
@@ -28,10 +28,9 @@ def main():
         game.schedule(creature)
 
     for i in range(10):
-        game.world.additem(Barrel((randint(0,game.dimensions[0]-1),
-                                        randint(0,game.dimensions[1]-1),
-                                        64),
-                                       Oak))
+        game.world.additem(Item(Barrel, (randint(0,game.dimensions[0]-1),
+                                         randint(0,game.dimensions[1]-1),64),
+                                1.0))
         
     game_acc = 0
     render_acc = 0
