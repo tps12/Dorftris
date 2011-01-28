@@ -10,7 +10,7 @@ from rendering import Renderer
 from data import Barrel, Oak
 
 def main():
-    n = 100000
+    n = 1000000
     
     print 'How fast can a world with {0} items run.'.format(n)
     

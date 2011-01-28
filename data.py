@@ -745,7 +745,7 @@ class Creature(Thing):
         self.inventory = Storage(1.0)
         self.job = None
         self.hydration = randint(900, 3600)
-        self.rest = randint(0, self.speed)
+        self.rest = randint(0, int(self.speed))
         self.remove = False
 
     def die(self, world):
@@ -797,7 +797,7 @@ class Dwarf(Creature):
                              lambda c, w: w.stockjobs,
                              90)],
                   key = JobOption.prioritykey)
-    speed = 3
+    speed = 2.5
     thirst = 0.03
     
     def __init__(self, location):

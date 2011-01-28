@@ -123,8 +123,9 @@ class Game(object):
         self.reschedule(creature)
 
     def reschedule(self, creature):
-        self._schedule[creature.rest].append(creature)
-        creature.rest = 0
+        rest = int(creature.rest)
+        self._schedule[rest].append(creature)
+        creature.rest -= rest
 
     def getscheduled(self):
         scheduled = self._schedule.popleft()
