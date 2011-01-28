@@ -137,13 +137,13 @@ class Stockpile(Storage, Entity):
         Storage.__init__(self, 0)
         Entity.__init__(self, 'stockpile')
         self.components = []
-        self._types = types
+        self.types = types
         self.changed = False
         for location in region:
             self.annex(location)
 
     def accepts(self, option):
-        return option in self._types
+        return option in self.types
 
     def add(self, item):
         if self.accepts(item.stocktype):
@@ -364,6 +364,27 @@ class Attack(Task):
         self.nearest.health -= 1
         return self.nearest.health <= 0
 
+class AcquireItem(Task):
+    def __init__(self, subject, world, item):
+        self.subject = subject
+        self.world = world
+        self.item = item
+
+    def requirements(self):
+        if self.subject.location != self.item.location:
+            reqs = [GoToGoal(self.subject, self.world,
+                                    self.item.location)]
+        else:
+            reqs = []
+
+        return reqs[0].requirements() + reqs if reqs else reqs
+
+    def work(self):
+        self.world.space[self.item.location].items.remove(self.item)
+        self.item.location = None
+        self.subject.inventory.add(self.item)
+        return True
+
 class Acquire(Task):
     def __init__(self, subject, world, test, capacity):
         self.subject = subject
@@ -500,19 +521,20 @@ class DropItems(Task):
         return False
 
 class StoreItem(Task):
-    def __init__(self, subject, world, stockpile):
+    def __init__(self, subject, world, stockpile, item):
         self.subject = subject
         self.world = world
         self.stockpile = stockpile
+        self.item = item
+
+    def find(self, item):
+        return item == self.item
 
     def requirements(self):
-        for item in self.subject.inventory.contents:
-            if self.stockpile.accepts(item.stocktype):
-                reqs = []
-                break
+        if self.subject.inventory.find(self.find) is None:
+            reqs = [AcquireItem(self.subject, self.world, self.item)]
         else:
-            reqs = [AcquireNonStockpiled(self.subject, self.world,
-                            self.stockpile)]
+            reqs = []
 
         if self.subject.location != self.stockpile.components[0].location:
             reqs = reqs + [GoToGoal(self.subject, self.world,
@@ -521,7 +543,7 @@ class StoreItem(Task):
         return reqs[0].requirements() + reqs if len(reqs) else reqs
 
     def work(self):
-        item = self.subject.inventory.find(lambda item: True)
+        item = self.subject.inventory.find(self.find)
 
         self.subject.inventory.remove(item)
 
@@ -541,15 +563,14 @@ class FillStockpile(Task):
         self.world = world
 
     def requirements(self):
-        stockpile = next((stockpile for stockpile in self.world.stockpiles
-                          if stockpile.space()), None)
-        if stockpile is None:
-            return []
+        stockjob = next((j for j in self.world.stockjobs.itervalues()
+                         if j[0] and j[1]), None)
+        if stockjob is None:
+            raise TaskImpossible()
 
-        self.world.stockpiles.remove(stockpile)
-        self.world.stockpiles.append(stockpile)
+        stockpile, item = [q.popleft() for q in stockjob]
         
-        reqs = [StoreItem(self.subject, self.world, stockpile)]
+        reqs = [StoreItem(self.subject, self.world, stockpile, item)]
         return reqs[0].requirements() + reqs
 
     def work(self):
@@ -693,10 +714,10 @@ class Dwarf(Creature):
     health = 10
     jobs = sorted(Creature.jobs +
                   [JobOption(DigDesignation,
-                             lambda c, w: len(w.designations) > 0,
+                             lambda c, w: w.designations,
                              10),
                    JobOption(StoreInStockpile,
-                             lambda c, w: len(w.stockpiles) > 0,
+                             lambda c, w: w.stockjobs,
                              90)],
                   key = JobOption.prioritykey)
     speed = 3
@@ -751,16 +772,34 @@ class World(object):
         self.creatures = []
         self.designations = deque()
         self.stockpiles = []
+        self.stockjobs = {}
 
     def addstockpile(self, stockpile):
+        for t in stockpile.types:
+            try:
+                self.stockjobs[t][0].append(stockpile)
+            except KeyError:
+                self.stockjobs[t] = deque([stockpile]), deque()
+                
         self.stockpiles.append(stockpile)
 
-    def additem(self, item):
+    def additem(self, item, stockpiled = None):
         if item.location is not None:
             self.space[item.location].items.append(item)
+
+        if not stockpiled:
+            try:
+                self.stockjobs[item.stocktype][1].append(item)
+            except KeyError:
+                self.stockjobs[item.stocktype] = deque(), deque([item])
+            
         self.items.append(item)
 
-    def removeitem(self, item):
+    def removeitem(self, item, stockpiled = None):
         if item.location is not None:
             self.space[item.location].items.remove(item)
+
+        if not stockpiled:
+            self.stockjobs[item.stocktype][1].remove(item)
+            
         self.items.remove(item)
