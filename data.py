@@ -77,8 +77,9 @@ class Beverage(Thing):
         Thing.__init__(self, 'beverage', [Material(Water, amount)])
 
     def description(self):
-        return _('{0} ({1} L)').format(self.kind,
-                                          self.materials[0].amount * 1000)
+        return _('{drink} ({volume} L)').format(drink=self.kind,
+                                                volume=
+                                                self.materials[0].amount * 1000)
 
 class Item(Thing):
     __slots__ = 'color', 'location', 'reserved'
@@ -102,15 +103,17 @@ class Storage(object):
     def description(self, name):
         n = len(self.contents)
         if n == 0:
-            return _('empty {0}').format(name)
+            return _(u'empty {container}').format(container=name)
         elif n == 1:
-            return _('{0} of {1}').format(name,
-                                          self.contents[0].description())
+            return _(u'{container} of {contents}').format(container=name,
+                                                         contents=
+                                                         self.contents[0]
+                                                         .description())
         else:
-            return _('{0} containing {1}').format(name,
-                                                  ', '.join([item.description()
-                                                             for item
-                                                             in self.contents]))
+            return _(u'{container} containing {items}').format(container=name,
+                                                  items=', '.join([item.description()
+                                                                  for item
+                                                                  in self.contents]))
 
     def find(self, test):
         for item in self.contents:
@@ -731,16 +734,6 @@ class JobOption(object):
     def prioritykey(option):
         return option.priority
 
-class NormalDistribution(object):
-    __slots__ = 'mu', 'sigma'
-    
-    def __init__(self, mu, sigma):
-        self.mu = mu
-        self.sigma = sigma
-
-    def sample(self):
-        return gauss(mu, sigma)
-
 class PhysicalAttribute(object):
     description = None
     adverbs = _('great'), _('considerable'), _('average'), _('unremarkable'), _('not much')
@@ -810,22 +803,23 @@ class Creature(Thing):
         self.remove = False
 
     def propername(self):
-        return _('this')
+        return _(u'this')
 
     def namecard(self):
-        return indefinitearticle(self.noun) + ' ' + self.noun
+        return _(u'{a} {name}').format(a=indefinitearticle(self.noun),
+                                      name=self.noun)
 
     def objectpronoun(self):
-        return _('it')
+        return _(u'it')
 
     def subjectpronoun(self):
-        return _('it')
+        return _(u'it')
 
     def sexdescription(self):
-        return _('neuter')
+        return _(u'neuter')
 
     def colordescription(self):
-        return _('is the color') + ' ' + describecolor(self.color)
+        return _(u'is the color {hue}').format(hue=describecolor(self.color))
 
     def die(self, world):
         self.remove = True
@@ -853,39 +847,49 @@ class Creature(Thing):
         normal = self.race[attribute]
         d = self.attributes[attribute] - normal
         if d > 20:
-            value = attribute.adverbs[0]
+            adv = attribute.adverbs[0]
         elif d > 10:
-            value = attribute.adverbs[1]
+            adv = attribute.adverbs[1]
         elif d < -20:
-            value = attribute.adverbs[3]
+            adv = attribute.adverbs[3]
         elif d < -10:
-            value = attribute.adverbs[4]
+            adv = attribute.adverbs[4]
         else:
             return None
-
-        value += ' ' + attribute.description
             
         if (d > 15 and normal < 90) or (d < -15 and normal > 110):
-            value += ' ' + _('for a') + ' ' + self.noun
+            qual = ' ' + _(u'for {a} {race}').format(
+                a=indefinitearticle(self.noun), race=self.noun)
         elif (d > 25 and normal > 110) or (d < -25 and normal < -90):
-            value += ', ' + _('even for a') + ' ' + self.noun
+            qual = ' ' + _(u'even for {a} {race}').format(
+                a=indefinitearticle(self.noun), race=self.noun)
+        else:
+            qual = ''
             
-        return value
+        return _(u'{adverb} {attribute}{qualifier}').format(
+            adverb=adv,
+            attribute=attribute.description,
+            qualifier=qual)
 
     def physical(self):
         pronoun = self.subjectpronoun().capitalize()
         
-        value = self.propername().title() + ' ' + _('is') + ' ' + indefinitearticle(self.noun) + ' ' + self.noun + '. '
-
-        value += pronoun + ' ' + self.colordescription() + '. '
+        value = _(u'{name} is {a} {race}. {she} {has_coloring}.').format(
+            name=self.propername().title(),
+            a=indefinitearticle(self.noun),
+            race=self.noun,
+            she=pronoun,
+            has_coloring=self.colordescription())
         
         for text in [self.attributetext(a) for a in self.attributes.keys()]:
             if not text:
                 continue
 
-            value += pronoun + ' ' + _('has') + ' ' + text + '. '
+            value += ' ' + _(u'{she} has {attribute}.').format(
+                she=pronoun, attribute=text)
 
-        return value + pronoun + ' ' + _('is physically') + ' ' + self.sexdescription() + '.'
+        return value + ' ' + _(u'{she} is physically {sex}.').format(
+            she=pronoun, sex=self.sexdescription())
             
     def step(self, world):
         self.hydration = max(self.hydration - 1, 0)
@@ -911,21 +915,21 @@ class Sex(object):
     pass
 
 class Male(Sex):
-    description = _('male')
+    description = _(u'male')
 
 class Female(Sex):
-    description = _('female')
+    description = _(u'female')
 
 class Gender(object):
     pass
 
 class Woman(Gender):
-    objectpronoun = 'her'
-    subjectpronoun = 'she'
+    objectpronoun = _(u'her')
+    subjectpronoun = _(u'she')
 
 class Man(Gender):
-    objectpronoun = 'him'
-    subjectpronoun = 'he'
+    objectpronoun = _(u'him')
+    subjectpronoun = _(u'he')
 
 class SexualCreature(Creature):
     __slots__ = 'sex'
@@ -987,7 +991,7 @@ class NameGenerator(object):
 class Human(CulturedCreature):
     __slots__ = ()
 
-    noun = _('human')
+    noun = _(u'human')
     race = {
         Strength : 100,
         Speed : 100,
@@ -1007,7 +1011,7 @@ class Human(CulturedCreature):
 class Elf(CulturedCreature):
     __slots__ = ()
 
-    noun = _('elf')
+    noun = _(u'elf')
     race = {
         Strength : 80,
         Speed : 140,
@@ -1027,7 +1031,7 @@ class Elf(CulturedCreature):
 class Dwarf(CulturedCreature):
     __slots__ = ()
 
-    noun = _('dwarf')
+    noun = _(u'dwarf')
     health = 10
     jobs = sorted(Creature.jobs +
                   [JobOption(DigDesignation,
@@ -1068,12 +1072,12 @@ class Dwarf(CulturedCreature):
                                   (r, r-40, r-80), location, sex, gender)
 
     def colordescription(self):
-        return _('has') + ' ' + describecolor(self.color) + ' ' + _('skin')
+        return _(u'has {hue} skin').format(hue=describecolor(self.color))
         
 class Goblin(CulturedCreature):
     __slots__ = ()
     
-    noun = _('goblin')
+    noun = _(u'goblin')
     health = 0
     jobs = sorted(Creature.jobs +
                   [JobOption(SeekAndDestroy,
@@ -1111,13 +1115,13 @@ class Goblin(CulturedCreature):
                                   location, sex, gender)
 
     def colordescription(self):
-        return _('has') + ' ' + describecolor(self.color) + ' ' + _('skin')        
+        return _(u'has {hue} skin').format(hue=describecolor(self.color))
 
 class Tortoise(SexualCreature):
     __slots__ = ()
     
     health = 10
-    noun = _('giant tortoise')
+    noun = _(u'giant tortoise')
     thirst = 0.1
     race = {
         Strength : 120,
@@ -1136,12 +1140,13 @@ class Tortoise(SexualCreature):
                                 choice([Male,Female]))
         
     def colordescription(self):
-        return _('has a shell of') + ' ' + describecolor(self.color)
+        return _(u'has a shell tinted {hue}').format(
+            hue=describecolor(self.color))
         
 class SmallSpider(SexualCreature):
     __slots__ = ()
     
-    noun = _('spider')
+    noun = _(u'spider')
     health = 10
     thirst = 0.0001
     race = {
@@ -1160,7 +1165,9 @@ class SmallSpider(SexualCreature):
                                 choice([Male,Female]))
 
     def colordescription(self):
-        return _('has a') + ' ' + describecolor(self.color) + ' ' + _('body')
+        color = describecolor(self.color)
+        return _(u'has {a} {hue} body').format(a=indefinitearticle(color),
+                                              hue=color)
         
 class World(object):
     def __init__(self, space, items):
