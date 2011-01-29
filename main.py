@@ -42,13 +42,14 @@ def main():
         current = time()
         delta = min(0.125, max(0, current - last))
 
-        if game:
+        renderer = renderers[-1]   
+
+        if renderer.game:
             game_acc += delta
-            while game_acc > game.dt:
-                game.step()
+            while game_acc > renderer.game.dt:
+                renderer.game.step()
                 game_acc -= game.dt
         
-        renderer = renderers[-1]   
         render_acc += delta
         if render_acc > renderer.dt:
             child = renderer.step()
