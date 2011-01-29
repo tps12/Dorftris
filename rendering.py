@@ -17,13 +17,11 @@ STATUS_HEIGHT = 2
 class Renderer(object):
     dt = 0.05
     
-    def __init__(self, game):
+    def __init__(self, game, zoom):
         self.game = game
+        self.zoom = zoom
         
         self.selection = []
-
-        self.tile_width = 16
-        self.tile_height = 18
 
         self.definetiles()
         
@@ -48,25 +46,25 @@ class Renderer(object):
 
     def tile_location(self, c):
         x, y, z = c
-        return (self.tile_width/2 + x * self.tile_width,
-                self.tile_height/2 + y * self.tile_height +
-                ((x+self.offset[0])&1) * self.tile_height/2)
+        return (self.zoom.width/2 + x * self.zoom.width,
+                self.zoom.height/2 + y * self.zoom.height +
+                ((x+self.offset[0])&1) * self.zoom.height/2)
 
     def location_tile(self, c):
         px, py = c
-        x = (px - self.tile_width/2)/self.tile_width
-        return x, (py - self.tile_height/2 - (x&1) * self.tile_height/2)/self.tile_height
+        x = (px - self.zoom.width/2)/self.zoom.width
+        return x, (py - self.zoom.height/2 - (x&1) * self.zoom.height/2)/self.zoom.height
 
     def hexpoints(self):
-        return [(self.tile_height/3,self.tile_height),
-                (0,self.tile_height/2),
-                (self.tile_height/3,0),
-                (self.tile_width,0),
-                (self.tile_width+self.tile_height/3,self.tile_height/2),
-                (self.tile_width,self.tile_height)]
+        return [(self.zoom.height/3,self.zoom.height),
+                (0,self.zoom.height/2),
+                (self.zoom.height/3,0),
+                (self.zoom.width,0),
+                (self.zoom.width+self.zoom.height/3,self.zoom.height/2),
+                (self.zoom.width,self.zoom.height)]
 
     def definetiles(self):
-        self.uifont = font.Font('FreeMono.ttf', max(self.tile_width, self.tile_height))
+        self.uifont = font.Font('FreeMono.ttf', max(self.zoom.width, self.zoom.height))
         self.graphics = GlyphGraphics(self.uifont)
 
         self.pause_notice = self.uifont.render(_('*** PAUSED ***'), True,
@@ -77,8 +75,8 @@ class Renderer(object):
         self.button = Entity('button')
         self.ground = Entity('ground')
 
-        self.hex_image = Surface((self.tile_width+self.tile_height/3,
-                                  self.tile_height+1),
+        self.hex_image = Surface((self.zoom.width+self.zoom.height/3,
+                                  self.zoom.height+1),
                             flags=SRCALPHA)
         gfxdraw.polygon(self.hex_image, self.hexpoints(), (0, 0, 0))
 
@@ -137,7 +135,7 @@ class Renderer(object):
                                 if (self.offset[0] + x, self.offset[1] + y,
                                     self.level -1) in self.game.world.designations:
                                     self.background.blit(self.designation,
-                                                         (location[0]-self.tile_height/3,
+                                                         (location[0]-self.zoom.height/3,
                                                           location[1]))
                             else:
                                 air = self.graphics[self.air][0].copy()
@@ -158,7 +156,7 @@ class Renderer(object):
 
                             if not drawn:
                                 self.background.blit(self.sky,
-                                                     (location[0]-self.tile_height/3,
+                                                     (location[0]-self.zoom.height/3,
                                                       location[1]))
                                 
                 elif tile.kind is not None:
@@ -183,18 +181,18 @@ class Renderer(object):
                         image = self.hex_fill.copy()
                         image.fill(tile.color, special_flags=BLEND_ADD)
                         self.background.blit(image,
-                                             (location[0]-self.tile_height/3,
+                                             (location[0]-self.zoom.height/3,
                                               location[1]))
 
                     if (self.offset[0] + x, self.offset[1] + y,
                           self.level) in self.game.world.designations:
                         self.background.blit(self.designation,
-                                             (location[0]-self.tile_height/3,
+                                             (location[0]-self.zoom.height/3,
                                               location[1]))
 
 
                 self.background.blit(self.grid_image,
-                                     (location[0]-self.tile_height/3,location[1]))
+                                     (location[0]-self.zoom.height/3,location[1]))
 
         self.screen.blit(self.background, (0,0))
 
@@ -266,8 +264,8 @@ class Renderer(object):
                     moved = True
 
                 if not described and Rect(x, y,
-                                          self.tile_width,
-                                          self.tile_height).collidepoint(pos):
+                                          self.zoom.width,
+                                          self.zoom.height).collidepoint(pos):
                     descs.append(entity.description())
                     described = True
 
@@ -313,7 +311,7 @@ class Renderer(object):
             x, y = tuple([min([p[i] for p in locations])
                           for i in range(2)])
             size = tuple([max([p[i] for p in locations]) - (x,y)[i] +
-                          (self.tile_width, self.tile_height)[i]
+                          (self.zoom.width, self.zoom.height)[i]
                           for i in range(2)])
             
             sprite.image = Surface(size)
@@ -339,8 +337,8 @@ class Renderer(object):
                     items = items[1:]
 
                 if not described and Rect(px-x, py-y,
-                                          self.tile_width,
-                                          self.tile_height).collidepoint(pos):
+                                          self.zoom.width,
+                                          self.zoom.height).collidepoint(pos):
                     descs.append(stockpile.description())
                     described = True
                     
@@ -361,7 +359,7 @@ class Renderer(object):
 
             for px,py in locations:
                 if Rect(px, py,
-                        self.tile_width, self.tile_height).collidepoint(pos):
+                        self.zoom.width, self.zoom.height).collidepoint(pos):
                     descs.append(stockpile.description())
 
     def mousepos(self, pos = None):
@@ -384,7 +382,7 @@ class Renderer(object):
             return value, 0
 
     def scroll(self, axis, amount):
-        size = self.tile_width if axis == 0 else self.tile_height
+        size = self.zoom.width if axis == 0 else self.zoom.height
 
         pos, tile = self.mousepos()
 
@@ -462,8 +460,8 @@ class Renderer(object):
                     
                     x, y = [min([p[i] for p in locations]) for i in range(2)]
                     size = [max([p[i] for p in locations]) - (x,y)[i] +
-                            (self.tile_width+self.tile_height/3,
-                             self.tile_height+1)[i]
+                            (self.zoom.width+self.zoom.height/3,
+                             self.zoom.height+1)[i]
                             for i in range(2)]
 
                     self.selection_sprite.image = Surface(size, flags=SRCALPHA)
@@ -475,7 +473,7 @@ class Renderer(object):
                     self.selection_sprite.image.fill((255,0,0),
                                                      special_flags=BLEND_ADD)
                     self.selection_sprite.rect = self.mouse_sprite.image.get_rect()
-                    self.selection_sprite.rect.move_ip(x - self.tile_height/3, y)
+                    self.selection_sprite.rect.move_ip(x - self.zoom.height/3, y)
 
                     self.sprites.add(self.selection_sprite, layer=1)
                 
@@ -483,7 +481,7 @@ class Renderer(object):
                 x, y = tuple([min([p[i] for p in locations])
                               for i in range(2)])
 
-                x -= self.tile_height/3
+                x -= self.zoom.height/3
 
                 if self.selection_sprite.rect.topleft != (x,y):
                     self.selection_sprite.rect.topleft = (x,y)
@@ -621,8 +619,8 @@ class Renderer(object):
                         
             elif e.type == MOUSEBUTTONUP:
                 if e.button == 4:
-                    self.tile_width += 2
-                    self.tile_height += 2
+                    self.zoom.width += 2
+                    self.zoom.height += 2
                     self.definetiles()
 
                     if tile is not None:
@@ -636,8 +634,8 @@ class Renderer(object):
                     self.makescreen(self.screen.get_size())
                     
                 elif e.button == 5:
-                    self.tile_width = max(self.tile_width - 2, 2)
-                    self.tile_height = max(self.tile_height - 2, 4)
+                    self.zoom.width = max(self.zoom.width - 2, 2)
+                    self.zoom.height = max(self.zoom.height - 2, 4)
                     self.definetiles()
 
                     if tile is not None:
@@ -687,7 +685,7 @@ class Renderer(object):
                 self.sprites.add(self.mouse_sprite, layer=2)
             self.mouse_sprite.rect.topleft = self.tile_location(
                 tile + (self.level,))
-            self.mouse_sprite.rect.move_ip(-self.tile_height/3, 0)
+            self.mouse_sprite.rect.move_ip(-self.zoom.height/3, 0)
 
             mouse.set_visible(False)
         else:
@@ -701,7 +699,7 @@ class Renderer(object):
 
         info_loc = self.tile_location((self.dimensions[0]+1,0,self.level))
         if self.offset[0]&1:
-            info_loc = info_loc[0], info_loc[1] - self.tile_height/2
+            info_loc = info_loc[0], info_loc[1] - self.zoom.height/2
         self.screen.fill((0,0,0), Rect(info_loc, self.screen.get_size()))
         for d in descs:
             line = self.uifont.render(d, True, (255,255,255))
@@ -712,7 +710,7 @@ class Renderer(object):
                                       self.dimensions[1]+1,
                                       self.level))
         if self.offset[0]&1:
-            msg_loc = msg_loc[0], msg_loc[1] - self.tile_height/2
+            msg_loc = msg_loc[0], msg_loc[1] - self.zoom.height/2
         self.screen.fill((0,0,0), Rect(msg_loc,
                                        (3*self.pause_notice.get_width(),
                                         self.pause_notice.get_height())))        
@@ -748,7 +746,7 @@ class Renderer(object):
                                          self.dimensions[1]+1,
                                          self.level))
         if self.offset[0]&1:
-            button_loc = button_loc[0], button_loc[1] - self.tile_height/2
+            button_loc = button_loc[0], button_loc[1] - self.zoom.height/2
         if self.selection:
             arefloor = self.arefloor(self.selection)
             if arefloor or self.arewall(self.selection):

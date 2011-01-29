@@ -9,6 +9,7 @@ from button import Button
 from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Tortoise
 from game import Game
 from rendering import Renderer
+from zoom import TileDimensions
 
 class MainMenu(object):
     dt = 0.01
@@ -20,8 +21,7 @@ class MainMenu(object):
 
         key.set_repeat(100, 100)
 
-        self.tile_width = 16
-        self.tile_height = 18
+        self.zoom = TileDimensions(16, 18)
         
         self.definefont()
 
@@ -34,7 +34,8 @@ class MainMenu(object):
 
     def definefont(self):
         self.uifont = font.Font('FreeMono.ttf',
-                                max(self.tile_width, self.tile_height))
+                                max(self.zoom.width,
+                                    self.zoom.height))
 
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
@@ -78,13 +79,14 @@ class MainMenu(object):
                                             64),
                                            Oak))
 
-        self.child = Renderer(self.game)
+        self.child = Renderer(self.game, self.zoom)
 
     def quitgame(self):
         self.done = True
 
     def step(self):
         if self.child:
+            self.definefont()
             self.makescreen(self.screen.get_size())
             self.child = None
         
@@ -98,15 +100,15 @@ class MainMenu(object):
             elif e.type == MOUSEBUTTONUP:
                 if e.button == 4:
                     # zoom in
-                    self.tile_width += 2
-                    self.tile_height += 2
+                    self.zoom.width += 2
+                    self.zoom.height += 2
                     self.definefont()
                     self.draw()
                     
                 elif e.button == 5:
                     # zoom out
-                    self.tile_width = max(self.tile_width - 2, 2)
-                    self.tile_height = max(self.tile_height - 2, 4)
+                    self.zoom.width = max(self.zoom.width - 2, 2)
+                    self.zoom.height = max(self.zoom.height - 2, 4)
                     self.definefont()
                     self.draw()
                     
