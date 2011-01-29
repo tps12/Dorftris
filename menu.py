@@ -8,11 +8,9 @@ from pygame.mixer import Sound
 from pygame.sprite import *
 from pygame.time import Clock
 
+from button import Button
 from data import Barrel, Beverage, Corpse, Entity, Stockpile
 from glyphs import GlyphGraphics
-
-INFO_WIDTH = 20
-STATUS_HEIGHT = 2
 
 class MainMenu(object):
     dt = 0.01
@@ -39,12 +37,31 @@ class MainMenu(object):
 
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
-        self.drawback()
+        self.draw()
 
-    def drawback(self):
+    def draw(self):
         self.screen.fill((0,0,0))
         self.screen.blit(self.uifont.render('Hello', True, (0,255,255)),
                          (self.screen.get_width()/2, self.screen.get_height()/2))
+
+        self.buttons = [
+            Button(self.uifont, _('New Game'), self.newgame),
+            Button(self.uifont, _('Quit'), self.quitgame)
+            ]
+
+        size = self.screen.get_size()
+        y = size[1]/2
+
+        for b in self.buttons:
+            s = b.surface()
+            y += s.get_height()
+            self.screen.blit(s, (size[0]/2-s.get_width()/2, y))
+
+    def newgame(self):
+        print 'new game'
+
+    def quitgame(self):
+        print 'quit'
 
     def step(self):
         done = False
@@ -58,16 +75,18 @@ class MainMenu(object):
                     
             elif e.type == MOUSEBUTTONUP:
                 if e.button == 4:
+                    # zoom in
                     self.tile_width += 2
                     self.tile_height += 2
                     self.definefont()
-                    self.drawback()
+                    self.draw()
                     
                 elif e.button == 5:
+                    # zoom out
                     self.tile_width = max(self.tile_width - 2, 2)
                     self.tile_height = max(self.tile_height - 2, 4)
                     self.definefont()
-                    self.drawback()
+                    self.draw()
                     
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
