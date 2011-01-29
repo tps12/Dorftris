@@ -41,8 +41,6 @@ class MainMenu(object):
 
     def draw(self):
         self.screen.fill((0,0,0))
-        self.screen.blit(self.uifont.render('Hello', True, (0,255,255)),
-                         (self.screen.get_width()/2, self.screen.get_height()/2))
 
         self.buttons = [
             Button(self.uifont, _('New Game'), self.newgame),
