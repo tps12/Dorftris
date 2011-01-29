@@ -32,7 +32,7 @@ def main():
                                         randint(0,game.dimensions[1]-1),
                                         64),
                                        Oak))
-        
+
     game_acc = 0
     render_acc = 0
 
@@ -42,14 +42,14 @@ def main():
         current = time()
         delta = min(0.125, max(0, current - last))
 
-        game_acc += delta
-        render_acc += delta
-
-        while game_acc > game.dt:
-            game.step()
-            game_acc -= game.dt
+        if game:
+            game_acc += delta
+            while game_acc > game.dt:
+                game.step()
+                game_acc -= game.dt
         
         renderer = renderers[-1]   
+        render_acc += delta
         if render_acc > renderer.dt:
             if renderer.step():
                 renderers = renderers[:-1]
