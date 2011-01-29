@@ -9,8 +9,10 @@ from pygame.sprite import *
 from pygame.time import Clock
 
 from button import Button
-from data import Barrel, Beverage, Corpse, Entity, Stockpile
+from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Stockpile, Tortoise
+from game import Game
 from glyphs import GlyphGraphics
+from rendering import Renderer
 
 class MainMenu(object):
     dt = 0.01
@@ -31,6 +33,7 @@ class MainMenu(object):
 
         display.set_caption(_('Hex Grid'))
 
+        self.child = None
         self.done = False
 
     def definefont(self):
@@ -58,12 +61,37 @@ class MainMenu(object):
             y += b.size[1]
 
     def newgame(self):
-        print 'new game'
+        self.game = Game((156, 104, 128))
+
+        for i in range(20):
+            self.game.world.space.maketree((randint(0, self.game.dimensions[0]-1),
+                           randint(0, self.game.dimensions[1]-1),
+                           64))    
+
+        kind = (Dwarf,Goblin,Tortoise,SmallSpider)
+
+        for i in range(20):
+            creature = choice(kind)((randint(0,self.game.dimensions[0]-1),
+                                     randint(0,self.game.dimensions[1]-1),
+                                     64))
+            self.game.schedule(creature)
+
+        for i in range(10):
+            self.game.world.additem(Barrel((randint(0,self.game.dimensions[0]-1),
+                                            randint(0,self.game.dimensions[1]-1),
+                                            64),
+                                           Oak))
+
+        self.child = Renderer(self.game)
 
     def quitgame(self):
         self.done = True
 
     def step(self):
+        if self.child:
+            self.makescreen(self.screen.get_size())
+            self.child = None
+        
         for e in event.get():
             if e.type == QUIT:
                 self.done = True
@@ -94,4 +122,9 @@ class MainMenu(object):
 
         display.flip()
 
-        return self if not self.done else None
+        if self.done:
+            return None
+        elif self.child:
+            return self.child
+        else:
+            return self

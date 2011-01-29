@@ -20,10 +20,6 @@ class Renderer(object):
     def __init__(self, game):
         self.game = game
         
-        pygame.init()
-
-        key.set_repeat(100, 100)
-
         self.selection = []
 
         self.tile_width = 16
@@ -33,11 +29,7 @@ class Renderer(object):
         
         self.level = 64
 
-        self.screen = display.set_mode((1400, 800), HWSURFACE | RESIZABLE)
-
-        self.makescreen(self.screen.get_size())
-
-        display.set_caption(_('Hex Grid'))
+        self.makescreen((1400, 800))
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
@@ -207,6 +199,8 @@ class Renderer(object):
         self.screen.blit(self.background, (0,0))
 
     def makescreen(self, size):
+        self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
+
         tile = self.location_tile(size)
         self.dimensions = tile[0]-INFO_WIDTH, tile[1]-STATUS_HEIGHT
 
@@ -773,4 +767,9 @@ class Renderer(object):
         display.flip()
         self.clock.tick()
 
-        return self if not self.game.done else None
+        if self.game.done:
+            self.game = None
+            mouse.set_visible(True)
+            return None
+        else:
+            return self

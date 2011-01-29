@@ -28,7 +28,7 @@ def main():
             game_acc += delta
             while game_acc > renderer.game.dt:
                 renderer.game.step()
-                game_acc -= game.dt
+                game_acc -= renderer.game.dt
         
         render_acc += delta
         if render_acc > renderer.dt:
