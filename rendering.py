@@ -27,7 +27,7 @@ class Renderer(object):
         
         self.level = 64
 
-        self.makescreen((1400, 800))
+        self.makescreen(display.get_surface().get_size())
 
         self.stepsound = Sound('38874__swuing__footstep_grass.wav')
 
