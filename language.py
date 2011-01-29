@@ -80,7 +80,8 @@ class Generator(object):
             running += p
             thresholds.append(running)
             if running >= 1:
-                return thresholds
+                break
+        return thresholds
 
     @staticmethod
     def randomindex(thresholds):

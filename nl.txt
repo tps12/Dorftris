@@ -1,0 +1,171 @@
+﻿Het Voynichmanuscript is een mysterieus, geïllustreerd handschrift met een onbegrepen inhoud. Het werd in de 15e eeuw door een onbekende auteur geschreven. Het schrift, geschreven in een onbekende taal, is nog niet ontcijferd.
+Het is onderwerp geweest van veel onderzoek door professionele cryptografen en amateurcryptografen, inclusief roemrijke codebrekers uit de Tweede Wereldoorlog. Geen van allen heeft ook maar een enkel woord ontcijferd. Al die mislukte pogingen hebben het Voynichmanuscript tot de Heilige Graal van de cryptografie gemaakt, maar ook het vermoeden versterkt dat het niets anders is dan een goed uitgewerkte grap: een opeenvolging van betekenisloze lettertekens.
+Het boek is genoemd naar de Pools-Amerikaanse boekhandelaar Wilfrid M. Voynich, die het in 1912 in handen kreeg. Op dit moment is het eigendom van de Universiteit van Yale. De eerste facsimile-editie werd uitgegeven in 2005.[1]
+Inhoud [verbergen]
+1 Beschrijving
+1.1 Illustraties
+1.2 Tekst
+2 Geschiedenis
+3 Theorieën over het auteurschap
+3.1 Roger Bacon
+3.2 John Dee
+3.3 Edward Kelley
+3.4 Wilfrid Voynich
+3.5 Jacobus Sinapius
+3.6 Jan Marci
+3.7 Rafael Mišovský
+3.8 Anthony Ascham
+4 Theorieën over inhoud en doel
+4.1 Plantkundig
+4.2 Zonnebloemen
+4.3 Alchemie
+4.4 Alchemistisch herbarium
+4.5 Astrologisch herbarium
+4.6 Microscopen en telescopen
+4.7 Verschillende auteurs
+5 Theorieën over de taal
+5.1 Versleuteling op basis van lettertekens
+5.2 Codeboekcijfer
+5.3 Visueel cijfer
+5.4 Steganografie
+5.5 Exotische natuurlijke taal
+5.6 Polyglot of spreektaal
+5.7 Kunstmatige taal
+5.8 Grap
+6 Bronnen, noten en/of referenties
+7 Externe links
+[bewerken]Beschrijving
+
+Het boek bestaat uit zo'n 240 bladen vellum; er zijn enkele gaten in de bladzijdenummering (die blijkbaar later is toegevoegd), wat aangeeft dat er al enkele pagina's ontbraken toen Voynich het manuscript in handen kreeg. De tekst en de illustraties zijn gemaakt met een ganzenveer. De illustraties zijn - mogelijk later - ingekleurd met verf.
+[bewerken]Illustraties
+De illustraties geven weinig duidelijkheid over de inhoud van de tekst, maar laten zien dat het boek uit een zestal hoofdstukken bestaat, elk met eigen onderwerpen en een eigen stijl. De secties worden meestal als volgt benoemd.
+Plantkundig Op elke pagina staat een plant (soms twee planten) en enkele paragrafen tekst, iets wat ook gangbaar was in de gedrukte plantenboeken (herbaria) van die tijd. Sommige delen zijn grotere kopieën van tekeningen in de farmaceutische sectie (zie hieronder).
+Astronomisch De tekeningen bestaan uit cirkelvormige diagrammen, sommige met zonnen, manen en sterren. Ze wekken de indruk van astronomie of astrologie. Een serie van twaalf diagrammen toont de traditionele tekens van de dierenriem. Elk van deze symbolen is omgeven door precies dertig vrouwenfiguren, de meeste naakt, die een ster vasthouden. De laatste twee bladen van deze sectie (met de Steenbok en de Waterman) zijn verloren gegaan, terwijl de Ram en de Stier in vier gepaarde diagrammen zijn gesplitst, met elk vijftien sterren. Sommige diagrammen staan op uitklapbladen.
+Biologisch Dichtbeschreven bladzijden afgewisseld door afbeeldingen van meestal naakte vrouwen, in badkuipen die soms verbonden zijn door een uitgebreid netwerk van pijpen. Sommige van de pijpen zijn gevormd als lichaamsorganen.
+Kosmologisch Ronde diagrammen met een onduidelijke betekenis. Deze sectie heeft vier uitklappagina's; een daarvan is zes pagina's groot en vormt een soort van plattegrond of diagram met negen eilanden, verbonden door verhoogde wegen, en met kastelen en misschien een vulkaan.
+Farmaceutisch Veel gemerkte plantendelen (bladeren, wortels enzovoort). Langs de kantlijn staan voorwerpen getekend die op apotheekvaten lijken. Enkele paragrafen tekst.
+Recepten Veel korte paragrafen, elk gemarkeerd met een bloemachtig of sterachtig teken.
+[bewerken]Tekst
+De tekst is duidelijk van links naar rechts geschreven, met een onregelmatige rechterkantlijn. Langere gedeelten zijn onderverdeeld in paragrafen, soms met opsommingstekens. Leestekens ontbreken. Het schrift is vloeiend, alsof de schrijver een goede beheersing had van het onderwerp.
+De tekst bestaat uit ongeveer 170.000 lettertekens, meestal van elkaar gescheiden door een smalle ruimte. De meeste lettertekens zijn geschreven met een of twee eenvoudige halen. Er zijn twintig tot dertig verschillende lettertekens; het precieze aantal is onderhevig aan enige discussie. Daarnaast zijn er enkele tientallen lettertekens die slechts een- of tweemaal worden gebruikt.
+De tekst bevat ongeveer 35.000 woorden van verschillende lengte. De woorden lijken fonetische of spellingsregels te volgen: bepaalde lettertekens moeten in elk woord voorkomen (zoals elk woord in het Nederlands een klinker moet hebben), sommige lettertekens komen nooit na een andere, sommige mogen verdubbeld worden en andere niet.
+Statistische analyses laten zien dat de tekst patronen volgt die vergelijkbaar zijn met die in natuurlijke talen. Bijvoorbeeld: de woordfrequentie vertoont een Zipfdistributie en de woordentropie (tien bits per woord) is vergelijkbaar met bijvoorbeeld die van het Engels en het Latijn. Sommige woorden worden alleen in bepaalde secties gebruikt of op een klein aantal pagina's, andere komen door de hele tekst voor. Er zijn heel weinig herhalingen bij de bijschriften van de tekeningen. In de plantkundige sectie is elk eerste woord van een pagina uniek en is mogelijk de naam van de plant.
+Anderzijds is de tekst in een aantal opzichten erg verschillend van de Europese talen. Er zijn bijvoorbeeld vrijwel geen woorden met meer dan tien "letters" en er zijn ook vrijwel geen woorden van één of twee letters. De positie van de letters in de woorden is ook opvallend. Sommige letters worden alleen aan het begin van een woord gebruikt, andere alleen aan het eind en weer andere alleen middenin een woord. Dit patroon wordt ook gevonden in het Arabisch, maar niet in het Romeinse of cyrillische alfabet.
+In de tekst komen meer herhalingen van woorden voor dan in Europese talen; een veelgebruikt woord wordt soms drie maal achtereen herhaald. Woorden die slechts één letter verschillen worden ook vaak na elkaar gebruikt. De gebruikte "woordenschat" is kleiner dan hij statistisch zou moeten zijn.
+
+
+Keizer Rudolf II van het Heilige Roomse Rijk, Koning van Bohemen
+[bewerken]Geschiedenis
+
+De enige bruikbare aanwijzing voor de ouderdom van het manuscript zijn de illustraties, want de tekst is niet ontcijferd en het schrift lijkt niet op iets bekends. Vooral de kleren en de kapsels kunnen gebruikt worden voor datering. Deze zijn allemaal typisch Europees en volgens de meeste experts wijzen ze op de periode tussen 1450 en 1520. Deze datering wordt ondersteund door andere aanwijzingen.
+De eerste persoon van wie is bewezen dat hij het manuscript in eigendom had, was Georg Baresch, een obscure alchemist die in het begin van de zeventiende eeuw in Praag woonde. Baresch was bijzonder geïntrigeerd door dit boek, dat jarenlang in zijn bibliotheek lag. Toen hij hoorde dat Athanasius Kircher een Koptisch woordenboek had gepubliceerd en de Egyptische hiërogliefen had ontcijferd, stuurde hij een kopie van een deel van het manuscript naar hem toe. De begeleidende brief aan Kircher uit 1639 (die onlangs is gevonden door René Zandbergen) is de oudst bekende vermelding van het manuscript.
+Het is niet bekend of Kircher op de brief is ingegaan, maar hij was dermate geïnteresseerd in het manuscript dat hij het in bezit wilde krijgen. Baresch weigerde. Na de dood van Baresch kwam het manuscript in bezit van zijn vriend Jan Marek Marci (Johannes Marcus Marci), de toenmalige rector van de Karelsuniversiteit in Praag. Hij stuurde het manuscript onmiddellijk naar Kircher, met wie hij reeds lang bevriend was en correspondeerde. Marci's begeleidende brief uit 1666 is nog steeds aan het manuscript bevestigd. In die brief staat onder meer dat het manuscript voor 600 dukaten door keizer Rudolf II was gekocht en dat deze ervan uitging dat het manuscript was geschreven door Roger Bacon.
+Het is onduidelijk wat er in de volgende tweehonderd jaar met het manuscript is gebeurd. Waarschijnlijk werd het, samen met de rest van de correspondentie van Kircher, bewaard in de bibliotheek van de Pontificia Università Gregoriana. Het bleef daar waarschijnlijk totdat de troepen van Victor Emanuel II van Italië de stad in 1870 veroverden en de Kerkelijke Staat bezetten. De nieuwe Italiaanse regering confisqueerde veel eigendommen van de kerk, inclusief de bibliotheek. Volgens onderzoek van Xavier Ceccaldi en anderen werden veel boeken vlak voor de confiscatie naar persoonlijke bibliotheken van de faculteit overgebracht, waar ze veilig waren. De correspondentie van Kircher hoorde hierbij, en kennelijk ook het Voynichmanuscript, want het ex-libris van Peter Jan Beckx, de toenmalige rector van de universiteit en hoofd van de jezuïeten, staat nog steeds in het manuscript.
+De privébibliotheek van Beckx werd verplaatst naar de Villa Mondragone in Frascati, een groot paleis bij Rome, dat in 1866 door de jezuïeten was gekocht en dat het hoofdkwartier was van het Collegio Ghisleri van de jezuïeten.
+In 1912 had het Collegio Romano kennelijk geld nodig en besloot om zeer discreet enige objecten uit de bibliotheek van de hand te doen. Wilfrid Voynich kocht dertig manuscripten, waaronder datgene dat nu zijn naam draagt. Na zijn dood in 1930 erfde zijn weduwe, Ethel Lilian Voynich, het manuscript. Zij overleed in 1960 en liet het na aan haar vriendin Anne Nill. In 1961 verkocht deze het aan de boekhandelaar Hans P. Kraus. Omdat hij er geen koper voor kon vinden, doneerde hij het in 1969 aan de Universiteit van Yale.
+
+
+Roger Bacon
+
+
+John Dee
+
+
+Rafael Mišovský
+[bewerken]Theorieën over het auteurschap
+
+Er zijn veel namen genoemd voor het auteurschap. Hieronder volgen de belangrijkste.
+[bewerken]Roger Bacon
+In de brief van Marci aan Kircher schrijft hij dat het boek volgens zijn vriend Rafael Mišovský voor 600 dukaten is gekocht door keizer Rudolf II van Bohemen (1552–1612). Volgens de brief geloofde Rudolf (of mogelijk Raphael) dat het werk was geschreven door de franciscaan en homo universalis Roger Bacon (1214–1294).
+Hoewel Marci schreef dat hij zijn oordeel nog in beraad hield, nam Voynich het heel serieus en probeerde het te verifiëren. Zijn overtuiging had tachtig jaar lang grote invloed op de pogingen het manuscript te ontcijferen. Experts die het manuscript bekeken en die vertrouwd waren met het werk van Bacon, sloten Bacon uit als auteur. Het is belangrijk om te beseffen dat Rafael Mišovský in 1644 overleed en dat de transactie heeft plaatsgevonden vóór Rudolfs afzetting in 1611, minstens 55 jaar voordat Marci zijn brief schreef.
+[bewerken]John Dee
+De veronderstelling dat Roger Bacon de auteur was, leidde Voynich tot de conclusie dat het John Dee, een wiskundige en astroloog aan het hof van koningin Elisabeth I, was die het manuscript aan Rudolf had verkocht. Van John Dee is bekend dat hij een groot aantal werken van Roger Bacon in zijn bezit heeft gehad. Hij en zijn assistent in occulte zaken, Edward Kelley, woonden enkele jaren in Bohemen, in de hoop dat ze hun diensten aan de keizer konden verkopen. De dagboeken die John Dee zorgvuldig bijhield, maken echter geen melding van het manuscript en dat maakt de hypothese vrij onwaarschijnlijk. Hoe het ook zij, als de auteur niet Roger Bacon is, dan verdwijnt ook John Dee uit beeld, tenzij hij het zelf geschreven heeft en in de hoop het voor goed geld te kunnen verkopen, het gerucht heeft verspreid dat het van Roger Bacon was.
+[bewerken]Edward Kelley
+
+
+Edward Kelley
+De metgezel van John Dee in Praag, Edward Kelley, was een alchemist die beweerde dat hij van koper goud kon maken met behulp van een geheim poeder dat hij uit het graf van een bisschop in Wales had opgegraven. Hij beweerde dat hij engelen kon oproepen met behulp van een kristallen bol en dat hij lange gesprekken met hen voerde die getrouw door John Dee werden genoteerd. De taal van de engelen noemde hij Enochisch, naar Henoch, de Bijbelse vader van Methusalem. Volgens legenden was Enoch door engelen meegenomen en heeft daar een boek over geschreven, het Boek van Enoch.
+Er is geopperd dat Kelley, als hij zijn metgezel John Dee voor de gek hield met verhalen over engelen, ook het manuscript kan hebben geschreven, met het doel de keizer om de tuin te leiden. Maar als Roger Bacon het boek niet heeft geschreven, is het verband tussen Kelley en het manuscript niet duidelijk.
+[bewerken]Wilfrid Voynich
+Voynich is er vaak van verdacht het manuscript zelf te hebben vervaardigd. Als handelaar in antieke boeken had hij waarschijnlijk de benodigde kennis en de middelen. Een verloren boek van Roger Bacon zou hem waarschijnlijk een fortuin opleveren. De recente ontdekking van de brief van Baresch aan Kircher sluit deze mogelijkheid echter uit.
+[bewerken]Jacobus Sinapius
+Een fotostatische reproductie van de eerste pagina van het manuscript die Voynich enige tijd voor 1921 heeft gemaakt, toont een zwak handschrift dat is verwijderd. Met behulp van chemicaliën werd iets zichtbaar als "Jacobj `a Tepenece", wat leidt naar Jakub Horčický z Tepence (in het Latijn Jacobus Sinapius), een specialist in medicatie met medicinale kruiden die de persoonlijke arts was van Rudolf II en de curator van zijn botanische tuinen. Voynich en vele anderen concludeerden uit deze handtekening dat Jacobus Sinapius de eigenaar van het handschrift was voordat Baresch het in bezit had; zij zagen dat als een bevestiging van het verhaal van Raphael. Anderen hebben naar voren gebracht dat Sinapius zelf de auteur van het handschrift zou kunnen zijn.
+Het handschrift komt echter niet overeen met het handschrift van Sinapius dat onlangs door Jan Hurich is gevonden, dus het is mogelijk dat de opmerking is toegevoegd door een latere eigenaar of bibliothecaris en een vermoeden geeft van de identiteit van de auteur. In de boeken die Kircher tot zijn beschikking had, is Sinapius de enige arts aan Rudolfs hof die een volledige pagina krijgt toebedeeld. Tycho Brahe wordt bijvoorbeeld nauwelijks genoemd. Bovendien hebben de chemicaliën die Voynich gebruikte, het vellum zodanig aangetast dat er nu nauwelijks nog een spoor van de handtekening te bespeuren is. Dat heeft ook de verdenking opgewekt dat Voynich zelf de handtekening heeft gemaakt, om de Roger Bacon-theorie te ondersteunen.
+[bewerken]Jan Marci
+Jan Marci heeft Kircher ontmoet in 1638, toen hij een delegatie van de Karelsuniversiteit naar Rome leidde. In de 27 jaar daarna schreven zij elkaar een groot aantal brieven over de meest uiteenlopende wetenschappelijke onderwerpen. De reis van Marci was onderdeel van de strijd om de universiteit onafhankelijk te houden van de jezuïeten, die in Praag het concurrerende Clementinum-college beheersten. Desondanks fuseerden de twee universiteiten in 1654 onder jezuïtische leiding. Er is over gespeculeerd dat Marci de brief van Baresch en vervolgens het Voynichmanuscript heeft geschreven, met het doel Kircher, de "ster" van de jezuïeten, in diskrediet te brengen.
+De persoonlijkheid en kennis van Marci waren hiervoor toereikend en Kircher, die men zich tegenwoordig meer herinnert om zijn fouten dan om wat hij heeft verricht, was een gemakkelijk doelwit. Inderdaad is er enige overeenkomst tussen de brief van Baresch en een grap die Andreas Mueller met Kircher heeft uitgehaald. Mueller vervaardigde een onbegrijpelijk manuscript en stuurde het naar Kircher met een brief dat het uit Egypte kwam; hij vroeg Kircher om een vertaling. Kircher produceerde die vertaling zonder moeite.
+Het is belangrijk om aan te geven dat de enige bewijzen van het bestaan van Baresch bestaan uit drie brieven die naar Kircher zijn verstuurd: één van Baresch (in 1639) en twee van Marci (ongeveer een jaar later). Het is ook opmerkelijk dat de correspondentie tussen Marci en Kircher in 1665 ophoudt, tegelijk met de "omslagbrief" van het Voynichmanuscript. Aan de andere kant is de wrok van Marci tegen de jezuïeten pure speculatie; hij was een gelovig katholiek, had gestudeerd om jezuïet te worden en vlak voor zijn dood in 1667 werd hem het erelidmaatschap van de jezuïetenorde toegekend.
+[bewerken]Rafael Mišovský
+Rafael Mišovský, de vriend van Marci die de bron zou zijn van het Roger Bacon-verhaal, was zelf ook onder meer cryptograaf. Hij had, zo zei hij zelf, in 1618 een cryptografische methode ontdekt die niet te kraken was. Dit heeft de theorie opgeleverd dat hij zelf de auteur van het Voynichmanuscript zou zijn en dat hij zijn methode ermee in de praktijk had gedemonstreerd. Hij gebruikte vervolgens Baresch als proefkonijn. Nadat Kircher zijn Koptische woordenboek had gepubliceerd, leek Kircher een veel beter doelwit dan Baresch en hij overtuigde Baresch ervan dat hij Kircher om hulp moest vragen. Hij zou het Roger Bacon-verhaal hebben verzonnen om Baresch te motiveren. Inderdaad kan de disclaimer in de brief van Marci betekenen dat Marci een leugen vermoedde.
+Voor deze theorie zijn geen bewijzen.
+[bewerken]Anthony Ascham
+De kankeronderzoeker en amateurcryptograaf Dr. Leonell Strong zegt dat de oplossing van het Voynichmanuscript een "vreemd dubbel systeem van aritmetische progressie van een meervoudig alfabet" is. Strong beweert dat de ontcijferde tekst is geschreven door de zestiende-eeuwse Engelse auteur Anthony Ascham, de auteur van onder andere A Little Herbal (1550). Hoewel het Voynichmanuscript delen bevat die sterk op een herbarium lijken, is het belangrijkste bezwaar dat het onduidelijk is waar Anthony Ascham de benodigde cryptografische kennis vandaan kon hebben gehaald.
+
+
+Farmaceutisch?
+[bewerken]Theorieën over inhoud en doel
+
+De indruk die de overgebleven bladen van het manuscript geven, is die van een apothekershandboek of een handleiding om onderwerpen uit de middeleeuwse en vroeg-moderne geneeskunde te behandelen. De intrigerende details van de illustraties hebben echter aanleiding gegeven tot veel theorieën over de bron en het doel van het boek en over de inhoud van de tekst. Hieronder een aantal theorieën.
+[bewerken]Plantkundig
+De eerste sectie van het boek is bijna zeker een herbarium, maar pogingen om de planten te identificeren zijn grotendeels mislukt. Slechts een klein aantal planten is met enige zekerheid geïdentificeerd, onder andere een driekleurig viooltje (Viola tricolor) en een venushaarvaren (Adiantum sp.). De tekeningen van planten die ook in de farmaceutische sectie voorkomen, lijken opgeschoonde kopieën daarvan, behalve dat de details zijn ingevuld met onwaarschijnlijk ogende details. In feite zijn veel planten samengesteld uit verschillende soorten: de wortels van de ene soort, de bladeren van een andere soort en de bloemen van een derde soort.
+[bewerken]Zonnebloemen
+Brumbaugh beweert dat een van de tekeningen een zonnebloem voorstelt. Deze is afkomstig uit Zuid-Amerika. Dit zou een aanwijzing zijn voor de datering van het manuscript en opent tegelijk de deur naar intrigerende speculaties. De overeenkomst tussen tekening en zonnebloem is echter niet echt sterk, zeker niet met de wilde zonnebloem. En omdat de schaal van de tekening onbekend is, kan de tekening ook een van de vele verwante soorten voorstellen, bijvoorbeeld het madeliefje of de echte kamille.
+
+
+Biologisch?
+[bewerken]Alchemie
+De potten en de buizen in de biologische sectie lijken te duiden op een verband met de alchemie, wat relevant is als het boek aanwijzingen bevat voor het maken van farmaceutische producten. Alchemieboeken uit die periode maken echter gebruik van een tekentaal, waarin processen en materialen met een vast teken worden aangeduid (adelaar, pad, man-in-graf, paar-in-bed enzovoort) of standaardsymbolen (cirkel-met-kruis) en geen van deze tekens kon overtuigend worden aangetroffen in het Voynichmanuscript.
+[bewerken]Alchemistisch herbarium
+Sergio Toresella, een expert op het gebied van oude herbaria, heeft erop gewezen dat het Voynichmanuscript een alchemistisch herbarium zou kunnen zijn. Zo'n herbarium had in werkelijkheid niets met alchemie te maken, maar was een boek met verzonnen planten dat kwakzalvers bij zich droegen om indruk te maken op hun klanten. Het is bekend dat er in de betreffende periode een kleine huisindustrie in Noord-Italië bestond, waar dergelijke boeken werden vervaardigd. Deze boeken verschillen qua stijl en formaat echter nogal van het Voynichmanuscript en zijn allemaal in een gewone taal geschreven.
+
+
+Kosmologisch?
+[bewerken]Astrologisch herbarium
+Astrologische overwegingen speelden vaak een belangrijke rol bij het verzamelen van kruiden, het aderlaten en andere geneeskundige procedures in de periode waaruit het manuscript stamt (zie bijvoorbeeld de boeken van Nicholas Culpeper). Afgezien van de tekens van de dierenriem en mogelijk een tekening met de klassieke planeten, heeft echter niemand de tekeningen in de bekende astrologische tradities kunnen plaatsen.
+[bewerken]Microscopen en telescopen
+Een tekening in de astrologische sectie toont een onregelmatig gevormd object met vier armen. Sommigen zien daarin een tekening van een melkwegstelsel dat alleen met een telescoop zichtbaar is. Andere tekeningen zien eruit als cellen, bekeken door een microscoop. Dit zou een latere datering voor het manuscript suggereren. De overeenkomst is echter twijfelachtig. Bij nadere beschouwing ziet het centrum van het "melkwegstelsel" op de tekening er meer uit als een vijver.
+[bewerken]Verschillende auteurs
+Prescott Currier, een cryptograaf van de Amerikaanse marine, die zich in de jaren 1970 met het manuscript bezighield, onderscheidde in de plantkundige sectie twee verschillende reeksen pagina's, A en B, met verschillende statistische eigenschappen en kennelijk verschillende handschriften. Hij concludeerde dat het Voynichmanuscript het werk was van twee of meer auteurs die elk een eigen dialect of spellingconventie gebruikten, maar wel hetzelfde alfabet gebruikten. Op grond van recent onderzoek wordt dit echter weer in twijfel getrokken. Een expert op het gebied van handschriften zag het hele manuscript als het werk van één enkele persoon. Ook als het hele manuscript wordt bekeken, is er een geleidelijke overgang, waarvan A en B de uitersten vormen. De waarneming van Currier kan verklaard worden doordat de twee delen van de plantkundige sectie zijn geschreven in verschillende, door een lang interval gescheiden periodes.
+[bewerken]Theorieën over de taal
+
+Ook over de gebruikte taal, de versleuteling en het alfabet van het Voynichmanuscript zijn vele theorieën geopperd.
+
+
+Leone Batista Alberti
+[bewerken]Versleuteling op basis van lettertekens
+Volgens deze theorie bestaat de tekst van het manuscript uit een versleuteld schrift in een Europese taal. Met behulp van een algoritme zijn de tekens individueel omgezet naar het alfabet van het manuscript.
+Dit was het uitgangspunt voor veel twintigste-eeuwse pogingen om het schrift te ontcijferen, onder andere van een informele groep van cryptografen van de NSA onder leiding van William F. Friedman in de jaren 1950. Een eenvoudig substitutiecijfer kan worden uitgesloten, want deze zijn gemakkelijk te kraken. De pogingen hebben zich gericht op een polyalfabetisch cijfer, ontwikkeld in de jaren 60 van de vijftiende eeuw door Leone Battista Alberti. Hiertoe behoort het Vigenèrecijfer, dat dan nog ingewikkelder gemaakt kan worden door het gebruik van nullen of vergelijkbare symbolen, herschikking van letters, valse woordafbreking enzovoorts. Sommigen menen dat voor de versleuteling de klinkers uit de tekst zijn weggelaten. Enkele malen is beweerd dat men erin was geslaagd het manuscript op deze manier te ontcijferen, maar geen van deze pogingen is algemeen aanvaard, vooral niet omdat de voorgestelde ontcijferingsalgoritmes afhingen van zoveel giswerk van de gebruiker dat er aan elke willekeurige reeks van tekens wel een betekenis kan worden toegekend.
+Het belangrijkste argument voor deze theorie is dat het gebruik van een vreemd alfabet door een Europese auteur het best verklaard kan worden als een manier om de informatie onleesbaar te maken voor niet-ingewijden. Roger Bacon had inderdaad kennis van dergelijke versleutelingsmethoden en de geschatte ouderdom van het manuscript komt ruwweg overeen met de opkomst van de cryptografie als een systematische discipline. Tegen deze theorie pleit dat een polyalfabetisch cijfer de "natuurlijke" statistische eigenschappen van de tekst, zoals de Zipfdistributie, zou doen verdwijnen. En hoewel de polyalfabetische substitutie omstreeks 1467 is ontdekt, werd zij pas populair in de zestiende eeuw, net iets te laat voor het Voynichmanuscript.
+[bewerken]Codeboekcijfer
+Volgens deze theorie zouden de "woorden" in het Voynichmanuscript in werkelijkheid codes zijn, die opgezocht dienen te worden in een codeboek. De belangrijkste aanwijzing hiervoor is dat de structuur en lengte van de woorden overeenkomt met Romeinse cijfers. Deze zouden in die tijd een normale keuze zijn geweest voor een dergelijke code. Aan de andere kant zijn dergelijke versleutelingen vooral geschikt voor korte berichten, doordat ze bijzonder lastig te schrijven en te lezen zijn.
+[bewerken]Visueel cijfer
+James Finn opperde in zijn boek Pandora's Hope (2004) dat het Voynichmanuscript in feite visueel gecodeerd Hebreeuws is. Als de letters goed zijn getranscribeerd met behulp van het EVA, kunnen veel van de woorden worden geïnterpreteerd als Hebreeuwse woorden met kleine aanpassingen om het lezen te bemoeilijken. Het woord "AIN" in het manuscript is bijvoorbeeld het Hebreeuwse woord voor "oog", maar het wordt geschreven als "aiin" of "aiiin" om de indruk te wekken dat het om een ander woord zou gaan.
+Ook andere methoden voor visuele versleuteling zijn voorgesteld. Het belangrijkste argument voor deze theorie is dat ze verklaart hoe het komt dat andere methoden zo weinig succes hebben gehad: die zijn gebaseerd op een wiskundige decryptie. Het belangrijkste argument daartegen is dat een dergelijke werkwijze zeer ingewikkeld is voor de ontcijferaar, vanwege de meerdere interpretatiemogelijkheden van dezelfde tekst. Het blijft onduidelijk wat een originele ontcijfering is en wat interpretatie is van de ontcijferaar.
+
+
+Johannes Trithemius
+[bewerken]Steganografie
+Als het manuscript een steganografische codering zou zijn dan is het grootste deel van de tekst zonder betekenis; de betekenis is verborgen in enkele details, bijvoorbeeld elke tweede letter van elk woord, of het aantal letters van elke regel. Deze techniek is vrij oud en werd bijvoorbeeld al door Johannes Trithemius in 1499 beschreven. Sommigen beweren dat de werkelijke tekst met behulp van een Cardanrooster moet worden teruggevonden.
+Deze theorie is moeilijk te bevestigen of te ontkrachten, omdat dergelijke teksten elke denkbare moeilijkheidsgraad van ontcijfering kunnen hebben. Een tegenargument is dat een tekst die direct op het eerste gezicht al versleuteld is, het doel van steganografie voorbijschiet: namelijk dat juist aan het oog wordt onttrokken dat er een verborgen boodschap in de tekst staat.
+Sommigen hebben gesuggereerd dat de boodschap is verborgen in de lengte of in de vorm van bepaalde pennenstreken. Er bestaan inderdaad vormen van steganografie die gebruikmaken van de vormen van letters om informatie te verstoppen, bijvoorbeeld cursief tegenover romein. In sterke vergroting zien de pennenstreken van het Voynichmanuscript er echter normaal uit, afgezien van plaatselijke oneffenheden in de structuur van het vellum.
+[bewerken]Exotische natuurlijke taal
+De taalkundige Jacques Guy heeft geopperd dat de tekst van het Voynichmanuscript is geschreven in een exotische natuurlijke taal, geschreven in een kunstmatig alfabet. De woordstructuur is inderdaad vergelijkbaar met die van veel taalfamilies in Centraal- en Oost-Azië, zoals Sino-Tibetaanse talen (Chinees, Tibetaans en Birmaans), Austroaziatische talen (o.a. Vietnamees en Khmer) en mogelijk Tai-talen (o.a. Thai en Laotiaans). In veel van deze talen hebben de woorden slechts één lettergreep met een rijke structuur, inclusief toonstructuren.
+Deze theorie is historisch verklaarbaar. Deze talen hebben wel een eigen schrift, maar die schriftvormen zijn erg moeilijk voor westerlingen die het betreffende taalgebied bezoeken. Dit heeft geleid tot de ontwikkeling van enkele fonetische schriften, meestal in het Latijnse alfabet, maar soms ook met een verzonnen alfabet. De bekende voorbeelden hiervan dateren van veel later. Er komen honderden missionarissen en anderen in aanmerking die zo'n systeem ontwikkeld kunnen hebben, zelfs van voor de tijd van Marco Polo in de dertiende eeuw, maar vooral nadat Vasco da Gama in 1499 de zeeroute naar de Oriënt had ontdekt. De auteur kan ook afkomstig zijn uit Oost-Azië en in West-Europa gestudeerd hebben of op een missiepost zijn grootgebracht.
+Het belangrijkste argument voor deze theorie is dat deze consistent is met de statistische analyses die op het Voynichmanuscript zijn uitgevoerd, inclusief het vóórkomen van verdubbelde of verdrievoudigde woorden. Deze komen in het Chinees en Vietnamees in ongeveer dezelfde frequentie voor. Het verklaart ook de afwezigheid van koppelwoorden en lidwoorden en in het algemeen de ondoorgrondelijkheid van de tekeningen. Een andere aanwijzing is de aanwezigheid van twee grote rode symbolen op de eerste pagina die vergeleken zijn met een Chinees aandoende boektitel, ondersteboven en slecht gekopieerd. Ook de indeling van het jaar in 360 graden (in plaats van 365 dagen) in groepen van vijftien, beginnende met het sterrenbeeld Vissen, beantwoordt aan de Chinese kalender. Het belangrijkste argument tegen deze theorie is dat niemand, ook experts van de Chinese Academie van Wetenschappen in Peking niet, duidelijke voorbeelden van Aziatisch symbolisme of wetenschap in de tekeningen heeft kunnen vinden.
+Eind 2003 stelde Zbigniew Banasik (uit Polen) voor dat het manuscript is geschreven in het Mantsjoe en maakte hij een gedeeltelijke vertaling van de eerste pagina.[2]
+[bewerken]Polyglot of spreektaal
+In zijn boek Solution of the Voynich Manuscript: A Liturgical Manual for the Endura Rite of the Cathari Heresy, the Cult of Isis ("Oplossing van het Voynichmanuscript: een liturgische handleiding voor de Endura-rite van de kathaarse ketterij, de cultus van Isis", 1987) stelde Leo Levitov dat het manuscript een transcriptie is van een "polyglotte spreektaal", een begrip dat hij definieerde als "een literaire taal voor mensen die geen Latijn verstaan en aan wie deze taal kan worden voorgelezen". Hij stelde een ontcijfering voor waarin drie Voynichletters één lettergreep vormen. Het eindresultaat is dan een serie lettergrepen die een mengelmoes vormen van middeleeuws Vlaams met veel Oudfranse en Oudhoogduitse woorden.
+
+
+John Wilkins
+Volgens Levitov was de Rite van Endura niets anders dan de rite voor geholpen zelfmoord van mensen die al bijna dood waren, verbonden met de katharen (het bestaan van de rite wordt overigens in twijfel getrokken). Hij stelt dat de tekeningen van planten niet bedoeld zijn om een bepaalde soort uit te beelden, maar dat het geheime symbolen van de religie zijn. De vrouwen in de baden stellen de eigenlijke zelfmoord voor, die volgens hem ook uit venesectie bestond: het doorsnijden van aders zodat het bloed in een warm bad kon stromen. De sterrenbeelden die niet aan de hemel staan, zijn afbeeldingen van sterren op de mantel van Isis.
+Deze theorie wordt om een aantal redenen betwijfeld. Ten eerste is de gangbare zienswijze op de religie van de katharen dat het een vorm van christelijk gnosticisme is en niet geassocieerd met Isis. Ten tweede plaatst de theorie de bron van het manuscript in de twaalfde of dertiende eeuw, wat nog een stuk vroeger is dan de aanhangers van de Roger Bacon-theorie aannemen. Ten derde was de Endura-rite op vasten gericht, niet op venesectie. Behalve zijn vertaling, heeft Levitov geen aanwijzingen voor zijn theorie aangedragen.
+[bewerken]Kunstmatige taal
+Op basis van de vreemde interne structuur van de woorden van het Voynichmanuscript kwamen William F. Friedman en John Tiltman onafhankelijk van elkaar met het idee dat de tekst in een kunsttaal is geschreven, meer precies: een filosofische taal. In dergelijke talen is de woordenschat gebaseerd op een systeem, zodat de algemene betekenis van een woord wordt bepaald door de volgorde van de letters. In de moderne kunstmatige taal Ro bijvoorbeeld is bofo- de categorie van de kleuren en elk woord dat met die letters begint, is een kleur: bofoc is rood en bofof is geel.
+
+
+Girolamo Cardano
+Dit concept is vrij oud en werd al in 1668 door John Wilkins in zijn boek Philosophical Language beschreven. In de meeste voorbeelden worden categorieën onderverdeeld door de toevoeging van suffixen en als gevolg daarvan bevat een tekst over een bepaald onderwerp in zo'n taal veel woorden die met dezelfde letters beginnen. Alle planten beginnen bijvoorbeeld met dezelfde letters, evenals alle ziekten. Dit zou de herhalingen in de tekst van het Voynichmanuscript verklaren. Niemand heeft echter nog betekenissen van een prefix of suffix in het Voynichmanuscript kunnen ontdekken. Bovendien zijn voorbeelden van filosofische talen pas vanaf de zeventiende eeuw bekend.
+[bewerken]Grap
+Door de bizarre eigenschappen van de tekst en de tekeningen van het Voynichmanuscript heeft bij velen de overtuiging postgevat dat het om een grap gaat.
+In 2003 liet de computerwetenschapper Gordon Rugg zien dat een tekst met vergelijkbare eigenschappen als die van het Voynichmanuscript kan worden vervaardigd met behulp van een tabel van woordstammen, prefixen en suffixen die worden gekozen met een geperforeerd blad papier. Dit cardanrooster is rond 1550 door Girolamo Cardano uitgevonden als middel tot cryptografie. De pseudoteksten die op de manier van Gordon Rugg worden gegenereerd, hebben echter niet dezelfde woorden en frequenties als het Voynichmanuscript: de overeenkomst is uitsluitend visueel en niet kwantitatief. Deze experimenten zijn dus nog niet overtuigend.

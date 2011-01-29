@@ -812,6 +812,9 @@ class Creature(Thing):
     def propername(self):
         return _('this')
 
+    def namecard(self):
+        return indefinitearticle(self.noun) + ' ' + self.noun
+
     def objectpronoun(self):
         return _('it')
 
@@ -945,6 +948,9 @@ class CulturedCreature(SexualCreature):
     def propername(self):
         return self.name
 
+    def namecard(self):
+        return self.name
+
     def objectpronoun(self):
         return self.gender.objectpronoun
 
@@ -977,6 +983,46 @@ class NameGenerator(object):
     def generate(self):
         return ' '.join([self.generator.generate().capitalize()
                          for i in range(self.count)])
+
+class Human(CulturedCreature):
+    __slots__ = ()
+
+    noun = _('human')
+    race = {
+        Strength : 100,
+        Speed : 100,
+        Sight : 100,
+        Hearing : 100,
+        Smell : 100,
+        Dexterity : 100,
+        Toughness : 100
+        }
+    culture = {
+        Maleness : 0.5,
+        MaleWomen : 0.01,
+        FemaleMen : 0.01,
+        NameSource : NameGenerator('fr.txt', 2)
+        }
+    
+class Elf(CulturedCreature):
+    __slots__ = ()
+
+    noun = _('elf')
+    race = {
+        Strength : 80,
+        Speed : 140,
+        Sight : 120,
+        Hearing : 120,
+        Smell : 100,
+        Dexterity : 140,
+        Toughness : 80
+        }
+    culture = {
+        Maleness : 0.5,
+        MaleWomen : 0.05,
+        FemaleMen : 0.05,
+        NameSource : NameGenerator('fi.txt', 2)
+        }
 
 class Dwarf(CulturedCreature):
     __slots__ = ()
