@@ -51,9 +51,9 @@ class MainMenu(object):
         y = size[1]/2
 
         for b in self.buttons:
-            s = b.surface()
-            y += s.get_height()
-            self.screen.blit(s, (size[0]/2-s.get_width()/2, y))
+            b.location = (size[0]/2, y)
+            b.draw(self.screen)
+            y += b.size[1]
 
     def newgame(self):
         print 'new game'
