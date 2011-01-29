@@ -2,7 +2,7 @@ import gettext
 gettext.install('dorftris')
 
 from random import choice, randint, sample
-from time import time
+from time import sleep, time
 
 from game import Game
 from menu import MainMenu
@@ -23,12 +23,15 @@ def main():
         delta = min(0.125, max(0, current - last))
 
         renderer = renderers[-1]   
-
+        
         if renderer.game:
             game_acc += delta
             while game_acc > renderer.game.dt:
                 renderer.game.step()
                 game_acc -= renderer.game.dt
+            rest = renderer.game.dt - game_acc
+        else:
+            rest = float('inf')
         
         render_acc += delta
         if render_acc > renderer.dt:
@@ -42,5 +45,7 @@ def main():
 
         last = current
 
+        sleep(min(rest, renderers[-1].dt if renderers else 0))
+        
 if __name__ == '__main__':
     main()
