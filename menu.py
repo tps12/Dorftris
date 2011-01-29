@@ -31,6 +31,8 @@ class MainMenu(object):
 
         display.set_caption(_('Hex Grid'))
 
+        self.done = False
+
     def definefont(self):
         self.uifont = font.Font('FreeMono.ttf',
                                 max(self.tile_width, self.tile_height))
@@ -59,17 +61,15 @@ class MainMenu(object):
         print 'new game'
 
     def quitgame(self):
-        print 'quit'
+        self.done = True
 
     def step(self):
-        done = False
-        
         for e in event.get():
             if e.type == QUIT:
-                done = True
+                self.done = True
             elif e.type == KEYDOWN:
                 if e.key == K_ESCAPE:
-                    done = True
+                    self.done = True
                     
             elif e.type == MOUSEBUTTONUP:
                 if e.button == 4:
@@ -94,4 +94,4 @@ class MainMenu(object):
 
         display.flip()
 
-        return self if not done else None
+        return self if not self.done else None
