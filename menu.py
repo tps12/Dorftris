@@ -89,6 +89,11 @@ class MainMenu(object):
             self.definefont()
             self.makescreen(self.screen.get_size())
             self.child = None
+
+        if not self.game:
+            self.newgame()
+        else:
+            self.done = True
         
         for e in event.get():
             if e.type == QUIT:
