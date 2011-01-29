@@ -66,3 +66,5 @@ class StatusBar(object):
         timeindex = self.game.timescales.index(0.1 / self.game.dt)
         if self.timeindex != timeindex:
             del self.fps[:]
+
+        self.sprites.draw(surface)
