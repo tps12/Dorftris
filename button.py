@@ -23,5 +23,6 @@ class Button(object):
         return self.rect.size
     
     def handle(self, e):
-        if e.type == MOUSEBUTTONUP and e.button == 1:
+        if (e.type == MOUSEBUTTONUP and e.button == 1 and
+            self.rect.collidepoint(e.pos)):
             self.click()

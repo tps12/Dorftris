@@ -89,6 +89,9 @@ class MainMenu(object):
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
 
+            for b in self.buttons:
+                b.handle(e)
+
         display.flip()
 
         return self if not done else None
