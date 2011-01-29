@@ -2,16 +2,12 @@ from random import choice, randint
 from time import time
 
 import pygame
-from pygame import display, event, font, gfxdraw, key, mouse, Rect, Surface
+from pygame import display, event, font, key
 from pygame.locals import *
-from pygame.mixer import Sound
-from pygame.sprite import *
-from pygame.time import Clock
 
 from button import Button
-from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Stockpile, Tortoise
+from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Tortoise
 from game import Game
-from glyphs import GlyphGraphics
 from rendering import Renderer
 
 class MainMenu(object):

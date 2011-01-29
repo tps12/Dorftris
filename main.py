@@ -1,14 +1,9 @@
 import gettext
 gettext.install('dorftris')
 
-from random import choice, randint, sample
 from time import sleep, time
 
-from game import Game
 from menu import MainMenu
-from rendering import Renderer
-
-from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Stockpile, Tortoise
 
 def main():
     renderers = [MainMenu()]
