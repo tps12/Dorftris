@@ -55,6 +55,9 @@ class StatusBar(object):
         self.fpssprites = [self._sprite(self.fpsstring.format(num=9999, g=g))
                            for g in '','G']
 
+        apply(self.sprites.add,
+              [self.pausesprite] + self.timesprites + self.fpssprites)
+
     def draw(self, surface):
         paused = self.game.paused
         if self.paused != paused:

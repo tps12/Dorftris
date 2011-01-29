@@ -723,40 +723,42 @@ class Renderer(object):
             self.screen.blit(line, info_loc)
             info_loc = (info_loc[0], info_loc[1] + line.get_height())
 
-        msg_loc = self.tile_location((0,
-                                      self.dimensions[1]+1,
-                                      self.level))
-        if self.offset[0]&1:
-            msg_loc = msg_loc[0], msg_loc[1] - self.zoom.height/2
-        self.screen.fill((0,0,0), Rect(msg_loc,
-                                       (3*self.pause_notice.get_width(),
-                                        self.pause_notice.get_height())))        
-        if self.game.paused:
-            self.screen.blit(self.pause_notice, msg_loc)
-            self.lastt = None
-        else:
-            if self.lastt is None:
-                self.lastt = self.game.t, time()
-            else:
-                frames = self.game.t - self.lastt[0]
-                t = time()
-                secs = t - self.lastt[1]
-                if secs > 0:
-                    if len(self.fps) > 20:
-                        self.fps.pop(0)
-                    self.fps.append(frames/secs)
-                    fps = sum(self.fps)/len(self.fps)
-                    self.screen.blit(self.uifont.render(_('{0:d} FPS').format(
-                        int(fps+0.5)), True, (255,255,255)), msg_loc)
-                self.lastt = self.game.t, t
+        self.status.draw(self.statussurf)
 
-        self.screen.blit(self.uifont.render(_('{0:d} GFPS').format(
-            int(self.clock.get_fps()+0.5)), True, (255,255,255)),
-                         (msg_loc[0] + self.pause_notice.get_width(), msg_loc[1]))
-
-        self.screen.blit(self.uifont.render(self.timestrings[self.timeindex],
-                                            True, (255,255,255)),
-                         (msg_loc[0] + 2 * self.pause_notice.get_width(), msg_loc[1]))
+##        msg_loc = self.tile_location((0,
+##                                      self.dimensions[1]+1,
+##                                      self.level))
+##        if self.offset[0]&1:
+##            msg_loc = msg_loc[0], msg_loc[1] - self.zoom.height/2
+##        self.screen.fill((0,0,0), Rect(msg_loc,
+##                                       (3*self.pause_notice.get_width(),
+##                                        self.pause_notice.get_height())))        
+##        if self.game.paused:
+##            self.screen.blit(self.pause_notice, msg_loc)
+##            self.lastt = None
+##        else:
+##            if self.lastt is None:
+##                self.lastt = self.game.t, time()
+##            else:
+##                frames = self.game.t - self.lastt[0]
+##                t = time()
+##                secs = t - self.lastt[1]
+##                if secs > 0:
+##                    if len(self.fps) > 20:
+##                        self.fps.pop(0)
+##                    self.fps.append(frames/secs)
+##                    fps = sum(self.fps)/len(self.fps)
+##                    self.screen.blit(self.uifont.render(_('{0:d} FPS').format(
+##                        int(fps+0.5)), True, (255,255,255)), msg_loc)
+##                self.lastt = self.game.t, t
+##
+##        self.screen.blit(self.uifont.render(_('{0:d} GFPS').format(
+##            int(self.clock.get_fps()+0.5)), True, (255,255,255)),
+##                         (msg_loc[0] + self.pause_notice.get_width(), msg_loc[1]))
+##
+##        self.screen.blit(self.uifont.render(self.timestrings[self.timeindex],
+##                                            True, (255,255,255)),
+##                         (msg_loc[0] + 2 * self.pause_notice.get_width(), msg_loc[1]))
 
         self.buttonhandlers = {}
         button_loc = self.tile_location((self.dimensions[0]+1,
