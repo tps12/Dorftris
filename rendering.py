@@ -31,7 +31,9 @@ class Renderer(object):
         
         self.level = 64
 
-        self.makescreen((1400, 800))
+        self.screen = display.set_mode((1400, 800), HWSURFACE | RESIZABLE)
+
+        self.makescreen(self.screen.get_size())
 
         display.set_caption(_('Hex Grid'))
 
@@ -203,8 +205,6 @@ class Renderer(object):
         self.screen.blit(self.background, (0,0))
 
     def makescreen(self, size):
-        self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
-
         tile = self.location_tile(size)
         self.dimensions = tile[0]-INFO_WIDTH, tile[1]-STATUS_HEIGHT
 
