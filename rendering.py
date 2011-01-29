@@ -15,6 +15,8 @@ INFO_WIDTH = 20
 STATUS_HEIGHT = 2
 
 class Renderer(object):
+    dt = 0.05
+    
     def __init__(self, game):
         self.game = game
         

@@ -36,8 +36,6 @@ def main():
     game_acc = 0
     render_acc = 0
 
-    render_dt = 0.05
-
     last = time()
 
     while renderers:
@@ -50,8 +48,10 @@ def main():
         while game_acc > game.dt:
             game.step()
             game_acc -= game.dt
-        if render_acc > render_dt:
-            if renderers[-1].step():
+        
+        renderer = renderers[-1]   
+        if render_acc > renderer.dt:
+            if renderer.step():
                 renderers = renderers[:-1]
             render_acc = 0
 
