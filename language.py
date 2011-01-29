@@ -118,4 +118,6 @@ if __name__ == '__main__':
         g = Generator(f.read())
         g.process()
         g.calculate()
-        print g.generate()
+        with open(argv[2], 'w', 'utf_8') as f:
+            for i in range(100):
+                f.write(g.generate() + '\r\n')
