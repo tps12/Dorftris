@@ -5,33 +5,13 @@ from random import choice, randint, sample
 from time import time
 
 from game import Game
+from menu import MainMenu
 from rendering import Renderer
 
 from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Stockpile, Tortoise
 
 def main():
-    game = Game((156, 104, 128))
-
-    for i in range(20):
-        game.world.space.maketree((randint(0, game.dimensions[0]-1),
-                       randint(0, game.dimensions[1]-1),
-                       64))    
-
-    renderers = [Renderer(game)]
-
-    kind = (Dwarf,Goblin,Tortoise,SmallSpider)
-
-    for i in range(20):
-        creature = choice(kind)((randint(0,game.dimensions[0]-1),
-                                 randint(0,game.dimensions[1]-1),
-                                 64))
-        game.schedule(creature)
-
-    for i in range(10):
-        game.world.additem(Barrel((randint(0,game.dimensions[0]-1),
-                                        randint(0,game.dimensions[1]-1),
-                                        64),
-                                       Oak))
+    renderers = [MainMenu()]
 
     game_acc = 0
     render_acc = 0

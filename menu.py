@@ -26,17 +26,25 @@ class MainMenu(object):
 
         self.tile_width = 16
         self.tile_height = 18
-
-        self.definefont()
         
-        self.screen = display.set_mode((1400, 800), HWSURFACE | RESIZABLE)
+        self.definefont()
 
-        self.makescreen(self.screen.get_size())
+        self.makescreen((1400,800))
 
         display.set_caption(_('Hex Grid'))
 
     def definefont(self):
-        self.uifont = font.Font('FreeMono.ttf', max(self.tile_width, self.tile_height))
+        self.uifont = font.Font('FreeMono.ttf',
+                                max(self.tile_width, self.tile_height))
+
+    def makescreen(self, size):
+        self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
+        self.drawback()
+
+    def drawback(self):
+        self.screen.fill((0,0,0))
+        self.screen.blit(self.uifont.render('Hello', True, (0,255,255)),
+                         (self.screen.get_width()/2, self.screen.get_height()/2))
 
     def step(self):
         done = False
@@ -53,14 +61,16 @@ class MainMenu(object):
                     self.tile_width += 2
                     self.tile_height += 2
                     self.definefont()
+                    self.drawback()
                     
                 elif e.button == 5:
                     self.tile_width = max(self.tile_width - 2, 2)
                     self.tile_height = max(self.tile_height - 2, 4)
                     self.definefont()
+                    self.drawback()
                     
             elif e.type == VIDEORESIZE:
-                pass
+                self.makescreen(e.size)
 
         display.flip()
 
