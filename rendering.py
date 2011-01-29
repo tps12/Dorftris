@@ -10,6 +10,7 @@ from pygame.time import Clock
 
 from data import Barrel, Beverage, Corpse, Entity, Stockpile
 from glyphs import GlyphGraphics
+from status import StatusBar
 
 INFO_WIDTH = 20
 STATUS_HEIGHT = 2
@@ -24,6 +25,8 @@ class Renderer(object):
         self.selection = []
 
         self.definetiles()
+
+        self.status = StatusBar(self.game, self.uifont)
         
         self.level = 64
 
