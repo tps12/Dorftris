@@ -25,8 +25,6 @@ class Renderer(object):
         self.selection = []
 
         self.definetiles()
-
-        self.status = StatusBar(self.game, self.uifont)
         
         self.level = 64
 
@@ -67,7 +65,13 @@ class Renderer(object):
                 (self.zoom.width,self.zoom.height)]
 
     def definetiles(self):
-        self.uifont = font.Font('FreeMono.ttf', max(self.zoom.width, self.zoom.height))
+        self.uifont = font.Font('FreeMono.ttf',
+                                max(self.zoom.width, self.zoom.height))
+        try:
+            self.status.zoom(self.uifont)
+        except AttributeError:
+            self.status = StatusBar(self.game, self.uifont)
+            
         self.graphics = GlyphGraphics(self.uifont)
 
         self.pause_notice = self.uifont.render(_('*** PAUSED ***'), True,
@@ -211,6 +215,16 @@ class Renderer(object):
             remainder = [self.game.dimensions[i] - self.dimensions[i]
                          for i in range(2)]
             self.offset = tuple([r/2 if r > 0 else 0 for r in remainder])
+
+        msg_loc = self.tile_location((0,
+                                      self.dimensions[1]+1,
+                                      self.level))
+        if self.offset[0]&1:
+            msg_loc = msg_loc[0], msg_loc[1] - self.zoom.height/2
+
+        self.statussurf = self.screen.subsurface(Rect((0, msg_loc[1]),
+                                                      (size[0],
+                                                       self.uifont.get_linesize())))
 
         self.makebackground()
 
