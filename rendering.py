@@ -773,4 +773,4 @@ class Renderer(object):
         display.flip()
         self.clock.tick()
 
-        return self.game.done
+        return self if not self.game.done else None

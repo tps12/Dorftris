@@ -51,8 +51,12 @@ def main():
         renderer = renderers[-1]   
         render_acc += delta
         if render_acc > renderer.dt:
-            if renderer.step():
-                renderers = renderers[:-1]
+            child = renderer.step()
+            if child != renderer:
+                if child:
+                    renderers.append(child)
+                else:
+                    renderers = renderers[:-1]
             render_acc = 0
 
         last = current
