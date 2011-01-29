@@ -770,3 +770,5 @@ class Renderer(object):
 
         display.flip()
         self.clock.tick()
+
+        return self.game.done

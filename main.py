@@ -17,7 +17,7 @@ def main():
                        randint(0, game.dimensions[1]-1),
                        64))    
 
-    renderer = Renderer(game)
+    renderers = [Renderer(game)]
 
     kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
@@ -39,8 +39,8 @@ def main():
     render_dt = 0.05
 
     last = time()
-    
-    while not game.done:
+
+    while renderers:
         current = time()
         delta = min(0.125, max(0, current - last))
 
@@ -51,7 +51,8 @@ def main():
             game.step()
             game_acc -= game.dt
         if render_acc > render_dt:
-            renderer.step()
+            if renderers[-1].step():
+                renderers = renderers[:-1]
             render_acc = 0
 
         last = current
