@@ -1,7 +1,7 @@
 from collections import deque
 from time import time
 
-from pygame import event, font, key, Rect, Surface
+from pygame import Rect, Surface
 from pygame.locals import *
 from pygame.sprite import *
 from pygame.time import Clock
