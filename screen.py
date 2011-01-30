@@ -54,26 +54,37 @@ class GameScreen(object):
         image.fill(color, special_flags=BLEND_ADD)
         surface.blit(image, self._tilecoordinates(location))
 
-    def _colorfill(self, surface, color, location):
+    def _tilerect(self, location):
         x, y = self._tilecoordinates(location)
-        image = surface.subsurface(Rect(x - self.zoom.height/3, y,
-                                        self.zoom.width + self.zoom.height/3,
-                                        self.zoom.height+1))
+        return Rect(x - self.zoom.height/3, y,
+                    self.zoom.width + self.zoom.height/3, self.zoom.height+1)
+
+    def _colorfill(self, surface, color, location):
+        image = surface.subsurface(self._tilerect(location))
         gfxdraw.filled_polygon(image, self._hex(), color)
 
-    def _drawdesignation(self, surface, tile, location):
-        pass
+    def _colortint(self, surface, color, location):
+        rect = self._tilerect(location)
+        image = Surface(rect.size, flags=SRCALPHA)
+        gfxdraw.filled_polygon(image, self._hex(), (0, 0, 0, 85))
+        image.fill(color, special_flags=BLEND_ADD)
+        surface.blit(image, rect.topleft)
+
+    def _drawdesignation(self, surface, location):
+        self._colortint(surface, (85, 85, 0), location)
 
     def _drawground(self, surface, ground, location):
         self._colortile(surface, Entity('ground'),
                         ground.color, ground.varient, location)
         
         if ground.designated:
-            self._drawdesignation(surface, ground, location)
+            self._drawdesignation(surface, location)
 
     def _drawwall(self, surface, wall, location):
+        self._colorfill(surface, wall.color, location)
+        
         if wall.designated:
-            self._drawdesignation(surface, wall, location)
+            self._drawdesignation(surface, location)
 
     def _drawtrunk(self, surface, trunk, location):
         image = self.graphics[trunk][0].copy()
@@ -138,7 +149,7 @@ class GameScreen(object):
                     if tile.revealed:
                         self._drawwall(background, tile, location)
                     elif tile.designated:
-                        self._drawdesignation(background, tile, location)
+                        self._drawdesignation(background, location)
 
         return background
 
