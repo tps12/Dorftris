@@ -7,23 +7,35 @@ from data import Barrel, Beverage, Corpse, Entity, Stockpile
 from glyphs import GlyphGraphics
 
 class EntitySprite(DirtySprite):
-    def __init__(self, visible, entity, *args, **kwargs):
-        EntitySprite.__init__(self, *args, **kwargs)
+    def __init__(self, visible, position, graphics, entity, *args, **kwargs):
+        DirtySprite.__init__(self, *args, **kwargs)
         self.entity = entity
+        
+        self._position = position
         self._visible = visible
+
+        self.image = graphics[self.entity][0].copy()
+        self.image.fill(self.entity.color, special_flags=BLEND_ADD)
+        self.rect = self.image.get_rect().move(
+            self._position(self.entity.location))
+        self.layer = 0
         
     def update(self):
-        if not self._visible(self.entity.location):
+        if self._visible(self.entity.location):
+            self.rect.topleft = self._position(self.entity.location)
+            self.dirty = True
+        else:
             self.kill()
 
 class EntityGroup(LayeredDirty):
-    def __init__(self, visible, *args, **kwargs):
+    def __init__(self, visible, position, *args, **kwargs):
         LayeredDirty.__init__(self, *args, **kwargs)
         self._visible = visible
+        self._position = position
         self._entities = {}
 
-    def addspritefor(self, entity):
-        sprite = EntitySprite(self._visible, entity)
+    def addspritefor(self, entity, graphics):
+        sprite = EntitySprite(self._visible, self._position, graphics, entity)
         self.add(sprite)
         self._entities[entity] = sprite
 
@@ -40,7 +52,7 @@ class GameScreen(object):
 
         self.zoom = zoom
 
-        self.sprites = EntityGroup(self.visible)
+        self.sprites = EntityGroup(self.visible, self._tilecoordinates)
 
         self.scale(font)
 
@@ -145,6 +157,23 @@ class GameScreen(object):
     def _drawair(self, surface, location):
         self._colorfill(surface, (0, 85, 85), location)
 
+    def _drawopen(self, surface, tile, location):
+        x, y, z = location
+        locationbelow = x, y, z - 1
+        below = self.game.world.space[locationbelow]
+        if below.is_passable():
+            locationfarbelow = x, y, z - 2
+            farbelow = self.game.world.space[locationfarbelow]
+            if farbelow.is_passable():
+                self._drawair(surface, locationfarbelow)
+            else:
+                self._drawfarground(surface, farbelow,
+                                    locationfarbelow)
+        elif below.kind:
+            self._drawfarground(surface, below, locationbelow)
+        else:
+            self._drawground(surface, below, locationbelow)
+
     def _drawlocation(self, surface, location):
         x, y, z = location
         tile = self.game.world.space[location]
@@ -153,21 +182,7 @@ class GameScreen(object):
             return
 
         if tile.is_passable():
-            locationbelow = x, y, z - 1
-            below = self.game.world.space[locationbelow]
-            if below.is_passable():
-                locationfarbelow = x, y, z - 2
-                farbelow = self.game.world.space[locationfarbelow]
-                if farbelow.is_passable():
-                    self._drawair(surface, locationfarbelow)
-                else:
-                    self._drawfarground(surface, farbelow,
-                                        locationfarbelow)
-            elif below.kind:
-                self._drawfarground(surface, below, locationbelow)
-            else:
-                self._drawground(surface, below, locationbelow)
-
+            self._drawopen(surface, tile, location)
         elif tile.kind is not None:
             self._drawtile(surface, tile, location)
         else:
@@ -175,6 +190,11 @@ class GameScreen(object):
                 self._drawwall(surface, tile, location)
             elif tile.designated:
                 self._drawdesignation(surface, location)
+
+        if tile.creatures:
+            entity = tile.creatures[-1]
+            if not self.sprites.hasspritefor(entity):
+                self.sprites.addspritefor(entity, self.graphics)
 
     def _getbackground(self, size):
         background = Surface(size, flags=SRCALPHA)
@@ -196,7 +216,10 @@ class GameScreen(object):
             self.offset = tuple([r/2 if r > 0 else 0 for r in
                                  [self.game.dimensions[i] - self.dimensions[i]
                                   for i in range(2)]])
+            
+        self._makebackground(size)
 
+    def _makebackground(self, size):
         self.background = self._getbackground(size)
 
     def _mouse(self, pos = None):
@@ -288,11 +311,11 @@ class GameScreen(object):
                 self.background = None
                     
     def draw(self, surface):
-        if not self.background:
-            self.resize(surface.get_size())
-            surface.blit(self.background, (0,0))
-
         self.sprites.update()
+
+        if not self.background:
+            self._makebackground(surface.get_size())
+            surface.blit(self.background, (0,0))
 
         self.sprites.clear(surface, self.background)
         self.sprites.draw(surface)
