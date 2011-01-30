@@ -41,10 +41,24 @@ class GameScreen(object):
         return x, (py - self.zoom.height/2 - (x&1) *
                    self.zoom.height/2) / self.zoom.height
 
+    def _hex(self):
+        return [(self.zoom.height/3,self.zoom.height),
+                (0,self.zoom.height/2),
+                (self.zoom.height/3,0),
+                (self.zoom.width,0),
+                (self.zoom.width+self.zoom.height/3,self.zoom.height/2),
+                (self.zoom.width,self.zoom.height)]
+
     def _colortile(self, surface, entity, color, varient, location):
         image = self.graphics[entity][varient].copy()
         image.fill(color, special_flags=BLEND_ADD)
         surface.blit(image, self._tilecoordinates(location))
+
+    def _colorfill(self, surface, color, location):
+        image = surface.subsurface(Rect(self._tilecoordinates(location),
+                                        (self.zoom.width + self.zoom.height/3,
+                                         self.zoom.height+1)))
+        gfxdraw.filled_polygon(image, self._hex(), color)
 
     def _drawdesignation(self, surface, tile, location):
         pass
@@ -70,7 +84,7 @@ class GameScreen(object):
         self._colortile(surface, Entity('air'), ground.color, 0, location)
 
     def _drawair(self, surface, location):
-        pass
+        self._colorfill(surface, (0, 85, 85), location)
 
     def _getbackground(self, size):
         background = Surface(size, flags=SRCALPHA)
@@ -78,7 +92,7 @@ class GameScreen(object):
 
         xs, ys = [range(self.offset[i], self.offset[i] + self.dimensions[i])
                   for i in range(2)]
-        for x in xs:
+        for x in xs[:-1]:
             for y in ys:
                 location = x, y, self.level
                 tile = self.game.world.space[location]
