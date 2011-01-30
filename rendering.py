@@ -70,10 +70,10 @@ class Renderer(object):
                                 max(self.zoom.width, self.zoom.height))
         try:
             self.status.zoom(self.uifont)
-            self.display.zoom(self.uifont)
+            self.display.scale(self.uifont)
         except AttributeError:
             self.status = StatusBar(self.game, self.uifont)
-            self.display = GameScreen(self.game, self.uifont)
+            self.display = GameScreen(self.game, self.uifont, self.zoom)
             
         self.graphics = GlyphGraphics(self.uifont)
 
