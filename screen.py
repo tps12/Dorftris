@@ -113,6 +113,37 @@ class GameScreen(object):
     def _drawair(self, surface, location):
         self._colorfill(surface, (0, 85, 85), location)
 
+    def _drawlocation(self, surface, location):
+        x, y, z = location
+        tile = self.game.world.space[location]
+
+        if tile is None:
+            return
+
+        if tile.is_passable():
+            locationbelow = x, y, z - 1
+            below = self.game.world.space[locationbelow]
+            if below.is_passable():
+                locationfarbelow = x, y, z - 2
+                farbelow = self.game.world.space[locationfarbelow]
+                if farbelow.is_passable():
+                    self._drawair(surface, locationfarbelow)
+                else:
+                    self._drawfarground(surface, farbelow,
+                                        locationfarbelow)
+            elif below.kind:
+                self._drawfarground(surface, below, locationbelow)
+            else:
+                self._drawground(surface, below, locationbelow)
+
+        elif tile.kind is not None:
+            self._drawtile(surface, tile, location)
+        else:
+            if tile.revealed:
+                self._drawwall(surface, tile, location)
+            elif tile.designated:
+                self._drawdesignation(surface, location)
+
     def _getbackground(self, size):
         background = Surface(size, flags=SRCALPHA)
         background.fill((0,0,0))
@@ -121,35 +152,7 @@ class GameScreen(object):
                   for i in range(2)]
         for x in xs:
             for y in ys:
-                location = x, y, self.level
-                tile = self.game.world.space[location]
-
-                if tile is None:
-                    continue
-
-                if tile.is_passable():
-                    locationbelow = x, y, self.level - 1
-                    below = self.game.world.space[locationbelow]
-                    if below.is_passable():
-                        locationfarbelow = x, y, self.level - 2
-                        farbelow = self.game.world.space[locationfarbelow]
-                        if farbelow.is_passable():
-                            self._drawair(background, locationfarbelow)
-                        else:
-                            self._drawfarground(background, farbelow,
-                                                locationfarbelow)
-                    elif below.kind:
-                        self._drawfarground(background, below, locationbelow)
-                    else:
-                        self._drawground(background, below, locationbelow)
-
-                elif tile.kind is not None:
-                    self._drawtile(background, tile, location)
-                else:
-                    if tile.revealed:
-                        self._drawwall(background, tile, location)
-                    elif tile.designated:
-                        self._drawdesignation(background, location)
+                self._drawlocation(background, (x, y, self.level))
 
         return background
 
@@ -242,6 +245,14 @@ class GameScreen(object):
                 
             elif e.key == K_RIGHT:
                 self._scroll(0, scroll)
+                self.background = None
+                    
+            elif e.unicode == '>':
+                self.level = max(self.level-1, 0)
+                self.background = None
+                
+            elif e.unicode == '<':
+                self.level = min(self.level+1, self.game.dimensions[2])
                 self.background = None
                     
     def draw(self, surface):
