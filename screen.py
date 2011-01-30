@@ -73,12 +73,6 @@ class GameScreen(object):
         self.entity_sprites = {}
 
     def makebackground(self):
-        self.background = Surface(self.screen.get_size())
-        self.status.resize(self.statussurf.get_size())
-        self.display.resize(self.displaysurf.get_size())
-        
-        self.background.fill((0,0,0))
-
         for x in range(self.dimensions[0]):
             for y in range(self.dimensions[1]):
                 location = self.tile_location((x,y,self.level))
@@ -160,18 +154,22 @@ class GameScreen(object):
                 self.background.blit(self.grid_image,
                                      (location[0]-self.zoom.height/3,location[1]))
 
-        self.screen.blit(self.background, (0,0))
+    def location_tile(self, c):
+        px, py = c
+        x = (px - self.zoom.width/2)/self.zoom.width
+        return x, (py - self.zoom.height/2 - (x&1) * self.zoom.height/2)/self.zoom.height
+
+    def tile_location(self, c):
+        x, y, z = c
+        return (self.zoom.width/2 + x * self.zoom.width,
+                self.zoom.height/2 + y * self.zoom.height +
+                ((x+self.offset[0])&1) * self.zoom.height/2)
 
     def resize(self, size):
         self.background = Surface(size, flags=SRCALPHA)
         self.background.fill((0,0,0))
 
-        return
-
-        self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
-
-        tile = self.location_tile(size)
-        self.dimensions = tile[0]-INFO_WIDTH, tile[1]-STATUS_HEIGHT
+        self.dimensions = self.location_tile(size)
 
         try:
             self.offset
@@ -179,18 +177,6 @@ class GameScreen(object):
             remainder = [self.game.dimensions[i] - self.dimensions[i]
                          for i in range(2)]
             self.offset = tuple([r/2 if r > 0 else 0 for r in remainder])
-
-        msg_loc = self.tile_location((0,
-                                      self.dimensions[1]+1,
-                                      self.level))
-        if self.offset[0]&1:
-            msg_loc = msg_loc[0], msg_loc[1] - self.zoom.height/2
-
-        self.statussurf = self.screen.subsurface(Rect((0, msg_loc[1]),
-                                                      (size[0],
-                                                       self.uifont.get_linesize())))
-        self.displaysurf = self.screen.subsurface(Rect((0, 0),
-                                                       (size[0], msg_loc[1])))
         
         self.makebackground()
 
