@@ -10,6 +10,7 @@ from pygame.time import Clock
 
 from data import Barrel, Beverage, Corpse, Entity, Stockpile
 from glyphs import GlyphGraphics
+from screen import GameScreen
 from status import StatusBar
 
 INFO_WIDTH = 20
@@ -69,8 +70,10 @@ class Renderer(object):
                                 max(self.zoom.width, self.zoom.height))
         try:
             self.status.zoom(self.uifont)
+            self.display.zoom(self.uifont)
         except AttributeError:
             self.status = StatusBar(self.game, self.uifont)
+            self.display = GameScreen(self.game, self.uifont)
             
         self.graphics = GlyphGraphics(self.uifont)
 
@@ -116,9 +119,9 @@ class Renderer(object):
         self.entity_sprites = {}
     
     def makebackground(self):
-        size = self.screen.get_size()
-        self.background = Surface(size)
-        self.status.resize(size)
+        self.background = Surface(self.screen.get_size())
+        self.status.resize(self.statussurf.get_size())
+        self.display.resize(self.displaysurf.get_size())
         
         self.background.fill((0,0,0))
 
@@ -227,7 +230,9 @@ class Renderer(object):
         self.statussurf = self.screen.subsurface(Rect((0, msg_loc[1]),
                                                       (size[0],
                                                        self.uifont.get_linesize())))
-
+        self.displaysurf = self.screen.subsurface(Rect((0, 0),
+                                                       (size[0], msg_loc[1])))
+        
         self.makebackground()
 
     def visible(self, location):
@@ -725,42 +730,8 @@ class Renderer(object):
             self.screen.blit(line, info_loc)
             info_loc = (info_loc[0], info_loc[1] + line.get_height())
 
+#        self.display.draw(self.displaysurf)
         self.status.draw(self.statussurf)
-
-##        msg_loc = self.tile_location((0,
-##                                      self.dimensions[1]+1,
-##                                      self.level))
-##        if self.offset[0]&1:
-##            msg_loc = msg_loc[0], msg_loc[1] - self.zoom.height/2
-##        self.screen.fill((0,0,0), Rect(msg_loc,
-##                                       (3*self.pause_notice.get_width(),
-##                                        self.pause_notice.get_height())))        
-##        if self.game.paused:
-##            self.screen.blit(self.pause_notice, msg_loc)
-##            self.lastt = None
-##        else:
-##            if self.lastt is None:
-##                self.lastt = self.game.t, time()
-##            else:
-##                frames = self.game.t - self.lastt[0]
-##                t = time()
-##                secs = t - self.lastt[1]
-##                if secs > 0:
-##                    if len(self.fps) > 20:
-##                        self.fps.pop(0)
-##                    self.fps.append(frames/secs)
-##                    fps = sum(self.fps)/len(self.fps)
-##                    self.screen.blit(self.uifont.render(_('{0:d} FPS').format(
-##                        int(fps+0.5)), True, (255,255,255)), msg_loc)
-##                self.lastt = self.game.t, t
-##
-##        self.screen.blit(self.uifont.render(_('{0:d} GFPS').format(
-##            int(self.clock.get_fps()+0.5)), True, (255,255,255)),
-##                         (msg_loc[0] + self.pause_notice.get_width(), msg_loc[1]))
-##
-##        self.screen.blit(self.uifont.render(self.timestrings[self.timeindex],
-##                                            True, (255,255,255)),
-##                         (msg_loc[0] + 2 * self.pause_notice.get_width(), msg_loc[1]))
 
         self.buttonhandlers = {}
         button_loc = self.tile_location((self.dimensions[0]+1,
