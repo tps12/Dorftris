@@ -30,6 +30,7 @@ class GameScreen(object):
 
     def _tilecoordinates(self, location):
         x, y, z = location
+        x, y = [(x,y)[i] - self.offset[i] for i in range(2)]
         return (self.zoom.width/2 + x * self.zoom.width,
                 self.zoom.height/2 + y * self.zoom.height +
                 ((x+self.offset[0])&1) * self.zoom.height/2)
@@ -40,10 +41,18 @@ class GameScreen(object):
         return x, (py - self.zoom.height/2 - (x&1) *
                    self.zoom.height/2) / self.zoom.height
 
+    def _colortile(self, surface, entity, color, varient, location):
+        image = self.graphics[entity][varient].copy()
+        image.fill(color, special_flags=BLEND_ADD)
+        surface.blit(image, self._tilecoordinates(location))
+
     def _drawdesignation(self, surface, tile, location):
         pass
 
     def _drawground(self, surface, ground, location):
+        self._colortile(surface, Entity('ground'),
+                        ground.color, ground.varient, location)
+        
         if ground.designated:
             self._drawdesignation(surface, ground, location)
 
@@ -88,6 +97,8 @@ class GameScreen(object):
                         else:
                             self._drawfarground(background, farbelow,
                                                 locationfarbelow)
+                    elif below.kind:
+                        self._drawfarground(background, below, locationbelow)
                     else:
                         self._drawground(background, below, locationbelow)
 
