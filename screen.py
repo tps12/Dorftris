@@ -197,6 +197,10 @@ class GameScreen(object):
             entity = tile.creatures[-1]
             if not self.sprites.hasspritefor(entity):
                 self.sprites.addspritefor(entity, self.graphics)
+        if tile.items:
+            entity = tile.items[-1]
+            if not self.sprites.hasspritefor(entity):
+                self.sprites.addspritefor(entity, self.graphics)
 
     def _getbackground(self, size):
         background = Surface(size, flags=SRCALPHA)
