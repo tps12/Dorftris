@@ -6,13 +6,41 @@ from pygame.sprite import *
 from data import Barrel, Beverage, Corpse, Entity, Stockpile
 from glyphs import GlyphGraphics
 
+class EntitySprite(DirtySprite):
+    def __init__(self, visible, entity, *args, **kwargs):
+        EntitySprite.__init__(self, *args, **kwargs)
+        self.entity = entity
+        self._visible = visible
+        
+    def update(self):
+        if not self._visible(self.entity.location):
+            self.kill()
+
+class EntityGroup(LayeredDirty):
+    def __init__(self, visible, *args, **kwargs):
+        LayeredDirty.__init__(self, *args, **kwargs)
+        self._visible = visible
+        self._entities = {}
+
+    def addspritefor(self, entity):
+        sprite = EntitySprite(self._visible, entity)
+        self.add(sprite)
+        self._entities[entity] = sprite
+
+    def remove_internal(self, sprite):
+        LayeredDirty.remove_internal(self, sprite)
+        del self._entities[sprite.entity]
+
+    def hasspritefor(self, entity):
+        return entity in self._entities
+
 class GameScreen(object):
     def __init__(self, game, font, zoom):
         self.game = game
 
         self.zoom = zoom
 
-        self.sprites = LayeredDirty()
+        self.sprites = EntityGroup(self.visible)
 
         self.scale(font)
 
@@ -27,6 +55,10 @@ class GameScreen(object):
         self.graphics = GlyphGraphics(self.font)
         
         self.sprites.empty()
+
+    def visible(self, location):
+        return location and all([self.offset[i] <= location[i] < self.offset[i] + self.dimensions[i]
+                    for i in range(2)]) and location[2] == self.level
 
     def _tilecoordinates(self, location):
         x, y, z = location
@@ -259,6 +291,8 @@ class GameScreen(object):
         if not self.background:
             self.resize(surface.get_size())
             surface.blit(self.background, (0,0))
+
+        self.sprites.update()
 
         self.sprites.clear(surface, self.background)
         self.sprites.draw(surface)
