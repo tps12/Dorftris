@@ -116,7 +116,9 @@ class Renderer(object):
         self.entity_sprites = {}
     
     def makebackground(self):
-        self.background = Surface(self.screen.get_size())
+        size = self.screen.get_size()
+        self.background = Surface(size)
+        self.status.resize(size)
         
         self.background.fill((0,0,0))
 

@@ -33,9 +33,6 @@ class StatusBar(object):
 
         self.zoom(font)
 
-        self.paused = None
-        self.timeindex = -1
-
         self.clock = Clock()
         self.lasttime = None
         self.fps = deque()
@@ -68,11 +65,19 @@ class StatusBar(object):
         apply(self.sprites.add,
               [self.pausesprite] + self.timesprites + self.fpssprites)
 
+        self._dirty()
+
+    def _dirty(self):
+        self.paused = None
+        self.timeindex = -1
+
+    def resize(self, size):
+        self.background = Surface(size, flags=SRCALPHA)
+        self.background.fill((0,0,0))
+
+        self._dirty()
+
     def draw(self, surface):
-        if not self.background or self.background.get_size() != surface.get_size():
-            self.background = Surface(surface.get_size(), flags=SRCALPHA)
-            self.background.fill((0,0,0))
-        
         paused = self.game.paused
         if self.paused != paused:
             self.paused = paused
