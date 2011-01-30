@@ -512,20 +512,12 @@ class GameScreen(object):
         pos, tile = self.mousepos()
 
         for e in event.get():
-            if e.type == QUIT:
-                self.game.done = True
-            elif e.type == KEYDOWN:
+            if e.type == KEYDOWN:
                 pressed = key.get_pressed()
                 shifted = pressed[K_LSHIFT] or pressed[K_RSHIFT]
                 scroll = 10 if shifted else 1
-                
-                if e.key == K_ESCAPE:
-                    self.game.done = True
                     
-                elif e.key == K_SPACE:
-                    self.game.paused = not self.game.paused
-                    
-                elif e.key == K_UP:
+                if e.key == K_UP:
                     pos, tile = self.scroll(1, -scroll)                                        
                     self.makebackground()
                     
@@ -547,15 +539,6 @@ class GameScreen(object):
                 elif e.unicode == '<':
                     self.level = min(self.level+1, self.game.dimensions[2])
                     self.makebackground()
-
-                elif e.unicode == '-':
-                    if self.timeindex > 0:
-                        self.timeindex -= 1
-                        self.game.dt = 0.1 / self.game.timescales[self.timeindex]
-                elif e.unicode == '+':
-                    if self.timeindex < len(self.game.timescales)-1:
-                        self.timeindex += 1
-                        self.game.dt = 0.1 / self.game.timescales[self.timeindex]
                     
                 elif e.unicode == 'd':
                     import pdb
