@@ -730,7 +730,7 @@ class Renderer(object):
             self.screen.blit(line, info_loc)
             info_loc = (info_loc[0], info_loc[1] + line.get_height())
 
-#        self.display.draw(self.displaysurf)
+        self.display.draw(self.displaysurf)
         self.status.draw(self.statussurf)
 
         self.buttonhandlers = {}
