@@ -161,15 +161,93 @@ class GameScreen(object):
             self.offset = tuple([r/2 if r > 0 else 0 for r in
                                  [self.game.dimensions[i] - self.dimensions[i]
                                   for i in range(2)]])
-        
+
         self.background = self._getbackground(size)
 
-    def handle(self, e):
-        pass
+    def _mouse(self, pos = None):
+        if pos is None:
+            pos = mouse.get_pos()
+        else:
+            mouse.set_pos(pos)
+        tile = self._screentile(pos)
+        if not (0 <= tile[0] < self.dimensions[0] and
+                0 <= tile[1] < self.dimensions[1]):
+            tile = None
+        return pos, tile
 
+    @staticmethod
+    def _clamp(value, limits):
+        if value < limits[0]:
+            return limits[0], value - limits[0]
+        elif value > limits[1]:
+            return limits[1], value - limits[1]
+        else:
+            return value, 0
+
+    def _scroll(self, axis, amount):
+        size = self.zoom.width if axis == 0 else self.zoom.height
+
+        pos, tile = self._mouse()
+
+        while (tile is not None and
+               ((amount < 0 and
+                 tile[axis] + self.offset[axis] >
+                 self.game.dimensions[axis] - self.dimensions[axis]/2) or
+                (amount > 0 and
+                 tile[axis] + self.offset[axis] <
+                 self.dimensions[axis]/2))):
+            pos, tile = self._mouse(tuple([pos[i] + (size * amount/abs(amount)
+                                                     if i == axis else 0)
+                                           for i in range(2)]))
+            amount -= amount/abs(amount)
+
+        dest, remainder = self._clamp(
+            self.offset[axis] + amount,
+            (0, self.game.dimensions[axis] - self.dimensions[axis]))
+        
+        self.offset = tuple([dest if i == axis else self.offset[i]
+                             for i in range(2)])
+
+        while tile is not None and ((remainder < 0 and 0 < tile[axis]) or
+               (remainder > 0 and tile[axis] < self.dimensions[axis]-1)):
+            pos, tile = self._mouse(tuple([pos[i] +
+                                           (size * remainder/abs(remainder)
+                                            if i == axis else 0)
+                                           for i in range(2)]))
+            remainder -= remainder/abs(remainder)
+
+    def handle(self, e):
+        if e.type == KEYDOWN:
+            pressed = key.get_pressed()
+            shifted = pressed[K_LSHIFT] or pressed[K_RSHIFT]
+            scroll = 10 if shifted else 1
+            
+            if e.key == K_ESCAPE:
+                self.game.done = True
+                
+            elif e.key == K_SPACE:
+                self.game.paused = not self.game.paused
+                
+            elif e.key == K_UP:
+                self._scroll(1, -scroll)                                        
+                self.background = None
+                
+            elif e.key == K_DOWN:
+                self._scroll(1, scroll)
+                self.background = None
+                
+            elif e.key == K_LEFT:
+                self._scroll(0, -scroll)
+                self.background = None
+                
+            elif e.key == K_RIGHT:
+                self._scroll(0, scroll)
+                self.background = None
+                    
     def draw(self, surface):
         if not self.background:
             self.resize(surface.get_size())
+            surface.blit(self.background, (0,0))
 
         self.sprites.clear(surface, self.background)
         self.sprites.draw(surface)
