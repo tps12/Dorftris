@@ -1,19 +1,10 @@
 from collections import deque
-from random import choice, randint
 from time import time
 
-import pygame
-from pygame import display, event, font, gfxdraw, key, mouse, Rect, Surface
+from pygame import event, font, key, Rect, Surface
 from pygame.locals import *
-from pygame.mixer import Sound
 from pygame.sprite import *
 from pygame.time import Clock
-
-from data import Barrel, Beverage, Corpse, Entity, Stockpile
-from glyphs import GlyphGraphics
-
-INFO_WIDTH = 20
-STATUS_HEIGHT = 2
 
 class StatusBar(object):
     pausestring = _('*** PAUSED ***')
