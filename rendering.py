@@ -31,7 +31,7 @@ class Renderer(object):
         self.uifont = font.Font('FreeMono.ttf',
                                 max(self.zoom.width, self.zoom.height))
         try:
-            self.status.zoom(self.uifont)
+            self.status.scale(self.uifont)
             self.display.scale(self.uifont)
         except AttributeError:
             self.status = StatusBar(self.game, self.uifont)

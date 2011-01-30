@@ -22,7 +22,7 @@ class StatusBar(object):
 
         self.sprites = LayeredDirty()
 
-        self.zoom(font)
+        self.scale(font)
 
         self.clock = Clock()
         self.lasttime = None
@@ -37,7 +37,7 @@ class StatusBar(object):
 
         return sprite
 
-    def zoom(self, font):
+    def scale(self, font):
         self.font = font
         
         self.sprites.empty()

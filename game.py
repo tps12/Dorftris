@@ -17,6 +17,7 @@ class Game(object):
                 self.kind = kind
                 self.passable = passable
                 self.revealed = False
+                self.designated = False
                 self.color = color
                 self.varient = varient
                 self.creatures = []
