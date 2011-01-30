@@ -39,8 +39,6 @@ class StatusBar(object):
 
     def zoom(self, font):
         self.font = font
-
-        self.background = None
         
         self.sprites.empty()
 
