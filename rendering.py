@@ -98,6 +98,8 @@ class Renderer(object):
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
 
+            self.display.handle(e)
+
         self.display.draw(self.displaysurf)
         self.status.draw(self.statussurf)
 

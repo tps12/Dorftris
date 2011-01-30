@@ -466,9 +466,9 @@ class GameScreen(object):
     def makestockpile(self):
         self.game.world.addstockpile(Stockpile(self.selection, [Beverage.stocktype]))
 
-    def drawbutton(self, title, button_loc, handler):
+    def drawbutton(self, surface, title, button_loc, handler):
         outlines = self.graphics[self.button]
-        text = self.uifont.render(' ' + title + ' ', True, (255,255,255))
+        text = self.font.render(' ' + title + ' ', True, (255,255,255))
         
         w = 0
         while w * outlines[0].get_width() < text.get_width():
@@ -502,70 +502,72 @@ class GameScreen(object):
 
         button_loc = button_loc[0], button_loc[1] - button.get_height()
 
-        self.screen.blit(button, button_loc)
+        surface.blit(button, button_loc)
 
         self.buttonhandlers[(button_loc, button.get_size())] = handler
 
         return button_loc
 
+    def handle(self, e):
+        pos, tile = self.mousepos()
+        
+        if e.type == KEYDOWN:
+            pressed = key.get_pressed()
+            shifted = pressed[K_LSHIFT] or pressed[K_RSHIFT]
+            scroll = 10 if shifted else 1
+                
+            if e.key == K_UP:
+                pos, tile = self.scroll(1, -scroll)                                        
+                self.makebackground()
+                
+            elif e.key == K_DOWN:
+                pos, tile = self.scroll(1, scroll)
+                self.makebackground()
+                
+            elif e.key == K_LEFT:
+                pos, tile = self.scroll(0, -scroll)
+                self.makebackground()
+                
+            elif e.key == K_RIGHT:
+                pos, tile = self.scroll(0, scroll)
+                self.makebackground()
+                
+            elif e.unicode == '>':
+                self.level = max(self.level-1, 0)
+                self.makebackground()
+            elif e.unicode == '<':
+                self.level = min(self.level+1, self.game.dimensions[2])
+                self.makebackground()
+                
+            elif e.unicode == 'd':
+                import pdb
+                pdb.set_trace()
+                
+        elif e.type == MOUSEBUTTONDOWN:
+            if e.button == 1:
+                if tile is not None:
+                    abstile = (tile[0] + self.offset[0],
+                               tile[1] + self.offset[1],
+                               self.level)
+                    if self.selection:
+                        if abstile in self.selection:
+                            self.selection.remove(abstile)
+                        elif any([(x,y,self.level) in self.selection
+                                  for x,y in
+                                  self.game.world.space.pathing.adjacent_xy(
+                                      abstile[0:2])]):
+                            self.selection.append(abstile)
+                        else:
+                            self.selection = [abstile]
+                    else:
+                        self.selection.append(abstile)
+                else:
+                    for r in self.buttonhandlers:
+                        if Rect(r[0],r[1]).collidepoint(pos):
+                            self.buttonhandlers[r]()
+
     def draw(self, surface):
         pos, tile = self.mousepos()
-
-        for e in event.get():
-            if e.type == KEYDOWN:
-                pressed = key.get_pressed()
-                shifted = pressed[K_LSHIFT] or pressed[K_RSHIFT]
-                scroll = 10 if shifted else 1
-                    
-                if e.key == K_UP:
-                    pos, tile = self.scroll(1, -scroll)                                        
-                    self.makebackground()
-                    
-                elif e.key == K_DOWN:
-                    pos, tile = self.scroll(1, scroll)
-                    self.makebackground()
-                    
-                elif e.key == K_LEFT:
-                    pos, tile = self.scroll(0, -scroll)
-                    self.makebackground()
-                    
-                elif e.key == K_RIGHT:
-                    pos, tile = self.scroll(0, scroll)
-                    self.makebackground()
-                    
-                elif e.unicode == '>':
-                    self.level = max(self.level-1, 0)
-                    self.makebackground()
-                elif e.unicode == '<':
-                    self.level = min(self.level+1, self.game.dimensions[2])
-                    self.makebackground()
-                    
-                elif e.unicode == 'd':
-                    import pdb
-                    pdb.set_trace()
-                    
-            elif e.type == MOUSEBUTTONDOWN:
-                if e.button == 1:
-                    if tile is not None:
-                        abstile = (tile[0] + self.offset[0],
-                                   tile[1] + self.offset[1],
-                                   self.level)
-                        if self.selection:
-                            if abstile in self.selection:
-                                self.selection.remove(abstile)
-                            elif any([(x,y,self.level) in self.selection
-                                      for x,y in
-                                      self.game.world.space.pathing.adjacent_xy(
-                                          abstile[0:2])]):
-                                self.selection.append(abstile)
-                            else:
-                                self.selection = [abstile]
-                        else:
-                            self.selection.append(abstile)
-                    else:
-                        for r in self.buttonhandlers:
-                            if Rect(r[0],r[1]).collidepoint(pos):
-                                self.buttonhandlers[r]()
 
         if self.game.world.space.changed:
             self.makebackground()
@@ -618,8 +620,8 @@ class GameScreen(object):
             info_loc = info_loc[0], info_loc[1] - self.zoom.height/2
         surface.fill((0,0,0), Rect(info_loc, surface.get_size()))
         for d in descs:
-            line = self.uifont.render(d, True, (255,255,255))
-            self.screen.blit(line, info_loc)
+            line = self.font.render(d, True, (255,255,255))
+            surface.blit(line, info_loc)
             info_loc = (info_loc[0], info_loc[1] + line.get_height())
 
         self.buttonhandlers = {}
@@ -631,13 +633,13 @@ class GameScreen(object):
         if self.selection:
             arefloor = self.arefloor(self.selection)
             if arefloor or self.arewall(self.selection):
-                button_loc = self.drawbutton(_('Dig'), button_loc, self.designateselection)
+                button_loc = self.drawbutton(surface, _('Dig'), button_loc, self.designateselection)
             if (arefloor and all([self.game.world.space[loc].is_passable()
                                   for loc in self.selection]) and
                 all([comp.location not in self.selection
                      for pile in self.game.world.stockpiles
                      for comp in pile.components])):
-                button_loc = self.drawbutton(_('Stockpile'), button_loc, self.makestockpile)
+                button_loc = self.drawbutton(surface, _('Stockpile'), button_loc, self.makestockpile)
                      
 
         if creature_moved:
