@@ -22,8 +22,10 @@ class EntitySprite(DirtySprite):
         
     def update(self):
         if self._visible(self.entity.location):
-            self.rect.topleft = self._position(self.entity.location)
-            self.dirty = True
+            pos = self._position(self.entity.location)
+            if self.rect.topleft != pos:
+                self.rect.topleft = pos
+                self.dirty = True
         else:
             self.kill()
 
