@@ -67,7 +67,7 @@ class GameScreen(object):
         pass
 
     def _drawfarground(self, surface, ground, location):
-        pass
+        self._colortile(surface, Entity('air'), ground.color, 0, location)
 
     def _drawair(self, surface, location):
         pass
