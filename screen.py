@@ -55,9 +55,10 @@ class GameScreen(object):
         surface.blit(image, self._tilecoordinates(location))
 
     def _colorfill(self, surface, color, location):
-        image = surface.subsurface(Rect(self._tilecoordinates(location),
-                                        (self.zoom.width + self.zoom.height/3,
-                                         self.zoom.height+1)))
+        x, y = self._tilecoordinates(location)
+        image = surface.subsurface(Rect(x - self.zoom.height/3, y,
+                                        self.zoom.width + self.zoom.height/3,
+                                        self.zoom.height+1))
         gfxdraw.filled_polygon(image, self._hex(), color)
 
     def _drawdesignation(self, surface, tile, location):
@@ -107,7 +108,7 @@ class GameScreen(object):
 
         xs, ys = [range(self.offset[i], self.offset[i] + self.dimensions[i])
                   for i in range(2)]
-        for x in xs[:-1]:
+        for x in xs:
             for y in ys:
                 location = x, y, self.level
                 tile = self.game.world.space[location]
