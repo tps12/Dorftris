@@ -75,10 +75,25 @@ class GameScreen(object):
             self._drawdesignation(surface, wall, location)
 
     def _drawtrunk(self, surface, trunk, location):
-        pass
+        image = self.graphics[trunk][0].copy()
+        image.fill(trunk.color, special_flags=BLEND_ADD)
+        image.fill((48,48,48), special_flags=BLEND_ADD)
+
+        exterior = self.graphics[trunk][1].copy()
+        exterior.fill(trunk.color, special_flags=BLEND_ADD)
+        image.blit(exterior, (0,0))
+
+        rings = self.graphics[trunk][2].copy()
+        rings.fill(trunk.color, special_flags=BLEND_ADD)
+        image.blit(rings, (0,0))
+        
+        surface.blit(image, self._tilecoordinates(location))
 
     def _drawtile(self, surface, tile, location):
-        pass
+        if tile.kind == 'tree-trunk':
+            self._drawtrunk(surface, tile, location)
+        else:
+            self._colortile(surface, tile, tile.color, tile.varient, location)
 
     def _drawfarground(self, surface, ground, location):
         self._colortile(surface, Entity('air'), ground.color, 0, location)
