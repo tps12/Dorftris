@@ -30,7 +30,45 @@ class EntitySprite(DirtySprite):
         else:
             self.kill()
 
-class EntityGroup(LayeredDirty):
+class SelectionSprite(DirtySprite):
+    def __init__(self, visible, position, lines, zoom, selection, *args, **kwargs):
+        DirtySprite.__init__(self, *args, **kwargs)
+        self._visible = visible
+        self._position = position
+        self._lines = lines
+        self._zoom = zoom
+        self.selection = selection
+        self._ps = []
+
+        self.layer = 1
+
+    def update(self):
+        ps = [self._position(loc)
+              for loc in self.selection
+              if self._visible(loc)]
+        if len(self._ps) == len(ps) and all([self._ps[i] == ps[i]
+                                             for i in range(len(ps))]):
+            return
+
+        self._ps = ps
+        if self._ps:
+            pos = [min([p[i] for p in self._ps]) for i in range(2)]
+            adj = self._zoom.width+self._zoom.height/3, self._zoom.height + 1
+            size = [max([p[i] for p in self._ps]) - pos[i] + adj[i]
+                    for i in range(2)]
+            self.image = Surface(size, flags=SRCALPHA)
+            for p in self._ps:
+                gfxdraw.polygon(self.image, [[v[i] + p[i] - pos[i]
+                                              for i in range(2)]
+                                             for v in self._lines()],
+                                (255,0,0))
+            self.rect = self.image.get_rect().move((pos[0]-self._zoom.height/3,
+                                                    pos[1]))
+            self.dirty = 1
+        else:
+            self.kill()
+
+class ScreenSprites(LayeredDirty):
     def __init__(self, visible, position, *args, **kwargs):
         LayeredDirty.__init__(self, *args, **kwargs)
         self._visible = visible
@@ -44,7 +82,8 @@ class EntityGroup(LayeredDirty):
 
     def remove_internal(self, sprite):
         LayeredDirty.remove_internal(self, sprite)
-        del self._entities[sprite.entity]
+        if isinstance(sprite, EntitySprite):
+            del self._entities[sprite.entity]
 
     def hasspritefor(self, entity):
         return entity in self._entities
@@ -57,13 +96,17 @@ class GameScreen(object):
 
         self.zoom = zoom
 
-        self.sprites = EntityGroup(self.visible, self.tilecoordinates)
+        self.sprites = ScreenSprites(self.visible, self.tilecoordinates)
 
         self.scale(font)
 
-        self.offset = None
+        self._selectionsprite = SelectionSprite(self.visible,
+                                                self.tilecoordinates,
+                                                self._hex,
+                                                self.zoom,
+                                                [])
 
-        self.selection = []
+        self.offset = None
         
         self.level = 64
 
@@ -72,11 +115,13 @@ class GameScreen(object):
         self.graphics = GlyphGraphics(self.font)
         
         self.sprites.empty()
+        
         self.background = None
 
     def visible(self, location):
-        return location and all([self.offset[i] <= location[i] < self.offset[i] + self.dimensions[i]
-                    for i in range(2)]) and location[2] == self.level
+        return location and all([
+            self.offset[i] <= location[i] < self.offset[i] + self.dimensions[i]
+            for i in range(2)]) and location[2] == self.level
 
     def tilecoordinates(self, location):
         x, y, z = location
@@ -90,6 +135,13 @@ class GameScreen(object):
         x = (px - self.zoom.width/2)/self.zoom.width
         return x, (py - self.zoom.height/2 - (x&1) *
                    self.zoom.height/2) / self.zoom.height
+
+    def _absolutetile(self, coordinates):
+        relative = self._screentile(coordinates)
+        absolute = [relative[i] + self.offset[i]
+                    for i in range(2)] + [self.level]
+        return absolute if all([0 <= absolute[i] < self.game.dimensions[i]
+                                for i in range(2)]) else None
 
     def _hex(self):
         return [(self.zoom.height/3,self.zoom.height),
@@ -291,6 +343,13 @@ class GameScreen(object):
 
         self.background = None
 
+    def _select(self, tile):
+        if tile:
+            if tile in self._selectionsprite.selection:
+                self._selectionsprite.selection.remove(tile)
+            else:
+                self._selectionsprite.selection.append(tile)
+
     def handle(self, e):
         if e.type == KEYDOWN:
             pressed = key.get_pressed()
@@ -326,10 +385,17 @@ class GameScreen(object):
             elif e.unicode == 'c':
                 return True, CreatureDetails(self.game.world.creatures[0],
                                              self.font)
+
+        elif e.type == MOUSEBUTTONUP and e.button == 1:
+            self._select(self._absolutetile(mouse.get_pos()))
             
         return False, self
                     
     def draw(self, surface):
+        if (self._selectionsprite.selection and
+            self._selectionsprite not in self.sprites):
+            self.sprites.add(self._selectionsprite)
+
         self.sprites.update()
 
         if self.background:
