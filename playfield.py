@@ -31,8 +31,9 @@ class EntitySprite(DirtySprite):
             self.kill()
 
 class EntitySelectionSprite(DirtySprite):
-    def __init__(self, sprite, *args, **kwargs):
+    def __init__(self, removed, sprite, *args, **kwargs):
         DirtySprite.__init__(self, *args, **kwargs)
+        self._removed = removed
         self._selection = sprite
 
         self.image = Surface(self._selection.image.get_size(), flags=SRCALPHA)
@@ -46,6 +47,10 @@ class EntitySelectionSprite(DirtySprite):
             self.rect.topleft = self._selection.rect.topleft
         else:
             self.kill()
+
+    def kill(self):
+        Sprite.kill(self)
+        self._removed()
 
 class TileSelectionSprite(DirtySprite):
     def __init__(self, visible, position, lines, zoom, selection, *args, **kwargs):
@@ -149,6 +154,9 @@ class Playfield(object):
         self.sprites.empty()
         
         self.background = None
+
+    def clearselectedentitysprite(self):
+        self._selectedentitysprite = None
 
     def visible(self, location):
         return location and all([
@@ -291,6 +299,16 @@ class Playfield(object):
 
         self._addtilesprites(tile, location)
 
+    def _addentityselection(self, location):
+        if (self._selectedentity and not self._selectedentitysprite and
+            self._selectedentity.location == location):
+            if not self.sprites.hasspritefor(self._selectedentity):
+                self.sprites.addspritefor(self._selectedentity, self.graphics)
+            self._selectedentitysprite = EntitySelectionSprite(
+                self.clearselectedentitysprite,
+                self.sprites.entities[self._selectedentity])
+            self.sprites.add(self._selectedentitysprite)
+            
     def _addtilesprites(self, tile, location):
         if tile.creatures:
             entity = tile.creatures[-1]
@@ -301,12 +319,7 @@ class Playfield(object):
             if not self.sprites.hasspritefor(entity):
                 self.sprites.addspritefor(entity, self.graphics)
 
-        if self._selectedentity and self._selectedentity.location == location:
-            if not self.sprites.hasspritefor(self._selectedentity):
-                self.sprites.addspritefor(self._selectedentity, self.graphics)
-            self._selectedentitysprite = EntitySelectionSprite(
-                self.sprites.entities[self._selectedentity])
-            self.sprites.add(self._selectedentitysprite)
+        self._addentityselection(location)
         
     def _scanbackground(self, background, tileprocess):
         xs, ys = [range(self.offset[i], self.offset[i] + self.dimensions[i])
@@ -415,7 +428,8 @@ class Playfield(object):
             else:
                 # no tiles selected
                 if self._selectedentity:
-                    self._selectedentitysprite.kill()
+                    if self._selectedentitysprite:
+                        self._selectedentitysprite.kill()
                     # entity selected
                     if self._selectedentity.location == tile:
                         # iterate to next
@@ -435,8 +449,10 @@ class Playfield(object):
                                 elif item is self._selectedentity:
                                     found = True
                             else:
-                                self._selectedentity = None
                                 self._selectionsprite.selection[:] = [tile]
+                    else:
+                        self._selectedentity = None
+                        self._selectionsprite.selection[:] = [tile]
                 else:
                     # nothing selected
                     self._selectionsprite.selection[:] = [tile]
