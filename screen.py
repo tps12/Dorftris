@@ -4,6 +4,7 @@ from pygame.mixer import *
 from pygame.sprite import *
 
 from data import Barrel, Beverage, Corpse, Entity, Stockpile
+from details import CreatureDetails
 from glyphs import GlyphGraphics
 
 class EntitySprite(DirtySprite):
@@ -316,6 +317,10 @@ class GameScreen(object):
                 self.level = min(self.level+1, self.game.dimensions[2])
                 self.background = None
                 return True, self
+
+            elif e.unicode == 'c':
+                return True, CreatureDetails(self.game.world.creatures[0],
+                                             self.font)
             
         return False, self
                     

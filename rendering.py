@@ -44,19 +44,23 @@ class Renderer(object):
         
         self.makebackground()
 
-    def _addchilddisplay(self, child):
+    def _pushdisplay(self, child):
         self.display.append(child)
         self.definetiles()
         self.makebackground()
+
+    def _popdisplay(self):
+        del self.display[-1]
+        self.definetiles()
 
     def step(self):
         for e in event.get():
             
             handled, child = self.display[-1].handle(e)
             if not child:
-                del self.display[-1]
+                self._popdisplay()
             elif child is not self.display[-1]:
-                self._addchilddisplay(child)
+                self._pushdisplay(child)
                 
             if not handled:
                 if e.type == QUIT:
