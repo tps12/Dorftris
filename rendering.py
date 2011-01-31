@@ -42,6 +42,11 @@ class Renderer(object):
         
         self.makebackground()
 
+    def _addchilddisplay(self, child):
+        self.display.append(child)
+        self.definetiles()
+        self.makebackground()
+
     def step(self):
         for e in event.get():
             child = self.display[-1].handle(e)
