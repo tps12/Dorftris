@@ -51,7 +51,9 @@ class Renderer(object):
         for e in event.get():
             
             handled, child = self.display[-1].handle(e)
-            if child is not self.display[-1]:
+            if not child:
+                del self.display[-1]
+            elif child is not self.display[-1]:
                 self._addchilddisplay(child)
                 
             if not handled:
