@@ -5,8 +5,8 @@ from pygame.sprite import *
 from text import TextRenderer
 
 class InfoView(object):
-    def __init__(self, selection, font):
-        self._selection = selection
+    def __init__(self, playfield, font):
+        self._playfield = playfield
         
         self.scale(font)
 

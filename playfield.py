@@ -100,7 +100,7 @@ class ScreenSprites(LayeredDirty):
         return entity in self._entities
 
 class Playfield(object):
-    def __init__(self, game, font, zoom, selection):
+    def __init__(self, game, font, zoom):
         self.game = game
 
         self.zoom = zoom
@@ -109,7 +109,8 @@ class Playfield(object):
 
         self.scale(font)
 
-        self.selection = selection
+        self.cursor = None
+        self.selection = []
 
         self._selectionsprite = SelectionSprite(self.visible,
                                                 self.tilecoordinates,
