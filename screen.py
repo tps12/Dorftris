@@ -29,8 +29,12 @@ class GameScreen(object):
                 return True, CreatureDetails(self._game.world.creatures[0],
                                              self._font)
 
-        if self._playfield.handle(e) or self._info.handle(e):
+        if self._playfield.handle(e):
             return True, self
+
+        handled, child = self._info.handle(e)
+        if handled:
+            return True, child if child is not self._info else self
         
         return False, self
 

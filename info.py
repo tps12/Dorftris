@@ -2,6 +2,8 @@ from pygame import draw, Rect, Surface
 from pygame.locals import *
 from pygame.sprite import *
 
+from data import Creature
+from details import CreatureDetails
 from text import TextRenderer
 
 class InfoView(object):
@@ -11,28 +13,29 @@ class InfoView(object):
         self._entity = None
         self._tiles = []
         
+        self._selectionrect = None
+        self._details = None
+        
         self.scale(font)
 
     @property
     def width(self):
         return self._font.size('-' * 32)[0]
 
-    def _describecreatures(self, surface, creatures, dy):
-        for creature in creatures:
-            image = self._renderer.render(creature.namecard(), (255,255,255))
+    def _entitydescription(self, entity):
+        return (entity.namecard()
+                if isinstance(entity, Creature)
+                else entity.description())
+
+    def _describeentities(self, surface, entities, dy):
+        for entity in entities:
+            image = self._renderer.render(self._entitydescription(entity),
+                                          (255,255,255))
             surface.blit(image, (0, dy))
-            if creature is self._entity:
+            if entity is self._entity:
                 draw.rect(surface, (255,0,0), Rect((0,dy), image.get_size()), 1)
             dy += image.get_height()
         return dy
-
-    def _describeitems(self, surface, items, dy):
-        for item in items:
-            image = self._renderer.render(item.description(), (255,255,255))
-            surface.blit(image, (0, dy))
-            if item is self._entity:
-                draw.rect(surface, (255,0,0), Rect((0,dy), image.get_size()), 1)
-            dy += image.get_height()
 
     def _describetile(self, surface, location):
         x, y, z = location
@@ -45,12 +48,26 @@ class InfoView(object):
                 s = _('Ground')
         else:
             s = _('Solid')
+
         image = self._renderer.render(s, (255,255,255))
         surface.blit(image, (0,0))
+        if location in self._tiles:
+            draw.rect(surface, (255,0,0), image.get_rect(), 1)
         dy = image.get_height()
 
-        dy = self._describecreatures(surface, tile.creatures, dy)
-        self._describeitems(surface, tile.items, dy)
+        dy = self._describeentities(surface, tile.creatures, dy)
+        dy = self._describeentities(surface, tile.items, dy)
+
+        if self._entity and self._entity.location != self._cursor:
+            image = self._renderer.render(
+                self._entitydescription(self._entity), (255,0,0))
+            surface.blit(image, (0, dy))
+
+            self._selectionrect = image.get_rect().move(0,dy)
+            self._details = lambda: CreatureDetails(self._entity, self._font)
+        else:
+            self._selectionrect = None
+            self._details = None
 
     def _makebackground(self, size):
         self._renderer = TextRenderer(self._font, size[0])
@@ -69,7 +86,14 @@ class InfoView(object):
         pass
 
     def handle(self, e):
-        return False
+        if (e.type == MOUSEBUTTONDOWN and
+            self._selectionrect and
+            self._selectionrect.move(
+                self._playfield.background.get_width(), 0).collidepoint(e.pos) and
+            e.button == 1):
+            return True, self._details()
+        
+        return False, self
 
     def draw(self, surface):
         cursor = self._playfield.cursor
