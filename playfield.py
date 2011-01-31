@@ -121,7 +121,7 @@ class Playfield(object):
 
     def scale(self, font):
         self.font = font
-        self.graphics = GlyphGraphics(self.font)
+        self.graphics = GlyphGraphics(max(self.zoom.width, self.zoom.height))
         
         self.sprites.empty()
         

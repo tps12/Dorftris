@@ -33,7 +33,7 @@ class MainMenu(object):
         self.done = False
 
     def definefont(self):
-        self.zoom.font = font.SysFont('Arial',
+        self.zoom.font = font.Font('FreeMono.ttf',
                                 max(self.zoom.width,
                                     self.zoom.height))
 

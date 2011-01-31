@@ -1,6 +1,8 @@
+from pygame.font import Font
+
 class GlyphGraphics(object):
-    def __init__(self, font):
-        self.font = font
+    def __init__(self, size):
+        self.font = Font('FreeMono.ttf', size)
         self.glyphs = {
             'air': u'\u00b7',
             'bag': u'\u01d2',
