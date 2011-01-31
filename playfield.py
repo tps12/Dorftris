@@ -109,11 +109,13 @@ class Playfield(object):
 
         self.scale(font)
 
+        self.selection = selection
+
         self._selectionsprite = SelectionSprite(self.visible,
                                                 self.tilecoordinates,
                                                 self.hexlines,
                                                 self.zoom,
-                                                selection)
+                                                self.selection)
 
         self.offset = None
         
