@@ -34,11 +34,13 @@ class GameScreen(object):
         
         return False, self
 
-    def _infosurface(self, surface):
+    def _playinfosurfaces(self, surface):
         size = surface.get_size()
-        return surface.subsurface(Rect((self._fieldwidth,0),
-                                       (size[0]-self._fieldwidth, size[1])))
+        return (surface.subsurface(Rect((0,0),(self._fieldwidth,size[1]))),
+                surface.subsurface(Rect((self._fieldwidth,0),
+                                        (size[0]-self._fieldwidth, size[1]))))
                     
     def draw(self, surface):
-        self._playfield.draw(surface)
-        self._info.draw(self._infosurface(surface))
+        play, info = self._playinfosurfaces(surface)
+        self._playfield.draw(play)
+        self._info.draw(info)

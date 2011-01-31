@@ -28,7 +28,7 @@ class InfoView(object):
         self._background = None
 
     def resize(self, size):
-        self._makebackground(size)
+        pass
 
     def handle(self, e):
         return False
