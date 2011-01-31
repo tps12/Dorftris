@@ -290,9 +290,6 @@ class GameScreen(object):
             if e.key == K_ESCAPE:
                 self.game.done = True
                 
-            elif e.key == K_SPACE:
-                self.game.paused = not self.game.paused
-                
             elif e.key == K_UP:
                 self._scroll(1, -scroll)                                        
                 self.background = None

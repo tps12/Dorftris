@@ -20,14 +20,16 @@ class Renderer(object):
                                 max(self.zoom.width, self.zoom.height))
         try:
             self.status.scale(self.uifont)
-            self.display.scale(self.uifont)
+            for d in self.display:
+                d.scale(self.uifont)
         except AttributeError:
             self.status = StatusBar(self.game, self.uifont)
-            self.display = GameScreen(self.game, self.uifont, self.zoom)
+            self.display = [GameScreen(self.game, self.uifont, self.zoom)]
                 
     def makebackground(self):
         self.status.resize(self.statussurf.get_size())
-        self.display.resize(self.displaysurf.get_size())
+        for d in self.display:
+            d.resize(self.displaysurf.get_size())
 
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
@@ -85,10 +87,11 @@ class Renderer(object):
                     
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
+                self.definetiles()
 
-            self.display.handle(e)
+            self.display[-1].handle(e)
 
-        self.display.draw(self.displaysurf)
+        self.display[-1].draw(self.displaysurf)
         self.status.draw(self.statussurf)
 
         display.flip()
