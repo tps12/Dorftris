@@ -152,8 +152,9 @@ class Playfield(object):
         relative = self._screentile(coordinates)
         absolute = [relative[i] + self.offset[i]
                     for i in range(2)] + [self.level]
-        return absolute if all([0 <= absolute[i] < self.game.dimensions[i]
-                                for i in range(2)]) else None
+        return tuple(absolute) if all(
+            [0 <= absolute[i] < self.game.dimensions[i]
+             for i in range(2)]) else None
 
     def _hex(self):
         return [(self.zoom.height/3,self.zoom.height),
@@ -410,6 +411,8 @@ class Playfield(object):
         return False
                     
     def draw(self, surface):
+        self.cursor = self._absolutetile(mouse.get_pos())
+        
         if (self._selectionsprite.selection and
             self._selectionsprite not in self.sprites):
             self.sprites.add(self._selectionsprite)
