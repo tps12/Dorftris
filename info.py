@@ -27,6 +27,11 @@ class InfoView(object):
                 if isinstance(entity, Creature)
                 else entity.description())
 
+    def _entitydetails(self, entity):
+        return (CreatureDetails(entity, self._font)
+                if isinstance(entity, Creature)
+                else self)
+
     def _describeentities(self, surface, entities, dy):
         for entity in entities:
             image = self._renderer.render(self._entitydescription(entity),
@@ -34,8 +39,7 @@ class InfoView(object):
             surface.blit(image, (0, dy))
             if entity is self._entity:
                 draw.rect(surface, (255,0,0), Rect((0,dy), image.get_size()), 1)
-                self._details = lambda: CreatureDetails(self._entity,
-                                                        self._font)
+                self._details = lambda: self._entitydetails(self._entity)
             dy += image.get_height()
         return dy
 
@@ -81,7 +85,7 @@ class InfoView(object):
             self._background.blit(image, (0, dy))
 
             self._selectionrect = image.get_rect().move(0,dy)
-            self._details = lambda: CreatureDetails(self._entity, self._font)
+            self._details = lambda: self._entitydetails(self._entity)
     
     def scale(self, font):
         self._font = font
