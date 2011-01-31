@@ -49,6 +49,8 @@ class EntityGroup(LayeredDirty):
         return entity in self._entities
 
 class GameScreen(object):
+    dt = 0.05
+    
     def __init__(self, game, font, zoom):
         self.game = game
 

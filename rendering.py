@@ -5,8 +5,6 @@ from screen import GameScreen
 from status import StatusBar
 
 class Renderer(object):
-    dt = 0.05
-    
     def __init__(self, game, zoom):
         self.game = game
         self.zoom = zoom
@@ -14,6 +12,10 @@ class Renderer(object):
         self.definetiles()
 
         self.makescreen(display.get_surface().get_size())
+
+    @property
+    def dt(self):
+        return self.display[-1].dt
 
     def definetiles(self):
         self.uifont = font.Font('FreeMono.ttf',
