@@ -493,6 +493,10 @@ class Playfield(object):
                 self._zscroll(1)
                 return True
 
+            elif e.key == K_TAB:
+                self._select(self._absolutetile(mouse.get_pos()))
+                return True
+
         elif (e.type == MOUSEBUTTONDOWN and
               self.background and
               self.background.get_rect().collidepoint(e.pos) and

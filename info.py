@@ -34,6 +34,8 @@ class InfoView(object):
             surface.blit(image, (0, dy))
             if entity is self._entity:
                 draw.rect(surface, (255,0,0), Rect((0,dy), image.get_size()), 1)
+                self._details = lambda: CreatureDetails(self._entity,
+                                                        self._font)
             dy += image.get_height()
         return dy
 
@@ -58,16 +60,7 @@ class InfoView(object):
         dy = self._describeentities(surface, tile.creatures, dy)
         dy = self._describeentities(surface, tile.items, dy)
 
-        if self._entity and self._entity.location != self._cursor:
-            image = self._renderer.render(
-                self._entitydescription(self._entity), (255,0,0))
-            surface.blit(image, (0, dy))
-
-            self._selectionrect = image.get_rect().move(0,dy)
-            self._details = lambda: CreatureDetails(self._entity, self._font)
-        else:
-            self._selectionrect = None
-            self._details = None
+        return dy
 
     def _makebackground(self, size):
         self._renderer = TextRenderer(self._font, size[0])
@@ -75,8 +68,20 @@ class InfoView(object):
         self._background = Surface(size, flags=SRCALPHA)
         self._background.fill((0,0,0))
 
+        self._selectionrect = self._detail = None
+
         if self._cursor:
-            self._describetile(self._background, self._cursor)
+            dy = self._describetile(self._background, self._cursor)
+        else:
+            dy = 0
+
+        if self._entity and self._entity.location != self._cursor:
+            image = self._renderer.render(
+                self._entitydescription(self._entity), (255,0,0))
+            self._background.blit(image, (0, dy))
+
+            self._selectionrect = image.get_rect().move(0,dy)
+            self._details = lambda: CreatureDetails(self._entity, self._font)
     
     def scale(self, font):
         self._font = font
@@ -86,7 +91,11 @@ class InfoView(object):
         pass
 
     def handle(self, e):
-        if (e.type == MOUSEBUTTONDOWN and
+        if e.type == KEYDOWN:
+            if e.key == K_RETURN and self._details:
+                return True, self._details()
+        
+        elif (e.type == MOUSEBUTTONDOWN and
             self._selectionrect and
             self._selectionrect.move(
                 self._playfield.background.get_width(), 0).collidepoint(e.pos) and
