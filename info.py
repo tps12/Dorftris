@@ -1,4 +1,4 @@
-from pygame import Rect, Surface
+from pygame import draw, Rect, Surface
 from pygame.locals import *
 from pygame.sprite import *
 
@@ -8,6 +8,8 @@ class InfoView(object):
     def __init__(self, playfield, font):
         self._playfield = playfield
         self._cursor = None
+        self._entity = None
+        self._tiles = []
         
         self.scale(font)
 
@@ -19,6 +21,8 @@ class InfoView(object):
         for creature in creatures:
             image = self._renderer.render(creature.namecard(), (255,255,255))
             surface.blit(image, (0, dy))
+            if creature is self._entity:
+                draw.rect(surface, (255,0,0), Rect((0,dy), image.get_size()), 1)
             dy += image.get_height()
         return dy
 
@@ -26,6 +30,8 @@ class InfoView(object):
         for item in items:
             image = self._renderer.render(item.description(), (255,255,255))
             surface.blit(image, (0, dy))
+            if item is self._entity:
+                draw.rect(surface, (255,0,0), Rect((0,dy), image.get_size()), 1)
             dy += image.get_height()
 
     def _describetile(self, surface, location):
@@ -69,6 +75,17 @@ class InfoView(object):
         cursor = self._playfield.cursor
         if self._cursor != cursor:
             self._cursor = cursor
+            self._background = None
+
+        entity = self._playfield.selectedentity
+        if self._entity != entity:
+            self._entity = entity
+            self._background = None
+
+        tiles = [t for t in self._playfield.selectedtiles]
+        if (len(self._tiles) != len(tiles) or
+            any([self._tiles[i] != tiles[i] for i in range(len(tiles))])):
+            self._tiles = tiles
             self._background = None
         
         if not self._background:

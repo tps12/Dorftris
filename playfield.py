@@ -428,9 +428,9 @@ class Playfield(object):
             else:
                 # no tiles selected
                 if self._selectedentity:
+                    # entity selected
                     if self._selectedentitysprite:
                         self._selectedentitysprite.kill()
-                    # entity selected
                     if self._selectedentity.location == tile:
                         # iterate to next
                         data = self.game.world.space[tile]
@@ -449,6 +449,7 @@ class Playfield(object):
                                 elif item is self._selectedentity:
                                     found = True
                             else:
+                                self._selectedentity = None
                                 self._selectionsprite.selection[:] = [tile]
                     else:
                         self._selectedentity = None
@@ -507,7 +508,15 @@ class Playfield(object):
             self._dragging = True
             
         return False
-                    
+
+    @property
+    def selectedentity(self):
+        return self._selectedentity
+
+    @property
+    def selectedtiles(self):
+        return self._selectionsprite.selection
+                                        
     def draw(self, surface):
         self.cursor = self._absolutetile(mouse.get_pos())
         
