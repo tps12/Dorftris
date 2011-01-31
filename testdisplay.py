@@ -5,9 +5,7 @@ from pygame.sprite import *
 class DisplayScreen(object):
     dt = 0.01
     
-    def __init__(self, creature, font):
-        self._creature = creature
-
+    def __init__(self, font):
         self._sprites = LayeredDirty()
 
         self.scale(font)
