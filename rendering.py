@@ -18,8 +18,7 @@ class Renderer(object):
         return self.display[-1].dt
 
     def definetiles(self):
-        self.uifont = font.Font('FreeMono.ttf',
-                                max(self.zoom.width, self.zoom.height))
+        self.uifont = self.zoom.font
         try:
             self.status.scale(self.uifont)
             for d in self.display:
