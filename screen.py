@@ -19,8 +19,9 @@ class GameScreen(object):
         self._info.scale(self._font)
         
     def resize(self, size):
-        self._playfield.resize((size[0] - self._info.width, size[1]))
-        self._info.resize(size)
+        self._fieldwidth = max(0, size[0] - self._info.width)
+        self._playfield.resize((self._fieldwidth, size[1]))
+        self._info.resize((size[0] - self._fieldwidth, size[1]))
 
     def handle(self, e):
         if e.type == KEYDOWN:
@@ -32,7 +33,12 @@ class GameScreen(object):
             return True, self
         
         return False, self
+
+    def _infosurface(self, surface):
+        size = surface.get_size()
+        return surface.subsurface(Rect((self._fieldwidth,0),
+                                       (size[0]-self._fieldwidth, size[1])))
                     
     def draw(self, surface):
         self._playfield.draw(surface)
-        self._info.draw(surface)
+        self._info.draw(self._infosurface(surface))

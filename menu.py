@@ -21,7 +21,7 @@ class MainMenu(object):
 
         key.set_repeat(100, 100)
 
-        self.zoom = TileDimensions(16, 18)
+        self.zoom = TileDimensions('FreeMono.ttf', False, 16, 18)
         
         self.definefont()
 
@@ -33,9 +33,7 @@ class MainMenu(object):
         self.done = False
 
     def definefont(self):
-        self.zoom.font = font.Font('FreeMono.ttf',
-                                max(self.zoom.width,
-                                    self.zoom.height))
+        self._font = self.zoom.font
 
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
@@ -45,8 +43,8 @@ class MainMenu(object):
         self.screen.fill((0,0,0))
 
         self.buttons = [
-            Button(self.zoom.font, _('New Game'), self.newgame),
-            Button(self.zoom.font, _('Quit'), self.quitgame)
+            Button(self._font, _('New Game'), self.newgame),
+            Button(self._font, _('Quit'), self.quitgame)
             ]
 
         size = self.screen.get_size()
