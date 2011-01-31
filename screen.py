@@ -187,6 +187,10 @@ class GameScreen(object):
         if tile is None:
             return
 
+        self._drawtilebackground(surface, tile, location)
+        self._addtilesprites(tile)
+
+    def _drawtilebackground(self, surface, tile, location):
         if tile.is_passable():
             self._drawopen(surface, tile, location)
         elif tile.kind is not None:
@@ -197,6 +201,7 @@ class GameScreen(object):
             elif tile.designated:
                 self._drawdesignation(surface, location)
 
+    def _addtilesprites(self, tile):
         if tile.creatures:
             entity = tile.creatures[-1]
             if not self.sprites.hasspritefor(entity):
@@ -205,7 +210,7 @@ class GameScreen(object):
             entity = tile.items[-1]
             if not self.sprites.hasspritefor(entity):
                 self.sprites.addspritefor(entity, self.graphics)
-
+        
     def _scanbackground(self, background):
         background.fill((0,0,0))
 
