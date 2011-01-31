@@ -46,36 +46,38 @@ class SelectionSprite(DirtySprite):
         ps = [self._position(loc)
               for loc in self.selection
               if self._visible(loc)]
+        
+        if not ps:
+            self.kill()
+            return
+            
         if len(self._ps) == len(ps) and all([self._ps[i] == ps[i]
                                              for i in range(len(ps))]):
             return
 
         self._ps = ps
-        if self._ps:
-            pos = [min([p[i] for p in self._ps]) for i in range(2)]
-            adj = self._zoom.width+self._zoom.height/3, self._zoom.height + 1
-            size = [max([p[i] for p in self._ps]) - pos[i] + adj[i]
-                    for i in range(2)]
-            self.image = Surface(size, flags=SRCALPHA)
-            lines = []
-            internal = []
-            for p in self._ps:
-                for edge in [sorted([[v[j][i] + p[i] - pos[i]
-                                      for i in range(2)]
-                                     for j in range(2)])
-                             for v in self._lines()]:
-                    if edge in lines:
-                        internal.append(edge)
-                    else:
-                        lines.append(edge)
-            for line in lines:
-                if line not in internal:
-                    draw.line(self.image, (255,0,0), line[0], line[1])
-            self.rect = self.image.get_rect().move((pos[0]-self._zoom.height/3,
-                                                    pos[1]))
-            self.dirty = 1
-        else:
-            self.kill()
+        pos = [min([p[i] for p in self._ps]) for i in range(2)]
+        adj = self._zoom.width+self._zoom.height/3, self._zoom.height + 1
+        size = [max([p[i] for p in self._ps]) - pos[i] + adj[i]
+                for i in range(2)]
+        self.image = Surface(size, flags=SRCALPHA)
+        lines = []
+        internal = []
+        for p in self._ps:
+            for edge in [sorted([[v[j][i] + p[i] - pos[i]
+                                  for i in range(2)]
+                                 for j in range(2)])
+                         for v in self._lines()]:
+                if edge in lines:
+                    internal.append(edge)
+                else:
+                    lines.append(edge)
+        for line in lines:
+            if line not in internal:
+                draw.line(self.image, (255,0,0), line[0], line[1])
+        self.rect = self.image.get_rect().move((pos[0]-self._zoom.height/3,
+                                                pos[1]))
+        self.dirty = 1
 
 class ScreenSprites(LayeredDirty):
     def __init__(self, visible, position, *args, **kwargs):
@@ -363,6 +365,13 @@ class GameScreen(object):
             else:
                 self._selectionsprite.selection.append(tile)
 
+    def _zscroll(self, dz):
+        level = max(0, min(self.game.dimensions[2], self.level + dz))
+        if self.level != level:
+            self.level = level
+            self.background = None
+            self.sprites.empty()
+
     def handle(self, e):
         if e.type == KEYDOWN:
             pressed = key.get_pressed()
@@ -386,13 +395,11 @@ class GameScreen(object):
                 return True, self
                     
             elif e.unicode == '>':
-                self.level = max(self.level-1, 0)
-                self.background = None
+                self._zscroll(-1)
                 return True, self
                 
             elif e.unicode == '<':
-                self.level = min(self.level+1, self.game.dimensions[2])
-                self.background = None
+                self._zscroll(1)
                 return True, self
 
             elif e.unicode == 'c':
