@@ -33,7 +33,7 @@ class MainMenu(object):
         self.done = False
 
     def definefont(self):
-        self.uifont = font.Font('FreeMono.ttf',
+        self.zoom.font = font.SysFont('Arial',
                                 max(self.zoom.width,
                                     self.zoom.height))
 
@@ -45,8 +45,8 @@ class MainMenu(object):
         self.screen.fill((0,0,0))
 
         self.buttons = [
-            Button(self.uifont, _('New Game'), self.newgame),
-            Button(self.uifont, _('Quit'), self.quitgame)
+            Button(self.zoom.font, _('New Game'), self.newgame),
+            Button(self.zoom.font, _('Quit'), self.quitgame)
             ]
 
         size = self.screen.get_size()
