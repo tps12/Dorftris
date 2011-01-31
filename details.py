@@ -2,6 +2,8 @@ from pygame import Rect, Surface
 from pygame.locals import *
 from pygame.sprite import *
 
+from text import TextRenderer
+
 class CreatureDetails(object):
     dt = 0.01
     
@@ -13,9 +15,12 @@ class CreatureDetails(object):
         self.scale(font)
 
     def _makebackground(self, size):
+        self._renderer = TextRenderer(self._font, size[0])
+
         self._background = Surface(size, flags=SRCALPHA)
         self._background.fill((0,0,0))
-        self._background.blit(self._font.render('test', True, (255,255,255)),
+        self._background.blit(self._renderer.render(self._creature.physical(),
+                                                    (255,255,255)),
                              (0,0))
 
     def scale(self, font):
