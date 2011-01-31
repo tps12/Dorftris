@@ -496,18 +496,21 @@ class Playfield(object):
                 return True
 
         elif (e.type == MOUSEBUTTONDOWN and
+              self.background and
               self.background.get_rect().collidepoint(e.pos) and
               e.button == 1):
             self._select(self._absolutetile(mouse.get_pos()))
             return True
         
         elif (e.type == MOUSEBUTTONUP and
+              self.background and
               self.background.get_rect().collidepoint(e.pos) and
               e.button == 1):
             self._dragging = False
             return True
 
         elif (e.type == MOUSEMOTION and
+              self.background and
               self.background.get_rect().collidepoint(e.pos) and
               1 in e.buttons):
             self._expandselection(self._absolutetile(mouse.get_pos()))
