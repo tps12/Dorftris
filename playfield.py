@@ -127,13 +127,14 @@ class Playfield(object):
 
         self.sprites = ScreenSprites(self.visible, self.tilecoordinates)
 
+        self._selectedentity = None
+        self._selectedentitysprite = None
+
         self.scale(font)
 
         self._dragging = False
         self.cursor = None
         self.selection = []
-        self._selectedentity = None
-        self._selectedentitysprite = None
 
         self._selectionsprite = TileSelectionSprite(self.visible,
                                                     self.tilecoordinates,
@@ -150,6 +151,8 @@ class Playfield(object):
         self.graphics = GlyphGraphics(max(self.zoom.width, self.zoom.height))
         
         self.sprites.empty()
+        if self._selectedentitysprite:
+            self._selectedentitysprite = None
         
         self.background = None
 
