@@ -1,6 +1,6 @@
 from pygame.font import Font, SysFont
 
-class TileDimensions(object):
+class DisplayOptions(object):
     def __init__(self, fontname, sysfont, width, height):
         self._fontname = fontname
         self._fontclass = SysFont if sysfont else Font

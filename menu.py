@@ -9,7 +9,7 @@ from button import Button
 from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Tortoise
 from game import Game
 from rendering import Renderer
-from zoom import TileDimensions
+from prefs import DisplayOptions
 
 class MainMenu(object):
     dt = 0.01
@@ -21,7 +21,7 @@ class MainMenu(object):
 
         key.set_repeat(100, 100)
 
-        self.zoom = TileDimensions('FreeMono.ttf', False, 16, 18)
+        self.zoom = DisplayOptions('FreeMono.ttf', False, 16, 18)
         
         self.definefont()
 
