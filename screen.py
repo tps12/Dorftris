@@ -314,6 +314,8 @@ class GameScreen(object):
                 self.level = min(self.level+1, self.game.dimensions[2])
                 self.background = None
                 return True
+            
+        return False
                     
     def draw(self, surface):
         self.sprites.update()
