@@ -361,14 +361,20 @@ class Playfield(object):
 
         self.background = None
 
-    def _select(self, tile):
+    def _expandselection(self, tile):
         if tile:
             if (tile not in self._selectionsprite.selection and
-                (not self._selectionsprite.selection or
-                 any([a + (self.level,) in self._selectionsprite.selection
+                (any([a + (self.level,) in self._selectionsprite.selection
                       for a in self.game.world.space.pathing.adjacent_xy(
                           tile[0:2])]))):
                 self._selectionsprite.selection.append(tile)
+
+    def _select(self, tile):
+        if tile:
+            if self._selectionsprite.selection == [tile]:
+                del self._selectionsprite.selection[:]
+            elif tile not in self._selectionsprite.selection:
+                self._selectionsprite.selection[:] = [tile]
 
     def _zscroll(self, dz):
         level = max(0, min(self.game.dimensions[2], self.level + dz))
@@ -409,17 +415,17 @@ class Playfield(object):
 
         elif e.type == MOUSEBUTTONDOWN and e.button == 1:
             self._select(self._absolutetile(mouse.get_pos()))
-            self._dragging = True
             return True
         
         elif e.type == MOUSEBUTTONUP and e.button == 1:
             if self._dragging:
-                self._select(self._absolutetile(mouse.get_pos()))
+                self._expandselection(self._absolutetile(mouse.get_pos()))
             self._dragging = False
             return True
 
         elif e.type == MOUSEMOTION and 1 in e.buttons:
-            self._select(self._absolutetile(mouse.get_pos()))
+            self._expandselection(self._absolutetile(mouse.get_pos()))
+            self._dragging = True
             
         return False
                     
