@@ -1,4 +1,4 @@
-from pygame import event, gfxdraw, key, mouse, Rect, Surface
+from pygame import draw, event, gfxdraw, key, mouse, Rect, Surface
 from pygame.locals import *
 from pygame.mixer import *
 from pygame.sprite import *
@@ -57,11 +57,20 @@ class SelectionSprite(DirtySprite):
             size = [max([p[i] for p in self._ps]) - pos[i] + adj[i]
                     for i in range(2)]
             self.image = Surface(size, flags=SRCALPHA)
+            lines = []
+            internal = []
             for p in self._ps:
-                gfxdraw.polygon(self.image, [[v[i] + p[i] - pos[i]
-                                              for i in range(2)]
-                                             for v in self._lines()],
-                                (255,0,0))
+                for edge in [sorted([[v[j][i] + p[i] - pos[i]
+                                      for i in range(2)]
+                                     for j in range(2)])
+                             for v in self._lines()]:
+                    if edge in lines:
+                        internal.append(edge)
+                    else:
+                        lines.append(edge)
+            for line in lines:
+                if line not in internal:
+                    draw.line(self.image, (255,0,0), line[0], line[1])
             self.rect = self.image.get_rect().move((pos[0]-self._zoom.height/3,
                                                     pos[1]))
             self.dirty = 1
@@ -102,7 +111,7 @@ class GameScreen(object):
 
         self._selectionsprite = SelectionSprite(self.visible,
                                                 self.tilecoordinates,
-                                                self._hex,
+                                                self.hexlines,
                                                 self.zoom,
                                                 [])
 
@@ -150,6 +159,10 @@ class GameScreen(object):
                 (self.zoom.width,0),
                 (self.zoom.width+self.zoom.height/3,self.zoom.height/2),
                 (self.zoom.width,self.zoom.height)]
+
+    def hexlines(self):
+        vs = self._hex()
+        return [(vs[i-1], vs[i]) for i in range(len(vs))]
 
     def _colortile(self, surface, entity, color, varient, location):
         image = self.graphics[entity][varient].copy()
