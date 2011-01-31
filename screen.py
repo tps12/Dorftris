@@ -206,8 +206,7 @@ class GameScreen(object):
             if not self.sprites.hasspritefor(entity):
                 self.sprites.addspritefor(entity, self.graphics)
 
-    def _getbackground(self, size):
-        background = Surface(size, flags=SRCALPHA)
+    def _scanbackground(self, background):
         background.fill((0,0,0))
 
         xs, ys = [range(self.offset[i], self.offset[i] + self.dimensions[i])
@@ -215,8 +214,6 @@ class GameScreen(object):
         for x in xs:
             for y in ys:
                 self._drawlocation(background, (x, y, self.level))
-
-        return background
 
     def resize(self, size):
         tilecount = self._screentile(size)
@@ -230,7 +227,8 @@ class GameScreen(object):
         self._makebackground(size)
 
     def _makebackground(self, size):
-        self.background = self._getbackground(size)
+        self.background = Surface(size, flags=SRCALPHA)
+        self._scanbackground(self.background)
 
     def _mouse(self, pos = None):
         if pos is None:
