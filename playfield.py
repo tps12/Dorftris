@@ -84,19 +84,17 @@ class TileSelectionSprite(DirtySprite):
                 for i in range(2)]
         self.image = Surface(size, flags=SRCALPHA)
         lines = []
-        internal = []
         for p in self._ps:
             for edge in [sorted([[v[j][i] + p[i] - pos[i]
                                   for i in range(2)]
                                  for j in range(2)])
                          for v in self._lines()]:
                 if edge in lines:
-                    internal.append(edge)
+                    lines.remove(edge)
                 else:
                     lines.append(edge)
         for line in lines:
-            if line not in internal:
-                draw.line(self.image, (255,0,0), line[0], line[1])
+            draw.line(self.image, (255,0,0), line[0], line[1])
         self.rect = self.image.get_rect().move((pos[0]-self._zoom.height/3,
                                                 pos[1]))
         self.dirty = 1
