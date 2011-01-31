@@ -21,6 +21,8 @@ class Wood(Substance):
 class Oak(Wood):
     color = (139,69,19)
     density = 750.0
+    noun = _('oak')
+    adjective = _('oaken')
 
 class Meat(Substance):
     color = (63,0,0)
@@ -155,6 +157,7 @@ class Stockpile(Entity):
     __slots__ = 'storage', 'components', 'types', 'changed'
     
     color = (255,255,255)
+    noun = _('stockpile')
     
     def __init__(self, region, types):
         Entity.__init__(self, 'stockpile')
@@ -174,7 +177,7 @@ class Stockpile(Entity):
         return self.storage.contents
             
     def description(self):
-        return self.storage.description(self.kind)
+        return self.storage.description(self.noun)
     
     def find(self, test):
         return self.storage.find(test)
@@ -238,7 +241,9 @@ class Container(Item):
         return Thing.mass(self) + sum([item.mass() for item in self.contents])
 
     def description(self):
-        return self.storage.description(self.kind)
+        return self.storage.description('{substance} {container}'.format(
+            substance = self.materials[0].substance.adjective,
+            container = self.noun))
 
     def find(self, test):
         return self.storage.find(test)
@@ -280,6 +285,8 @@ class Corpse(Item):
 
 class Barrel(Container):
     __slots__ = ()
+
+    noun = _('barrel')
     
     containerstocktype = StockpileType(_('Empty barrel'))
     
@@ -807,7 +814,7 @@ class Creature(Thing):
 
     def namecard(self):
         return _(u'{a} {name}').format(a=indefinitearticle(self.noun),
-                                      name=self.noun)
+                                      name=self.noun).capitalize()
 
     def objectpronoun(self):
         return _(u'it')

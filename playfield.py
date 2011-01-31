@@ -145,8 +145,8 @@ class Playfield(object):
     def _screentile(self, coordinates):
         px, py = coordinates
         x = (px - self.zoom.width/2)/self.zoom.width
-        return x, (py - self.zoom.height/2 - (x&1) *
-                   self.zoom.height/2) / self.zoom.height
+        return x, (py - self.zoom.height +
+                   (x&1)*self.zoom.height/2) / self.zoom.height
 
     def _absolutetile(self, coordinates):
         relative = self._screentile(coordinates)
