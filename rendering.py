@@ -1,20 +1,8 @@
-from random import choice, randint
-from time import time
-
-import pygame
-from pygame import display, event, font, gfxdraw, key, mouse, Rect, Surface
+from pygame import display, event, font, key, Rect
 from pygame.locals import *
-from pygame.mixer import Sound
-from pygame.sprite import *
-from pygame.time import Clock
 
-from data import Barrel, Beverage, Corpse, Entity, Stockpile
-from glyphs import GlyphGraphics
 from screen import GameScreen
 from status import StatusBar
-
-INFO_WIDTH = 20
-STATUS_HEIGHT = 2
 
 class Renderer(object):
     dt = 0.05
@@ -107,7 +95,6 @@ class Renderer(object):
 
         if self.game.done:
             self.game = None
-            mouse.set_visible(True)
             return None
         else:
             return self
