@@ -180,15 +180,14 @@ class GameScreen(object):
         else:
             self._drawground(surface, below, locationbelow)
 
-    def _drawlocation(self, surface, location):
+    def _processlocation(self, surface, location, process):
         x, y, z = location
         tile = self.game.world.space[location]
 
         if tile is None:
             return
 
-        self._drawtilebackground(surface, tile, location)
-        self._addtilesprites(tile)
+        process(surface, tile, location)
 
     def _drawtilebackground(self, surface, tile, location):
         if tile.is_passable():
@@ -201,6 +200,8 @@ class GameScreen(object):
             elif tile.designated:
                 self._drawdesignation(surface, location)
 
+        self._addtilesprites(tile)
+
     def _addtilesprites(self, tile):
         if tile.creatures:
             entity = tile.creatures[-1]
@@ -211,14 +212,14 @@ class GameScreen(object):
             if not self.sprites.hasspritefor(entity):
                 self.sprites.addspritefor(entity, self.graphics)
         
-    def _scanbackground(self, background):
-        background.fill((0,0,0))
-
+    def _scanbackground(self, background, tileprocess):
         xs, ys = [range(self.offset[i], self.offset[i] + self.dimensions[i])
                   for i in range(2)]
         for x in xs:
             for y in ys:
-                self._drawlocation(background, (x, y, self.level))
+                self._processlocation(background,
+                                      (x, y, self.level),
+                                      tileprocess)
 
     def resize(self, size):
         tilecount = self._screentile(size)
@@ -233,7 +234,8 @@ class GameScreen(object):
 
     def _makebackground(self, size):
         self.background = Surface(size, flags=SRCALPHA)
-        self._scanbackground(self.background)
+        self.background.fill((0,0,0))
+        self._scanbackground(self.background, self._drawtilebackground)
 
     def _mouse(self, pos = None):
         if pos is None:
@@ -330,7 +332,9 @@ class GameScreen(object):
     def draw(self, surface):
         self.sprites.update()
 
-        if not self.background:
+        if self.background:
+            self._scanbackground(None, lambda s,t,l: self._addtilesprites(t))
+        else:
             self._makebackground(surface.get_size())
             surface.blit(self.background, (0,0))
 
