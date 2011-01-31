@@ -30,7 +30,24 @@ class EntitySprite(DirtySprite):
         else:
             self.kill()
 
-class SelectionSprite(DirtySprite):
+class EntitySelectionSprite(DirtySprite):
+    def __init__(self, sprite, *args, **kwargs):
+        DirtySprite.__init__(self, *args, **kwargs)
+        self._selection = sprite
+
+        self.image = Surface(self._selection.image.get_size(), flags=SRCALPHA)
+        draw.rect(self.image, (255,0,0), self.image.get_rect(), 1)
+        self.rect = self._selection.rect
+        
+        self.layer = 1
+
+    def update(self):
+        if len(self._selection.groups()):
+            self.rect.topleft = self._selection.rect.topleft
+        else:
+            self.kill()
+
+class TileSelectionSprite(DirtySprite):
     def __init__(self, visible, position, lines, zoom, selection, *args, **kwargs):
         DirtySprite.__init__(self, *args, **kwargs)
         self._visible = visible
@@ -84,20 +101,20 @@ class ScreenSprites(LayeredDirty):
         LayeredDirty.__init__(self, *args, **kwargs)
         self._visible = visible
         self._position = position
-        self._entities = {}
+        self.entities = {}
 
     def addspritefor(self, entity, graphics):
         sprite = EntitySprite(self._visible, self._position, graphics, entity)
         self.add(sprite)
-        self._entities[entity] = sprite
+        self.entities[entity] = sprite
 
     def remove_internal(self, sprite):
         LayeredDirty.remove_internal(self, sprite)
         if isinstance(sprite, EntitySprite):
-            del self._entities[sprite.entity]
+            del self.entities[sprite.entity]
 
     def hasspritefor(self, entity):
-        return entity in self._entities
+        return entity in self.entities
 
 class Playfield(object):
     def __init__(self, game, font, zoom):
@@ -112,12 +129,14 @@ class Playfield(object):
         self._dragging = False
         self.cursor = None
         self.selection = []
+        self._selectedentity = None
+        self._selectedentitysprite = None
 
-        self._selectionsprite = SelectionSprite(self.visible,
-                                                self.tilecoordinates,
-                                                self.hexlines,
-                                                self.zoom,
-                                                self.selection)
+        self._selectionsprite = TileSelectionSprite(self.visible,
+                                                    self.tilecoordinates,
+                                                    self.hexlines,
+                                                    self.zoom,
+                                                    self.selection)
 
         self.offset = None
         
@@ -270,9 +289,9 @@ class Playfield(object):
             elif tile.designated:
                 self._drawdesignation(surface, location)
 
-        self._addtilesprites(tile)
+        self._addtilesprites(tile, location)
 
-    def _addtilesprites(self, tile):
+    def _addtilesprites(self, tile, location):
         if tile.creatures:
             entity = tile.creatures[-1]
             if not self.sprites.hasspritefor(entity):
@@ -281,6 +300,13 @@ class Playfield(object):
             entity = tile.items[-1]
             if not self.sprites.hasspritefor(entity):
                 self.sprites.addspritefor(entity, self.graphics)
+
+        if self._selectedentity and self._selectedentity.location == location:
+            if not self.sprites.hasspritefor(self._selectedentity):
+                self.sprites.addspritefor(self._selectedentity, self.graphics)
+            self._selectedentitysprite = EntitySelectionSprite(
+                self.sprites.entities[self._selectedentity])
+            self.sprites.add(self._selectedentitysprite)
         
     def _scanbackground(self, background, tileprocess):
         xs, ys = [range(self.offset[i], self.offset[i] + self.dimensions[i])
@@ -372,9 +398,48 @@ class Playfield(object):
     def _select(self, tile):
         if tile:
             if self._selectionsprite.selection == [tile]:
+                # target is the sole selected tile
+                data = self.game.world.space[tile]
+                if data.creatures:
+                    self._selectedentity = data.creatures[0]
+                elif data.items:
+                    self._selectedentity = data.items[0]                    
                 del self._selectionsprite.selection[:]
-            elif tile not in self._selectionsprite.selection:
-                self._selectionsprite.selection[:] = [tile]
+                
+            elif self._selectionsprite.selection:
+                # other tiles are selected
+                if tile not in self._selectionsprite.selection:
+                    # target is outside the selection
+                    self._selectionsprite.selection[:] = [tile]
+
+            else:
+                # no tiles selected
+                if self._selectedentity:
+                    self._selectedentitysprite.kill()
+                    # entity selected
+                    if self._selectedentity.location == tile:
+                        # iterate to next
+                        data = self.game.world.space[tile]
+                        found = False
+                        for creature in data.creatures:
+                            if found:
+                                self._selectedentity = creature
+                                break
+                            elif creature is self._selectedentity:
+                                found = True
+                        else:
+                            for item in data.items:
+                                if found:
+                                    self._selectedentity = item
+                                    break
+                                elif item is self._selectedentity:
+                                    found = True
+                            else:
+                                self._selectedentity = None
+                                self._selectionsprite.selection[:] = [tile]
+                else:
+                    # nothing selected
+                    self._selectionsprite.selection[:] = [tile]
 
     def _zscroll(self, dz):
         level = max(0, min(self.game.dimensions[2], self.level + dz))
@@ -418,8 +483,6 @@ class Playfield(object):
             return True
         
         elif e.type == MOUSEBUTTONUP and e.button == 1:
-            if self._dragging:
-                self._expandselection(self._absolutetile(mouse.get_pos()))
             self._dragging = False
             return True
 
@@ -439,7 +502,7 @@ class Playfield(object):
         self.sprites.update()
 
         if self.background:
-            self._scanbackground(None, lambda s,t,l: self._addtilesprites(t))
+            self._scanbackground(None, lambda s,t,l: self._addtilesprites(t,l))
         else:
             self._makebackground(surface.get_size())
             surface.blit(self.background, (0,0))
