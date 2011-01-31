@@ -281,38 +281,39 @@ class GameScreen(object):
                                            for i in range(2)]))
             remainder -= remainder/abs(remainder)
 
+        self.background = None
+
     def handle(self, e):
         if e.type == KEYDOWN:
             pressed = key.get_pressed()
             shifted = pressed[K_LSHIFT] or pressed[K_RSHIFT]
             scroll = 10 if shifted else 1
             
-            if e.key == K_ESCAPE:
-                self.game.done = True
-                
-            elif e.key == K_UP:
+            if e.key == K_UP:
                 self._scroll(1, -scroll)                                        
-                self.background = None
+                return True
                 
             elif e.key == K_DOWN:
                 self._scroll(1, scroll)
-                self.background = None
+                return True
                 
             elif e.key == K_LEFT:
                 self._scroll(0, -scroll)
-                self.background = None
+                return True
                 
             elif e.key == K_RIGHT:
                 self._scroll(0, scroll)
-                self.background = None
+                return True
                     
             elif e.unicode == '>':
                 self.level = max(self.level-1, 0)
                 self.background = None
+                return True
                 
             elif e.unicode == '<':
                 self.level = min(self.level+1, self.game.dimensions[2])
                 self.background = None
+                return True
                     
     def draw(self, surface):
         self.sprites.update()
