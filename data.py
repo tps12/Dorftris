@@ -73,15 +73,21 @@ class Beverage(Thing):
     __slots__ = ()
     
     fluid = True
-    stocktype = StockpileType(_('Generic beverage'))
     
     def __init__(self, amount):
         Thing.__init__(self, 'beverage', [Material(Water, amount)])
 
     def description(self):
-        return _('{drink} ({volume} L)').format(drink=self.kind,
+        return _('{drink} ({volume} L)').format(drink=self.noun,
                                                 volume=
                                                 self.materials[0].amount * 1000)
+
+class Wine(Beverage):
+    noun = _('wine')
+    stocktype = StockpileType(_('wine'))
+
+    def __init__(self, amount):
+        Beverage.__init__(self, amount)
 
 class Item(Thing):
     __slots__ = 'color', 'location', 'reserved'
@@ -293,12 +299,12 @@ class Barrel(Container):
     def __init__(self, location, substance):
         Container.__init__(self, 'barrel',
                            [Material(substance, 0.075)], location, 0.25)
-        self.contents.append(Beverage(self.capacity))
+        self.contents.append(Wine(self.capacity))
 
 Arms = _('Weapons and armor'), []
 BuildingMaterials = _('Building materials'), []
 Clothing = _('Clothing'), []
-Drinks = _('Drink'), [Beverage.stocktype]
+Drinks = _('Drink'), [Wine.stocktype]
 Food = _('Food'), []
 Furniture = _('Furnishings'), []
 Products = _('Trade products and supplies'), [Barrel.containerstocktype]
