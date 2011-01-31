@@ -54,7 +54,7 @@ class GameScreen(object):
 
         self.zoom = zoom
 
-        self.sprites = EntityGroup(self.visible, self._tilecoordinates)
+        self.sprites = EntityGroup(self.visible, self.tilecoordinates)
 
         self.scale(font)
 
@@ -69,12 +69,13 @@ class GameScreen(object):
         self.graphics = GlyphGraphics(self.font)
         
         self.sprites.empty()
+        self.background = None
 
     def visible(self, location):
         return location and all([self.offset[i] <= location[i] < self.offset[i] + self.dimensions[i]
                     for i in range(2)]) and location[2] == self.level
 
-    def _tilecoordinates(self, location):
+    def tilecoordinates(self, location):
         x, y, z = location
         x, y = [(x,y)[i] - self.offset[i] for i in range(2)]
         return (self.zoom.width/2 + x * self.zoom.width,
@@ -98,10 +99,10 @@ class GameScreen(object):
     def _colortile(self, surface, entity, color, varient, location):
         image = self.graphics[entity][varient].copy()
         image.fill(color, special_flags=BLEND_ADD)
-        surface.blit(image, self._tilecoordinates(location))
+        surface.blit(image, self.tilecoordinates(location))
 
     def _tilerect(self, location):
-        x, y = self._tilecoordinates(location)
+        x, y = self.tilecoordinates(location)
         return Rect(x - self.zoom.height/3, y,
                     self.zoom.width + self.zoom.height/3, self.zoom.height+1)
 
@@ -145,7 +146,7 @@ class GameScreen(object):
         rings.fill(trunk.color, special_flags=BLEND_ADD)
         image.blit(rings, (0,0))
         
-        surface.blit(image, self._tilecoordinates(location))
+        surface.blit(image, self.tilecoordinates(location))
 
     def _drawtile(self, surface, tile, location):
         if tile.kind == 'tree-trunk':
@@ -222,7 +223,7 @@ class GameScreen(object):
             self.offset = tuple([r/2 if r > 0 else 0 for r in
                                  [self.game.dimensions[i] - self.dimensions[i]
                                   for i in range(2)]])
-            
+
         self._makebackground(size)
 
     def _makebackground(self, size):

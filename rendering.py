@@ -86,14 +86,14 @@ class Renderer(object):
                 if e.button == 4:
                     self.zoom.width += 2
                     self.zoom.height += 2
-                    self.definetiles()
                     self.makescreen(self.screen.get_size())
+                    self.definetiles()
                     
                 elif e.button == 5:
                     self.zoom.width = max(self.zoom.width - 2, 2)
                     self.zoom.height = max(self.zoom.height - 2, 4)
-                    self.definetiles()
                     self.makescreen(self.screen.get_size())
+                    self.definetiles()
                     
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
