@@ -291,31 +291,31 @@ class GameScreen(object):
             
             if e.key == K_UP:
                 self._scroll(1, -scroll)                                        
-                return self
+                return True, self
                 
             elif e.key == K_DOWN:
                 self._scroll(1, scroll)
-                return self
+                return True, self
                 
             elif e.key == K_LEFT:
                 self._scroll(0, -scroll)
-                return self
+                return True, self
                 
             elif e.key == K_RIGHT:
                 self._scroll(0, scroll)
-                return self
+                return True, self
                     
             elif e.unicode == '>':
                 self.level = max(self.level-1, 0)
                 self.background = None
-                return self
+                return True, self
                 
             elif e.unicode == '<':
                 self.level = min(self.level+1, self.game.dimensions[2])
                 self.background = None
-                return self
+                return True, self
             
-        return None
+        return False, self
                     
     def draw(self, surface):
         self.sprites.update()

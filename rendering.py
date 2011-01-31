@@ -49,11 +49,12 @@ class Renderer(object):
 
     def step(self):
         for e in event.get():
-            child = self.display[-1].handle(e)
-            if child:
-                if child is not self.display[-1]:
-                    self._addchilddisplay(child)
-            else:
+            
+            handled, child = self.display[-1].handle(e)
+            if child is not self.display[-1]:
+                self._addchilddisplay(child)
+                
+            if not handled:
                 if e.type == QUIT:
                     self.game.done = True
                 elif e.type == KEYDOWN:
