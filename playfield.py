@@ -215,7 +215,7 @@ class Playfield(object):
     def _colortint(self, surface, color, location):
         rect = self._tilerect(location)
         image = Surface(rect.size, flags=SRCALPHA)
-        gfxdraw.filled_polygon(image, self._hex(), (0, 0, 0, 85))
+        gfxdraw.filled_polygon(image, self._hex(), (0, 0, 0, 128))
         image.fill(color, special_flags=BLEND_ADD)
         surface.blit(image, rect.topleft)
 
@@ -224,7 +224,7 @@ class Playfield(object):
 
     def _drawground(self, surface, space, ground, location):
         self._colortile(surface, ground,
-                        space.color, space.varient, location)
+                        space.color or ground.color, space.varient, location)
         
         if ground.designated:
             self._drawdesignation(surface, location)
@@ -545,11 +545,12 @@ class Playfield(object):
 
         self.sprites.update()
 
-        if self.background:
+        if self.background and not self.game.world.space.changed:
             self._scanbackground(None, lambda s,t,l: self._addtilesprites(t,l))
         else:
             self._makebackground(surface.get_size())
             surface.blit(self.background, (0,0))
+            self.game.world.space.changed = False
 
         self.sprites.clear(surface, self.background)
         self.sprites.draw(surface)

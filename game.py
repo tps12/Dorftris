@@ -158,7 +158,7 @@ class Space(object):
         return tile
 
     def remove(self, loc):
-        self.cache[loc] = Empty()
+        self.cache[loc] = Empty(randint(0,3))
         for n in self.pathing.adjacent_xy(loc[0:2]):
             self[n + (loc[2],)].revealed = True
         self.changed = True
