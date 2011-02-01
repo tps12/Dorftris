@@ -53,21 +53,20 @@ class InfoView(object):
         if isinstance(tile, Empty):
             below = self._playfield.game.world.space[(x,y,z-1)]
             if not isinstance(below, Earth):
-                s = _('Open air')
+                s = _('open space')
             else:
                 s = below.description
                 covering = tile.description
                 if covering:
                     s = ' '.join([covering, s])
-                s = s.capitalize()
         elif tile.revealed:
-            s = tile.description.capitalize()
+            s = tile.description
         else:
-            s = _('Unknown')
+            s = _('unknown')
 
         color = ((255,255,255)
                   if location == self._cursor else self._prefs.selectioncolor)
-        image = self._renderer.render(s, color)
+        image = self._renderer.render(s.capitalize(), color)
         surface.blit(image, (0,dy))
         if location == self._cursor and location in self._tiles:
             draw.rect(surface, self._prefs.selectioncolor,
