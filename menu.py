@@ -43,8 +43,8 @@ class MainMenu(object):
         self.screen.fill((0,0,0))
 
         self.buttons = [
-            Button(self._font, _('New Game'), self.newgame),
-            Button(self._font, _('Quit'), self.quitgame)
+            Button(self._font, _('New Game'), self.newgame, True),
+            Button(self._font, _('Quit'), self.quitgame, True)
             ]
 
         size = self.screen.get_size()

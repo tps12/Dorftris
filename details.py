@@ -21,7 +21,7 @@ class CreatureDetails(object):
 
     def _addbutton(self, surface, text, click, dy):
         button = Button(self._font, text, click)
-        button.location = surface.get_width()/2, dy
+        button.location = 0, dy
         button.draw(surface)
         self._buttons.append(button)
         return dy + button.size[1]
