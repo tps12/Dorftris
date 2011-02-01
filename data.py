@@ -19,10 +19,106 @@ class Wood(Substance):
     pass
 
 class Oak(Wood):
-    color = (139,69,19)
-    density = 750.0
-    noun = _('oak')
     adjective = _('oaken')
+    noun = _('oak wood')
+    color = (226,171,99)
+    density = 750.0
+
+class Ash(Wood):
+    adjective = _('ash wooden')
+    noun = _('ash wood')
+    color = (233,214,146)
+    density = 670.0
+
+class Aspen(Wood):
+    adjective = _('aspen wooden')
+    noun = _('aspen wood')
+    color = (236,222,184)
+    density = 420.0
+
+class Balsa(Wood):
+    adjective = _('balsa wooden')
+    noun = _('balsa wood')
+    color = (231,203,183)
+    density = 170.0
+
+class Birch(Wood):
+    adjective = _('birchen')
+    noun = _('birch wood')
+    color = (213,150,83)
+    density = 670.0
+
+class Cedar(Wood):
+    adjective = _('cedar')
+    noun = _('cedar wood')
+    color = (213,153,79)
+    density = 380.0
+
+class Cypress(Wood):
+    adjective = _('cypress wooden')
+    noun = _('cypress wood')
+    color = (219,176,140)
+    density = 510.0
+
+class Fir(Wood):
+    adjective = _('fir')
+    noun = _('fir wood')
+    color = (249,184,136)
+    density = 530.0
+
+class Elm(Wood):
+    adjective = _('elm wooden')
+    noun = _('elm wood')
+    color = (201,177,135)
+    density = 650.0
+
+class Larch(Wood):
+    adjective = _('larchen')
+    noun = _('larch wood')
+    color = (209,161,113)
+    density = 590.0
+
+class Mahogany(Wood):
+    adjective = _('mahogany')
+    noun = _('mahogany')
+    color = (92,47,33)
+    density = 600.0
+
+class Maple(Wood):
+    adjective = _('maple')
+    noun = _('maple wood')
+    color = (222,166,95)
+    density = 755.0
+
+class Pine(Wood):
+    adjective = _('pine')
+    noun = _('pine wood')
+    color = (250,206,92)
+    density = 475.0
+
+class Redwood(Wood):
+    adjective = _('redwood')
+    noun = _('redwood')
+    color = (217,115,52)
+    density = 475.0
+
+class Spruce(Wood):
+    adjective = _('spruce')
+    noun = _('spruce')
+    color = (212,182,113)
+    density = 450.0
+
+class Teak(Wood):
+    adjective = _('teak')
+    noun = _('teak wood')
+    color = (152,104,9)
+    density = 675.0
+
+class Willow(Wood):
+    adjective = _('willow')
+    noun = _('willow')
+    color = (250,212,130)
+    density = 420.0
 
 class Meat(Substance):
     color = (63,0,0)
