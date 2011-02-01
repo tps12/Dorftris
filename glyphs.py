@@ -22,7 +22,7 @@ class GlyphGraphics(object):
             'grapes': u'\u2031',
             Earth: (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
             'harp': u'\u01f7',
-            Leaves: u'\u2042',
+            Leaves: ('*', u'\u2051', u'\u2042'),
             'ox': u'\u2649',
             'pig': u'\u2364',
             'piller': u'\u2161',

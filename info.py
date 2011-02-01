@@ -4,6 +4,7 @@ from pygame.sprite import *
 
 from data import Creature
 from details import CreatureDetails
+from game import Empty
 from text import TextRenderer
 
 class InfoView(object):
@@ -49,13 +50,17 @@ class InfoView(object):
         x, y, z = location
         tile = self._playfield.game.world.space[location]
 
-        if tile.is_passable():
-            if self._playfield.game.world.space[(x,y,z-1)].is_passable():
+        if isinstance(tile, Empty):
+            if isinstance(self._playfield.game.world.space[(x,y,z-1)], Empty):
                 s = _('Open air')
+            elif tile.revealed:
+                s = tile.description.capitalize()
             else:
-                s = _('Ground')
+                s = _('Unknown')
+        elif tile.revealed:
+            s = tile.description.capitalize()
         else:
-            s = _('Solid')
+            s = _('Unknown')
 
         color = ((255,255,255)
                   if location == self._cursor else self._prefs.selectioncolor)

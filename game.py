@@ -34,6 +34,11 @@ class Tile(object):
         r = randint(-64,+64)
         return tuple([max(0,min(255,c+r)) for c in color])
 
+    @property
+    def description(self):
+        return (_('solid {substance}').format(substance=self.substance.noun)
+                if self.substance else _('open space'))
+
 class Empty(Tile):
     __slots__ = ('covering')
     
@@ -59,17 +64,29 @@ class Branch(Tile):
     def __init__(self, substance, varient, color):
         Tile.__init__(self, False, substance, varient, color)
 
+    @property
+    def description(self):
+        return _('{tree} branch').format(tree=self.substance.noun)
+
 class Leaves(Tile):
     __slots__ = ()
 
     def __init__(self, substance):
-        Tile.__init__(self, True, substance, 0)
+        Tile.__init__(self, True, substance, randint(0,2))
+
+    @property
+    def description(self):
+        return self.substance.noun
 
 class TreeTrunk(Tile):
     __slots__ = ()
 
     def __init__(self, substance, color=None):
         Tile.__init__(self, False, substance, 0, color)
+
+    @property
+    def description(self):
+        return _('{wood} tree').format(wood=self.substance.noun)
 
 class Space(object):
     def __init__(self, dim):
@@ -127,14 +144,19 @@ class Space(object):
             return None
         
         if loc not in self.cache:
-            if loc[2] >= 64:
+            if loc[2] == 64:
                 self.cache[loc] = Empty(randint(0,3), Grass)
+            elif loc[2] > 64:
+                self.cache[loc] = Empty(randint(0,3))
             elif loc[2] >= 61:
                 self.cache[loc] = Earth(Clay, randint(0,3))
             else:
                 self.cache[loc] = Earth(Stone, randint(0,3))
-                
-        return self.cache[loc]
+
+        tile = self.cache[loc]
+        if loc[2] >= 64:
+            tile.revealed = True
+        return tile
 
     def remove(self, loc):
         self.cache[loc] = Empty()

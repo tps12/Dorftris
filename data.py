@@ -66,61 +66,61 @@ class Stone(Substance):
 
 class Oak(Wood):
     adjective = _('oaken')
-    noun = _('oak wood')
+    noun = _('oak')
     color = (226,171,99)
     density = 750.0
 
 class Ash(Wood):
     adjective = _('ash wooden')
-    noun = _('ash wood')
+    noun = _('ash')
     color = (233,214,146)
     density = 670.0
 
 class Aspen(Wood):
     adjective = _('aspen wooden')
-    noun = _('aspen wood')
+    noun = _('aspen')
     color = (236,222,184)
     density = 420.0
 
 class Balsa(Wood):
     adjective = _('balsa wooden')
-    noun = _('balsa wood')
+    noun = _('balsa')
     color = (231,203,183)
     density = 170.0
 
 class Birch(Wood):
     adjective = _('birchen')
-    noun = _('birch wood')
+    noun = _('birch')
     color = (213,150,83)
     density = 670.0
 
 class Cedar(Wood):
     adjective = _('cedar')
-    noun = _('cedar wood')
+    noun = _('cedar')
     color = (213,153,79)
     density = 380.0
 
 class Cypress(Wood):
     adjective = _('cypress wooden')
-    noun = _('cypress wood')
+    noun = _('cypress')
     color = (219,176,140)
     density = 510.0
 
 class Fir(Wood):
     adjective = _('fir')
-    noun = _('fir wood')
+    noun = _('fir')
     color = (249,184,136)
     density = 530.0
 
 class Elm(Wood):
     adjective = _('elm wooden')
-    noun = _('elm wood')
+    noun = _('elm')
     color = (201,177,135)
     density = 650.0
 
 class Larch(Wood):
     adjective = _('larchen')
-    noun = _('larch wood')
+    noun = _('larch')
     color = (209,161,113)
     density = 590.0
 
@@ -132,13 +132,13 @@ class Mahogany(Wood):
 
 class Maple(Wood):
     adjective = _('maple')
-    noun = _('maple wood')
+    noun = _('maple')
     color = (222,166,95)
     density = 755.0
 
 class Pine(Wood):
     adjective = _('pine')
-    noun = _('pine wood')
+    noun = _('pine')
     color = (250,206,92)
     density = 475.0
 
@@ -156,7 +156,7 @@ class Spruce(Wood):
 
 class Teak(Wood):
     adjective = _('teak')
-    noun = _('teak wood')
+    noun = _('teak')
     color = (152,104,9)
     density = 675.0
 
