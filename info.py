@@ -4,7 +4,7 @@ from pygame.sprite import *
 
 from data import Creature
 from details import CreatureDetails
-from game import Empty
+from game import Earth, Empty
 from text import TextRenderer
 
 class InfoView(object):
@@ -52,7 +52,7 @@ class InfoView(object):
 
         if isinstance(tile, Empty):
             below = self._playfield.game.world.space[(x,y,z-1)]
-            if isinstance(below, Empty):
+            if not isinstance(below, Earth):
                 s = _('Open air')
             else:
                 s = below.description
