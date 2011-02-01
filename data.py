@@ -321,7 +321,6 @@ class GoToRandomAdjacency(Task):
         if len(adjacent) > 0:
             self.world.space[self.subject.location].creatures.remove(self.subject)
             self.subject.location = choice([a for a in adjacent])
-            self.world.makesound(Step, self.subject.location)
             self.world.space[self.subject.location].creatures.append(self.subject)
         return True
 
@@ -359,7 +358,6 @@ class GoToGoal(Task):
         
         self.world.space[self.subject.location].creatures.remove(self.subject)
         self.subject.location = self.path[0]
-        self.world.makesound(Step, self.subject.location)
         self.world.space[self.subject.location].creatures.append(self.subject)
         self.path = self.path[1:]
         return self.path == []
@@ -392,7 +390,6 @@ class Follow(Task):
 
         self.world.space[self.subject.location].creatures.remove(self.subject)
         self.subject.location = self.path[0]
-        self.wold.makesound(Step, self.subject.location)
         self.world.space[self.subject.location].creatures.append(self.subject)
         
         self.path = self.path[1:]
@@ -895,7 +892,9 @@ class Creature(Thing):
 
         if self.health <= 0:
             self.die(world)
-       
+
+        z = self.location[2] if self.location else None
+        
         try:                
             if self.job is None:
                 self.newjob(world)
@@ -904,6 +903,9 @@ class Creature(Thing):
                 
         except TaskImpossible:
             self.job = None
+
+        if z is not None and self.location[2] != z:
+            world.makesound(Step, self.location)
             
         self.rest += self.speed()
 
