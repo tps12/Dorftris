@@ -45,7 +45,7 @@ class InfoView(object):
             dy += image.get_height()
         return dy
 
-    def _describetile(self, surface, location):
+    def _describetile(self, surface, location, dy):
         x, y, z = location
         tile = self._playfield.game.world.space[location]
 
@@ -57,11 +57,14 @@ class InfoView(object):
         else:
             s = _('Solid')
 
-        image = self._renderer.render(s, (255,255,255))
-        surface.blit(image, (0,0))
-        if location in self._tiles:
-            draw.rect(surface, self._prefs.selectioncolor, image.get_rect(), 1)
-        dy = image.get_height()
+        color = ((255,255,255)
+                  if location == self._cursor else self._prefs.selectioncolor)
+        image = self._renderer.render(s, color)
+        surface.blit(image, (0,dy))
+        if location == self._cursor and location in self._tiles:
+            draw.rect(surface, self._prefs.selectioncolor,
+                      image.get_rect().move(0,dy), 1)
+        dy += image.get_height()
 
         dy = self._describeentities(surface, tile.creatures, dy)
         dy = self._describeentities(surface, tile.items, dy)
@@ -77,11 +80,15 @@ class InfoView(object):
         self._selectionrect = self._detail = None
 
         if self._cursor:
-            dy = self._describetile(self._background, self._cursor)
+            dy = self._describetile(self._background, self._cursor, 0)
         else:
             dy = 0
 
-        if self._entity and self._entity.location != self._cursor:
+        if len(self._tiles) == 1 and self._tiles[0] != self._cursor:
+            dy = self._describetile(self._background, self._tiles[0], dy)
+
+        if (self._entity and self._entity.location != self._cursor and
+            (not self._tiles or self._entity.location not in self._tiles)):
             image = self._renderer.render(
                 self._entitydescription(self._entity), self._prefs.selectioncolor)
             self._background.blit(image, (0, dy))
