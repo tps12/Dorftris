@@ -7,6 +7,7 @@ from data import Barrel, Beverage, Corpse, Stockpile
 from details import CreatureDetails
 from game import *
 from glyphs import Air, GlyphGraphics
+from listener import PlayfieldListener
 from space import *
 
 class EntitySprite(DirtySprite):
@@ -125,6 +126,7 @@ class ScreenSprites(LayeredDirty):
 class Playfield(object):
     def __init__(self, game, font, zoom):
         self.game = game
+        self.game.world.addsoundlistener(PlayfieldListener(self))
 
         self.zoom = zoom
 

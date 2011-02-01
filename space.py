@@ -1,6 +1,6 @@
 from random import choice, randint, sample
 
-from substances import Clay, Grass, Leaf, Wood
+from substances import Clay, Grass, Leaf, Wood, Stone
 from pathing import PathManager
 
 class Tile(object):

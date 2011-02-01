@@ -1,3 +1,5 @@
+from sound import Dig, Mine
+
 class Substance(object):
     color = None
     density = None
@@ -8,6 +10,7 @@ class AEther(Substance):
 
 class Soil(Substance):
     color = (200,150,0)
+    sound = Dig
 
 class CoarseSoil(Soil):
     density = 1500.0
@@ -54,6 +57,7 @@ class Stone(Substance):
     color = (128,128,128)
     density = 1500.0
     noun = _('stone')
+    sound = Mine
 
 class Oak(Wood):
     adjective = _('oaken')

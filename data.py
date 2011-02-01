@@ -8,6 +8,7 @@ from colordb import match as describecolor
 from space import Earth, Empty
 from substances import Meat, Water
 from language import Generator
+from sound import Dig, Fight, Mine, Step
 
 class Material(object):
     __slots__ = 'substance', 'amount'
@@ -320,6 +321,7 @@ class GoToRandomAdjacency(Task):
         if len(adjacent) > 0:
             self.world.space[self.subject.location].creatures.remove(self.subject)
             self.subject.location = choice([a for a in adjacent])
+            self.world.makesound(Step, self.subject.location)
             self.world.space[self.subject.location].creatures.append(self.subject)
         return True
 
@@ -357,6 +359,7 @@ class GoToGoal(Task):
         
         self.world.space[self.subject.location].creatures.remove(self.subject)
         self.subject.location = self.path[0]
+        self.world.makesound(Step, self.subject.location)
         self.world.space[self.subject.location].creatures.append(self.subject)
         self.path = self.path[1:]
         return self.path == []
@@ -389,6 +392,7 @@ class Follow(Task):
 
         self.world.space[self.subject.location].creatures.remove(self.subject)
         self.subject.location = self.path[0]
+        self.wold.makesound(Step, self.subject.location)
         self.world.space[self.subject.location].creatures.append(self.subject)
         
         self.path = self.path[1:]
@@ -431,6 +435,7 @@ class Attack(Task):
 
     def work(self):
         self.nearest.health -= 1
+        self.world.makesound(Fight, self.nearest.location)
         return self.nearest.health <= 0
 
 class AcquireItem(Task):
@@ -1168,6 +1173,10 @@ class World(object):
         self.digjobs = deque()
         self.stockpiles = []
         self.stockjobs = {}
+        self._listener = None
+
+    def addsoundlistener(self, listener):
+        self._listener = listener
 
     def designatefordigging(self, location):
         tile = self.space[location]
@@ -1178,7 +1187,13 @@ class World(object):
                 self.digjobs.append(location)
             self.space.changed = True
 
+    def makesound(self, sound, location):
+        if self._listener:
+            self._listener.play(sound, location)
+
     def dig(self, location):
+        self.makesound(self.space[location].substance.sound, location)
+            
         tile = Empty(randint(0,3))
         tile.revealed = True
         for x,y in self.space.pathing.adjacent_xy(location[0:2]):
