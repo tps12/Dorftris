@@ -25,6 +25,8 @@ class InfoView(object):
     def handle(self, e):
         handled, child = self._displays[-1].handle(e)
         if handled:
+            if child is self._displays[-1]:
+                child = self
             return True, child
 
         return False, self
