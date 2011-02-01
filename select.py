@@ -3,7 +3,7 @@ from pygame.locals import *
 from pygame.sprite import *
 
 from button import Button
-from data import Creature
+from data import Creature, Stockpile, Wine
 from details import CreatureDetails
 from game import Earth, Empty
 from text import TextRenderer
@@ -132,11 +132,26 @@ class SelectionInfo(object):
         self._playfield.deselecttiles()
 
     def _stockpile(self):
-        print 'stockpile'
+        self._playfield.game.world.addstockpile(Stockpile(self._tiles,
+                                                          [Wine.stocktype]))
         self._clearselectedtiles()
 
+    def _designatetile(self, location):
+        x, y, z = location
+        tile = self._playfield.game.world.space[(x,y,z)]
+        if isinstance(tile, Empty):
+            floor = self._playfield.game.world.space[(x,y,z-1)]
+            if isinstance(floor, Earth):
+                floor.designated = True
+                self._playfield.game.world.designations.append((x,y,z-1))
+        elif isinstance(tile, Earth):
+            tile.designated = True
+            self._playfield.game.world.designations.append((x,y,z))
+
     def _designate(self):
-        print 'designate'
+        for location in self._tiles:
+            self._designatetile(location)
+        
         self._clearselectedtiles()
         
     def _makebackground(self, size):
