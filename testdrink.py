@@ -4,7 +4,7 @@ gettext.install('dorftris')
 from game import Game
 from rendering import Renderer
 
-from data import Barrel, Beverage, Dwarf, Item, Oak, Stockpile
+from data import Barrel, Beverage, Dwarf, Oak, Stockpile
 
 def main():
     print 'Dwarf should store barrel in stockpile, then drink from it.'
@@ -17,8 +17,8 @@ def main():
     
     game.schedule(dwarf)
 
-    barrel = Item(Barrel, (8,4,64), 1.0)
-    barrel.contents.append(Item(Beverage, None, Barrel.capacity))
+    barrel = Barrel((8,4,64), Oak)
+    
     game.world.additem(barrel)
 
     game.world.addstockpile(Stockpile([(2,5,64)], [Beverage.stocktype]))

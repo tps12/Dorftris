@@ -138,7 +138,6 @@ class Game(object):
                 creature.step(self.world)
                 if creature.remove:
                     self.world.creatures.remove(creature)
-                    creature.location = None
                 else:
                     self.reschedule(creature)
             self.t += 1
