@@ -6,7 +6,7 @@ from pygame.sprite import *
 from data import Barrel, Beverage, Corpse, Stockpile
 from details import CreatureDetails
 from game import *
-from glyphs import GlyphGraphics
+from glyphs import Air, GlyphGraphics
 
 class EntitySprite(DirtySprite):
     def __init__(self, visible, position, graphics, entity, *args, **kwargs):
@@ -257,7 +257,7 @@ class Playfield(object):
             self._colortile(surface, tile, tile.color, tile.varient, location)
 
     def _drawfarground(self, surface, space, ground, location):
-        self._colortile(surface, Entity('air'), space.color, 0, location)
+        self._colortile(surface, Air, space.color, 0, location)
 
     def _drawair(self, surface, location):
         self._colorfill(surface, (0, 85, 85), location)

@@ -3,11 +3,14 @@ from game import *
 
 from pygame.font import Font
 
+class Air(object):
+    pass
+
 class GlyphGraphics(object):
     def __init__(self, size):
         self.font = Font('FreeMono.ttf', size)
         self.glyphs = {
-            'air': u'\u00b7',
+            Air: u'\u00b7',
             'bag': u'\u01d2',
             Barrel: u'\u2338',
             Branch: (u'\u2b06',u'\u2b07',u'\u2b08',u'\u2b09',u'\u2b0a',u'\u2b0b'),
@@ -45,7 +48,7 @@ class GlyphGraphics(object):
                       for glyph in glyphs])
 
     def __getitem__(self, thing):
-        key = thing.__class__
+        key = thing if isinstance(thing, type) else thing.__class__
         try:
             return self.images[key]
         except KeyError:
