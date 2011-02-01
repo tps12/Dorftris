@@ -19,7 +19,7 @@ class Soil(Substance):
     color = (200,150,0)
 
 class CoarseSoil(Soil):
-    density = 1900.0
+    density = 1500.0
 
 class Sand(CoarseSoil):
     noun = _('sand')
@@ -49,6 +49,7 @@ class OrganicClay(OrganicSoil):
 
 class Peat(OrganicSoil):
     noun = _('peat')
+    density = 800.0
 
 class Leaf(Substance):
     density = 100.0
@@ -181,6 +182,14 @@ class Material(object):
 
 class Water(Substance):
     density = 1000.0
+    color = (0,255,255)
+
+class Snow(Substance):
+    density = 250,0
+    color = (255,255,255)
+
+class Grass(Substance):
+    color = (0,128,0)
 
 class Entity(object):
     __slots__ = 'kind',

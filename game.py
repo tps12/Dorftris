@@ -30,22 +30,37 @@ class Tile(object):
         return self.passable
 
 class Empty(Tile):
-    def __init__(self):
-        Tile.__init__(self, True, None, 0)
+    __slots__ = ('covering')
+    
+    def __init__(self, varient, covering=None):
+        Tile.__init__(self, True, None, varient)
+        self.covering = covering
+
+    @property
+    def color(self):
+        return self.covering.color if self.covering else Tile.color(self)
 
 class Earth(Tile):
+    __slots__ = ()
+
     def __init__(self, substance, varient):
         Tile.__init__(self, False, substance, varient)
 
 class Branch(Tile):
+    __slots__ = ()
+
     def __init__(self, substance, varient):
         Tile.__init__(self, False, substance, varient)
 
 class Leaves(Tile):
+    __slots__ = ()
+
     def __init__(self, substance):
         Tile.__init__(self, True, substance, 0)
 
 class TreeTrunk(Tile):
+    __slots__ = ()
+
     def __init__(self, substance):
         Tile.__init__(self, False, substance, 0)
 
@@ -101,7 +116,7 @@ class Space(object):
         
         if loc not in self.cache:
             if loc[2] >= 64:
-                self.cache[loc] = Empty()
+                self.cache[loc] = Empty(randint(0,3), Grass)
             elif loc[2] >= 61:
                 self.cache[loc] = Earth(Clay, randint(0,3))
             else:

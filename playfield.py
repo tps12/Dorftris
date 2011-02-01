@@ -222,9 +222,9 @@ class Playfield(object):
     def _drawdesignation(self, surface, location):
         self._colortint(surface, (85, 85, 0), location)
 
-    def _drawground(self, surface, ground, location):
+    def _drawground(self, surface, space, ground, location):
         self._colortile(surface, ground,
-                        ground.color, ground.varient, location)
+                        space.color, space.varient, location)
         
         if ground.designated:
             self._drawdesignation(surface, location)
@@ -277,7 +277,7 @@ class Playfield(object):
         elif isinstance(below, Empty):
             self._drawfarground(surface, below, locationbelow)
         else:
-            self._drawground(surface, below, locationbelow)
+            self._drawground(surface, tile, below, location)
 
     def _processlocation(self, surface, location, process):
         x, y, z = location
