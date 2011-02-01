@@ -109,15 +109,15 @@ class SelectionInfo(object):
     def handle(self, e):
         if e.type == KEYDOWN:
             if e.key == K_RETURN and self._details:
-                return True, self._details()
+                return True, True, self._details()
         
         elif (e.type == MOUSEBUTTONDOWN and
               self._selectionrect and
               self._selectionrect.collidepoint(e.pos) and
             e.button == 1):
-            return True, self._details()
+            return True, True, self._details()
         
-        return False, self
+        return False, False, self
 
     def draw(self, surface):
         cursor = self._playfield.cursor

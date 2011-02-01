@@ -2,6 +2,7 @@ from pygame import draw, Rect, Surface
 from pygame.locals import *
 from pygame.sprite import *
 
+from button import Button
 from data import Creature, CulturedCreature
 from desc import CreatureDescription
 from text import TextRenderer
@@ -17,6 +18,13 @@ class CreatureDetails(object):
         image = self._renderer.render(text, color)
         surface.blit(image, (0,dy))
         return dy + image.get_height()
+
+    def _addbutton(self, surface, text, click, dy):
+        button = Button(self._font, text, click)
+        button.location = surface.get_width()/2, dy
+        button.draw(surface)
+        self._buttons.append(button)
+        return dy + button.size[1]
         
     def _makebackground(self, size):
         self._renderer = TextRenderer(self._font, size[0])
@@ -35,6 +43,10 @@ class CreatureDetails(object):
                            dy)
 
         self._buttons = []
+        dy = self._addbutton(self._background,
+                             _('Description'),
+                             lambda: None,
+                             dy)
     
     def scale(self, font):
         self._font = font
@@ -45,16 +57,17 @@ class CreatureDetails(object):
 
     def handle(self, e):
         if e.type == KEYDOWN:
-            if e.key == K_RETURN and self._details:
-                return True, self._details()
-            elif e.key == K_ESCAPE:
-                return True, None
+            if e.key == K_ESCAPE:
+                return True, False, None
         
         elif (e.type == MOUSEBUTTONDOWN and
             e.button == 1):
-            return True, self._details()
+            for button in self._buttons:
+                if button.handle(e):
+                    return (True, False,
+                            CreatureDescription(self._creature, self._font))
         
-        return False, self
+        return False, False, self
 
     def draw(self, surface):
         if not self._background:

@@ -29,14 +29,17 @@ class InfoView(object):
         del self._displays[-1]
 
     def handle(self, e):
-        handled, child = self._displays[-1].handle(e)
+        handled, subdisplay, child = self._displays[-1].handle(e)
         if handled:
             if child is not self._displays[-1]:
                 if child is None:
                     self._popdisplay()
-                else:
+                    child = self
+                elif subdisplay:
                     self._pushdisplay(child)
-            return True, self
+                    child = self
+                    
+            return True, child
 
         return False, self
 
