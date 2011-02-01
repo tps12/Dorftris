@@ -10,7 +10,7 @@ class GameScreen(object):
     def __init__(self, game, font, zoom):
         self._game = game
         self._playfield = Playfield(self._game, font, zoom)
-        self._info = InfoView(self._playfield, font)
+        self._info = InfoView(self._playfield, font, zoom)
         self.scale(font)
 
     def scale(self, font):

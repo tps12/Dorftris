@@ -7,8 +7,9 @@ from details import CreatureDetails
 from text import TextRenderer
 
 class InfoView(object):
-    def __init__(self, playfield, font):
+    def __init__(self, playfield, font, prefs):
         self._playfield = playfield
+        self._prefs = prefs
         self._cursor = None
         self._entity = None
         self._tiles = []
@@ -38,7 +39,8 @@ class InfoView(object):
                                           (255,255,255))
             surface.blit(image, (0, dy))
             if entity is self._entity:
-                draw.rect(surface, (255,0,0), Rect((0,dy), image.get_size()), 1)
+                draw.rect(surface, self._prefs.selectioncolor,
+                          Rect((0,dy), image.get_size()), 1)
                 self._details = lambda: self._entitydetails(self._entity)
             dy += image.get_height()
         return dy
@@ -58,7 +60,7 @@ class InfoView(object):
         image = self._renderer.render(s, (255,255,255))
         surface.blit(image, (0,0))
         if location in self._tiles:
-            draw.rect(surface, (255,0,0), image.get_rect(), 1)
+            draw.rect(surface, self._prefs.selectioncolor, image.get_rect(), 1)
         dy = image.get_height()
 
         dy = self._describeentities(surface, tile.creatures, dy)
@@ -81,7 +83,7 @@ class InfoView(object):
 
         if self._entity and self._entity.location != self._cursor:
             image = self._renderer.render(
-                self._entitydescription(self._entity), (255,0,0))
+                self._entitydescription(self._entity), self._prefs.selectioncolor)
             self._background.blit(image, (0, dy))
 
             self._selectionrect = image.get_rect().move(0,dy)

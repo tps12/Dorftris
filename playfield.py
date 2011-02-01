@@ -31,13 +31,13 @@ class EntitySprite(DirtySprite):
             self.kill()
 
 class EntitySelectionSprite(DirtySprite):
-    def __init__(self, removed, sprite, *args, **kwargs):
+    def __init__(self, removed, sprite, prefs, *args, **kwargs):
         DirtySprite.__init__(self, *args, **kwargs)
         self._removed = removed
         self._selection = sprite
 
         self.image = Surface(self._selection.image.get_size(), flags=SRCALPHA)
-        draw.rect(self.image, (255,0,0), self.image.get_rect(), 1)
+        draw.rect(self.image, prefs.selectioncolor, self.image.get_rect(), 1)
         self.rect = self._selection.rect
         
         self.layer = 1
@@ -94,7 +94,7 @@ class TileSelectionSprite(DirtySprite):
                 else:
                     lines.append(edge)
         for line in lines:
-            draw.line(self.image, (255,0,0), line[0], line[1])
+            draw.line(self.image, self._zoom.selectioncolor, line[0], line[1])
         self.rect = self.image.get_rect().move((pos[0]-self._zoom.height/3,
                                                 pos[1]))
         self.dirty = 1
@@ -307,7 +307,8 @@ class Playfield(object):
                 self.sprites.addspritefor(self._selectedentity, self.graphics)
             self._selectedentitysprite = EntitySelectionSprite(
                 self.clearselectedentitysprite,
-                self.sprites.entities[self._selectedentity])
+                self.sprites.entities[self._selectedentity],
+                self.zoom)
             self.sprites.add(self._selectedentitysprite)
             
     def _addtilesprites(self, tile, location):

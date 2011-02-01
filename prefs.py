@@ -6,6 +6,7 @@ class DisplayOptions(object):
         self._fontclass = SysFont if sysfont else Font
         self.width = width
         self.height = height
+        self.selectioncolor = 0, 255, 0
 
     @property
     def font(self):
