@@ -6,6 +6,7 @@ from pathing import PathManager
 
 class Tile(object):
     __slots__ = ('passable',
+                 'color',
                  'substance',
                  'revealed',
                  'designated',
@@ -15,6 +16,8 @@ class Tile(object):
     
     def __init__(self, passable, substance, varient):
         self.substance = substance
+        self.color = (self.randomizecolor(self.substance.color)
+                      if self.substance else None)
         self.passable = passable
         self.revealed = False
         self.designated = False
@@ -22,12 +25,13 @@ class Tile(object):
         self.creatures = []
         self.items = []
 
-    @property
-    def color(self):
-        return self.substance.color if self.substance else None
-
     def is_passable(self):
         return self.passable
+
+    @staticmethod
+    def randomizecolor(color):
+        r = randint(-64,+64)
+        return tuple([max(0,min(255,c+r)) for c in color])
 
 class Empty(Tile):
     __slots__ = ('covering')
@@ -35,10 +39,12 @@ class Empty(Tile):
     def __init__(self, varient, covering=None):
         Tile.__init__(self, True, None, varient)
         self.covering = covering
+        self.color = (self.randomizecolor(self.covering.color)
+                      if self.covering else None)
 
     @property
-    def color(self):
-        return self.covering.color if self.covering else Tile.color(self)
+    def description(self):
+        return self.covering.adjective if self.covering else None
 
 class Earth(Tile):
     __slots__ = ()

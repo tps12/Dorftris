@@ -183,13 +183,25 @@ class Material(object):
 class Water(Substance):
     density = 1000.0
     color = (0,255,255)
+    noun = _('water')
+    adjective = _('sodden')
+
+class Blood(Substance):
+    density = 1025.0 # thicker than water
+    color = 64,0,0
+    noun = _('blood')
+    adjective = _('blood-soaked')
 
 class Snow(Substance):
     density = 250,0
     color = (255,255,255)
+    noun = _('snow')
+    adjective = _('snowy')
 
 class Grass(Substance):
     color = (0,128,0)
+    noun = _('grass')
+    adjective = _('grassy')
 
 class Entity(object):
     __slots__ = 'kind',
