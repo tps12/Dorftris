@@ -37,7 +37,7 @@ class Entity(object):
     kind = None
 
     @classmethod
-    def description(cls):
+    def description(cls, entity):
         return cls.kind
 
 class Thing(Entity):
@@ -80,8 +80,20 @@ class Item(object):
                           for m in self.kind.materials] if 'materials' in self.kind.__dict__ else []
         self.reserved = False
 
+    def add(self, item):
+        return self.kind.add(item, self)
+
+    def find(self, test):
+        return self.kind.find(test, self)
+
     def description(self):
-        return self.kind.description()
+        return self.kind.description(self)
+
+    def has(self, kind):
+        return self.kind.has(kind, self)
+
+    def space(self):
+        return self.kind.space(self)
 
     @property
     def color(self):
@@ -200,6 +212,9 @@ class Stockpile(object):
     def space(self):
         return StockpileStorage.space(self)
 
+    def find(self, test):
+        return StockpileStorage.find(test, self)
+
 class Container(Article, Storage):
     @classmethod
     def stocktype(cls, container):
@@ -232,7 +247,11 @@ class StockpileComponent(object):
         return Storage.description(self.stockpile)
 
 class Corpse(Article):
-    stocktype = StockpileType(_('Corpse'))
+    materials = [Material(Meat, 1.0)]
+    
+    @classmethod
+    def stocktype(cls, corpse):
+        return StockpileType(_('Corpse'))
         
     @classmethod
     def description(cls, corpse):
@@ -490,8 +509,8 @@ class AcquireKind(Acquire):
 
     def istarget(self, item):
         return any([(target.fluid and
-                     isinstance(item, Storage) and item.has(target)) or
-                    isinstance(item, target) for target in self.targets])
+                     issubclass(item.kind, Storage) and item.has(target)) or
+                    issubclass(item.kind, target) for target in self.targets])
 
 class AcquireNonStockpiled(Acquire):
     def __init__(self, subject, world, stockpile):
@@ -524,10 +543,10 @@ class Drink(Task):
 
     def work(self):
         vessel = self.subject.inventory.find(lambda item:
-                                             isinstance(item, Storage) and
+                                             issubclass(item.kind, Storage) and
                                              item.has(Beverage))
         
-        bev = vessel.find(lambda item: isinstance(item, Beverage))
+        bev = vessel.find(lambda item: issubclass(item.kind, Beverage))
         sip = min(self.subject.thirst, bev.materials[0].amount)
 
         if sip == bev.materials[0].amount:
@@ -722,7 +741,9 @@ class Creature(object):
 
     def die(self, world):
         self.remove = True
-        world.additem(Corpse(self))
+        corpse = Item(Corpse, self.location, 1.0)
+        corpse.origins = self
+        world.additem(corpse)
 
     def newjob(self, world):
         for job in sorted([option for option in self.jobs
