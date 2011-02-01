@@ -36,8 +36,7 @@ class Tile(object):
 
     @property
     def description(self):
-        return (_('solid {substance}').format(substance=self.substance.noun)
-                if self.substance else _('open space'))
+        return self.substance.noun if self.substance else _('open space')
 
 class Empty(Tile):
     __slots__ = ('covering')

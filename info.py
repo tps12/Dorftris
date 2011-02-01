@@ -51,12 +51,15 @@ class InfoView(object):
         tile = self._playfield.game.world.space[location]
 
         if isinstance(tile, Empty):
-            if isinstance(self._playfield.game.world.space[(x,y,z-1)], Empty):
+            below = self._playfield.game.world.space[(x,y,z-1)]
+            if isinstance(below, Empty):
                 s = _('Open air')
-            elif tile.revealed:
-                s = tile.description.capitalize()
             else:
-                s = _('Unknown')
+                s = below.description
+                covering = tile.description
+                if covering:
+                    s = ' '.join([covering, s])
+                s = s.capitalize()
         elif tile.revealed:
             s = tile.description.capitalize()
         else:
