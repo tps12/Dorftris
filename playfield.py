@@ -256,8 +256,8 @@ class Playfield(object):
         else:
             self._colortile(surface, tile, tile.color, tile.varient, location)
 
-    def _drawfarground(self, surface, ground, location):
-        self._colortile(surface, Entity('air'), ground.color, 0, location)
+    def _drawfarground(self, surface, space, ground, location):
+        self._colortile(surface, Entity('air'), space.color, 0, location)
 
     def _drawair(self, surface, location):
         self._colorfill(surface, (0, 85, 85), location)
@@ -272,10 +272,10 @@ class Playfield(object):
             if farbelow.is_passable():
                 self._drawair(surface, locationfarbelow)
             else:
-                self._drawfarground(surface, farbelow,
+                self._drawfarground(surface, below, farbelow,
                                     locationfarbelow)
         elif isinstance(below, Empty):
-            self._drawfarground(surface, below, locationbelow)
+            self._drawfarground(surface, tile, below, locationbelow)
         else:
             self._drawground(surface, tile, below, location)
 
