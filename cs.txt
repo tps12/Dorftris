@@ -1,0 +1,215 @@
+﻿Jak známo, „obrázek vydá za tisíc slov“ a zvláště v encyklopedii platí, že dokonalý článek by měl mít u sebe jeden či několik vhodných obrázků. I do Wikipedie lze vkládat obrázky. Do článku však lze vložit jen ty obrázky, které byly předem do Wikipedie (resp. do společné databáze Commons, viz níže) načteny.
+Obsah [skrýt]
+1 Získání obrázku
+2 Načtení obrázku
+2.1 Velikost originálu
+2.2 Načtení obrázku do Commons
+2.3 Načtení obrázku (postup)
+2.4 Výměna obrázku
+2.5 Přesun obrázku z Wikipedie na Commons
+3 Vložení obrázku do článku
+4 Základní volby
+5 Rozšířené možnosti
+5.1 Relativní velikost formátů
+6 Galerie
+6.1 Jiné parametry, relativní velikost
+7 Imagemap
+8 Zobrazování obrázků
+9 Nezobrazované obrázky
+10 Související stránky
+Získání obrázku
+
+Chcete-li doplnit článek o obrázky, zkuste zjistit, zda není nějaký dostupný na Wikimedia Commons. Nejlépe to zjistíte prohlédnutím jiných jazykových verzí článku. Lepší je v tomto ohledu jiná než anglická verze, například německá, která obrázky z Commons využívá více. Pokud v článku najdete obrázek, kliknutím na něj se dostanete na popisnou část. Je-li tam zobrazeno logo , je tento obrázek na Commons a lze jej použít. Pokud se v článcích žádný takový soubor nenachází, hledejte přímo na Commons. Na Commons jsou popisky a názvy zpravidla anglicky, proto do políčka hledání zadejte anglický ekvivalent.
+Načtení obrázku
+
+Používejte pokud možno jen formátů .jpg (na fotografie) a .png, případně .svg (pro grafiku, schémata apod.). Aby mohl být obrázek do článku vložen, musí být obrázek nejprve nahrán na server, na kterém projekty nadace Wikimedia běží. Obrázky pro českou Wikipedii (a všechny ostatní projekty) se načítají na společné úložiště nazvané Wikimedia Commons.
+Poznámka: Obrázky uložené na jinojazyčné Wikipedii (např. anglické) nemohou být do české Wikipedie vloženy. Je třeba je přesunout do Commons (uložit na lokální disk a načíst do Commons).
+Velikost originálu
+Dbejte na to, abyste načítali dostatečně velké obrázky (tedy v původním rozlišení bez zmenšování). V případě potřeby je možné v článku obrázek snadno zmenšit (každý si ho pak může dostatečně zvětšit), ovšem naopak to není možné: má-li nahraný obrázek rozlišení 100×150 bodů, může být znázorněn jen v malé velikosti a při jakémkoliv zvětšení dostanete jen barevné čtverečky.
+Načtení obrázku do Commons
+Pro načtení obrázku musíte mít založený uživatelský účet a být přihlášeni. Na Commons nemusíte vytvářet nový účet, můžete použít stejný jako máte zde. Ve svém nastavení účtu na Commons si můžete zvolit jako jazyk rozhraní češtinu, takže další kroky již budou snadné. Po přihlášení použijte odkaz Načíst soubor, který vás dovede na stránku s formulářem pro načtení. Také byste měli nově načtený soubor vložit do kategorií, aby ho mohli nalézt i ostatní. Vizte též návod Commons:První kroky.
+Pozor: Commons mají, stejně jako většina ostatních projektů, licenční politiku povolující pouze obrázky se svobodnou licencí, tzn. musí být dovoleno komerční používání, nesmí se používat obrázky odvolávající se na fair use (např. loga firem) apod. Seznam dovolených licencí je na tamní stránce Commons:Popisky licence souborů.
+Načtení obrázku (postup)
+Pro načtení použijte odkaz „Načíst soubor“ a dále:
+V okénku "Soubor" vložte pomocí prohledávače údaje o souboru na vašem počítači. Jméno souboru na vašem počítači bude použito i pro označení souboru na Wikipedii a nelze ho později změnit. Proto před načtením souboru ověřte, že jméno obrázku je vhodně popisné (např. „Eiffelovka v noci.jpg“, nikoli „IMG00542.JPG“).
+V okénku „Popis“ soubor stručně popište, můžete též přidat informace o licenci (tyto údaje můžete ale dodat také po načtení souboru).
+Potvrďte prohlášení o autorských právech.
+Pomocí „Načíst soubor“ soubor načtete. Přenos může chvíli trvat, buďte prosím trpěliví.
+Po načtení se Vám ukáže stránka s oznámením, že načtení proběhlo úspěšně, a hned dále odkaz na stránku souboru. Přejděte na tuto stránku a klikněte na editovat. To vám umožní upravit popisnou stránku, doplnit další potřebné, užitečné či zajímavé údaje atd. Zejména zde pak musíte uvést:
+Autora obrázku (pokud se jedná o Váš vlastní obrázek, explicitně to uveďte),
+zdroj (pramen),
+datum vytvoření obrázku,
+údaje o licenci pomocí jedné z šablon (viz Popisky licence souborů), a to i v případě, že se jedná o obrázek z jiné wikipedie (pouhý údaj převzato z anglické Wikipedie je naprosto nepostačující, je třeba okopírovat všechny tam dostupné informace a přidat odkaz na původní stránku) nebo Váš vlastní.
+Výměna obrázku
+Pokud získáte lepší verzi některého obrázku, můžete starší obrázek nahradit tím, že obrázek pojmenujete stejným názvem jako má obrázek starý a pomocí běžného postupu nový obrázek načtete. Po ověřovacím dotazu bude původní obrázek přepsán.
+Pokud chcete v článku změnit ilustrační obrázek za jiný (s jiným tématem), načtěte nový obrázek pod jiným názvem a upravte na něj odkaz v článku.
+Přesun obrázku z Wikipedie na Commons
+Pokud naleznete v některé národní verzi Wikipedie obrázek, který chcete zpřístupnit i pro ostatní jazykové verze, zpravidla jej můžete přemístit (zkopírovat) na Commons, a to i tehdy, nejste-li jeho autory. To se může stát v případě, kdy chcete v článku na české verzi Wikipedie odkázat na obrázek, který je zatím uložen jen v jinojazyčné verzi Wikipedie, nebo v případě, kdy chcete pro jinojazyčné verze Wikipedie zpřístupnit obrázek, který je uložen na české verzi Wikipedie. Obrázek, který chcete nahrát na Commons, však musí být volným dílem nebo musí být zveřejněn pod svobodnou licencí (vizte seznam povolených licencí na Commons).
+Software MediaWiki nenabízí možnost jednoduchého přesunu obrázku na jiný projekt, a proto je postup poměrně složitý:
+Zobrazit obrázek v původní národní verzi Wikipedie v maximálním možném rozlišení
+Uložit obrázek na lokální disk (t. j. do vlastního počítače)
+Otevřít dialog „Načíst soubor“ v projektu Commons (z české Wikipedie je možno použít odkaz „Načíst na Commons“); zkontrolovat, zda jste na Commons řádně přihlášeni.
+Do popisku obrázku opište všechny údaje z původního popisu: zejména údaje o zobrazeném objektu, o datu a místu pořízení obrázku, o autorovi obrázku, o původním zdroji obrázku a o licenci, pod níž je obrázek zveřejněn. K zápisu údajů můžete použít šablonu, která se zobrazí v nahrávacím dialogu na Commons.
+Popisek v původním jazyce vložte do odpovídající jazykové šablony, například český popisek do šablony {{cs}}. Aktivní odkazy obsažené v popisku je nutné doplnit o parametr odkazující na příslušnou národní verzi Wikipedie. Popisek tedy může vypadat třeba takto: {{cs|Hrad [[:cs:Karlštejn|]] v pohledu přes [[:cs:Berounka|Berounku]] od [[:cs:Tetín|]]a.}}. Doporučuje se doplnit popisky i v dalších jazycích, zejména v angličtině.
+Pokud původní popisek neobsahuje údaj o datu pořízení (vzniku) obrázku, uveďte údaj o datu jeho původního nahrání do Wikipedie.
+Údaj o zdroji (source) obrázku doplňte o přímý odkaz na původní umístění obrázku (např. [[:cs:File:Náves v Dolní Lhotě.jpg]].
+Pokud nejste sami autorem obrázku a u původního obrázku byla uvedena licence {{PD-self}} nebo {{GFDL-self}}, uveďte na Commons licenční údaj pomocí odpovídající šablony {{PD-user-w|jazyková verze|w|wikipedista}} nebo {{GFDL-user-w|jazyková verze|w|wikipedista}}, například {{PD-user-w|cs|w|Karel Novák}} nebo {{GFDL-user-w|en|w|Johny A.}}.
+Vyhledejte pro obrázek vhodné kategorie, případně i články na Commons, a zařaďte jej do nich.
+K původnímu souboru na národní verzi Wikipedie poznamenejte, že soubor byl zkopírován na Commons. Na české Wikipedii lze k tomuto účelu použít šablonu {{NowCommons}} bez parametru, pokud název souboru zůstal stejný, nebo {{NowCommons|nový název}}, pokud byl na Commons uložen pod jiným názvem.
+Obdobný postup lze použít i pro přesun jiného typu souboru než obrázku, například zvukového souboru nebo videosouboru. Podívejte se též na stránku Wikipedie:Bot, zda se některý bot nespecializoval na přesun souborů na Commons.
+Je vhodné zachovat i na Commons název souboru v původním jazyce, aby nebylo nutné opravovat existující odkazy.
+Podrobnější informace jsou na stránce commons:Commons:První kroky/Přenos souboru a pomůcky a commons:Commons:První kroky.
+Vložení obrázku do článku
+
+Hlavní článek: Wikipedie:Obrázky v článku
+Obrázek (ať již místní nebo z Commons) se na stránku vkládá následujícím způsobem:
+[[Soubor:Obrázek.jpg|volby|titulek]]
+případně
+[[File:Obrázek.jpg|volby|titulek]]
+Tím se na dané místo vloží obrázek s názvem Obrázek.jpg. Označení „Soubor“, „File“ i starší „Image“ jsou zcela zaměnitelná. Dávejte ovšem pozor, protože název je case sensitive (záleží na velikosti písmen). Pokud daný obrázek neexistuje, zobrazí se místo obrázku chybové hlášení (Chybějící obrázek). Volby obsahují speciální klíčová slova, která ovlivňují chování a vzhled vkládaného obrázku (viz níže). Titulek se použije jako nadpis obrázku u orámovaných obrázků, popř. jako alternativní text, který se používá v situaci, kdy se obrázek nenahraje, v textových prohlížečích, při čtení článku hlasovou čtečkou apod. V titulku lze používat některé běžné wiki značky jako např. odkazy. Naopak nelze v nich používat wikisyntaxi pro seznamy, takže je třeba využít šablon {{ul}}, {{ol}} a {{li}}.
+Každý obrázek musí mít popisek, a to i v případě, kdy není použita volba „thumb“ (viz dále). Popisky jsou nutné, aby dokument byl přístupný například i nevidomým lidem.
+Pokud chcete na obrázek pouze odkázat, ale přitom ho do stránky nevkládat, přidejte na začátek další dvojtečku, např. Soubor:Wiki.png se získá pomocí
+[[:Soubor:Wiki.png]]
+Tento odkaz vede na stejnou stránku, na kterou se čtenáři dostanou kliknutím na zobrazený obrázek v případě, že použijete syntaxi bez první dvojtečky.
+Pozor! Existují-li různé obrázky se stejným názvem na Commons i na české Wikipedii, v článku se zobrazí obrázek z české Wikipedie. Obrázek z Commons v takovém případě do článku vložit nelze. Viz Možné konflikty.
+Základní volby
+
+Jako volby se používají následující klíčová slova:
+thumbnail nebo thumb
+Vygeneruje automaticky zmenšený náhled, s rámečkem a titulkem pod náhledem. Je rovněž přidána ikona pro kliknutí na obrázek v původní velikosti. Pokud není uvedeno jinak, obrázek bude plavat vpravo (viz right); soubor je znázorněn ve velikosti o šířce 180 px nebo dle osobního nastavení.
+right
+Obrázek bude zobrazen napravo, přičemž text článku obtéká vedle obrázku vlevo.
+left
+Obrázek bude zobrazen nalevo, přičemž text článku obtéká vedle obrázku vpravo.
+none
+Obrázek bude zobrazen v řádce (začleněn do textu bez obtékání), i když je nastavena volba thumb. Užitečné pro tabulky.
+frame nebo framed
+Obrázek bude mít rámeček a titulek, i když není použita volba thumb. Zobrazen bude v plné šíři, přičemž nelze šířku nastavit.
+frameless
+Obrázek bude zobrazen v šíři 180 px resp. podle osobního nastavení, aniž by byl zarámován, nemá však vliv na jeho umístění v textu vpravo či vlevo (srv. i parametr thumb).
+border
+Obrázek bude mít jen jednoduchý rámeček, bez titulku (vhodné pro obrázky, obsahující bílou barvu).
+velikostpx
+Stanoví velikost náhledu na šířku, velikost v pixelech. Výška je dopočítána tak, aby byl dodržen poměr stran. Používání tohoto parametru spolu s thumb je ve většině případů velmi nevhodné, protože uživatelům znemožňuje nastavit svojí vlastní velikost náhledů. Pokud si přejete, aby náhledy měly jiné velikosti, nastavte si to, prosím, ve svém nastavení. Vzhledem k možnostem formátovat relativní velikost náhledů je pak použití na tvrdo nastavené velikosti zcela přebytečné.
+Některé volby lze navzájem kombinovat, oddělují se svislou čárou, např.
+[[Soubor:Wiki.png|right|50px|Titulek]]
+Pokud chcete ukončit obtékání obrázku (přeskočit až pod obrázek), můžete použít příkaz
+<br style="clear: both;" />
+Příklady
+[[Soubor:Wiki.png|nadpis]]
+[[Soubor:Wiki.png|thumb|nadpis]]
+[[Soubor:Wiki.png|right|nadpis]]
+[[Soubor:Wiki.png|left|150px|nadpis]]
+Rozšířené možnosti
+
+Relativní velikost formátů
+
+
+Bez parametrů
+
+
+Soubor s formátem na výšku a parametrem upright
+Jsou-li v článku umístěny thumby různých formátů (na výšku, na šířku, s různým poměrem stran atp.), dochází k tomu, že některé obrázky (zejména obrázky s formátem na výšku) jsou nepoměrně veliké, pokud jejich šířka není omezena (nežádoucím) parametrem velikostpx. Zde lze použít nového parametru upright, který vede k tomu, že šířka souboru se automaticky zmenší o faktor 0,75 (pokud není zadán jiný faktor), takže oba formáty mají přibližně stejnou velikost a působí harmonicky.
+První dva soubory v této sekci zde jsou formátovány syntaxí
+[[File:Landschaftspark Duisburg-Nord - Hochoefen 1 und 2 vom Sinterplatz.jpg|thumb|bez parametrů]] [[File:Landschafts Duisburg-Nord - Hochofen 5 - Cowper.jpg|thumb|upright|soubor s formátem na výšku a parametrem upright]]
+Výhoda tohoto parametru tkví v tom, že se jedná o automatické nastavení velikosti, které funguje jak u nepřihlášených uživatelů tak i u uživatelů, kteří si v osobním nastavení nastavili svou preferovanou velikost náhledu. Poměr stran zůstává vždy dodržen.
+Faktor je také možno ručně nastavit – např. na 0,5, což je užitečné u extrémně vysokých obrázků (faktor < 1, obrázek se sníží), nebo naopak panoramat (faktor > 1, obrázek se rozšíří). V obou případech se jedná o relativní nastavení, ne o nastavení napevno. Pro obrázky s poměry stran, které se nijak extrémně nevymykají, není třeba ve většině případů faktor nastavovat.
+Syntaxe je např.
+upright=1.8
+(pozor, s desetinou tečkou) - v tomto případě bude šířka souboru znázorněna 180 procenty stávajícího nastavení (tedy 180 % ze 180 px tj. 320 px, pokud osobní nastavení neexistuje, nebo 180 % osobního nastavení).
+Zvětšení velikosti obrázku nad jeho skutečnou velikost vede k pixelizaci (s výjimkou formátu .svg) a je vyřešeno uspokojivě pouze u parametru thumb, kde je soubor zobrazen maximálně ve své vlastní velikosti.
+U schémat obsahující tenké linie nebo malá písmenka nemusí být použití tohoto parametru vždy nejvýhodnější. V takových případech může mít lepší výsledky pevně nastavená a po typografické stránce vyladěná velikost.
+Galerie
+
+Pokud chce vložit více obrázků a uspořádat je do galerie, můžete použít následující syntaxi:
+<gallery>
+Soubor:Obráze1.jpg|Popisek
+Soubor:Obráze2.jpg|Popisek
+</gallery>
+Tato syntaxe funkce gallery jednoduše vytvoří náhledy obrázků ve čtyřech sloupcích. Na každém řádku zapisujte "Soubor:jméno obrázku|popisek s možnými odkazy". Místo obrázku může být i text, ale ten nesmí obsahovat odkaz. Nezapomeňte uvádět popisy jednotlivých obrázků!
+Použití může vypadat takto:
+
+Praha
+
+
+Karlovarský
+
+
+Středočeský
+
+
+Královéhradecký
+
+Malá pauza. V tomto textu nesmí být odkaz
+
+Liberecký
+
+
+Moravskoslezký
+
+
+Olomoucký
+
+Jiné parametry, relativní velikost
+Funkce gallery má několik parametrů.
+caption – nadpis galerie
+perrow – počet sloupců v galerii
+a pro určení relativní velikosti pak
+heights – výška náhledů
+widths – šířka náhledů
+Parametry heights resp. widths ovlivňují šířku resp. výšku souborů: v galerii se nacházející nejširší resp.nejvyšší soubor se stane měřítkem pro celou galerii, menší soubory jsou pak patřičně upraveny. Kombinace obou parametrů je možná.
+Zdrojový kód
+<gallery caption="Kraje" perrow="3" heights="50">
+File:Kraj Hlavni mesto Praha.svg|[[Praha]]
+File:Karlovarsky kraj.svg|Karlovarský 
+File:Stredocesky kraj.svg|[[Středočeský kraj|Středočeský]]
+</gallery>
+pak vypadá takto:
+Kraje
+
+Praha
+
+
+Karlovarský
+
+
+Středočeský
+
+Jiný příklad je
+<gallery heights="280" caption="Věžáky">
+  Soubor:Eureka Tower 0944a.jpg|Eureka Tower, Melbourne
+  Soubor:Europa Center.jpg|Europa Center, Vilnius
+  Soubor:JinMaoBuilding.jpg|Jin Mao Building, Pudong, Shanghai
+  Soubor:Shun Hing Square.jpg|Shun Hing Square, Shenzhen
+ </gallery>
+který vypadá takto:
+Věžáky
+
+Eureka Tower, Melbourne
+
+
+Europa Center, Vilnius
+
+
+Jin Mao Building, Pudong, Shanghai
+
+
+Shun Hing Square, Shenzhen
+
+Imagemap
+
+
+
+Jiné možnosti skýtá funkce <imagemap>, která umožňuje přiřadit jednotlivé části jednoho obrázku různým cílům (odkazům).
+Soubory se mohou vkládat známými syntaxemi včetně vložení jako thumb. Koordináty parametrů (v pixlech) se vztahují na soubor v původní velikosti, při změně velikosti se automaticky přepočitávají; nulový bod je vlevo nahoře. Link (tedy odkaz) na cíl je možno udat jako Cíl a také jako Cíl|alternativní jméno (linky na cíle se objevují jako bublina). Vše, co se v jedné řádce nachází za znakem #, je komentář. Význam jednotlivých parametrů:
+rect
+čtverec/obdélník; parametry popisují rohy vlevo/nahoře a vpravo/dole, následuje link na cíl
+circle
+kruh; první dva parametry označují střed kruhu, třetí parametr je rádius; následuje link na cíl
+poly
+polygon; parametry (vždy pár) popisují jednotlivé body polygonu; následuje link na cíl
+default
+opcionální parametr se standardním linkem na cíl, pokud tyto nejsou udány
+desc
+udává roh, ve kterém má být udán link na popisek obrázku samotného (bílé i v modrém kruhu); možné parametry jsou top-right, bottom-right, bottom-left, top-left, none; standard je bottom-right; volba none (která neudává žádný link) je přípustná jen tehdy, jedná-li se o volný obrázek (PD), jinak musí funkce definovat nějaký „roh“ s odkazem na popisnou stránku souboru.
+Kód hořejšího příkladu

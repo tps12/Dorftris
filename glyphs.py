@@ -1,20 +1,28 @@
+from data import *
+from game import *
+
+from pygame.font import Font
+
+class Air(object):
+    pass
+
 class GlyphGraphics(object):
-    def __init__(self, font):
-        self.font = font
+    def __init__(self, size):
+        self.font = Font('FreeMono.ttf', size)
         self.glyphs = {
-            'air': u'\u00b7',
+            Air: u'\u00b7',
             'bag': u'\u01d2',
-            'barrel': u'\u2338',
-            'branch': (u'\u2b06',u'\u2b07',u'\u2b08',u'\u2b09',u'\u2b0a',u'\u2b0b'),
+            Barrel: u'\u2338',
+            Branch: (u'\u2b06',u'\u2b07',u'\u2b08',u'\u2b09',u'\u2b0a',u'\u2b0b'),
             'button': (u'\u250c',u'\u2500',u'\u2556',u'\u2551',u'\u255d',u'\u2550',u'\u2558',u'\u2502'),
             'chair': u'\u2441',
-            'corpse': u'\u20e0',
-            'dwarf': u'\u263a',
-            'goblin': u'\u263f',
+            Corpse: u'\u20e0',
+            Dwarf: u'\u263a',
+            Goblin: u'\u263f',
             'grapes': u'\u2031',
-            'ground': (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
+            Earth: (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
             'harp': u'\u01f7',
-            'leaves': u'\u2042',
+            Leaves: ('*', u'\u2051', u'\u2042'),
             'ox': u'\u2649',
             'pig': u'\u2364',
             'piller': u'\u2161',
@@ -23,10 +31,10 @@ class GlyphGraphics(object):
             'shovel': u'\u020a',
             'spear': u'\u16cf',
             'spider-big': u'\u046a',
-            'spider-small': u'\u046b',
-            'stockpile': u'\u2263',
-            'tree-trunk': (u'\u2b22', u'\u2b21', u'\u25ce'),
-            'tortoise': u'\u237e'
+            SmallSpider: u'\u046b',
+            Stockpile: u'\u2263',
+            TreeTrunk: (u'\u2b22', u'\u2b21', u'\u25ce'),
+            Tortoise: u'\u237e'
             }
 
         self.images = {}
@@ -40,7 +48,7 @@ class GlyphGraphics(object):
                       for glyph in glyphs])
 
     def __getitem__(self, thing):
-        key = thing.kind
+        key = thing if isinstance(thing, type) else thing.__class__
         try:
             return self.images[key]
         except KeyError:

@@ -1,5 +1,11 @@
+from codecs import open as openunicode
 from collections import deque
-from random import choice, randint
+from random import choice, gauss, randint, random
+from re import search
+from unicodedata import name as unicodename
+
+from colordb import match as describecolor
+from language import Generator
 
 class Substance(object):
     color = None
@@ -9,19 +15,163 @@ class AEther(Substance):
     color = (255,255,255)
     density = 0
 
+class Soil(Substance):
+    color = (200,150,0)
+
+class CoarseSoil(Soil):
+    density = 1500.0
+
+class Sand(CoarseSoil):
+    noun = _('sand')
+
+class Gravel(CoarseSoil):
+    noun = _('gravel')
+
+class FineSoil(Soil):
+    pass
+
+class Silt(FineSoil):
+    noun = _('silt')
+    density = 1525.0
+
+class Clay(FineSoil):
+    noun = _('clay')
+    density = 1625.0
+
+class OrganicSoil(Soil):
+    density = 1575.0
+
+class OrganicSilt(OrganicSoil):
+    noun = _('organic soil')
+
+class OrganicClay(OrganicSoil):
+    noun = _('organic clay')
+
+class Peat(OrganicSoil):
+    noun = _('peat')
+    density = 800.0
+
+class Leaf(Substance):
+    density = 100.0
+    noun = _('tree leaves')
+    color = (0, 128, 0)
+
 class Wood(Substance):
     pass
 
+class Stone(Substance):
+    color = (128,128,128)
+    density = 1500.0
+    noun = _('stone')
+
 class Oak(Wood):
-    color = (139,69,19)
+    adjective = _('oaken')
+    noun = _('oak')
+    color = (226,171,99)
     density = 750.0
+
+class Ash(Wood):
+    adjective = _('ash wooden')
+    noun = _('ash')
+    color = (233,214,146)
+    density = 670.0
+
+class Aspen(Wood):
+    adjective = _('aspen wooden')
+    noun = _('aspen')
+    color = (236,222,184)
+    density = 420.0
+
+class Balsa(Wood):
+    adjective = _('balsa wooden')
+    noun = _('balsa')
+    color = (231,203,183)
+    density = 170.0
+
+class Birch(Wood):
+    adjective = _('birchen')
+    noun = _('birch')
+    color = (213,150,83)
+    density = 670.0
+
+class Cedar(Wood):
+    adjective = _('cedar')
+    noun = _('cedar')
+    color = (213,153,79)
+    density = 380.0
+
+class Cypress(Wood):
+    adjective = _('cypress wooden')
+    noun = _('cypress')
+    color = (219,176,140)
+    density = 510.0
+
+class Fir(Wood):
+    adjective = _('fir')
+    noun = _('fir')
+    color = (249,184,136)
+    density = 530.0
+
+class Elm(Wood):
+    adjective = _('elm wooden')
+    noun = _('elm')
+    color = (201,177,135)
+    density = 650.0
+
+class Larch(Wood):
+    adjective = _('larchen')
+    noun = _('larch')
+    color = (209,161,113)
+    density = 590.0
+
+class Mahogany(Wood):
+    adjective = _('mahogany')
+    noun = _('mahogany')
+    color = (92,47,33)
+    density = 600.0
+
+class Maple(Wood):
+    adjective = _('maple')
+    noun = _('maple')
+    color = (222,166,95)
+    density = 755.0
+
+class Pine(Wood):
+    adjective = _('pine')
+    noun = _('pine')
+    color = (250,206,92)
+    density = 475.0
+
+class Redwood(Wood):
+    adjective = _('redwood')
+    noun = _('redwood')
+    color = (217,115,52)
+    density = 475.0
+
+class Spruce(Wood):
+    adjective = _('spruce')
+    noun = _('spruce')
+    color = (212,182,113)
+    density = 450.0
+
+class Teak(Wood):
+    adjective = _('teak')
+    noun = _('teak')
+    color = (152,104,9)
+    density = 675.0
+
+class Willow(Wood):
+    adjective = _('willow')
+    noun = _('willow')
+    color = (250,212,130)
+    density = 420.0
 
 class Meat(Substance):
     color = (63,0,0)
     density = 1000.0
 
 class Material(object):
-    __slots__ = 'amount', 'substance'
+    __slots__ = 'substance', 'amount'
     
     def __init__(self, substance, amount):
         self.substance = substance
@@ -32,72 +182,44 @@ class Material(object):
 
 class Water(Substance):
     density = 1000.0
+    color = (0,255,255)
+    noun = _('water')
+    adjective = _('sodden')
+
+class Blood(Substance):
+    density = 1025.0 # thicker than water
+    color = 64,0,0
+    noun = _('blood')
+    adjective = _('blood-soaked')
+
+class Snow(Substance):
+    density = 250,0
+    color = (255,255,255)
+    noun = _('snow')
+    adjective = _('snowy')
+
+class Grass(Substance):
+    color = (0,128,0)
+    noun = _('grass')
+    adjective = _('grassy')
 
 class Entity(object):
-    kind = None
-
-    @classmethod
-    def description(cls, entity):
-        return cls.kind
-
-class Thing(Entity):
-    fluid = False
-    materials = []
-
-class StockpileType(object):
-    def __init__(self, description):
-        self.description = description
-
-class Beverage(Thing):
-    fluid = True
-    stocktype = StockpileType(_('Generic beverage'))
-    kind = 'beverage'
-    materials = [Material(Water, 1.0)]
-
-    @classmethod
-    def description(cls, quantity):
-        return _('{0} ({1} L)').format(cls.kind,
-                                       quantity * self.materials[0].amount * 1000)
-
-class Article(Thing):
-    @classmethod
-    def color(cls):
-        return cls.materials[0].substance.color
-
-class Item(object):
-    __slots__ = ('location',
-                 'kind',
-                 'contents',
-                 'materials',
-                 'origins',
-                 'reserved')
-
-    def __init__(self, kind, location, quantity):
-        self.contents = []
+    __slots__ = 'kind',
+    
+    def __init__(self, kind):
         self.kind = kind
-        self.location = location
-        self.materials = [Material(m.substance, quantity * m.amount)
-                          for m in self.kind.materials] if 'materials' in self.kind.__dict__ else []
-        self.reserved = False
-
-    def add(self, item):
-        return self.kind.add(item, self)
-
-    def find(self, test):
-        return self.kind.find(test, self)
 
     def description(self):
-        return self.kind.description(self)
+        return self.kind
 
-    def has(self, kind):
-        return self.kind.has(kind, self)
+class Thing(Entity):
+    __slots__ = 'materials',
 
-    def space(self):
-        return self.kind.space(self)
-
-    @property
-    def color(self):
-        return self.kind.color()
+    fluid = False
+    
+    def __init__(self, kind, materials):
+        Entity.__init__(self, kind)
+        self.materials = materials
 
     def volume(self):
         return sum([m.amount for m in self.materials])
@@ -105,168 +227,246 @@ class Item(object):
     def mass(self):
         return sum([m.mass() for m in self.materials])
 
+class StockpileType(object):
+    def __init__(self, description):
+        self.description = description
+
+class Beverage(Thing):
+    __slots__ = ()
+    
+    fluid = True
+    
+    def __init__(self, amount):
+        Thing.__init__(self, 'beverage', [Material(Water, amount)])
+
+    def description(self):
+        return _('{drink} ({volume} L)').format(drink=self.noun,
+                                                volume=
+                                                self.materials[0].amount * 1000)
+
+class Wine(Beverage):
+    noun = _('wine')
+    stocktype = StockpileType(_('wine'))
+
+    def __init__(self, amount):
+        Beverage.__init__(self, amount)
+
+class Item(Thing):
+    __slots__ = 'color', 'location', 'reserved'
+    
+    def __init__(self, kind, materials, location):
+        Thing.__init__(self, kind, materials)
+        self.color = self.materials[0].substance.color
+        self.location = location
+        self.reserved = False
+
 class OutOfSpace(Exception):
     pass
 
 class Storage(object):
-    capacity = None
+    __slots__ = 'capacity', 'contents'
+    
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.contents = []
 
-    @classmethod
-    def description(cls, storage):
-        n = len(storage.contents)
+    def description(self, name):
+        n = len(self.contents)
         if n == 0:
-            return _('empty {0}').format(cls.kind)
+            return _(u'empty {container}').format(container=name)
         elif n == 1:
-            return _('{0} of {1}').format(cls.kind,
-                                          storage.contents[0].description())
+            return _(u'{container} of {contents}').format(container=name,
+                                                         contents=
+                                                         self.contents[0]
+                                                         .description())
         else:
-            return _('{0} containing {1}').format(cls.kind,
-                                                  ', '.join([item.description()
-                                                             for item
-                                                             in storage.contents]))
+            return _(u'{container} containing {items}').format(container=name,
+                                                  items=', '.join([item.description()
+                                                                  for item
+                                                                  in self.contents]))
 
-    @classmethod
-    def find(cls, test, storage):
-        for item in storage.contents:
+    def find(self, test):
+        for item in self.contents:
             if test(item):
                 return item
-            elif issubclass(item.kind, Storage):
-                value = item.kind.find(test, item)
+            elif hasattr(item, 'find'):
+                value = item.find(test)
                 if value is not None:
                     return value
         return None
 
-    @classmethod
-    def add(cls, item, storage):
-        if (cls.space(storage) > item.volume()):
-            storage.contents.append(item)
+    def add(self, item):
+        if (self.space() > item.volume()):
+            self.contents.append(item)
         else:
             raise OutOfSpace()
 
-    @classmethod
-    def space(cls, storage):
-        return cls.capacity - sum([item.volume() for item in storage.contents])
+    def space(self):
+        return self.capacity - sum([item.volume() for item in self.contents])
 
-    @classmethod
-    def remove(cls, item, storage):
-        if item in storage.contents:
-            storage.contents.remove(item)
+    def remove(self, item):
+        if item in self.contents:
+            self.contents.remove(item)
             return True
         else:
-            for container in [item for item in storage.contents
-                              if issubclass(item.kind, Storage)]:
-                if container.kind.remove(item, container):
+            for container in [item for item in self.contents
+                              if hasattr(item, 'contents')]:
+                if container.remove(item):
                     return True
         return False
 
-    @classmethod
-    def has(cls, kind, storage):
-        return bool(cls.find(lambda item: issubclass(item.kind, kind), storage))
+    def has(self, kind):
+        return self.find(lambda item: isinstance(item, kind)) is not None
 
 class WrongItemType(Exception):
     pass
 
-class StockpileStorage(Storage):
-    kind = 'stockpile'
-
-    @classmethod
-    def space(cls, storage):
-        return storage.capacity - sum([item.volume() for item in storage.contents])
-
-class Stockpile(object):
+class Stockpile(Entity):
+    __slots__ = 'storage', 'components', 'types', 'changed'
+    
     color = (255,255,255)
-    kind = 'stockpile'
+    noun = _('stockpile')
     
     def __init__(self, region, types):
-        self.capacity = 0
+        Entity.__init__(self, 'stockpile')
+        self.storage = Storage(0)
         self.components = []
-        self.contents = []
         self.types = types
         self.changed = False
         for location in region:
             self.annex(location)
 
+    @property
+    def capacity(self):
+        return self.storage.capacity
+
+    @property
+    def contents(self):
+        return self.storage.contents
+            
+    def description(self):
+        return self.storage.description(self.noun)
+    
+    def find(self, test):
+        return self.storage.find(test)
+
+    def space(self):
+        return self.storage.space()
+    
+    def has(self, kind):
+        return self.storage.has(kind)
+
     def accepts(self, option):
         return option in self.types
 
     def add(self, item):
-        if self.accepts(item.kind.stocktype(item)):
-            StockpileStorage.add(item, self)
+        if self.accepts(item.stocktype):
+            self.storage.add(item)
             self.changed = True
         else:
             raise WrongItemType()
 
     def remove(self, item):
-        success = Storage.remove(item, self)
-        self.changed = success
+        success = self.storage.remove(item)
+        if success:
+            self.changed = True
         return success
         
     def annex(self, location):
-        self.capacity += 1
+        self.storage.capacity += 1.0
         self.components.append(StockpileComponent(self, location))
         self.changed = True
 
-    def description(self):
-        return StockpileStorage.description(self)
+class Container(Item):
+    __slots__ = 'storage',
+    
+    def __init__(self, kind, materials, location, capacity):
+        Item.__init__(self, kind, materials, location)
+        self.storage = Storage(capacity)
 
-    def space(self):
-        return StockpileStorage.space(self)
+    @property
+    def capacity(self):
+        return self.storage.capacity
 
-    def find(self, test):
-        return StockpileStorage.find(test, self)
+    @property
+    def contents(self):
+        return self.storage.contents
 
-class Container(Article, Storage):
-    @classmethod
-    def stocktype(cls, container):
-        if container.contents:
-            first = container.contents[0].kind.stocktype
+    @property
+    def stocktype(self):
+        if self.contents:
+            first = self.contents[0].stocktype
             return (first
-                    if all([c.kind.stocktype == first for c in container.contents[1:]])
+                    if all([c.stocktype == first for c in self.contents[1:]])
                     else None)
         else:
-            return cls.containerstocktype
+            return self.containerstocktype
 
-    @classmethod
-    def volume(cls, container):
-        return container.volume() + cls.capacity
+    def volume(self):
+        return Thing.volume(self) + self.capacity
 
-    @classmethod
-    def mass(cls, container):
-        return container.mass() + sum([item.mass() for item in container.contents])
+    def mass(self):
+        return Thing.mass(self) + sum([item.mass() for item in self.contents])
 
-class StockpileComponent(object):
-    capacity = 1.0
-    kind = Stockpile.kind
-    materials = [Material(AEther, 0)]
+    def description(self):
+        return self.storage.description('{substance} {container}'.format(
+            substance = self.materials[0].substance.adjective,
+            container = self.noun))
+
+    def find(self, test):
+        return self.storage.find(test)
+
+    def add(self, item):
+        return self.storage.add(item)
+
+    def space(self):
+        return self.storage.space()
+
+    def remove(self, item):
+        return self.storage.remove(item)
+
+    def has(self, kind):
+        return self.storage.has(kind)
+
+class StockpileComponent(Container):
+    __slots__ = 'stockpile',
     
     def __init__(self, stockpile, location):
-        self.location = location
+        Container.__init__(self, stockpile.kind,
+                           [Material(AEther, 0)], location, 1.0)
         self.stockpile = stockpile
 
     def description(self):
-        return Storage.description(self.stockpile)
+        return self.stockpile.description
 
-class Corpse(Article):
-    materials = [Material(Meat, 1.0)]
+class Corpse(Item):
+    __slots__ = 'origins',
     
-    @classmethod
-    def stocktype(cls, corpse):
-        return StockpileType(_('Corpse'))
+    stocktype = StockpileType(_('Corpse'))
         
-    @classmethod
-    def description(cls, corpse):
-        return _('corpse of {0}').format(corpse.origins.description())
+    def __init__(self, creature):
+        Item.__init__(self, 'corpse', creature.materials, creature.location)
+        self.origins = creature
+
+    def description(self):
+        return _('corpse of {0}').format(self.origins.description())
 
 class Barrel(Container):
-    capacity = 0.25
-    containerstocktype = StockpileType(_('Empty barrel'))
-    kind = 'barrel'
-    materials = [Material(Oak, 0.075)]
+    __slots__ = ()
+
+    noun = _('barrel')
     
+    containerstocktype = StockpileType(_('Empty barrel'))
+    
+    def __init__(self, location, substance):
+        Container.__init__(self, 'barrel',
+                           [Material(substance, 0.075)], location, 0.25)
+        self.contents.append(Wine(self.capacity))
+
 Arms = _('Weapons and armor'), []
 BuildingMaterials = _('Building materials'), []
 Clothing = _('Clothing'), []
-Drinks = _('Drink'), [Beverage.stocktype]
+Drinks = _('Drink'), [Wine.stocktype]
 Food = _('Food'), []
 Furniture = _('Furnishings'), []
 Products = _('Trade products and supplies'), [Barrel.containerstocktype]
@@ -404,7 +604,7 @@ class Attack(Task):
 
         if self.world.space.pathing.distance_xy(
             self.subject.location[0:2],
-            self.nearest.location[0:2]) > self.subject.eyesight:
+            self.nearest.location[0:2]) > self.subject.eyesight():
             raise TaskImpossible()
 
         if self.nearest.location == self.subject.location:
@@ -439,7 +639,7 @@ class AcquireItem(Task):
         self.world.removefromstockjobs(self.item)
         self.world.space[self.item.location].items.remove(self.item)
         self.item.location = None
-        self.subject.inventory.kind.add(self.item, self.subject.inventory)
+        self.subject.inventory.add(self.item)
         return True
 
 class Acquire(Task):
@@ -509,8 +709,8 @@ class AcquireKind(Acquire):
 
     def istarget(self, item):
         return any([(target.fluid and
-                     issubclass(item.kind, Storage) and item.has(target)) or
-                    issubclass(item.kind, target) for target in self.targets])
+                     hasattr(item, 'has') and item.has(target)) or
+                    isinstance(item, target) for target in self.targets])
 
 class AcquireNonStockpiled(Acquire):
     def __init__(self, subject, world, stockpile):
@@ -543,10 +743,10 @@ class Drink(Task):
 
     def work(self):
         vessel = self.subject.inventory.find(lambda item:
-                                             issubclass(item.kind, Storage) and
+                                             hasattr(item, 'has') and
                                              item.has(Beverage))
         
-        bev = vessel.find(lambda item: issubclass(item.kind, Beverage))
+        bev = vessel.find(lambda item: isinstance(item, Beverage))
         sip = min(self.subject.thirst, bev.materials[0].amount)
 
         if sip == bev.materials[0].amount:
@@ -588,7 +788,7 @@ class StoreItem(Task):
         return item == self.item
 
     def requirements(self):
-        if self.subject.inventory.kind.find(self.find, self.subject.inventory) is None:
+        if self.subject.inventory.find(self.find) is None:
             reqs = [AcquireItem(self.subject, self.world, self.item)]
         else:
             reqs = []
@@ -600,11 +800,9 @@ class StoreItem(Task):
         return reqs[0].requirements() + reqs if len(reqs) else reqs
 
     def work(self):
-        item = self.subject.inventory.kind.find(self.find,
-                                                self.subject.inventory)
+        item = self.subject.inventory.find(self.find)
 
-        self.subject.inventory.kind.remove(item,
-                                           self.subject.inventory)
+        self.subject.inventory.remove(item)
 
         if self.stockpile.space() >= item.volume():
             self.stockpile.add(item)
@@ -711,39 +909,96 @@ class JobOption(object):
     def prioritykey(option):
         return option.priority
 
-class Inventory(Storage):
-    capacity = 1.0
+class PhysicalAttribute(object):
+    description = None
+    adverbs = _('great'), _('considerable'), _('average'), _('unremarkable'), _('not much')
 
-class Creature(object):
+class Sense(PhysicalAttribute):
+    adverbs = _('excellent'), _('keen'), _('average'), _('dull'), _('extremely dull')
+
+class Strength(PhysicalAttribute):
+    description = _('strength')
+
+class Speed(PhysicalAttribute):
+    description = _('speed')
+
+class Sight(Sense):
+    description = _('eyesight')
+
+class Hearing(Sense):
+    description = _('hearing')
+
+class Smell(Sense):
+    description = _('olfactory powers')
+
+class Dexterity(PhysicalAttribute):
+    description = _('dexterity')
+
+class Toughness(PhysicalAttribute):
+    description = _('physical fortitude')
+
+def sampleattributes(attributes):
+    return dict((a, gauss(attributes[a], 10)) for a in attributes.keys())
+
+def indefinitearticle(noun):
+    m = search('LETTER ([^ ])', unicodename(unicode(noun[0])))
+    return _('an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _('a')
+
+class Creature(Thing):
+    __slots__ = (
+        'attributes',
+        'color',
+        'location',
+        'inventory',
+        'job',
+        'hydration',
+        'rest',
+        'remove'
+        )
+    
     jobs = sorted([
                    JobOption(Hydrate, lambda c, w: c.hydration < 1000, 0),
                    JobOption(DropExtraItems,
-                             lambda c, w: c.inventory.kind.find(lambda i:
+                             lambda c, w: c.inventory.find(lambda i:
                                                         isinstance(i, Item) and
-                                                           not i.reserved, c.inventory), 99),
+                                                           not i.reserved), 99),
                    JobOption(Meander, lambda c, w: True, 100)
                    ],
                   key = JobOption.prioritykey)
     
     def __init__(self, kind, materials, color, location):
-        self.kind = kind
-        self.materials = materials
+        Thing.__init__(self, kind, materials)
+        self.attributes = sampleattributes(self.race)
         self.color = color
         self.location = location
-        self.inventory = Item(Inventory, None, 1.0)
+        self.inventory = Storage(1.0)
         self.job = None
         self.hydration = randint(900, 3600)
-        self.rest = randint(0, self.speed)
+        self.rest = random() * self.speed()
         self.remove = False
 
-    def description(self):
-        return self.kind
+    def propername(self):
+        return _(u'this')
+
+    def namecard(self):
+        return _(u'{a} {name}').format(a=indefinitearticle(self.noun),
+                                      name=self.noun).capitalize()
+
+    def objectpronoun(self):
+        return _(u'it')
+
+    def subjectpronoun(self):
+        return _(u'it')
+
+    def sexdescription(self):
+        return _(u'neuter')
+
+    def colordescription(self):
+        return _(u'is the color {hue}').format(hue=describecolor(self.color))
 
     def die(self, world):
         self.remove = True
-        corpse = Item(Corpse, self.location, 1.0)
-        corpse.origins = self
-        world.additem(corpse)
+        world.additem(Corpse(self))
 
     def newjob(self, world):
         for job in sorted([option for option in self.jobs
@@ -757,6 +1012,60 @@ class Creature(object):
             except TaskImpossible:
                 continue
 
+    def eyesight(self):
+        return gauss(self.attributes[Sight],10) / 10
+
+    def speed(self):
+        return 20 - gauss(self.attributes[Speed],10) / 10
+
+    def attributetext(self, attribute):
+        normal = self.race[attribute]
+        d = self.attributes[attribute] - normal
+        if d > 20:
+            adv = attribute.adverbs[0]
+        elif d > 10:
+            adv = attribute.adverbs[1]
+        elif d < -20:
+            adv = attribute.adverbs[3]
+        elif d < -10:
+            adv = attribute.adverbs[4]
+        else:
+            return None
+            
+        if (d > 15 and normal < 90) or (d < -15 and normal > 110):
+            qual = ' ' + _(u'for {a} {race}').format(
+                a=indefinitearticle(self.noun), race=self.noun)
+        elif (d > 25 and normal > 110) or (d < -25 and normal < -90):
+            qual = ' ' + _(u'even for {a} {race}').format(
+                a=indefinitearticle(self.noun), race=self.noun)
+        else:
+            qual = ''
+            
+        return _(u'{adverb} {attribute}{qualifier}').format(
+            adverb=adv,
+            attribute=attribute.description,
+            qualifier=qual)
+
+    def physical(self):
+        pronoun = self.subjectpronoun().capitalize()
+        
+        value = _(u'{name} is {a} {race}. {she} {has_coloring}.').format(
+            name=self.propername().title(),
+            a=indefinitearticle(self.noun),
+            race=self.noun,
+            she=pronoun,
+            has_coloring=self.colordescription())
+        
+        for text in [self.attributetext(a) for a in self.attributes.keys()]:
+            if not text:
+                continue
+
+            value += ' ' + _(u'{she} has {attribute}.').format(
+                she=pronoun, attribute=text)
+
+        return value + ' ' + _(u'{she} is physically {sex}.').format(
+            she=pronoun, sex=self.sexdescription())
+            
     def step(self, world):
         self.hydration = max(self.hydration - 1, 0)
 
@@ -775,10 +1084,129 @@ class Creature(object):
         except TaskImpossible:
             self.job = None
             
-        self.rest = self.speed
+        self.rest += self.speed()
 
-class Dwarf(Creature):
-    eyesight = 10
+class Sex(object):
+    pass
+
+class Male(Sex):
+    description = _(u'male')
+
+class Female(Sex):
+    description = _(u'female')
+
+class Gender(object):
+    pass
+
+class Woman(Gender):
+    objectpronoun = _(u'her')
+    subjectpronoun = _(u'she')
+
+class Man(Gender):
+    objectpronoun = _(u'him')
+    subjectpronoun = _(u'he')
+
+class SexualCreature(Creature):
+    __slots__ = 'sex'
+    
+    def __init__(self, kind, materials, color, location, sex):
+        Creature.__init__(self, kind, materials, color, location)
+        self.sex = sex
+
+    def sexdescription(self):
+        return self.sex.description
+
+class CulturedCreature(SexualCreature):
+    __slots__ = 'gender', 'name'
+
+    def __init__(self, kind, materials, color, location, sex, gender):
+        SexualCreature.__init__(self, kind, materials, color, location, sex)
+        self.name = self.culture[NameSource].generate()
+        self.gender = gender
+
+    def propername(self):
+        return self.name
+
+    def namecard(self):
+        return self.name
+
+    def objectpronoun(self):
+        return self.gender.objectpronoun
+
+    def subjectpronoun(self):
+        return self.gender.subjectpronoun
+
+class DemographicFigure(object):
+    pass
+
+class Maleness(DemographicFigure):
+    pass
+
+class MaleWomen(DemographicFigure):
+    pass
+
+class FemaleMen(DemographicFigure):
+    pass
+
+class NameSource(object):
+    pass
+
+class NameGenerator(object):
+    def __init__(self, lexicon, count):
+        self.count = count
+        with openunicode(lexicon, 'r', 'utf_8') as f:
+            self.generator = Generator(f.read())
+            self.generator.process()
+            self.generator.calculate()
+
+    def generate(self):
+        return ' '.join([self.generator.generate().capitalize()
+                         for i in range(self.count)])
+
+class Human(CulturedCreature):
+    __slots__ = ()
+
+    noun = _(u'human')
+    race = {
+        Strength : 100,
+        Speed : 100,
+        Sight : 100,
+        Hearing : 100,
+        Smell : 100,
+        Dexterity : 100,
+        Toughness : 100
+        }
+    culture = {
+        Maleness : 0.5,
+        MaleWomen : 0.01,
+        FemaleMen : 0.01,
+        NameSource : NameGenerator('fr.txt', 2)
+        }
+    
+class Elf(CulturedCreature):
+    __slots__ = ()
+
+    noun = _(u'elf')
+    race = {
+        Strength : 80,
+        Speed : 140,
+        Sight : 120,
+        Hearing : 120,
+        Smell : 100,
+        Dexterity : 140,
+        Toughness : 80
+        }
+    culture = {
+        Maleness : 0.5,
+        MaleWomen : 0.05,
+        FemaleMen : 0.05,
+        NameSource : NameGenerator('fi.txt', 2)
+        }
+
+class Dwarf(CulturedCreature):
+    __slots__ = ()
+
+    noun = _(u'dwarf')
     health = 10
     jobs = sorted(Creature.jobs +
                   [JobOption(DigDesignation,
@@ -788,16 +1216,43 @@ class Dwarf(Creature):
                              lambda c, w: w.stockjobs,
                              90)],
                   key = JobOption.prioritykey)
-    speed = 3
     thirst = 0.03
+    race = {
+        Strength : 120,
+        Speed : 80,
+        Sight : 120,
+        Hearing : 60,
+        Smell : 80,
+        Dexterity : 120,
+        Toughness : 120
+        }
+    culture = {
+        Maleness : 0.5,
+        MaleWomen : 0.01,
+        FemaleMen : 0.01,
+        NameSource : NameGenerator('gd.txt', 2)
+        }
     
     def __init__(self, location):
         r = randint(80,255)
-        Creature.__init__(self, 'dwarf', [Material(Meat, 0.075)],
-                          (r, r-40, r-80), location)
         
-class Goblin(Creature):
-    eyesight = 16
+        if random() < self.culture[Maleness]:
+            sex = Male
+            gender = Woman if random() < self.culture[MaleWomen] else Man
+        else:
+            sex = Female
+            gender = Man if random() < self.culture[FemaleMen] else Woman
+
+        CulturedCreature.__init__(self, 'dwarf', [Material(Meat, 0.075)],
+                                  (r, r-40, r-80), location, sex, gender)
+
+    def colordescription(self):
+        return _(u'has {hue} skin').format(hue=describecolor(self.color))
+        
+class Goblin(CulturedCreature):
+    __slots__ = ()
+    
+    noun = _(u'goblin')
     health = 0
     jobs = sorted(Creature.jobs +
                   [JobOption(SeekAndDestroy,
@@ -805,34 +1260,90 @@ class Goblin(Creature):
                                                for c in w.creatures]),
                              10)],
                   key = JobOption.prioritykey)
-    speed = 2
     thirst = 0.01
+    race = {
+        Strength : 90,
+        Speed : 120,
+        Sight : 80,
+        Hearing : 120,
+        Smell : 120,
+        Dexterity : 110,
+        Toughness : 80
+        }
+    culture = {
+        Maleness : 0.25,
+        MaleWomen : 0,
+        FemaleMen : 0.5,
+        NameSource : NameGenerator('no.txt', 1)
+        }
     
     def __init__(self, location):
-        Creature.__init__(self, 'goblin', [Material(Meat, 0.05)],
-                          (32, 64+randint(0,127),64+randint(0,127)), location)
+        if random() < self.culture[Maleness]:
+            sex = Male
+            gender = Woman if random() < self.culture[MaleWomen] else Man
+        else:
+            sex = Female
+            gender = Man if random() < self.culture[FemaleMen] else Woman
 
-class Tortoise(Creature):
-    eyesight = 4
+        CulturedCreature.__init__(self, 'goblin', [Material(Meat, 0.05)],
+                                  (32, 64+randint(0,127),64+randint(0,127)),
+                                  location, sex, gender)
+
+    def colordescription(self):
+        return _(u'has {hue} skin').format(hue=describecolor(self.color))
+
+class Tortoise(SexualCreature):
+    __slots__ = ()
+    
     health = 10
-    speed = 20
+    noun = _(u'giant tortoise')
     thirst = 0.1
+    race = {
+        Strength : 120,
+        Speed : 20,
+        Sight : 20,
+        Hearing : 100,
+        Smell : 100,
+        Dexterity : 20,
+        Toughness : 120
+        }
     
     def __init__(self, location):
         d = randint(-20,10)
-        Creature.__init__(self, 'tortoise', [Material(Meat, 0.3)],
-                          (188+d,168+d,138+d), location)
-
-class SmallSpider(Creature):
-    eyesight = 1
+        SexualCreature.__init__(self, 'tortoise', [Material(Meat, 0.3)],
+                                (188+d,168+d,138+d), location,
+                                choice([Male,Female]))
+        
+    def colordescription(self):
+        return _(u'has a shell tinted {hue}').format(
+            hue=describecolor(self.color))
+        
+class SmallSpider(SexualCreature):
+    __slots__ = ()
+    
+    noun = _(u'spider')
     health = 10
-    speed = 1
     thirst = 0.0001
+    race = {
+        Strength : 20,
+        Speed : 180,
+        Sight : 20,
+        Hearing : 20,
+        Smell : 20,
+        Dexterity : 180,
+        Toughness : 20
+        }
     
     def __init__(self, location):
-        Creature.__init__(self, 'spider-small', [Material(Meat, 0.0001)],
-                          (95, randint(0,40), 0), location)
+        SexualCreature.__init__(self, 'spider-small', [Material(Meat, 0.0001)],
+                                (95, randint(0,40), 0), location,
+                                choice([Male,Female]))
 
+    def colordescription(self):
+        color = describecolor(self.color)
+        return _(u'has {a} {hue} body').format(a=indefinitearticle(color),
+                                              hue=color)
+        
 class World(object):
     def __init__(self, space, items):
         self.space = space
@@ -859,15 +1370,15 @@ class World(object):
             try:
                 self.addtostockjobs(item)
             except KeyError:
-                self.stockjobs[item.kind.stocktype(item)] = deque(), deque([item])
+                self.stockjobs[item.stocktype] = deque(), deque([item])
             
         self.items.append(item)
 
     def addtostockjobs(self, item):
-        self.stockjobs[item.kind.stocktype(item)][1].append(item)
+        self.stockjobs[item.stocktype][1].append(item)
 
     def removefromstockjobs(self, item):
-        self.stockjobs[item.kind.stocktype(item)][1].remove(item)        
+        self.stockjobs[item.stocktype][1].remove(item)        
 
     def removeitem(self, item, stockpiled = None):
         if item.location is not None:

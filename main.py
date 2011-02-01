@@ -1,60 +1,46 @@
 import gettext
 gettext.install('dorftris')
 
-from random import choice, randint, sample
-from time import time
+from time import sleep, time
 
-from game import Game
-from rendering import Renderer
-
-from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Stockpile, Tortoise
+from menu import MainMenu
 
 def main():
-    game = Game((156, 104, 128))
+    renderers = [MainMenu()]
 
-    for i in range(20):
-        game.world.space.maketree((randint(0, game.dimensions[0]-1),
-                       randint(0, game.dimensions[1]-1),
-                       64))    
-
-    renderer = Renderer(game)
-
-    kind = (Dwarf,Goblin,Tortoise,SmallSpider)
-
-    for i in range(20):
-        creature = choice(kind)((randint(0,game.dimensions[0]-1),
-                                 randint(0,game.dimensions[1]-1),
-                                 64))
-        game.schedule(creature)
-
-    for i in range(10):
-        game.world.additem(Barrel((randint(0,game.dimensions[0]-1),
-                                        randint(0,game.dimensions[1]-1),
-                                        64),
-                                       Oak))
-        
     game_acc = 0
     render_acc = 0
 
-    render_dt = 0.05
-
     last = time()
-    
-    while not game.done:
+
+    while renderers:
         current = time()
         delta = min(0.125, max(0, current - last))
 
-        game_acc += delta
+        renderer = renderers[-1]   
+        
+        if renderer.game:
+            game_acc += delta
+            while game_acc > renderer.game.dt:
+                renderer.game.step()
+                game_acc -= renderer.game.dt
+            rest = renderer.game.dt - game_acc
+        else:
+            rest = float('inf')
+        
         render_acc += delta
-
-        while game_acc > game.dt:
-            game.step()
-            game_acc -= game.dt
-        if render_acc > render_dt:
-            renderer.step()
+        if render_acc > renderer.dt:
+            child = renderer.step()
+            if child != renderer:
+                if child:
+                    renderers.append(child)
+                else:
+                    renderers = renderers[:-1]
             render_acc = 0
 
         last = current
 
+        sleep(min(rest, renderers[-1].dt if renderers else 0))
+        
 if __name__ == '__main__':
     main()
