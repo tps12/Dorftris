@@ -133,7 +133,7 @@ class Space(object):
                 leaves = sample(available, len(available)-1)
                 for leaf in leaves:
                     self.cache[leaf + (loc[2]+i,)] = Leaves(Leaf)
-        self.cache[loc[0:2] + (height+1,)] = Leaves(Leaf)
+        self.cache[loc[0:2] + (loc[2]+height,)] = Leaves(Leaf)
 
     def get_dimensions(self):
         return self.dim
