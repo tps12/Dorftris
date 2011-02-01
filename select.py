@@ -74,22 +74,12 @@ class SelectionInfo(object):
 
         return dy
 
-    def _makebackground(self, size):
-        self._renderer = TextRenderer(self._font, size[0])
-
-        self._background = Surface(size, flags=SRCALPHA)
-        self._background.fill((0,0,0))
-
-        self._selectionrect = self._detail = None
-
-        if self._cursor:
-            dy = self._describetile(self._background, self._cursor, 0)
-        else:
-            dy = 0
-
+    def _drawselectedtile(self, dy):
         if len(self._tiles) == 1 and self._tiles[0] != self._cursor:
             dy = self._describetile(self._background, self._tiles[0], dy)
+        return dy
 
+    def _drawselectedentity(self, dy):
         if (self._entity and self._entity.location != self._cursor and
             (not self._tiles or self._entity.location not in self._tiles)):
             image = self._renderer.render(
@@ -98,6 +88,24 @@ class SelectionInfo(object):
 
             self._selectionrect = image.get_rect().move(0,dy)
             self._details = lambda: self._entitydetails(self._entity)
+
+            dy += image.get_height()
+        return dy
+            
+    def _makebackground(self, size):
+        self._renderer = TextRenderer(self._font, size[0])
+
+        self._background = Surface(size, flags=SRCALPHA)
+        self._background.fill((0,0,0))
+
+        self._selectionrect = self._detail = None
+
+        dy = 0
+        if self._cursor:
+            dy = self._describetile(self._background, self._cursor, dy)
+
+        dy = self._drawselectedtile(dy)
+        dy = self._drawselectedentity(dy)
     
     def scale(self, font):
         self._font = font
