@@ -269,7 +269,7 @@ class Playfield(object):
         if isinstance(below, Empty):
             locationfarbelow = x, y, z - 2
             farbelow = self.game.world.space[locationfarbelow]
-            if isinstance(farbelow, Empty):
+            if not isinstance(farbelow, Earth):
                 self._drawair(surface, locationfarbelow)
             else:
                 self._drawfarground(surface, below, farbelow,
