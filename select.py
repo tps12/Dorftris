@@ -3,7 +3,7 @@ from pygame.locals import *
 from pygame.sprite import *
 
 from data import Creature
-from details import CreatureDetails
+from desc import CreatureDescription
 from game import Earth, Empty
 from text import TextRenderer
 
@@ -26,7 +26,7 @@ class SelectionInfo(object):
                 else entity.description())
 
     def _entitydetails(self, entity):
-        return (CreatureDetails(entity, self._font)
+        return (CreatureDescription(entity, self._font)
                 if isinstance(entity, Creature)
                 else self)
 

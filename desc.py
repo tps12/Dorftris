@@ -4,7 +4,7 @@ from pygame.sprite import *
 
 from text import TextRenderer
 
-class CreatureDetails(object):
+class CreatureDescription(object):
     dt = 0.01
     
     def __init__(self, creature, font):
