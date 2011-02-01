@@ -106,16 +106,16 @@ class SelectionInfo(object):
             if self._allclearfloor(self._tiles):
                 dy = self._addbutton(self._background,
                                      _('Dig down'),
-                                     lambda: self._designate(),
+                                     self._designate,
                                      dy)
                 dy = self._addbutton(self._background,
                                      _('Make stockpile'),
-                                     lambda: self._stockpile(),
+                                     self._stockpile,
                                      dy)
             elif self._allsolidwalls(self._tiles):
                 dy = self._addbutton(self._background,
                                      _('Dig out'),
-                                     lambda: self._designate(),
+                                     self._designate,
                                      dy)
         return dy
 
@@ -128,11 +128,16 @@ class SelectionInfo(object):
         return all([isinstance(self._playfield.game.world.space[tile], Earth)
                     for tile in tiles])
 
+    def _clearselectedtiles(self):
+        self._playfield.deselecttiles()
+
     def _stockpile(self):
         print 'stockpile'
+        self._clearselectedtiles()
 
     def _designate(self):
         print 'designate'
+        self._clearselectedtiles()
         
     def _makebackground(self, size):
         self._renderer = TextRenderer(self._font, size[0])

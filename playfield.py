@@ -411,6 +411,9 @@ class Playfield(object):
                           tile[0:2])]))):
                 self._selectionsprite.selection.append(tile)
 
+    def deselecttiles(self):
+        del self._selectionsprite.selection[:]
+
     def _select(self, tile):
         if tile:
             if self._selectionsprite.selection == [tile]:
@@ -420,7 +423,7 @@ class Playfield(object):
                     self._selectedentity = data.creatures[0]
                 elif data.items:
                     self._selectedentity = data.items[0]                    
-                del self._selectionsprite.selection[:]
+                self.deselecttiles()
                 
             elif self._selectionsprite.selection:
                 # other tiles are selected
