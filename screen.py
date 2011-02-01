@@ -32,6 +32,8 @@ class GameScreen(object):
         if self._playfield.handle(e):
             return True, self
 
+        if 'pos' in e.dict:
+            e.dict['pos'] = (e.pos[0] - self._fieldwidth, e.pos[1])
         handled, child = self._info.handle(e)
         if handled:
             return True, child if child is not self._info else self

@@ -113,9 +113,7 @@ class SelectionInfo(object):
         
         elif (e.type == MOUSEBUTTONDOWN and
               self._selectionrect and
-              self._playfield.background and
-              self._selectionrect.move(
-                  self._playfield.background.get_width(), 0).collidepoint(e.pos) and
+              self._selectionrect.collidepoint(e.pos) and
             e.button == 1):
             return True, self._details()
         
