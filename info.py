@@ -38,6 +38,8 @@ class InfoView(object):
                 elif subdisplay:
                     self._pushdisplay(child)
                     child = self
+            else:
+                child = self
                     
             return True, child
 

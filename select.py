@@ -2,6 +2,7 @@ from pygame import draw, Rect, Surface
 from pygame.locals import *
 from pygame.sprite import *
 
+from button import Button
 from data import Creature
 from details import CreatureDetails
 from game import Earth, Empty
@@ -91,7 +92,48 @@ class SelectionInfo(object):
 
             dy += image.get_height()
         return dy
-            
+
+    def _addbutton(self, surface, text, click, dy):
+        button = Button(self._font, text, click)
+        button.location = 0, dy
+        button.draw(surface)
+        self._buttons.append(button)
+        return dy + button.size[1]
+
+    def _definetilebuttons(self, dy):
+        self._buttons = []
+        if self._tiles:
+            if self._allclearfloor(self._tiles):
+                dy = self._addbutton(self._background,
+                                     _('Dig down'),
+                                     lambda: self._designate(),
+                                     dy)
+                dy = self._addbutton(self._background,
+                                     _('Make stockpile'),
+                                     lambda: self._stockpile(),
+                                     dy)
+            elif self._allsolidwalls(self._tiles):
+                dy = self._addbutton(self._background,
+                                     _('Dig out'),
+                                     lambda: self._designate(),
+                                     dy)
+        return dy
+
+    def _allclearfloor(self, tiles):
+        return all([isinstance(self._playfield.game.world.space[(x,y,z)], Empty) and
+                    isinstance(self._playfield.game.world.space[(x,y,z-1)], Earth)
+                    for (x,y,z) in tiles])
+
+    def _allsolidwalls(self, tiles):
+        return all([isinstance(self._playfield.game.world.space[tile], Earth)
+                    for tile in tiles])
+
+    def _stockpile(self):
+        print 'stockpile'
+
+    def _designate(self):
+        print 'designate'
+        
     def _makebackground(self, size):
         self._renderer = TextRenderer(self._font, size[0])
 
@@ -106,6 +148,7 @@ class SelectionInfo(object):
 
         dy = self._drawselectedtile(dy)
         dy = self._drawselectedentity(dy)
+        dy = self._definetilebuttons(dy)
     
     def scale(self, font):
         self._font = font
@@ -119,11 +162,13 @@ class SelectionInfo(object):
             if e.key == K_RETURN and self._details:
                 return True, True, self._details()
         
-        elif (e.type == MOUSEBUTTONDOWN and
-              self._selectionrect and
-              self._selectionrect.collidepoint(e.pos) and
-            e.button == 1):
-            return True, True, self._details()
+        elif (e.type == MOUSEBUTTONDOWN and e.button == 1):
+            if (self._selectionrect and
+                self._selectionrect.collidepoint(e.pos)):
+                return True, True, self._details()
+            for button in self._buttons:
+                if button.handle(e):
+                    return True, False, self
         
         return False, False, self
 
