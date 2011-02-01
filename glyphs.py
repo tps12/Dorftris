@@ -1,5 +1,6 @@
 from data import *
 from game import *
+from space import *
 
 from pygame.font import Font
 

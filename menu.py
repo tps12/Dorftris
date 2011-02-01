@@ -6,9 +6,10 @@ from pygame import display, event, font, key
 from pygame.locals import *
 
 from button import Button
-from data import Barrel, Dwarf, Goblin, Oak, SmallSpider, Tortoise
+from data import Barrel, Dwarf, Goblin, SmallSpider, Tortoise
 from game import Game
 from rendering import Renderer
+from substances import Wood
 from prefs import DisplayOptions
 
 class MainMenu(object):
@@ -75,7 +76,7 @@ class MainMenu(object):
             self.game.world.additem(Barrel((randint(0,self.game.dimensions[0]-1),
                                             randint(0,self.game.dimensions[1]-1),
                                             64),
-                                           Oak))
+                                           choice(Wood.__subclasses__())))
 
         self.child = Renderer(self.game, self.zoom)
 

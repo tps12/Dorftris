@@ -7,6 +7,7 @@ from data import Barrel, Beverage, Corpse, Stockpile
 from details import CreatureDetails
 from game import *
 from glyphs import Air, GlyphGraphics
+from space import *
 
 class EntitySprite(DirtySprite):
     def __init__(self, visible, position, graphics, entity, *args, **kwargs):
@@ -106,6 +107,7 @@ class ScreenSprites(LayeredDirty):
         self._visible = visible
         self._position = position
         self.entities = {}
+        self.set_clip(None)
 
     def addspritefor(self, entity, graphics):
         sprite = EntitySprite(self._visible, self._position, graphics, entity)
@@ -550,6 +552,7 @@ class Playfield(object):
         else:
             self._makebackground(surface.get_size())
             surface.blit(self.background, (0,0))
+            self.sprites.repaint_rect(self.background.get_rect())
             self.game.world.space.changed = False
 
         self.sprites.clear(surface, self.background)
