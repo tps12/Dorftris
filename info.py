@@ -22,12 +22,21 @@ class InfoView(object):
         for d in self._displays:
             d.resize(size)
 
+    def _pushdisplay(self, child):
+        self._displays.append(child)
+
+    def _popdisplay(self):
+        del self._displays[-1]
+
     def handle(self, e):
         handled, child = self._displays[-1].handle(e)
         if handled:
-            if child is self._displays[-1]:
-                child = self
-            return True, child
+            if child is not self._displays[-1]:
+                if child is None:
+                    self._popdisplay()
+                else:
+                    self._pushdisplay(child)
+            return True, self
 
         return False, self
 
