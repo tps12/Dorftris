@@ -3,8 +3,9 @@ from pygame.locals import *
 from pygame.mixer import *
 from pygame.sprite import *
 
-from data import Barrel, Beverage, Corpse, Entity, Stockpile
+from data import Barrel, Beverage, Corpse, Stockpile
 from details import CreatureDetails
+from game import *
 from glyphs import GlyphGraphics
 
 class EntitySprite(DirtySprite):
@@ -222,7 +223,7 @@ class Playfield(object):
         self._colortint(surface, (85, 85, 0), location)
 
     def _drawground(self, surface, ground, location):
-        self._colortile(surface, Entity('ground'),
+        self._colortile(surface, ground,
                         ground.color, ground.varient, location)
         
         if ground.designated:
@@ -250,7 +251,7 @@ class Playfield(object):
         surface.blit(image, self.tilecoordinates(location))
 
     def _drawtile(self, surface, tile, location):
-        if tile.kind == 'tree-trunk':
+        if isinstance(tile, TreeTrunk):
             self._drawtrunk(surface, tile, location)
         else:
             self._colortile(surface, tile, tile.color, tile.varient, location)
@@ -273,7 +274,7 @@ class Playfield(object):
             else:
                 self._drawfarground(surface, farbelow,
                                     locationfarbelow)
-        elif below.kind:
+        elif isinstance(below, Empty):
             self._drawfarground(surface, below, locationbelow)
         else:
             self._drawground(surface, below, locationbelow)
@@ -290,7 +291,7 @@ class Playfield(object):
     def _drawtilebackground(self, surface, tile, location):
         if tile.is_passable():
             self._drawopen(surface, tile, location)
-        elif tile.kind is not None:
+        elif not isinstance(tile, Earth):
             self._drawtile(surface, tile, location)
         else:
             if tile.revealed:

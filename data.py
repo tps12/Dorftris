@@ -15,8 +15,53 @@ class AEther(Substance):
     color = (255,255,255)
     density = 0
 
+class Soil(Substance):
+    color = (200,150,0)
+
+class CoarseSoil(Soil):
+    density = 1900.0
+
+class Sand(CoarseSoil):
+    noun = _('sand')
+
+class Gravel(CoarseSoil):
+    noun = _('gravel')
+
+class FineSoil(Soil):
+    pass
+
+class Silt(FineSoil):
+    noun = _('silt')
+    density = 1525.0
+
+class Clay(FineSoil):
+    noun = _('clay')
+    density = 1625.0
+
+class OrganicSoil(Soil):
+    density = 1575.0
+
+class OrganicSilt(OrganicSoil):
+    noun = _('organic soil')
+
+class OrganicClay(OrganicSoil):
+    noun = _('organic clay')
+
+class Peat(OrganicSoil):
+    noun = _('peat')
+
+class Leaf(Substance):
+    density = 100.0
+    noun = _('tree leaves')
+    color = (0, 128, 0)
+
 class Wood(Substance):
     pass
+
+class Stone(Substance):
+    color = (128,128,128)
+    density = 1500.0
+    noun = _('stone')
 
 class Oak(Wood):
     adjective = _('oaken')
