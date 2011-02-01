@@ -14,9 +14,10 @@ class Tile(object):
                  'creatures',
                  'items')
     
-    def __init__(self, passable, substance, varient):
+    def __init__(self, passable, substance, varient, color=None):
         self.substance = substance
-        self.color = (self.randomizecolor(self.substance.color)
+        self.color = (color if color is not None
+                      else self.randomizecolor(self.substance.color)
                       if self.substance else None)
         self.passable = passable
         self.revealed = False
@@ -55,8 +56,8 @@ class Earth(Tile):
 class Branch(Tile):
     __slots__ = ()
 
-    def __init__(self, substance, varient):
-        Tile.__init__(self, False, substance, varient)
+    def __init__(self, substance, varient, color):
+        Tile.__init__(self, False, substance, varient, color)
 
 class Leaves(Tile):
     __slots__ = ()
@@ -67,8 +68,8 @@ class Leaves(Tile):
 class TreeTrunk(Tile):
     __slots__ = ()
 
-    def __init__(self, substance):
-        Tile.__init__(self, False, substance, 0)
+    def __init__(self, substance, color=None):
+        Tile.__init__(self, False, substance, 0, color)
 
 class Space(object):
     def __init__(self, dim):
@@ -82,9 +83,12 @@ class Space(object):
         height = randint(6,18)
         branch = None
         wood = choice(Wood.__subclasses__())
+        color = None
         for i in range(height):
             trunk = (loc[0], loc[1], loc[2] + i)
-            self.cache[trunk] = TreeTrunk(wood)
+            tile = TreeTrunk(wood, color)
+            self.cache[trunk] = tile
+            color = tile.color
             if i > 3:
                 branch = choice([b for b in surround if b != branch] + [None])
                 if branch is not None:
@@ -104,7 +108,9 @@ class Space(object):
                             varient = 3 # SE
                         else:
                             varient = 5 # NE
-                    self.cache[branch + (loc[2]+i,)] = Branch(wood, varient)
+                    self.cache[branch + (loc[2]+i,)] = Branch(wood,
+                                                              varient,
+                                                              color)
             if i > 2:
                 available = [s for s in surround
                              if s + (loc[2]+i,) not in self.cache]
