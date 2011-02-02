@@ -298,430 +298,6 @@ StockpileCategories = [
     Tools
     ]
 
-class Task(object):
-    def requirements(self):
-        return []
-
-    def work(self):
-        return True
-
-class GoToRandomAdjacency(Task):
-    def __init__(self, subject, world):
-        self.subject = subject
-        self.world = world
-
-    def work(self):
-        adjacent = self.world.space.pathing.open_adjacent(
-            self.subject.location)
-        if len(adjacent) > 0:
-            self.world.space[self.subject.location].creatures.remove(self.subject)
-            self.subject.location = choice([a for a in adjacent])
-            self.world.space[self.subject.location].creatures.append(self.subject)
-        return True
-
-class GoToGoal(Task):
-    steps = 256
-    
-    def __init__(self, subject, world, goal):
-        self.subject = subject
-        self.world = world
-        self.goal = goal
-
-        self.p1 = self.world.space.pathing.path_op(
-                      self.subject.location, goal)
-        self.p2 = self.world.space.pathing.path_op(
-                      goal, self.subject.location)
-        self.path = None
-
-    def work(self):
-        if self.path == []:
-            return True
-
-        if self.path is None:
-            if not self.p1.done and not self.p2.done:
-                self.p1.iterate(self.steps)
-                self.p2.iterate(self.steps)
-                return False
-
-            if self.p1.done:
-                self.path = self.p1.path
-            elif self.p2.path is not None:
-                self.path = self.p2.path[::-1][1:] + [self.goal]
-
-            if self.path is None:
-                raise TaskImpossible()
-        
-        self.world.space[self.subject.location].creatures.remove(self.subject)
-        self.subject.location = self.path[0]
-        self.world.space[self.subject.location].creatures.append(self.subject)
-        self.path = self.path[1:]
-        return self.path == []
-
-class TaskImpossible(Exception):
-    pass
-
-class Follow(Task):
-    def __init__(self, subject, world, target):
-        self.subject = subject
-        self.world = world
-        self.target = target
-        self.path = []
-
-    def work(self):
-        if self.target.remove:
-            return True
-        
-        if self.path == []:
-            if self.subject.location == self.target.location:
-                return True
-            else:
-                self.path = self.world.space.pathing.find_path(
-                    self.subject.location,
-                    self.target.location)
-
-        if self.path[-1] != self.target.location:
-            self.path[-1:] = self.world.space.pathing.find_path(
-                self.path[-1], self.target.location)
-
-        self.world.space[self.subject.location].creatures.remove(self.subject)
-        self.subject.location = self.path[0]
-        self.world.space[self.subject.location].creatures.append(self.subject)
-        
-        self.path = self.path[1:]
-        return self.path == []
-
-class Attack(Task):
-    def __init__(self, subject, world, target):
-        self.subject = subject
-        self.world = world
-        self.target = target
-        self.nearest = None
-
-    def requirements(self):
-        if (self.nearest is not None and
-            self.nearest.location == self.subject.location and
-            self.nearest.health > 0):
-            return []
-
-        try:
-            self.nearest = sorted([c for c in self.world.creatures
-                                   if isinstance(c, self.target)],
-                                  key = lambda c:
-                                  self.world.space.pathing.distance_xy(
-                                      self.subject.location,
-                                      c.location[0:2]))[0]
-        
-        except IndexError:
-            raise TaskImpossible()
-
-        if self.world.space.pathing.distance_xy(
-            self.subject.location[0:2],
-            self.nearest.location[0:2]) > self.subject.eyesight():
-            raise TaskImpossible()
-
-        if self.nearest.location == self.subject.location:
-            return []
-        else:
-            reqs = [Follow(self.subject, self.world, self.nearest)]
-            return reqs[0].requirements() + reqs
-
-    def work(self):
-        self.nearest.health -= 1
-        self.world.makesound(Fight, self.nearest.location)
-        return self.nearest.health <= 0
-
-class AcquireItem(Task):
-    def __init__(self, subject, world, item):
-        self.subject = subject
-        self.world = world
-        self.item = item
-
-    def requirements(self):
-        if self.subject.location != self.item.location:
-            try:
-                reqs = [GoToGoal(self.subject, self.world,
-                                        self.item.location)]
-            except:
-                raise TaskImpossible()
-        else:
-            reqs = []
-
-        return reqs[0].requirements() + reqs if reqs else reqs
-
-    def work(self):
-        self.world.removefromstockjobs(self.item)
-        self.world.space[self.item.location].items.remove(self.item)
-        self.item.location = None
-        self.subject.inventory.add(self.item)
-        return True
-
-class Acquire(Task):
-    def __init__(self, subject, world, test, capacity):
-        self.subject = subject
-        self.world = world
-        self.test = test
-        self.capacity = capacity
-        self.nearest = None
-        self.stockpile = None
-
-    def requirements(self):
-        if self.stockpile is not None or self.nearest is not None:
-            return []
-
-        self.searchstockpiles()
-
-        if self.nearest is None:
-            try:
-                self.nearest = sorted([item for item in self.items()
-                                       if self.test(item)],
-                                      key = lambda item:
-                                      self.world.space.pathing.distance_xy(
-                                          self.subject.location[0:2],
-                                          item.location[0:2]))[0]
-            except IndexError:
-                raise TaskImpossible()
-
-        location = (self.stockpile.components[0].location
-                    if self.stockpile is not None
-                    else self.nearest.location)
-
-        if location is None:
-            raise TaskImpossible()
-        elif location == self.subject.location:
-            return []
-        else:
-            self.nearest.reserved = True
-            reqs = [GoToGoal(self.subject, self.world, location)]
-            return reqs[0].requirements() + reqs
-
-    def searchstockpiles(self):
-        for stockpile in self.world.stockpiles:
-            for target in self.targets:
-                self.nearest = stockpile.find(self.test)
-                if self.nearest is not None:
-                    self.stockpile = stockpile
-                    return
-
-    def work(self):
-        self.world.space[self.nearest.location].items.remove(self.nearest)
-        self.nearest.location = None
-        if self.stockpile is not None:
-            self.stockpile.remove(self.nearest)
-        self.subject.inventory.add(self.nearest)
-        return True
-
-class AcquireKind(Acquire):
-    def __init__(self, subject, world, targets, capacity):
-        Acquire.__init__(self, subject, world, self.istarget, capacity)
-        self.targets = targets
-
-    def items(self):
-        return [item for item in self.world.items
-                if item.location is not None and
-                not item.reserved]
-
-    def istarget(self, item):
-        return any([(target.fluid and
-                     hasattr(item, 'has') and item.has(target)) or
-                    isinstance(item, target) for target in self.targets])
-
-class AcquireNonStockpiled(Acquire):
-    def __init__(self, subject, world, stockpile):
-        Acquire.__init__(self, subject, world, self.istarget, stockpile.capacity)
-        self.destination = stockpile
-
-    def items(self):
-        return [item for item in self.world.items
-                if item.location is not None and
-                not item.reserved]
-
-    def istarget(self, item):
-        return self.destination.accepts(item.stocktype)
-
-    def searchstockpiles(self):
-        return
-    
-class Drink(Task):
-    def __init__(self, subject, world):
-        self.subject = subject
-        self.world = world
-
-    def requirements(self):
-        if self.subject.inventory.has(Beverage):
-            return []
-        else:
-            reqs = [AcquireKind(self.subject, self.world,
-                            [Beverage], self.subject.inventory.space())]
-            return reqs[0].requirements() + reqs
-
-    def work(self):
-        vessel = self.subject.inventory.find(lambda item:
-                                             hasattr(item, 'has') and
-                                             item.has(Beverage))
-        
-        bev = vessel.find(lambda item: isinstance(item, Beverage))
-        sip = min(self.subject.thirst, bev.materials[0].amount)
-
-        if sip == bev.materials[0].amount:
-            vessel.remove(bev)
-        else:
-            bev.materials[0].amount -= sip
-        
-        self.subject.hydration += 3600 * (sip / self.subject.thirst)
-        vessel.reserved = False
-        return True
-
-class DropItems(Task):
-    def __init__(self, subject, world, test):
-        self.subject = subject
-        self.world = world
-        self.test = test
-
-    def work(self):
-        item = self.subject.inventory.find(self.test)
-        if item is None:
-            return True
-
-        self.subject.inventory.remove(item)
-        
-        item.location = self.subject.location
-        self.world.space[item.location].items.append(item)
-        item.reserved = False
-
-        return False
-
-class StoreItem(Task):
-    def __init__(self, subject, world, stockpile, item):
-        self.subject = subject
-        self.world = world
-        self.stockpile = stockpile
-        self.item = item
-
-    def find(self, item):
-        return item == self.item
-
-    def requirements(self):
-        if self.subject.inventory.find(self.find) is None:
-            reqs = [AcquireItem(self.subject, self.world, self.item)]
-        else:
-            reqs = []
-
-        if self.subject.location != self.stockpile.components[0].location:
-            reqs = reqs + [GoToGoal(self.subject, self.world,
-                                    self.stockpile.components[0].location)]
-
-        return reqs[0].requirements() + reqs if len(reqs) else reqs
-
-    def work(self):
-        item = self.subject.inventory.find(self.find)
-
-        self.subject.inventory.remove(item)
-
-        if self.stockpile.space() >= item.volume():
-            self.stockpile.add(item)
-        else:
-            item.location = self.subject.location
-            self.world.space[item.location].items.append(item)
-
-        item.reserved = False
-                
-        return True
-
-class FillStockpile(Task):
-    def __init__(self, subject, world):
-        self.subject = subject
-        self.world = world
-
-    def requirements(self):
-        stockjob = next((j for j in self.world.stockjobs.itervalues()
-                         if j[0] and j[1]), None)
-        if stockjob is None:
-            raise TaskImpossible()
-
-        stockpile, item = [q[0] for q in stockjob]
-        
-        reqs = [StoreItem(self.subject, self.world, stockpile, item)]
-        return reqs[0].requirements() + reqs
-
-    def work(self):
-        return True
-
-class AttemptDigDesignation(Task):
-    def __init__(self, subject, world):
-        self.subject = subject
-        self.world = world
-        self.designation = self.world.digjobs.popleft()
-
-    def requirements(self):
-        x, y, z = self.designation
-        for loc in [(x,y,z+1)] + [(x,y,z)
-                                  for x,y in
-                                  self.world.space.pathing.adjacent_xy((x,y))]:
-            if self.subject.location == loc:
-                return []
-            elif self.world.space[loc].is_passable():
-                reqs = [GoToGoal(self.subject, self.world, loc)]
-                return reqs[0].requirements() + reqs
-
-        self.world.digjobs.append(self.designation)
-
-        raise TaskImpossible()
-
-    def work(self):
-        self.world.dig(self.designation)
-        if self.subject.location[2] == self.designation[2]+1:
-            self.world.space[self.subject.location].creatures.remove(self.subject)
-            self.subject.location = self.designation
-            self.world.space[self.subject.location].creatures.append(self.subject)
-        return True
-
-class Job(object):
-    def __init__(self, tasks):
-        self.tasks = tasks
-
-    def work(self):
-        if not len(self.tasks):
-            return True
-
-        self.tasks = self.tasks[0].requirements() + self.tasks
-        self.tasks = self.tasks[1:] if self.tasks[0].work() else self.tasks
-        return self.tasks == []
-
-class Meander(Job):
-    def __init__(self, subject, world):
-        Job.__init__(self, [GoToRandomAdjacency(subject, world)])
-
-class Hydrate(Job):
-    def __init__(self, subject, world):
-        Job.__init__(self, [Drink(subject, world)])
-
-class DropExtraItems(Job):
-    def __init__(self, subject, world):
-        Job.__init__(self, [DropItems(subject, world,
-                                      lambda item: not item.reserved)])
-
-class StoreInStockpile(Job):
-    def __init__(self, subject, world):
-        Job.__init__(self, [FillStockpile(subject, world)])
-
-class SeekAndDestroy(Job):
-    def __init__(self, subject, world):
-        Job.__init__(self, [Attack(subject, world, Dwarf)])
-
-class DigDesignation(Job):
-    def __init__(self, subject, world):
-        Job.__init__(self, [AttemptDigDesignation(subject, world)])
-
-class JobOption(object):
-    def __init__(self, definition, condition, priority):
-        self.definition = definition
-        self.condition = condition
-        self.priority = priority
-
-    @staticmethod
-    def prioritykey(option):
-        return option.priority
-
 class PhysicalAttribute(object):
     description = None
     adverbs = _('great'), _('considerable'), _('average'), _('unremarkable'), _('not much')
@@ -860,22 +436,11 @@ class Creature(Thing):
         'color',
         'location',
         'inventory',
-        'job',
         'rest',
         '_remove',
         '_work',
         'appetites'
         )
-    
-    jobs = sorted([
-                   JobOption(Hydrate, lambda c, w: c.hydration < 1000, 0),
-                   JobOption(DropExtraItems,
-                             lambda c, w: c.inventory.find(lambda i:
-                                                        isinstance(i, Item) and
-                                                           not i.reserved), 99),
-                   JobOption(Meander, lambda c, w: True, 100)
-                   ],
-                  key = JobOption.prioritykey)
     
     def __init__(self, materials, color, location):
         Thing.__init__(self, materials)
@@ -884,7 +449,6 @@ class Creature(Thing):
         self.color = color
         self.location = location
         self.inventory = Storage(1.0)
-        self.job = None
         self.rest = random() * self.speed()
         self._remove = False
         self._work = None
@@ -912,18 +476,6 @@ class Creature(Thing):
     def _die(self, world):
         self._remove = True
         world.additem(Corpse(self))
-
-    def newjob(self, world):
-        for job in sorted([option for option in self.jobs
-                           if option.condition(self, world)],
-                          key = lambda option: option.priority):
-            try:
-                self.job = job.definition(self, world)
-                if self.job.work():
-                    self.job = None
-                return
-            except TaskImpossible:
-                continue
 
     def eyesight(self):
         return gauss(self.attributes[Sight],10) / 10
@@ -1061,12 +613,19 @@ class Creature(Thing):
             for step in appetite.pursue(world):
                 yield step
 
+    def meander(self, world):
+        adjacent = world.space.pathing.open_adjacent(self.location)
+        if len(adjacent) > 0:
+            world.movecreature(self, choice([a for a in adjacent]))
+        
+        return _('idling')
+
     def work(self, world):
         while True:
-            yield _('idling')
-
             for step in self.feedappetites(world):
                 yield step
+
+            yield self.meander(world)
             
     def step(self, world, dt):
         for app in self.appetites:
@@ -1221,15 +780,6 @@ class Dwarf(CulturedCreature):
 
     noun = _(u'dwarf')
     health = 10
-    jobs = sorted(Creature.jobs +
-                  [JobOption(DigDesignation,
-                             lambda c, w: w.digjobs,
-                             10),
-                   JobOption(StoreInStockpile,
-                             lambda c, w: w.stockjobs,
-                             90)],
-                  key = JobOption.prioritykey)
-    thirst = 0.03
     race = {
         Strength : 120,
         Speed : 80,
@@ -1260,13 +810,6 @@ class Goblin(CulturedCreature):
     
     noun = _(u'goblin')
     health = 0
-    jobs = sorted(Creature.jobs +
-                  [JobOption(SeekAndDestroy,
-                             lambda c, w: any([isinstance(c, Dwarf)
-                                               for c in w.creatures]),
-                             10)],
-                  key = JobOption.prioritykey)
-    thirst = 0.01
     race = {
         Strength : 90,
         Speed : 120,
@@ -1297,7 +840,6 @@ class Tortoise(SexualCreature):
     
     health = 10
     noun = _(u'giant tortoise')
-    thirst = 0.1
     race = {
         Strength : 120,
         Speed : 20,
@@ -1323,7 +865,6 @@ class SmallSpider(SexualCreature):
     
     noun = _(u'spider')
     health = 10
-    thirst = 0.0001
     race = {
         Strength : 20,
         Speed : 180,
