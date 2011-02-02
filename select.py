@@ -50,7 +50,7 @@ class SelectionInfo(object):
         if isinstance(tile, Empty):
             below = self._playfield.game.world.space[(x,y,z-1)]
             if not isinstance(below, Earth):
-                s = _('open space')
+                s = _(u'open space')
             else:
                 s = below.description
                 covering = tile.description
@@ -59,7 +59,7 @@ class SelectionInfo(object):
         elif tile.revealed:
             s = tile.description
         else:
-            s = _('unknown')
+            s = _(u'unknown')
 
         color = ((255,255,255)
                   if location == self._cursor else self._prefs.selectioncolor)
@@ -105,16 +105,16 @@ class SelectionInfo(object):
         if self._tiles:
             if self._allclearfloor(self._tiles):
                 dy = self._addbutton(self._background,
-                                     _('Dig down'),
+                                     _(u'Dig down'),
                                      self._designate,
                                      dy)
                 dy = self._addbutton(self._background,
-                                     _('Make stockpile'),
+                                     _(u'Make stockpile'),
                                      self._stockpile,
                                      dy)
             elif self._allsolidwalls(self._tiles):
                 dy = self._addbutton(self._background,
-                                     _('Dig out'),
+                                     _(u'Dig out'),
                                      self._designate,
                                      dy)
         return dy

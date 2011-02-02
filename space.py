@@ -64,7 +64,7 @@ class Branch(Tile):
 
     @property
     def description(self):
-        return _('{tree} branch').format(tree=self.substance.noun)
+        return _(u'{tree} branch').format(tree=self.substance.noun)
 
 class Leaves(Tile):
     __slots__ = ()
@@ -84,7 +84,7 @@ class TreeTrunk(Tile):
 
     @property
     def description(self):
-        return _('{wood} tree').format(wood=self.substance.noun)
+        return _(u'{wood} tree').format(wood=self.substance.noun)
 
 class Space(object):
     def __init__(self, dim):

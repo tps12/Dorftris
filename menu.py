@@ -28,7 +28,7 @@ class MainMenu(object):
 
         self.makescreen((1400,800))
 
-        display.set_caption(_('Hex Grid'))
+        display.set_caption(_(u'Hex Grid'))
 
         self.child = None
         self.done = False
@@ -44,8 +44,8 @@ class MainMenu(object):
         self.screen.fill((0,0,0))
 
         self.buttons = [
-            Button(self._font, _('New Game'), self.newgame, True),
-            Button(self._font, _('Quit'), self.quitgame, True)
+            Button(self._font, _(u'New Game'), self.newgame, True),
+            Button(self._font, _(u'Quit'), self.quitgame, True)
             ]
 
         size = self.screen.get_size()

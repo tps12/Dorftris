@@ -51,13 +51,13 @@ class Beverage(Thing):
         Thing.__init__(self, [Material(Water, amount)])
 
     def description(self):
-        return _('{drink} ({volume} L)').format(drink=self.noun,
+        return _(u'{drink} ({volume} L)').format(drink=self.noun,
                                                 volume=
                                                 self.materials[0].amount * 1000)
 
 class Wine(Beverage):
-    noun = _('wine')
-    stocktype = StockpileType(_('wine'))
+    noun = _(u'wine')
+    stocktype = StockpileType(_(u'wine'))
 
     def __init__(self, amount):
         Beverage.__init__(self, amount)
@@ -136,7 +136,7 @@ class Stockpile(Entity):
     __slots__ = 'storage', 'components', 'types', 'changed'
     
     color = (255,255,255)
-    noun = _('stockpile')
+    noun = _(u'stockpile')
     
     def __init__(self, region, types):
         Entity.__init__(self, 'stockpile')
@@ -253,38 +253,38 @@ class StockpileComponent(Container):
 class Corpse(Item):
     __slots__ = 'origins',
     
-    stocktype = StockpileType(_('Corpse'))
+    stocktype = StockpileType(_(u'Corpse'))
         
     def __init__(self, creature):
         Item.__init__(self, creature.materials, creature.location)
         self.origins = creature
 
     def description(self):
-        return _('corpse of {0}').format(self.origins.description())
+        return _(u'corpse of {0}').format(self.origins.description())
 
 class Barrel(Container):
     __slots__ = ()
 
-    noun = _('barrel')
+    noun = _(u'barrel')
     
-    containerstocktype = StockpileType(_('Empty barrel'))
+    containerstocktype = StockpileType(_(u'Empty barrel'))
     
     def __init__(self, location, substance):
         Container.__init__(self,
                            [Material(substance, 0.075)], location, 0.25)
         self.contents.append(Wine(self.capacity))
 
-Arms = StockpileType(_('Weapons and armor'), [])
-BuildingMaterials = StockpileType(_('Building materials'), [])
-Clothing = StockpileType(_('Clothing'), [])
-Drinks = StockpileType(_('Drink'), [Wine.stocktype])
-Food = StockpileType(_('Food'), [])
-Furniture = StockpileType(_('Furnishings'), [])
-Products = StockpileType(_('Trade products and supplies'),
+Arms = StockpileType(_(u'Weapons and armor'), [])
+BuildingMaterials = StockpileType(_(u'Building materials'), [])
+Clothing = StockpileType(_(u'Clothing'), [])
+Drinks = StockpileType(_(u'Drink'), [Wine.stocktype])
+Food = StockpileType(_(u'Food'), [])
+Furniture = StockpileType(_(u'Furnishings'), [])
+Products = StockpileType(_(u'Trade products and supplies'),
                          [Barrel.containerstocktype])
-Refuse = StockpileType(_('Refuse'), [Corpse.stocktype])
-Resources = StockpileType(_('Raw materials'), [])
-Tools = StockpileType(_('Tools and equipment'), [])
+Refuse = StockpileType(_(u'Refuse'), [Corpse.stocktype])
+Resources = StockpileType(_(u'Raw materials'), [])
+Tools = StockpileType(_(u'Tools and equipment'), [])
 
 StockpileCategories = [
     Arms,
@@ -300,38 +300,38 @@ StockpileCategories = [
 
 class PhysicalAttribute(object):
     description = None
-    adverbs = _('great'), _('considerable'), _('average'), _('unremarkable'), _('not much')
+    adverbs = _(u'great'), _(u'considerable'), _(u'average'), _(u'unremarkable'), _(u'not much')
 
 class Sense(PhysicalAttribute):
-    adverbs = _('excellent'), _('keen'), _('average'), _('dull'), _('extremely dull')
+    adverbs = _(u'excellent'), _(u'keen'), _(u'average'), _(u'dull'), _(u'extremely dull')
 
 class Strength(PhysicalAttribute):
-    description = _('strength')
+    description = _(u'strength')
 
 class Speed(PhysicalAttribute):
-    description = _('speed')
+    description = _(u'speed')
 
 class Sight(Sense):
-    description = _('eyesight')
+    description = _(u'eyesight')
 
 class Hearing(Sense):
-    description = _('hearing')
+    description = _(u'hearing')
 
 class Smell(Sense):
-    description = _('olfactory powers')
+    description = _(u'olfactory powers')
 
 class Dexterity(PhysicalAttribute):
-    description = _('dexterity')
+    description = _(u'dexterity')
 
 class Toughness(PhysicalAttribute):
-    description = _('physical fortitude')
+    description = _(u'physical fortitude')
 
 def sampleattributes(attributes):
     return dict((a, gauss(attributes[a], 10)) for a in attributes.keys())
 
 def indefinitearticle(noun):
     m = search('LETTER ([^ ])', unicodename(unicode(noun[0])))
-    return _('an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _('a')
+    return _(u'an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _(u'a')
 
 class Appetite(object):
     __slots__ = '_pentup', '_creature', '_threshold'
@@ -358,20 +358,20 @@ class Appetite(object):
         if self._pentup < self._threshold:
             return
 
-        yield _('looking for {desire}').format(desire=self.requirement)
+        yield _(u'looking for {desire}').format(desire=self.requirement)
 
         for step in self.attempt(world):
             yield step
 
     def status(self):
         if self._pentup < 200:
-            return _('has recently enjoyed {desire}').format(
+            return _(u'has recently enjoyed {desire}').format(
                 desire = self.requirement)
         elif self._pentup > 1800:
-            prev = _('has not partaken of {desire} in some time').format(
+            prev = _(u'has not partaken of {desire} in some time').format(
                 desire = self.requirement)
             if self._threshold - self._pentup < 200:
-                prev += _(' and will soon need to seek it out')
+                prev += _(u' and will soon need to seek it out')
             return prev
         else:
             return None
@@ -379,17 +379,17 @@ class Appetite(object):
 class SexualRelease(Appetite):
     __slots__ = ()
     
-    requirement = _('physical intimacy')
+    requirement = _(u'physical intimacy')
 
 class Socialization(Appetite):
     __slots__ = ()
 
-    requirement = _('social fellowship')
+    requirement = _(u'social fellowship')
 
 class WaterDrinking(Appetite):
     __slots__ = ()
 
-    requirement = _('potable water')
+    requirement = _(u'potable water')
 
 class ItemAppetite(Appetite):
     __slots__ = ()
@@ -406,9 +406,9 @@ class ItemAppetite(Appetite):
 class BoozeDrinking(ItemAppetite):
     __slots__ = ('_sip')
 
-    requirement = _('alcoholic drinks or {water}').format(
+    requirement = _(u'alcoholic drinks or {water}').format(
         water = WaterDrinking.requirement)
-    sating = _('drinking')
+    sating = _(u'drinking')
     stocktype = Drinks
     itemtype = Beverage
     fortification = 15 
@@ -426,7 +426,7 @@ class BoozeDrinking(ItemAppetite):
             bev = vessel.find(lambda item: isinstance(item, Beverage))
             
             while not self.sated:
-                yield _('{consuming} {drink}').format(
+                yield _(u'{consuming} {drink}').format(
                     consuming=self.sating, drink=bev.description())
 
                 sip = min(bev.materials[0].amount, self._sip)
@@ -457,7 +457,7 @@ class Creature(Thing):
     
     def __init__(self, materials, color, location):
         Thing.__init__(self, materials)
-        self.activity = _('revelling in the miracle of creation')
+        self.activity = _(u'revelling in the miracle of creation')
         self.attributes = sampleattributes(self.race)
         self.color = color
         self.location = location
@@ -568,7 +568,7 @@ class Creature(Thing):
 
         path = None
         while True:
-            yield _('plotting course'), path
+            yield _(u'plotting course'), path
             
             if not p1.done and not p2.done:
                 p1.iterate(steps)
@@ -585,20 +585,20 @@ class Creature(Thing):
             yield step
             if path:
                 for location in path:
-                    yield _('travelling')
+                    yield _(u'travelling')
                     world.movecreature(self, location)
                 break
 
     def takeitem(self, world, item):
         item.reserved = True
         for step in self.goto(world, item.location):
-            yield _('{going} to {item}').format(
+            yield _(u'{going} to {item}').format(
                 going=step, item=item.description())
 
         if self.location != item.location:
             return
         
-        yield _('picking up {item}').format(item=item.description())
+        yield _(u'picking up {item}').format(item=item.description())
         item.reserved = False
         world.removeitem(item)
         self.inventory.add(item)
@@ -619,7 +619,7 @@ class Creature(Thing):
                     break
 
     def discarditem(self, world, item):
-        yield _('discarding {item}').format(item=item.description())
+        yield _(u'discarding {item}').format(item=item.description())
         self.inventory.remove(item)
         world.additem(item)
 
@@ -643,7 +643,7 @@ class Creature(Thing):
         if len(adjacent) > 0:
             world.movecreature(self, choice([a for a in adjacent]))
         
-        return _('idling')
+        return _(u'idling')
 
     def work(self, world):
         while True:

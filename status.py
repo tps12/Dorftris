@@ -7,15 +7,15 @@ from pygame.sprite import *
 from pygame.time import Clock
 
 class StatusBar(object):
-    pausestring = _('*** PAUSED ***')
+    pausestring = _(u'*** PAUSED ***')
     timestrings = [
         _(u'\u2155 speed'),
         _(u'\u00bd speed'),
-        _('Normal speed'),
+        _(u'Normal speed'),
         _(u'2\u00d7 speed'),
         _(u'5\u00d7 speed')
         ]
-    fpsstring = _('{num:d} {g}FPS')
+    fpsstring = _(u'{num:d} {g}FPS')
 
     def __init__(self, game, font):
         self.game = game

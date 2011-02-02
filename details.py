@@ -49,7 +49,7 @@ class CreatureDetails(object):
 
         self._buttons = []
         dy = self._addbutton(self._background,
-                             _('Description'),
+                             _(u'Description'),
                              lambda: None,
                              dy)
     

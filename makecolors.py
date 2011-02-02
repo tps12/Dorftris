@@ -25,7 +25,7 @@ if __name__ == '__main__':
                 if digits_caps_uk.search(name) is not None:
                     continue
 
-                colors.write("    ({0},{1},{2}) : _('{3}'),\n".format(
+                colors.write("    ({0},{1},{2}) : _(u'{3}'),\n".format(
                     r,g,b,name))
 
         colors.write('    }\n')
