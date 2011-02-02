@@ -864,7 +864,7 @@ class Creature(Thing):
         'rest',
         '_remove',
         '_work',
-        '_appetites'
+        'appetites'
         )
     
     jobs = sorted([
@@ -888,7 +888,7 @@ class Creature(Thing):
         self.rest = random() * self.speed()
         self._remove = False
         self._work = None
-        self._appetites = []
+        self.appetites = []
 
     def propername(self):
         return _(u'this')
@@ -1057,7 +1057,7 @@ class Creature(Thing):
                 yield step
 
     def feedappetites(self, world):
-        for appetite in self._appetites:
+        for appetite in self.appetites:
             for step in appetite.pursue(world):
                 yield step
 
@@ -1069,7 +1069,7 @@ class Creature(Thing):
                 yield step
             
     def step(self, world, dt):
-        for app in self._appetites:
+        for app in self.appetites:
             app.step(dt)
         
         self._checkhealth(world)
@@ -1130,7 +1130,7 @@ class CulturedCreature(SexualCreature):
 
         for p, appetite in self.culture[Appetites]:
             if random() < p:
-                self._appetites.append(appetite(self))
+                self.appetites.append(appetite(self))
 
     def propername(self):
         return self.name
