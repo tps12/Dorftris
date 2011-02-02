@@ -27,7 +27,8 @@ class SelectionInfo(object):
                 else entity.description())
 
     def _entitydetails(self, entity):
-        return (CreatureDetails(entity, self._font, self._prefs)
+        return (CreatureDetails(entity,
+                                self._playfield, self._font, self._prefs)
                 if isinstance(entity, Creature)
                 else self)
 
@@ -84,7 +85,8 @@ class SelectionInfo(object):
         if (self._entity and self._entity.location != self._cursor and
             (not self._tiles or self._entity.location not in self._tiles)):
             image = self._renderer.render(
-                self._entitydescription(self._entity), self._prefs.selectioncolor)
+                self._entitydescription(self._entity),
+                self._prefs.selectioncolor)
             self._background.blit(image, (0, dy))
 
             self._selectionrect = image.get_rect().move(0,dy)
