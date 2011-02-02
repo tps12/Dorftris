@@ -230,13 +230,13 @@ class Playfield(object):
         self._colortile(surface, ground,
                         space.color or ground.color, space.varient, location)
         
-        if ground.designated:
+        if ground.designation:
             self._drawdesignation(surface, location)
 
     def _drawwall(self, surface, wall, location):
         self._colorfill(surface, wall.color, location)
         
-        if wall.designated:
+        if wall.designation:
             self._drawdesignation(surface, location)
 
     def _drawtrunk(self, surface, trunk, location):
@@ -300,7 +300,7 @@ class Playfield(object):
         else:
             if tile.revealed:
                 self._drawwall(surface, tile, location)
-            elif tile.designated:
+            elif tile.designation:
                 self._drawdesignation(surface, location)
 
         self._addtilesprites(tile, location)

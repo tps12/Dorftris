@@ -926,7 +926,7 @@ class World(object):
     def designatefordigging(self, location):
         tile = self.space[location]
         if isinstance(tile, Earth):
-            tile.designated = True
+            tile.designation = self
             if (tile.revealed or
                 isinstance(self.space[location[0:2] + (location[2]+1,)], Empty)):
                 self.digjobs.append(location)
@@ -945,7 +945,9 @@ class World(object):
             self.makesound(Step, creature.location)
 
     def dig(self, location):
-        self.makesound(self.space[location].substance.sound, location)
+        tile = self.space[location]
+        designation = tile.designation
+        self.makesound(tile.substance.sound, location)
             
         tile = Empty(randint(0,3))
         tile.revealed = True
@@ -954,12 +956,12 @@ class World(object):
             n = self.space[nloc]
             if not n.revealed:
                 n.revealed = True
-                if n.designated:
+                if n.designation == designation:
                     self.digjobs.append(nloc)
         if location[2]:
             bloc = location[0:2] + (location[2]-1,)
             b = self.space[bloc]
-            if not b.revealed and b.designated:
+            if not b.revealed and b.designation == designation:
                 self.digjobs.append(bloc)
         self.space[location] = tile
 

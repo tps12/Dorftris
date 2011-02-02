@@ -8,7 +8,7 @@ class Tile(object):
                  'color',
                  'substance',
                  'revealed',
-                 'designated',
+                 'designation',
                  'varient',
                  'creatures',
                  'items')
@@ -20,7 +20,7 @@ class Tile(object):
                       if self.substance else None)
         self.passable = passable
         self.revealed = False
-        self.designated = False
+        self.designation = None
         self.varient = varient
         self.creatures = []
         self.items = []
