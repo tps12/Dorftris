@@ -342,7 +342,7 @@ class Appetite(object):
     def __init__(self, creature, threshold):
         self._creature = creature
         self._threshold = threshold
-        self._pentup = randint(self._threshold/2, self._threshold)
+        self._pentup = randint(0, self._threshold/2)
 
     def step(self, dt):
         self._pentup += dt
@@ -545,8 +545,9 @@ class Creature(Thing):
             she=pronoun, sex=self.sexdescription())
 
     def appetitereport(self):
-
-        stati = [appetite.status() for appetite in self.appetites]
+        stati = [status for status in
+                 [appetite.status() for appetite in self.appetites]
+                 if status]
         if stati:
             pronoun = self.subjectpronoun().capitalize()
             return ' '.join([_(u'{she} {hankers}.').format(she=pronoun,
