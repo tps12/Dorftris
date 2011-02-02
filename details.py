@@ -10,6 +10,7 @@ from text import TextRenderer
 class CreatureDetails(object):
     def __init__(self, creature, font, prefs):
         self._creature = creature
+        self._activity = self._creature.activity
         self._prefs = prefs
         
         self.scale(font)
@@ -41,6 +42,10 @@ class CreatureDetails(object):
                            self._creature.noun,
                            (255,255,255),
                            dy)
+        dy = self._addline(self._background,
+                           self._creature.activity,
+                           (255,255,255),
+                           dy)
 
         self._buttons = []
         dy = self._addbutton(self._background,
@@ -70,6 +75,11 @@ class CreatureDetails(object):
         return False, False, self
 
     def draw(self, surface):
+        activity = self._creature.activity
+        if self._activity != activity:
+            self._background = None
+            self._activity = activity
+        
         if not self._background:
             self._makebackground(surface.get_size())
             surface.blit(self._background, (0,0))

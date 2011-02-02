@@ -831,7 +831,7 @@ class BoozeDrinking(ItemAppetite):
             else:
                 bev.materials[0].amount -= sip
             
-            self.sate(3600 * (sip / self.thirst))
+            self.sate(3600 * (sip / self._pentup))
 
             for step in self._creature.stashitem(world, vessel):
                 yield step
@@ -1001,13 +1001,14 @@ class Creature(Thing):
                 for location in path:
                     yield _('travelling')
                     world.movecreature(self, location)
+                break
 
     def takeitem(self, world, item):
         item.reserved = True
         for step in self.goto(world, item.location):
             yield _('{going} to get {item}').format(
                 going=step, item=item.description())
-            
+
         if self.location != item.location:
             return
         
@@ -1030,6 +1031,11 @@ class Creature(Thing):
                         yield step
                 if self.inventory.has(itemtype):
                     break
+
+    def discarditem(self, world, item):
+        yield _('discarding {item}').format(item=item)
+        self.inventory.remove(item)
+        world.additem(item)
 
     def stashitem(self, world, item):
         for pile in world.getstockpiles(item.stocktype):
