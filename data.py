@@ -21,21 +21,14 @@ class Material(object):
         return self.substance.density * self.amount
 
 class Entity(object):
-    __slots__ = 'kind',
-    
-    def __init__(self, kind):
-        self.kind = kind
-
-    def description(self):
-        return self.kind
+    pass
 
 class Thing(Entity):
     __slots__ = 'materials',
 
     fluid = False
     
-    def __init__(self, kind, materials):
-        Entity.__init__(self, kind)
+    def __init__(self, materials):
         self.materials = materials
 
     def volume(self):
@@ -54,7 +47,7 @@ class Beverage(Thing):
     fluid = True
     
     def __init__(self, amount):
-        Thing.__init__(self, 'beverage', [Material(Water, amount)])
+        Thing.__init__(self, [Material(Water, amount)])
 
     def description(self):
         return _('{drink} ({volume} L)').format(drink=self.noun,
@@ -71,8 +64,8 @@ class Wine(Beverage):
 class Item(Thing):
     __slots__ = 'color', 'location', 'reserved'
     
-    def __init__(self, kind, materials, location):
-        Thing.__init__(self, kind, materials)
+    def __init__(self, materials, location):
+        Thing.__init__(self, materials)
         self.color = self.materials[0].substance.color
         self.location = location
         self.reserved = False
@@ -197,8 +190,8 @@ class Stockpile(Entity):
 class Container(Item):
     __slots__ = 'storage',
     
-    def __init__(self, kind, materials, location, capacity):
-        Item.__init__(self, kind, materials, location)
+    def __init__(self, materials, location, capacity):
+        Item.__init__(self, materials, location)
         self.storage = Storage(capacity)
 
     @property
@@ -262,7 +255,7 @@ class Corpse(Item):
     stocktype = StockpileType(_('Corpse'))
         
     def __init__(self, creature):
-        Item.__init__(self, 'corpse', creature.materials, creature.location)
+        Item.__init__(self, creature.materials, creature.location)
         self.origins = creature
 
     def description(self):
@@ -276,7 +269,7 @@ class Barrel(Container):
     containerstocktype = StockpileType(_('Empty barrel'))
     
     def __init__(self, location, substance):
-        Container.__init__(self, 'barrel',
+        Container.__init__(self,
                            [Material(substance, 0.075)], location, 0.25)
         self.contents.append(Wine(self.capacity))
 
@@ -784,8 +777,8 @@ class Creature(Thing):
                    ],
                   key = JobOption.prioritykey)
     
-    def __init__(self, kind, materials, color, location):
-        Thing.__init__(self, kind, materials)
+    def __init__(self, materials, color, location):
+        Thing.__init__(self, materials)
         self.attributes = sampleattributes(self.race)
         self.color = color
         self.location = location
@@ -932,8 +925,8 @@ class Man(Gender):
 class SexualCreature(Creature):
     __slots__ = 'sex'
     
-    def __init__(self, kind, materials, color, location, sex):
-        Creature.__init__(self, kind, materials, color, location)
+    def __init__(self, materials, color, location, sex):
+        Creature.__init__(self, materials, color, location)
         self.sex = sex
 
     def sexdescription(self):
@@ -942,8 +935,8 @@ class SexualCreature(Creature):
 class CulturedCreature(SexualCreature):
     __slots__ = 'gender', 'name'
 
-    def __init__(self, kind, materials, color, location, sex, gender):
-        SexualCreature.__init__(self, kind, materials, color, location, sex)
+    def __init__(self, materials, color, location, sex, gender):
+        SexualCreature.__init__(self, materials, color, location, sex)
         self.name = self.culture[NameSource].generate()
         self.gender = gender
 
@@ -1066,7 +1059,7 @@ class Dwarf(CulturedCreature):
             sex = Female
             gender = Man if random() < self.culture[FemaleMen] else Woman
 
-        CulturedCreature.__init__(self, 'dwarf', [Material(Meat, 0.075)],
+        CulturedCreature.__init__(self, [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location, sex, gender)
 
     def colordescription(self):
@@ -1108,7 +1101,7 @@ class Goblin(CulturedCreature):
             sex = Female
             gender = Man if random() < self.culture[FemaleMen] else Woman
 
-        CulturedCreature.__init__(self, 'goblin', [Material(Meat, 0.05)],
+        CulturedCreature.__init__(self, [Material(Meat, 0.05)],
                                   (32, 64+randint(0,127),64+randint(0,127)),
                                   location, sex, gender)
 
@@ -1133,7 +1126,7 @@ class Tortoise(SexualCreature):
     
     def __init__(self, location):
         d = randint(-20,10)
-        SexualCreature.__init__(self, 'tortoise', [Material(Meat, 0.3)],
+        SexualCreature.__init__(self, [Material(Meat, 0.3)],
                                 (188+d,168+d,138+d), location,
                                 choice([Male,Female]))
         
@@ -1158,7 +1151,7 @@ class SmallSpider(SexualCreature):
         }
     
     def __init__(self, location):
-        SexualCreature.__init__(self, 'spider-small', [Material(Meat, 0.0001)],
+        SexualCreature.__init__(self, [Material(Meat, 0.0001)],
                                 (95, randint(0,40), 0), location,
                                 choice([Male,Female]))
 
