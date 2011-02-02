@@ -5,6 +5,7 @@ from re import search
 from unicodedata import name as unicodename
 
 from colordb import match as describecolor
+from jobs import *
 from space import Earth, Empty
 from substances import AEther, Meat, Water
 from language import Generator
@@ -393,7 +394,7 @@ class ItemAppetite(Appetite):
     __slots__ = ()
     
     def attempt(self, world):
-        for step in self._creature.acquireitem(world,
+        for step in acquireitem(self._creature, world,
                                                self.stocktype,
                                                self.itemtype):
             yield step
@@ -437,7 +438,7 @@ class BoozeDrinking(ItemAppetite):
                 self.slake(self.fortification * sip / self._sip *
                            self._creature.speed())
 
-            for step in self._creature.stashitem(world, vessel):
+            for step in stashitem(self._creature, world, vessel):
                 yield step
 
 class Creature(Thing):
@@ -560,109 +561,17 @@ class Creature(Thing):
         if self.health <= 0:
             self._die(world)
 
-    def pathto(self, world, goal):
-        steps = 256
-        
-        p1 = world.space.pathing.path_op(self.location, goal)
-        p2 = world.space.pathing.path_op(goal, self.location)
-
-        path = None
-        while True:
-            yield _(u'plotting course'), path
-            
-            if not p1.done and not p2.done:
-                p1.iterate(steps)
-                p2.iterate(steps)
-                continue
-
-            if p1.done:
-                path = p1.path
-            elif p2.path is not None:
-                path = p2.path[::-1][1:] + [goal]
-
-    def goto(self, world, goal):
-        for step, path in self.pathto(world, goal):
-            yield step
-            if path:
-                for location in path:
-                    yield _(u'travelling')
-                    world.movecreature(self, location)
-                break
-
-    def takeitem(self, world, item):
-        item.reserved = True
-        for step in self.goto(world, item.location):
-            yield _(u'{going} to {item}').format(
-                going=step, item=item.description())
-
-        if self.location != item.location:
-            return
-        
-        yield _(u'picking up {item}').format(item=item.description())
-        item.reserved = False
-        world.removeitem(item)
-        self.inventory.add(item)
-
-    def acquireitem(self, world, stocktype, itemtype):
-        if self.player:
-            for pile in self.player.getstockpiles(stocktype):
-                if pile.has(itemtype):
-                    for step in self.takefromstockpile(world, pile, itemtype):
-                        yield step
-                    if self.inventory.has(itemtype):
-                        break
-            else:
-                for item in self.player.unstockpileditems(stocktype):
-                    if not item.reserved:
-                        for step in self.takeitem(world, item):
-                            yield step
-                    if self.inventory.has(itemtype):
-                        break
-        else:
-            for item in world.items:
-                if not item.reserved:
-                    for step in self.takeitem(world, item):
-                        yield step
-                if self.inventory.has(itemtype):
-                    break
-                
-    def discarditem(self, world, item):
-        yield _(u'discarding {item}').format(item=item.description())
-        self.inventory.remove(item)
-        world.additem(item)
-
-    def stashitem(self, world, item):
-        if self.player:
-            for pile in self.player.getstockpiles(item.stocktype):
-                if pile.space():
-                    for step in self.storeinstockpile(world, pile, item):
-                        yield step
-                    break
-            else:
-                for step in self.discarditem(world, item):
-                    yield step
-        else:
-            for step in self.discarditem(world, item):
-                yield step
-
     def feedappetites(self, world):
         for appetite in self.appetites:
             for step in appetite.pursue(world):
                 yield step
-
-    def meander(self, world):
-        adjacent = world.space.pathing.open_adjacent(self.location)
-        if len(adjacent) > 0:
-            world.movecreature(self, choice([a for a in adjacent]))
-        
-        return _(u'idling')
 
     def work(self, world):
         while True:
             for step in self.feedappetites(world):
                 yield step
 
-            yield self.meander(world)
+            yield meander(self, world)
             
     def step(self, world, dt):
         for app in self.appetites:
@@ -838,6 +747,7 @@ class Dwarf(CulturedCreature):
         r = randint(80,255)
         CulturedCreature.__init__(self, player, [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location)
+        self.appetites[0]._pentup = 3550
 
     def colordescription(self):
         return _(u'has {hue} skin').format(hue=describecolor(self.color))
