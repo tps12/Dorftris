@@ -766,12 +766,17 @@ class Appetite(object):
     def __init__(self, creature, threshold):
         self._creature = creature
         self._threshold = threshold
+        self._pentup = randint(self._threshold/2, self._threshold)
 
     def step(self, dt):
         self._pentup += dt
 
-    def sate(self, amount):
+    def slake(self, amount):
         self._pentup -= amount
+
+    @property
+    def sated(self):
+        return self._pentup <= 0
 
     def pursue(self, world):
         if self._pentup < self._threshold:
@@ -786,6 +791,11 @@ class SexualRelease(Appetite):
     __slots__ = ()
     
     requirement = _('physical intimacy')
+
+class Socialization(Appetite):
+    __slots__ = ()
+
+    requirement = _('fellowship')
 
 class WaterDrinking(Appetite):
     __slots__ = ()
@@ -805,33 +815,40 @@ class ItemAppetite(Appetite):
             yield step
 
 class BoozeDrinking(ItemAppetite):
-    __slots__ = ()
+    __slots__ = ('_sip')
 
     requirement = _('alcoholic drinks or {water}').format(
         water = WaterDrinking.requirement)
     sating = _('drinking')
     stocktype = Drinks
     itemtype = Beverage
+    fortification = 15 
 
-    def __init__(self, creature):
-        Appetite.__init__(self, creature, 1000)
+    def __init__(self, creature, sip):
+        Appetite.__init__(self, creature, 3600) # once a month
+        self._sip = sip
 
-    def consume(self, world):
+    def consume(self, world):            
         vessel = self._creature.inventory.find(lambda item:
                                      hasattr(item, 'has') and
                                      item.has(Beverage))
 
         if vessel:
-            yield self.sating
             bev = vessel.find(lambda item: isinstance(item, Beverage))
-            sip = min(self._pentup, bev.materials[0].amount)
-
-            if sip == bev.materials[0].amount:
-                vessel.remove(bev)
-            else:
-                bev.materials[0].amount -= sip
             
-            self.sate(3600 * (sip / self._pentup))
+            while not self.sated:
+                yield _('{consuming} {drink}').format(
+                    consuming=self.sating, drink=bev.description())
+
+                sip = min(bev.materials[0].amount, self._sip)
+                bev.materials[0].amount -= sip
+                
+                if not bev.materials[0].amount:
+                    vessel.remove(bev)
+                    break
+
+                self.slake(self.fortification * sip / self._sip *
+                           self._creature.speed())
 
             for step in self._creature.stashitem(world, vessel):
                 yield step
@@ -844,7 +861,6 @@ class Creature(Thing):
         'location',
         'inventory',
         'job',
-        'hydration',
         'rest',
         '_remove',
         '_work',
@@ -869,12 +885,10 @@ class Creature(Thing):
         self.location = location
         self.inventory = Storage(1.0)
         self.job = None
-        self.hydration = randint(900, 3600)
         self.rest = random() * self.speed()
         self._remove = False
         self._work = None
-        self._appetites = [BoozeDrinking(self)]
-        self._appetites[0]._pentup = 985
+        self._appetites = []
 
     def propername(self):
         return _(u'this')
@@ -966,11 +980,6 @@ class Creature(Thing):
             she=pronoun, sex=self.sexdescription())
 
     def _checkhealth(self, world):
-        self.hydration = max(self.hydration - 1, 0)
-
-        if self.hydration == 0:
-            self.health -= 1
-
         if self.health <= 0:
             self._die(world)
 
@@ -1006,13 +1015,13 @@ class Creature(Thing):
     def takeitem(self, world, item):
         item.reserved = True
         for step in self.goto(world, item.location):
-            yield _('{going} to get {item}').format(
+            yield _('{going} to {item}').format(
                 going=step, item=item.description())
 
         if self.location != item.location:
             return
         
-        yield _('picking up {item}').format(item=item)
+        yield _('picking up {item}').format(item=item.description())
         item.reserved = False
         world.removeitem(item)
         self.inventory.add(item)
@@ -1033,7 +1042,7 @@ class Creature(Thing):
                     break
 
     def discarditem(self, world, item):
-        yield _('discarding {item}').format(item=item)
+        yield _('discarding {item}').format(item=item.description())
         self.inventory.remove(item)
         world.additem(item)
 
@@ -1107,10 +1116,21 @@ class SexualCreature(Creature):
 class CulturedCreature(SexualCreature):
     __slots__ = 'gender', 'name'
 
-    def __init__(self, materials, color, location, sex, gender):
-        SexualCreature.__init__(self, materials, color, location, sex)
+    def __init__(self, materials, color, location):
         self.name = self.culture[NameSource].generate()
-        self.gender = gender
+        
+        if random() < self.culture[Maleness]:
+            sex = Male
+            self.gender = Woman if random() < self.culture[MaleWomen] else Man
+        else:
+            sex = Female
+            self.gender = Man if random() < self.culture[FemaleMen] else Woman
+
+        SexualCreature.__init__(self, materials, color, location, sex)
+
+        for p, appetite in self.culture[Appetites]:
+            if random() < p:
+                self._appetites.append(appetite(self))
 
     def propername(self):
         return self.name
@@ -1134,6 +1154,9 @@ class MaleWomen(DemographicFigure):
     pass
 
 class FemaleMen(DemographicFigure):
+    pass
+
+class Appetites(object):
     pass
 
 class NameSource(object):
@@ -1168,7 +1191,8 @@ class Human(CulturedCreature):
         Maleness : 0.5,
         MaleWomen : 0.01,
         FemaleMen : 0.01,
-        NameSource : NameGenerator('fr.txt', 2)
+        NameSource : NameGenerator('fr.txt', 2),
+        Appetites : []
         }
     
 class Elf(CulturedCreature):
@@ -1188,7 +1212,8 @@ class Elf(CulturedCreature):
         Maleness : 0.5,
         MaleWomen : 0.05,
         FemaleMen : 0.05,
-        NameSource : NameGenerator('fi.txt', 2)
+        NameSource : NameGenerator('fi.txt', 2),
+        Appetites : []
         }
 
 class Dwarf(CulturedCreature):
@@ -1218,21 +1243,14 @@ class Dwarf(CulturedCreature):
         Maleness : 0.5,
         MaleWomen : 0.01,
         FemaleMen : 0.01,
-        NameSource : NameGenerator('gd.txt', 2)
+        NameSource : NameGenerator('gd.txt', 2),
+        Appetites : [(1.0, lambda c: BoozeDrinking(c, 0.0001))]
         }
     
     def __init__(self, location):
         r = randint(80,255)
-        
-        if random() < self.culture[Maleness]:
-            sex = Male
-            gender = Woman if random() < self.culture[MaleWomen] else Man
-        else:
-            sex = Female
-            gender = Man if random() < self.culture[FemaleMen] else Woman
-
         CulturedCreature.__init__(self, [Material(Meat, 0.075)],
-                                  (r, r-40, r-80), location, sex, gender)
+                                  (r, r-40, r-80), location)
 
     def colordescription(self):
         return _(u'has {hue} skin').format(hue=describecolor(self.color))
@@ -1262,20 +1280,14 @@ class Goblin(CulturedCreature):
         Maleness : 0.25,
         MaleWomen : 0,
         FemaleMen : 0.5,
-        NameSource : NameGenerator('no.txt', 1)
+        NameSource : NameGenerator('no.txt', 1),
+        Appetites : []
         }
     
     def __init__(self, location):
-        if random() < self.culture[Maleness]:
-            sex = Male
-            gender = Woman if random() < self.culture[MaleWomen] else Man
-        else:
-            sex = Female
-            gender = Man if random() < self.culture[FemaleMen] else Woman
-
         CulturedCreature.__init__(self, [Material(Meat, 0.05)],
                                   (32, 64+randint(0,127),64+randint(0,127)),
-                                  location, sex, gender)
+                                  location)
 
     def colordescription(self):
         return _(u'has {hue} skin').format(hue=describecolor(self.color))
