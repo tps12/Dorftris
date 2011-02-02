@@ -134,8 +134,8 @@ class SelectionInfo(object):
         self._playfield.deselecttiles()
 
     def _stockpile(self):
-        self._playfield.game.world.addstockpile(Stockpile(self._tiles,
-                                                          [Wine.stocktype]))
+        self._playfield.player.addstockpile(Stockpile(self._tiles,
+                                                      [Wine.stocktype]))
         self._clearselectedtiles()
 
     def _designatetile(self, location):

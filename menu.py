@@ -58,7 +58,8 @@ class MainMenu(object):
 
     def newgame(self):
         self.game = Game((156, 104, 128))
-
+        user = Player(self.game.world)
+        
         for i in range(20):
             self.game.world.space.maketree((randint(0, self.game.dimensions[0]-1),
                            randint(0, self.game.dimensions[1]-1),
@@ -67,7 +68,9 @@ class MainMenu(object):
         kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
         for i in range(20):
-            creature = choice(kind)((randint(0,self.game.dimensions[0]-1),
+            race = choice(kind)
+            player = user if race is Dwarf else None
+            creature = race(player, (randint(0,self.game.dimensions[0]-1),
                                      randint(0,self.game.dimensions[1]-1),
                                      64))
             self.game.schedule(creature)
@@ -78,7 +81,7 @@ class MainMenu(object):
                                             64),
                                            choice(Wood.__subclasses__())))
 
-        self.child = Renderer(self.game, Player(self.game.world), self.zoom)
+        self.child = Renderer(self.game, user, self.zoom)
 
     def quitgame(self):
         self.done = True

@@ -6,7 +6,7 @@ from unicodedata import name as unicodename
 
 from colordb import match as describecolor
 from space import Earth, Empty
-from substances import Meat, Water
+from substances import AEther, Meat, Water
 from language import Generator
 from sound import Dig, Fight, Mine, Step
 
@@ -133,13 +133,12 @@ class WrongItemType(Exception):
     pass
 
 class Stockpile(Entity):
-    __slots__ = 'storage', 'components', 'types', 'changed'
+    __slots__ = 'storage', 'components', 'types', 'changed', 'player'
     
     color = (255,255,255)
     noun = _(u'stockpile')
     
     def __init__(self, region, types):
-        Entity.__init__(self, 'stockpile')
         self.storage = Storage(0)
         self.components = []
         self.types = types
@@ -243,8 +242,7 @@ class StockpileComponent(Container):
     __slots__ = 'stockpile',
     
     def __init__(self, stockpile, location):
-        Container.__init__(self, stockpile.kind,
-                           [Material(AEther, 0)], location, 1.0)
+        Container.__init__(self, [Material(AEther, 0)], location, 1.0)
         self.stockpile = stockpile
 
     def description(self):
@@ -260,7 +258,7 @@ class Corpse(Item):
         self.origins = creature
 
     def description(self):
-        return _(u'corpse of {0}').format(self.origins.description())
+        return _(u'corpse of {0}').format(self.origins.namecard())
 
 class Barrel(Container):
     __slots__ = ()
@@ -452,10 +450,11 @@ class Creature(Thing):
         'rest',
         '_remove',
         '_work',
-        'appetites'
+        'appetites',
+        'player'
         )
     
-    def __init__(self, materials, color, location):
+    def __init__(self, player, materials, color, location):
         Thing.__init__(self, materials)
         self.activity = _(u'revelling in the miracle of creation')
         self.attributes = sampleattributes(self.race)
@@ -466,6 +465,7 @@ class Creature(Thing):
         self._remove = False
         self._work = None
         self.appetites = []
+        self.player = player
 
     def propername(self):
         return _(u'this')
@@ -604,31 +604,43 @@ class Creature(Thing):
         self.inventory.add(item)
 
     def acquireitem(self, world, stocktype, itemtype):
-        for pile in world.getstockpiles(stocktype):
-            if pile.has(itemtype):
-                for step in self.takefromstockpile(world, pile, itemtype):
-                    yield step
-                if self.inventory.has(itemtype):
-                    break
+        if self.player:
+            for pile in self.player.getstockpiles(stocktype):
+                if pile.has(itemtype):
+                    for step in self.takefromstockpile(world, pile, itemtype):
+                        yield step
+                    if self.inventory.has(itemtype):
+                        break
+            else:
+                for item in self.player.unstockpileditems(stocktype):
+                    if not item.reserved:
+                        for step in self.takeitem(world, item):
+                            yield step
+                    if self.inventory.has(itemtype):
+                        break
         else:
-            for item in world.unstockpileditems(stocktype):
+            for item in world.items:
                 if not item.reserved:
                     for step in self.takeitem(world, item):
                         yield step
                 if self.inventory.has(itemtype):
                     break
-
+                
     def discarditem(self, world, item):
         yield _(u'discarding {item}').format(item=item.description())
         self.inventory.remove(item)
         world.additem(item)
 
     def stashitem(self, world, item):
-        for pile in world.getstockpiles(item.stocktype):
-            if pile.space():
-                for step in self.storeinstockpile(world, pile, item):
+        if self.player:
+            for pile in self.player.getstockpiles(item.stocktype):
+                if pile.space():
+                    for step in self.storeinstockpile(world, pile, item):
+                        yield step
+                    break
+            else:
+                for step in self.discarditem(world, item):
                     yield step
-                break
         else:
             for step in self.discarditem(world, item):
                 yield step
@@ -690,8 +702,8 @@ class Man(Gender):
 class SexualCreature(Creature):
     __slots__ = 'sex'
     
-    def __init__(self, materials, color, location, sex):
-        Creature.__init__(self, materials, color, location)
+    def __init__(self, player, materials, color, location, sex):
+        Creature.__init__(self, player, materials, color, location)
         self.sex = sex
 
     def sexdescription(self):
@@ -700,7 +712,7 @@ class SexualCreature(Creature):
 class CulturedCreature(SexualCreature):
     __slots__ = 'gender', 'name'
 
-    def __init__(self, materials, color, location):
+    def __init__(self, player, materials, color, location):
         self.name = self.culture[NameSource].generate()
         
         if random() < self.culture[Maleness]:
@@ -710,7 +722,7 @@ class CulturedCreature(SexualCreature):
             sex = Female
             self.gender = Man if random() < self.culture[FemaleMen] else Woman
 
-        SexualCreature.__init__(self, materials, color, location, sex)
+        SexualCreature.__init__(self, player, materials, color, location, sex)
 
         for p, appetite in self.culture[Appetites]:
             if random() < p:
@@ -822,9 +834,9 @@ class Dwarf(CulturedCreature):
         Appetites : [(1.0, lambda c: BoozeDrinking(c, 0.0001))]
         }
     
-    def __init__(self, location):
+    def __init__(self, player, location):
         r = randint(80,255)
-        CulturedCreature.__init__(self, [Material(Meat, 0.075)],
+        CulturedCreature.__init__(self, player, [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location)
 
     def colordescription(self):
@@ -852,8 +864,8 @@ class Goblin(CulturedCreature):
         Appetites : []
         }
     
-    def __init__(self, location):
-        CulturedCreature.__init__(self, [Material(Meat, 0.05)],
+    def __init__(self, player, location):
+        CulturedCreature.__init__(self, player, [Material(Meat, 0.05)],
                                   (32, 64+randint(0,127),64+randint(0,127)),
                                   location)
 
@@ -875,9 +887,9 @@ class Tortoise(SexualCreature):
         Toughness : 120
         }
     
-    def __init__(self, location):
+    def __init__(self, player, location):
         d = randint(-20,10)
-        SexualCreature.__init__(self, [Material(Meat, 0.3)],
+        SexualCreature.__init__(self, player, [Material(Meat, 0.3)],
                                 (188+d,168+d,138+d), location,
                                 choice([Male,Female]))
         
@@ -900,8 +912,8 @@ class SmallSpider(SexualCreature):
         Toughness : 20
         }
     
-    def __init__(self, location):
-        SexualCreature.__init__(self, [Material(Meat, 0.0001)],
+    def __init__(self, player, location):
+        SexualCreature.__init__(self, player, [Material(Meat, 0.0001)],
                                 (95, randint(0,40), 0), location,
                                 choice([Male,Female]))
 
@@ -914,6 +926,9 @@ class Player(object):
     def __init__(self, world):
         self._world = world
         self.digjobs = deque()
+        self.stockjobs = {}
+
+        self._world.registerplayer(self)
     
     def designatefordigging(self, location):
         tile = self._world.space[location]
@@ -924,6 +939,56 @@ class Player(object):
                            Empty)):
                 self.digjobs.append(location)
             self._world.space.changed = True
+
+    def unstockpileditems(self, itemtype):
+        if itemtype.subtypes:
+            for subtype in itemtype.subtypes:
+                for item in self.unstockpileditems(subtype):
+                    yield item
+        else:
+            try:
+                jobs = self.stockjobs[itemtype]
+            except KeyError:
+                return
+            
+            if not jobs[0]:
+                for item in jobs[1]:
+                    yield item
+
+    def addstockpile(self, stockpile):
+        for t in stockpile.types:
+            try:
+                self.stockjobs[t][0].append(stockpile)
+            except KeyError:
+                self.stockjobs[t] = deque([stockpile]), deque()
+                
+        self._world.stockpiles.append(stockpile)
+
+    def getstockpiles(self, itemtype):
+        if itemtype.subtypes:
+            for subtype in itemtype.subtypes:
+                for pile in self.getstockpiles(subtype):
+                    yield pile
+        else:
+            try:
+                piles = self.stockjobs[itemtype][0]
+            except KeyError:
+                return
+            
+            for pile in piles:
+                yield pile
+
+    def addtostockjobs(self, item):
+        try:
+            self.stockjobs[item.stocktype][1].append(item)
+        except KeyError:
+            self.stockjobs[item.stocktype] = deque(), deque([item])
+
+    def removefromstockjobs(self, item):
+        try:
+            self.stockjobs[item.stocktype][1].remove(item)
+        except KeyError:
+            pass
         
 class World(object):
     def __init__(self, space, items):
@@ -931,8 +996,14 @@ class World(object):
         self.items = items
         self.creatures = []
         self.stockpiles = []
-        self.stockjobs = {}
         self._listener = None
+        self._players = []
+
+    def registerplayer(self, player):
+        self._players.append(player)
+
+    def forgetplayer(self, player):
+        self._players.remove(player)
 
     def addsoundlistener(self, listener):
         self._listener = listener
@@ -969,68 +1040,22 @@ class World(object):
             if not b.revealed and b.designation == designation:
                 self.digjobs.append(bloc)
         self.space[location] = tile
-
-    def addstockpile(self, stockpile):
-        for t in stockpile.types:
-            try:
-                self.stockjobs[t][0].append(stockpile)
-            except KeyError:
-                self.stockjobs[t] = deque([stockpile]), deque()
-                
-        self.stockpiles.append(stockpile)
-
-    def getstockpiles(self, itemtype):
-        if itemtype.subtypes:
-            for subtype in itemtype.subtypes:
-                for pile in self.getstockpiles(subtype):
-                    yield pile
-        else:
-            try:
-                piles = self.stockjobs[itemtype][0]
-            except KeyError:
-                return
-            
-            for pile in piles:
-                yield pile
             
     def additem(self, item, stockpiled = None):
         if item.location is not None:
             self.space[item.location].items.append(item)
 
-        if not stockpiled:
-            try:
-                self.addtostockjobs(item)
-            except KeyError:
-                self.stockjobs[item.stocktype] = deque(), deque([item])
+        for player in self._players:
+            player.addtostockjobs(item)
             
         self.items.append(item)
-
-    def unstockpileditems(self, itemtype):
-        if itemtype.subtypes:
-            for subtype in itemtype.subtypes:
-                for item in self.unstockpileditems(subtype):
-                    yield item
-        else:
-            try:
-                jobs = self.stockjobs[itemtype]
-            except KeyError:
-                return
-            
-            if not jobs[0]:
-                for item in jobs[1]:
-                    yield item
-                
-    def addtostockjobs(self, item):
-        self.stockjobs[item.stocktype][1].append(item)
-
-    def removefromstockjobs(self, item):
-        self.stockjobs[item.stocktype][1].remove(item)        
 
     def removeitem(self, item, stockpiled = None):
         if item.location is not None:
             self.space[item.location].items.remove(item)
 
         if not stockpiled:
-            self.removefromstockjobs(item)
+            for player in self._players:
+                player.removefromstockjobs(item)
             
         self.items.remove(item)

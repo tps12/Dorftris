@@ -77,7 +77,8 @@ class CreatureDetails(object):
 
     def draw(self, surface):
         if self._playfield.selectedentity != self._creature:
-            event.post(Event(KEYDOWN, {key: K_ESCAPE}))
+            event.post(event.Event(KEYDOWN,
+                                   {'key': K_ESCAPE, 'unicode': None, 'mod': None}))
         
         activity = self._creature.activity
         if self._activity != activity:
