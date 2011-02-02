@@ -363,6 +363,19 @@ class Appetite(object):
         for step in self.attempt(world):
             yield step
 
+    def status(self):
+        if self._pentup < 200:
+            return _('has recently enjoyed {desire}').format(
+                desire = self.requirement)
+        elif self._pentup > 1800:
+            prev = _('has not partaken of {desire} in some time').format(
+                desire = self.requirement)
+            if self._threshold - self._pentup < 200:
+                prev += _(' and will soon need to seek it out')
+            return prev
+        else:
+            return None
+
 class SexualRelease(Appetite):
     __slots__ = ()
     
@@ -371,7 +384,7 @@ class SexualRelease(Appetite):
 class Socialization(Appetite):
     __slots__ = ()
 
-    requirement = _('fellowship')
+    requirement = _('social fellowship')
 
 class WaterDrinking(Appetite):
     __slots__ = ()
@@ -530,6 +543,17 @@ class Creature(Thing):
 
         return value + ' ' + _(u'{she} is physically {sex}.').format(
             she=pronoun, sex=self.sexdescription())
+
+    def appetitereport(self):
+
+        stati = [appetite.status() for appetite in self.appetites]
+        if stati:
+            pronoun = self.subjectpronoun().capitalize()
+            return ' '.join([_(u'{she} {hankers}.').format(she=pronoun,
+                                                           hankers=status)
+                             for status in stati])
+        else:
+            return None
 
     def _checkhealth(self, world):
         if self.health <= 0:
