@@ -144,9 +144,9 @@ class SelectionInfo(object):
         if isinstance(tile, Empty):
             floor = self._playfield.game.world.space[(x,y,z-1)]
             if isinstance(floor, Earth):
-                self._playfield.game.world.designatefordigging((x,y,z-1))
+                self._playfield.player.designatefordigging((x,y,z-1))
         elif isinstance(tile, Earth):
-            self._playfield.game.world.designatefordigging((x,y,z))
+            self._playfield.player.designatefordigging((x,y,z))
 
     def _designate(self):
         for location in self._tiles:

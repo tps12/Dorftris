@@ -909,28 +909,33 @@ class SmallSpider(SexualCreature):
         color = describecolor(self.color)
         return _(u'has {a} {hue} body').format(a=indefinitearticle(color),
                                               hue=color)
+
+class Player(object):
+    def __init__(self, world):
+        self._world = world
+        self.digjobs = deque()
+    
+    def designatefordigging(self, location):
+        tile = self._world.space[location]
+        if isinstance(tile, Earth):
+            tile.designation = self
+            if (tile.revealed or
+                isinstance(self._world.space[location[0:2] + (location[2]+1,)],
+                           Empty)):
+                self.digjobs.append(location)
+            self._world.space.changed = True
         
 class World(object):
     def __init__(self, space, items):
         self.space = space
         self.items = items
         self.creatures = []
-        self.digjobs = deque()
         self.stockpiles = []
         self.stockjobs = {}
         self._listener = None
 
     def addsoundlistener(self, listener):
         self._listener = listener
-
-    def designatefordigging(self, location):
-        tile = self.space[location]
-        if isinstance(tile, Earth):
-            tile.designation = self
-            if (tile.revealed or
-                isinstance(self.space[location[0:2] + (location[2]+1,)], Empty)):
-                self.digjobs.append(location)
-            self.space.changed = True
 
     def makesound(self, sound, location):
         if self._listener:

@@ -6,7 +6,7 @@ from pygame import display, event, font, key
 from pygame.locals import *
 
 from button import Button
-from data import Barrel, Dwarf, Goblin, SmallSpider, Tortoise
+from data import Barrel, Dwarf, Goblin, SmallSpider, Tortoise, Player
 from game import Game
 from rendering import Renderer
 from substances import Wood
@@ -78,7 +78,7 @@ class MainMenu(object):
                                             64),
                                            choice(Wood.__subclasses__())))
 
-        self.child = Renderer(self.game, self.zoom)
+        self.child = Renderer(self.game, Player(self.game.world), self.zoom)
 
     def quitgame(self):
         self.done = True

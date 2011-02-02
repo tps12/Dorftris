@@ -5,8 +5,9 @@ from screen import GameScreen
 from status import StatusBar
 
 class Renderer(object):
-    def __init__(self, game, zoom):
+    def __init__(self, game, player, zoom):
         self.game = game
+        self._player = player
         self.zoom = zoom
         
         self.definetiles()
@@ -25,7 +26,8 @@ class Renderer(object):
                 d.scale(self.uifont)
         except AttributeError:
             self.status = StatusBar(self.game, self.uifont)
-            self.display = [GameScreen(self.game, self.uifont, self.zoom)]
+            self.display = [GameScreen(self.game, self._player,
+                                       self.uifont, self.zoom)]
                 
     def makebackground(self):
         self.status.resize(self.statussurf.get_size())

@@ -124,9 +124,11 @@ class ScreenSprites(LayeredDirty):
         return entity in self.entities
 
 class Playfield(object):
-    def __init__(self, game, font, zoom):
+    def __init__(self, game, player, font, zoom):
         self.game = game
         self.game.world.addsoundlistener(PlayfieldListener(self))
+
+        self.player = player
 
         self.zoom = zoom
 
