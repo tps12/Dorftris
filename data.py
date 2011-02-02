@@ -494,7 +494,7 @@ class Creature(Thing):
         return gauss(self.attributes[Sight],10) / 10
 
     def speed(self): 
-        return 20 - gauss(self.attributes[Speed],10) / 10
+        return 2 - gauss(self.attributes[Speed],10) / 100
 
     def attributetext(self, attribute):
         normal = self.race[attribute]
