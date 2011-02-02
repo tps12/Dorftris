@@ -23,12 +23,12 @@ class Game(object):
 
     def schedule(self, creature):
         self.world.space[creature.location].creatures.append(creature)
-        self.world.creatures.append(creature)
+        self.world.creatures.append((creature, self.t))
         self.reschedule(creature)
 
     def reschedule(self, creature):
         rest = int(creature.rest)
-        self._schedule[rest].append(creature)
+        self._schedule[rest].append((creature, self.t))
         creature.rest -= rest
 
     def getscheduled(self):
@@ -39,10 +39,9 @@ class Game(object):
     def step(self):       
         if not self.paused:
             creatures = self.getscheduled()
-            for creature in creatures:
-                creature.step(self.world)
-                if creature.remove:
-                    self.world.creatures.remove(creature)
+            for creature, t in creatures:
+                if creature.step(self.world, self.t - t):
+                    self.world.creatures.remove((creature, t))
                 else:
                     self.reschedule(creature)
             self.t += 1

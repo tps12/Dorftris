@@ -38,8 +38,9 @@ class Thing(Entity):
         return sum([m.mass() for m in self.materials])
 
 class StockpileType(object):
-    def __init__(self, description):
+    def __init__(self, description, subtypes = None):
         self.description = description
+        self.subtypes = subtypes if subtypes else []
 
 class Beverage(Thing):
     __slots__ = ()
@@ -273,16 +274,17 @@ class Barrel(Container):
                            [Material(substance, 0.075)], location, 0.25)
         self.contents.append(Wine(self.capacity))
 
-Arms = _('Weapons and armor'), []
-BuildingMaterials = _('Building materials'), []
-Clothing = _('Clothing'), []
-Drinks = _('Drink'), [Wine.stocktype]
-Food = _('Food'), []
-Furniture = _('Furnishings'), []
-Products = _('Trade products and supplies'), [Barrel.containerstocktype]
-Refuse = _('Refuse'), [Corpse.stocktype]
-Resources = _('Raw materials'), []
-Tools = _('Tools and equipment'), []
+Arms = StockpileType(_('Weapons and armor'), [])
+BuildingMaterials = StockpileType(_('Building materials'), [])
+Clothing = StockpileType(_('Clothing'), [])
+Drinks = StockpileType(_('Drink'), [Wine.stocktype])
+Food = StockpileType(_('Food'), [])
+Furniture = StockpileType(_('Furnishings'), [])
+Products = StockpileType(_('Trade products and supplies'),
+                         [Barrel.containerstocktype])
+Refuse = StockpileType(_('Refuse'), [Corpse.stocktype])
+Resources = StockpileType(_('Raw materials'), [])
+Tools = StockpileType(_('Tools and equipment'), [])
 
 StockpileCategories = [
     Arms,
@@ -755,8 +757,88 @@ def indefinitearticle(noun):
     m = search('LETTER ([^ ])', unicodename(unicode(noun[0])))
     return _('an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _('a')
 
+class Appetite(object):
+    __slots__ = '_pentup', '_creature', '_threshold'
+
+    stocktype = None
+    itemtype = None    
+
+    def __init__(self, creature, threshold):
+        self._creature = creature
+        self._threshold = threshold
+
+    def step(self, dt):
+        self._pentup += dt
+
+    def sate(self, amount):
+        self._pentup -= amount
+
+    def pursue(self, world):
+        if self._pentup < self._threshold:
+            return
+
+        yield _('looking for {desire}').format(desire=self.requirement)
+
+        for step in self.attempt(world):
+            yield step
+
+class SexualRelease(Appetite):
+    __slots__ = ()
+    
+    requirement = _('physical intimacy')
+
+class WaterDrinking(Appetite):
+    __slots__ = ()
+
+    requirement = _('potable water')
+
+class ItemAppetite(Appetite):
+    __slots__ = ()
+    
+    def attempt(self, world):
+        for step in self._creature.acquireitem(world,
+                                               self.stocktype,
+                                               self.itemtype):
+            yield step
+
+        for step in self.consume(world):
+            yield step
+
+class BoozeDrinking(ItemAppetite):
+    __slots__ = ()
+
+    requirement = _('alcoholic drinks or {water}').format(
+        water = WaterDrinking.requirement)
+    sating = _('drinking')
+    stocktype = Drinks
+    itemtype = Beverage
+
+    def __init__(self, creature):
+        Appetite.__init__(self, creature, 1000)
+
+    def consume(self, world):
+        vessel = self._creature.inventory.find(lambda item:
+                                     hasattr(item, 'has') and
+                                     item.has(Beverage))
+
+        if vessel:
+            yield self.sating
+            bev = vessel.find(lambda item: isinstance(item, Beverage))
+            sip = min(self._pentup, bev.materials[0].amount)
+
+            if sip == bev.materials[0].amount:
+                vessel.remove(bev)
+            else:
+                bev.materials[0].amount -= sip
+            
+            self.sate(3600 * (sip / self.thirst))
+
+            for step in self._creature.stashitem(world, vessel):
+                yield step
+
 class Creature(Thing):
     __slots__ = (
+        'activity',
         'attributes',
         'color',
         'location',
@@ -764,7 +846,9 @@ class Creature(Thing):
         'job',
         'hydration',
         'rest',
-        'remove'
+        '_remove',
+        '_work',
+        '_appetites'
         )
     
     jobs = sorted([
@@ -779,6 +863,7 @@ class Creature(Thing):
     
     def __init__(self, materials, color, location):
         Thing.__init__(self, materials)
+        self.activity = _('revelling in the miracle of creation')
         self.attributes = sampleattributes(self.race)
         self.color = color
         self.location = location
@@ -786,7 +871,10 @@ class Creature(Thing):
         self.job = None
         self.hydration = randint(900, 3600)
         self.rest = random() * self.speed()
-        self.remove = False
+        self._remove = False
+        self._work = None
+        self._appetites = [BoozeDrinking(self)]
+        self._appetites[0]._pentup = 985
 
     def propername(self):
         return _(u'this')
@@ -807,8 +895,8 @@ class Creature(Thing):
     def colordescription(self):
         return _(u'is the color {hue}').format(hue=describecolor(self.color))
 
-    def die(self, world):
-        self.remove = True
+    def _die(self, world):
+        self._remove = True
         world.additem(Corpse(self))
 
     def newjob(self, world):
@@ -826,7 +914,7 @@ class Creature(Thing):
     def eyesight(self):
         return gauss(self.attributes[Sight],10) / 10
 
-    def speed(self):
+    def speed(self): 
         return 20 - gauss(self.attributes[Speed],10) / 10
 
     def attributetext(self, attribute):
@@ -876,31 +964,109 @@ class Creature(Thing):
 
         return value + ' ' + _(u'{she} is physically {sex}.').format(
             she=pronoun, sex=self.sexdescription())
-            
-    def step(self, world):
+
+    def _checkhealth(self, world):
         self.hydration = max(self.hydration - 1, 0)
 
         if self.hydration == 0:
             self.health -= 1
 
         if self.health <= 0:
-            self.die(world)
+            self._die(world)
 
-        z = self.location[2] if self.location else None
+    def pathto(self, world, goal):
+        steps = 256
         
-        try:                
-            if self.job is None:
-                self.newjob(world)
-            elif self.job.work():
-                self.job = None
-                
-        except TaskImpossible:
-            self.job = None
+        p1 = world.space.pathing.path_op(self.location, goal)
+        p2 = world.space.pathing.path_op(goal, self.location)
 
-        if z is not None and self.location[2] != z:
-            world.makesound(Step, self.location)
+        path = None
+        while True:
+            yield _('plotting course'), path
+            
+            if not p1.done and not p2.done:
+                p1.iterate(steps)
+                p2.iterate(steps)
+                continue
+
+            if p1.done:
+                path = p1.path
+            elif p2.path is not None:
+                path = p2.path[::-1][1:] + [goal]
+
+    def goto(self, world, goal):
+        for step, path in self.pathto(world, goal):
+            yield step
+            if path:
+                for location in path:
+                    yield _('travelling')
+                    world.movecreature(self, location)
+
+    def takeitem(self, world, item):
+        item.reserved = True
+        for step in self.goto(world, item.location):
+            yield _('{going} to get {item}').format(
+                going=step, item=item.description())
+            
+        if self.location != item.location:
+            return
+        
+        yield _('picking up {item}').format(item=item)
+        item.reserved = False
+        world.removeitem(item)
+        self.inventory.add(item)
+
+    def acquireitem(self, world, stocktype, itemtype):
+        for pile in world.getstockpiles(stocktype):
+            if pile.has(itemtype):
+                for step in self.takefromstockpile(world, pile, itemtype):
+                    yield step
+                if self.inventory.has(itemtype):
+                    break
+        else:
+            for item in world.unstockpileditems(stocktype):
+                if not item.reserved:
+                    for step in self.takeitem(world, item):
+                        yield step
+                if self.inventory.has(itemtype):
+                    break
+
+    def stashitem(self, world, item):
+        for pile in world.getstockpiles(item.stocktype):
+            if pile.space():
+                for step in self.storeinstockpile(world, pile, item):
+                    yield step
+                break
+        else:
+            for step in self.discarditem(world, item):
+                yield step
+
+    def feedappetites(self, world):
+        for appetite in self._appetites:
+            for step in appetite.pursue(world):
+                yield step
+
+    def work(self, world):
+        while True:
+            yield _('idling')
+
+            for step in self.feedappetites(world):
+                yield step
+            
+    def step(self, world, dt):
+        for app in self._appetites:
+            app.step(dt)
+        
+        self._checkhealth(world)
+
+        if not self._work:
+            self._work = self.work(world)
+            
+        self.activity = next(self._work)
             
         self.rest += self.speed()
+
+        return self._remove
 
 class Sex(object):
     pass
@@ -1186,6 +1352,14 @@ class World(object):
         if self._listener:
             self._listener.play(sound, location)
 
+    def movecreature(self, creature, location):
+        sound = bool(location[2]-creature.location[2])
+        self.space[creature.location].creatures.remove(creature)
+        creature.location = location
+        self.space[creature.location].creatures.append(creature)
+        if sound:
+            self.makesound(Step, creature.location)
+
     def dig(self, location):
         self.makesound(self.space[location].substance.sound, location)
             
@@ -1214,6 +1388,20 @@ class World(object):
                 
         self.stockpiles.append(stockpile)
 
+    def getstockpiles(self, itemtype):
+        if itemtype.subtypes:
+            for subtype in itemtype.subtypes:
+                for pile in self.getstockpiles(subtype):
+                    yield pile
+        else:
+            try:
+                piles = self.stockjobs[itemtype][0]
+            except KeyError:
+                return
+            
+            for pile in piles:
+                yield pile
+            
     def additem(self, item, stockpiled = None):
         if item.location is not None:
             self.space[item.location].items.append(item)
@@ -1226,6 +1414,21 @@ class World(object):
             
         self.items.append(item)
 
+    def unstockpileditems(self, itemtype):
+        if itemtype.subtypes:
+            for subtype in itemtype.subtypes:
+                for item in self.unstockpileditems(subtype):
+                    yield item
+        else:
+            try:
+                jobs = self.stockjobs[itemtype]
+            except KeyError:
+                return
+            
+            if not jobs[0]:
+                for item in jobs[1]:
+                    yield item
+                
     def addtostockjobs(self, item):
         self.stockjobs[item.stocktype][1].append(item)
 
