@@ -48,7 +48,11 @@ class Empty(Tile):
 
     @property
     def description(self):
-        return self.covering.adjective if self.covering else None
+        return (self.covering.adjective
+                if hasattr(self.covering, 'adjective')
+                else _(u'{substance}-covered').format(
+                    substance=self.covering.noun)
+                if self.covering else None)
 
 class Earth(Tile):
     __slots__ = ()

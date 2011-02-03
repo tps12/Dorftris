@@ -10,6 +10,29 @@ from glyphs import Air, GlyphGraphics
 from listener import PlayfieldListener
 from space import *
 
+class StockpileSprite(DirtySprite):
+    def __init__(self, visible, position, graphics, component, *args, **kwargs):
+        DirtySprite.__init__(self, *args, **kwargs)
+        self.component = component
+        
+        self._position = position
+        self._visible = visible
+
+        self.image = graphics[self.component][0].copy()
+        self.image.fill(self.component.color, special_flags=BLEND_ADD)
+        self.rect = self.image.get_rect().move(
+            self._position(self.component.location))
+        self.layer = 0
+        
+    def update(self):
+        if self._visible(self.component.location):
+            pos = self._position(self.component.location)
+            if self.rect.topleft != pos:
+                self.rect.topleft = pos
+                self.dirty = True
+        else:
+            self.kill()
+
 class EntitySprite(DirtySprite):
     def __init__(self, visible, position, graphics, entity, *args, **kwargs):
         DirtySprite.__init__(self, *args, **kwargs)
@@ -22,7 +45,7 @@ class EntitySprite(DirtySprite):
         self.image.fill(self.entity.color, special_flags=BLEND_ADD)
         self.rect = self.image.get_rect().move(
             self._position(self.entity.location))
-        self.layer = 0
+        self.layer = 1
         
     def update(self):
         if self._visible(self.entity.location):
@@ -43,7 +66,7 @@ class EntitySelectionSprite(DirtySprite):
         draw.rect(self.image, prefs.selectioncolor, self.image.get_rect(), 1)
         self.rect = self._selection.rect
         
-        self.layer = 1
+        self.layer = 2
 
     def update(self):
         if len(self._selection.groups()):
@@ -65,7 +88,7 @@ class TileSelectionSprite(DirtySprite):
         self.selection = selection
         self._ps = []
 
-        self.layer = 1
+        self.layer = 2
 
     def update(self):
         ps = [self._position(loc)
@@ -354,7 +377,7 @@ class Playfield(object):
         self.background = Surface(size, flags=SRCALPHA)
         self.background.fill((0,0,0))
         self._scanbackground(self.background, self._drawtilebackground)
-
+ 
     def _mouse(self, pos = None):
         if pos is None:
             pos = mouse.get_pos()

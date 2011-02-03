@@ -8,7 +8,7 @@ from unicodedata import name as unicodename
 from colordb import match as describecolor
 from jobs import *
 from space import Earth, Empty
-from substances import AEther, Meat, Water, Stone, Soil
+from substances import AEther, Meat, Water, Stone
 from language import Generator
 from skills import SkillSet
 from sound import Dig, Fight, Mine, Step
@@ -74,39 +74,18 @@ class Item(Thing):
         self.location = location
         self.reserved = False
 
-class MiningProduct(Item):
-    __slots__ = ()
-
-    def __init__(self, substance, location):
-        Item.__init__(self, [Material(substance, 1.0)], location)
-
-    def description(self):
-        return _(u'loose {soil}').format(
-            soil = self.materials[0].substance.noun)
-
-    @classmethod
-    def create(cls, substance, location):
-        for sub in cls.__subclasses__():
-            if issubclass(substance, sub.composition):
-                return sub(substance, location)
-
-class DirtPile(MiningProduct):
-    __slots__ = ()
-    
-    composition = Soil
-    stocktype = StockpileType(_(u'dirt'))
-
-    def __init__(self, substance, location):
-        MiningProduct.__init__(self, substance, location)
-
-class LooseStone(MiningProduct):
+class LooseStone(Item):
     __slots__ = ()
     
     composition = Stone
     stocktype = StockpileType(_(u'stone'))
 
     def __init__(self, substance, location):
-        MiningProduct.__init__(self, substance, location)
+        Item.__init__(self, [Material(substance, 0.1)], location)
+
+    def description(self):
+        return _(u'loose {stone}').format(
+            soil = self.materials[0].substance.noun)
 
 class OutOfSpace(Exception):
     pass
@@ -308,6 +287,16 @@ class Barrel(Container):
         Container.__init__(self,
                            [Material(substance, 0.075)], location, 0.25)
         self.contents.append(Wine(self.capacity))
+
+class Bag(Container):
+    __slots__ = ()
+
+    noun = _(u'bag')
+
+    containerstocktype = StockpileType(_(u'Empty bag'))
+
+    def __init__(self, location, substance):
+        Container.__init__(self, [Material(substance, 0.05)], location, 0.1)
 
 class Pickax(Item):
     __slots__ = ()
@@ -1142,11 +1131,9 @@ class World(object):
 
     def dig(self, location):
         tile = self.space[location]
-
-        product = MiningProduct.create(tile.substance, location)
-        
         designation = tile.designation
-        self.makesound(tile.substance.sound, location)
+        substance = tile.substance
+        self.makesound(substance.sound, location)
             
         tile = Empty(randint(0,3))
         tile.revealed = True
@@ -1162,9 +1149,13 @@ class World(object):
             b = self.space[bloc]
             if not b.revealed and b.designation and b.designation == designation:
                 b.designation.digjobs.append(bloc)
-        self.space[location] = tile
 
-        self.additem(product)
+            if issubclass(substance, Stone):
+                self.additem(LooseStone(substance, location))
+            else:
+                tile.covering = substance
+                
+        self.space[location] = tile
             
     def additem(self, item, stockpiled = None):
         if item.location is not None:

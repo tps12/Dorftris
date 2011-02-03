@@ -12,14 +12,13 @@ class GlyphGraphics(object):
         self.font = Font('FreeMono.ttf', size)
         self.glyphs = {
             Air: u'\u00b7',
-            'bag': u'\u01d2',
+            Bag: u'\u01d2',
             Barrel: u'\u2338',
             Branch: (u'\u2b06',u'\u2b07',u'\u2b08',u'\u2b09',u'\u2b0a',u'\u2b0b'),
             'button': (u'\u250c',u'\u2500',u'\u2556',u'\u2551',u'\u255d',u'\u2550',u'\u2558',u'\u2502'),
             'chair': u'\u2441',
             Corpse: u'\u20e0',
             Dwarf: u'\u263a',
-            DirtPile: u'\u2059',
             Goblin: u'\u263f',
             'grapes': u'\u2031',
             Earth: (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
