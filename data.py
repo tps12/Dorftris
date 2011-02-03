@@ -8,7 +8,7 @@ from unicodedata import name as unicodename
 from colordb import match as describecolor
 from jobs import *
 from space import Earth, Empty
-from substances import AEther, Meat, Water
+from substances import AEther, Meat, Water, Stone, Soil
 from language import Generator
 from skills import SkillSet
 from sound import Dig, Fight, Mine, Step
@@ -73,6 +73,40 @@ class Item(Thing):
         self.color = self.materials[0].substance.color
         self.location = location
         self.reserved = False
+
+class MiningProduct(Item):
+    __slots__ = ()
+
+    def __init__(self, substance, location):
+        Item.__init__(self, [Material(substance, 1.0)], location)
+
+    def description(self):
+        return _(u'loose {soil}').format(
+            soil = self.materials[0].substance.noun)
+
+    @classmethod
+    def create(cls, substance, location):
+        for sub in cls.__subclasses__():
+            if issubclass(substance, sub.composition):
+                return sub(substance, location)
+
+class DirtPile(MiningProduct):
+    __slots__ = ()
+    
+    composition = Soil
+    stocktype = StockpileType(_(u'dirt'))
+
+    def __init__(self, substance, location):
+        MiningProduct.__init__(self, substance, location)
+
+class LooseStone(MiningProduct):
+    __slots__ = ()
+    
+    composition = Stone
+    stocktype = StockpileType(_(u'stone'))
+
+    def __init__(self, substance, location):
+        MiningProduct.__init__(self, substance, location)
 
 class OutOfSpace(Exception):
     pass
@@ -1108,6 +1142,9 @@ class World(object):
 
     def dig(self, location):
         tile = self.space[location]
+
+        product = MiningProduct.create(tile.substance, location)
+        
         designation = tile.designation
         self.makesound(tile.substance.sound, location)
             
@@ -1126,6 +1163,8 @@ class World(object):
             if not b.revealed and b.designation and b.designation == designation:
                 b.designation.digjobs.append(bloc)
         self.space[location] = tile
+
+        self.additem(product)
             
     def additem(self, item, stockpiled = None):
         if item.location is not None:
