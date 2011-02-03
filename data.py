@@ -374,19 +374,19 @@ class Mining(ToolLabor):
         location = self.creature.player.digjobs.popleft()
 
         for (x,y) in world.space.pathing.adjacent_xy(location[0:2]):
-            adjacent = world.space[(x,y,location[2])]
+            goal = (x,y,location[2])
+            adjacent = world.space[goal]
             if (adjacent and adjacent.is_passable() and
                 not world.space[(x,y,location[2]-1)].is_passable()):
-                goal = adjacent
                 for step in goto(self.creature, world, goal):
                     yield _(u'{going} adjacent to dig site').format(
                         going=step)
                 if self.creature.location == goal:
                     break
         else:
-            atop = world.space[location[0:2] + (location[2],)]
+            goal = location[0:2] + (location[2]+1,)
+            atop = world.space[goal]
             if atop.is_passable():
-                goal = atop
                 for step in goto(self.creature, world, goal):
                     yield _(u'{going} to top of dig site').format(
                         going=step)
