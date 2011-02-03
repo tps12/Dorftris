@@ -332,6 +332,80 @@ def indefinitearticle(noun):
     m = search('LETTER ([^ ])', unicodename(unicode(noun[0])))
     return _(u'an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _(u'a')
 
+class Labor(object):
+    def __init__(self, creature):
+        self.creature = creature
+
+class ToolLabor(Labor):
+    tools = []
+    
+    def __init__(self, creature):
+        Labor.__init__(self, creature)
+
+    def toil(self, world):
+        for tool in self.tools:
+            if not self.creature.inventory.has(tool):
+                for step in acquireitem(self.creature,
+                                        world, tool.stocktype, tool):
+                    yield step
+
+class Pickax(object):
+    def volume(self):
+        return 0.01
+           
+class Mining(ToolLabor):
+    gerund = _(u'mining')
+    tools = [Pickax]
+
+    def __init__(self, creature):
+        ToolLabor.__init__(self, creature)
+        creature.inventory.add(Pickax())
+
+    def toil(self, world):
+        for step in ToolLabor.toil(self, world):
+            yield step
+
+        pick = self.creature.inventory.find(lambda item:
+                                            isinstance(item, self.tools[0]))
+
+        if pick is None or not self.creature.player.digjobs:
+            return
+
+        location = self.creature.player.digjobs.popleft()
+
+        for (x,y) in world.space.pathing.adjacent_xy(location[0:2]):
+            adjacent = world.space[(x,y,location[2])]
+            if (adjacent and adjacent.is_passable() and
+                not world.space[(x,y,location[2]-1)].is_passable()):
+                goal = adjacent
+                for step in goto(self.creature, world, goal):
+                    yield _(u'{going} adjacent to dig site').format(
+                        going=step)
+                if self.creature.location == goal:
+                    break
+        else:
+            atop = world.space[location[0:2] + (location[2],)]
+            if atop.is_passable():
+                goal = atop
+                for step in goto(self.creature, world, goal):
+                    yield _(u'{going} to top of dig site').format(
+                        going=step)
+            else:
+                goal = None
+
+        if self.creature.location != goal:
+            self.creature.player.digjobs.append(location)
+            return
+
+        tile = world.space[location]
+
+        work = 0
+        while work < tile.substance.density:
+            yield _(u'mining {earth}').format(earth=tile.substance.noun)
+            work += min(1, 0.3 * self.creature.strength())
+
+        world.dig(location)
+
 class Appetite(object):
     __slots__ = '_pentup', '_creature', '_threshold'
 
@@ -452,7 +526,8 @@ class Creature(Thing):
         '_remove',
         '_work',
         'appetites',
-        'player'
+        'player',
+        'labors'
         )
     
     def __init__(self, player, materials, color, location):
@@ -496,6 +571,9 @@ class Creature(Thing):
 
     def speed(self): 
         return 2 - gauss(self.attributes[Speed],10) / 100
+
+    def strength(self):
+        return gauss(self.attributes[Strength],10) / 100
 
     def attributetext(self, attribute):
         normal = self.race[attribute]
@@ -566,9 +644,20 @@ class Creature(Thing):
             for step in appetite.pursue(world):
                 yield step
 
+    def performassignments(self, world):
+        if not self.player:
+            return
+
+        for labor in self.labors:
+            for step in labor.toil(world):
+                yield step
+
     def work(self, world):
         while True:
             for step in self.feedappetites(world):
+                yield step
+
+            for step in self.performassignments(world):
                 yield step
 
             yield meander(self, world)
@@ -747,7 +836,7 @@ class Dwarf(CulturedCreature):
         r = randint(80,255)
         CulturedCreature.__init__(self, player, [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location)
-        self.appetites[0]._pentup = 3550
+        self.labors = [Mining(self)]
 
     def colordescription(self):
         return _(u'has {hue} skin').format(hue=describecolor(self.color))

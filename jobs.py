@@ -43,6 +43,19 @@ def takeitem(creature, world, item):
     world.removeitem(item)
     creature.inventory.add(item)
 
+def takefromstockpile(creature, world, pile, itemtype):
+    item = pile.find(lambda item: isinstance(item, itemtype))
+    item.reserved = True
+    for step in goto(creature, world, pile.components[0].location):
+        yield _(u'{going} to {stockpile}').format(
+            going=step, stockpile=pile.description())
+
+    yield _(u'taking {item} from {stockpile}').format(
+        item=item, stockpile=pile)
+    item.reserved = False
+    world.removeitem(item)
+    creature.inventory.add(item)
+
 def acquireitem(creature, world, stocktype, itemtype):
     if creature.player:
         for pile in creature.player.getstockpiles(stocktype):
