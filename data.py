@@ -356,13 +356,33 @@ class Labor(object):
     def __init__(self, creature):
         self.creature = creature
 
-class ToolLabor(Labor):
+class SkilledLabor(Labor):
+    __slots__ = ()
+
+    skill = []
+    increment = 0
+
+    def __init__(self, creature):
+        Labor.__init__(self, creature)
+
+    def skilldisplayed(self):
+        skill = max(0,
+                    min(1,
+                        self.creature.skills.exp(self.skill))) * 0.9 + 0.05
+        total = 50
+        alpha = skill * total
+        return betavariate(alpha, total - alpha)
+
+    def trainskill(self):
+        self.creature.skills.train(self.skill, self.increment)
+
+class ToolLabor(SkilledLabor):
     __slots__ = ()
     
     tools = []
     
     def __init__(self, creature):
-        Labor.__init__(self, creature)
+        SkilledLabor.__init__(self, creature)
 
     def toil(self, world):
         for tool in self.tools:
@@ -371,19 +391,12 @@ class ToolLabor(Labor):
                                         world, tool.stocktype, tool):
                     yield step
 
-Digging = ['earthworking', 'mining', 'digging']
-
-def skillresult(skill):
-    skill = max(0, min(1, skill)) * 0.9 + 0.05
-    total = 50
-    alpha = skill * total
-    return betavariate(alpha, total - alpha)
-
 class Mining(ToolLabor):
     __slots__ = ()
     
     gerund = _(u'mining')
-    skill = Digging
+    skill = ['earthworking', 'mining', 'digging']
+    increment = 0.0001
     tools = [Pickax]
 
     def __init__(self, creature):
@@ -452,14 +465,14 @@ class Mining(ToolLabor):
             progress = max(1,
                            512 *
                            self.creature.strength() *
-                           skillresult(self.creature.skills.exp(self.skill)))
+                           self.skilldisplayed())
             
             work += progress
             tile = world.space[location]
 
         if isinstance(tile, Earth):
             world.dig(location)
-            self.creature.skills.train(self.skill, 0.0001)
+            self.trainskill()
 
 class Appetite(object):
     __slots__ = '_pentup', '_creature', '_threshold'
