@@ -1,6 +1,6 @@
 from codecs import open as openunicode
 from collections import deque
-from random import choice, gauss, randint, random
+from random import betavariate, choice, gauss, randint, random
 from re import search
 from unicodedata import name as unicodename
 
@@ -350,10 +350,14 @@ def indefinitearticle(noun):
     return _(u'an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _(u'a')
 
 class Labor(object):
+    __slots__ = 'creature'
+    
     def __init__(self, creature):
         self.creature = creature
 
 class ToolLabor(Labor):
+    __slots__ = ()
+    
     tools = []
     
     def __init__(self, creature):
@@ -365,13 +369,59 @@ class ToolLabor(Labor):
                 for step in acquireitem(self.creature,
                                         world, tool.stocktype, tool):
                     yield step
-           
+
+Digging = ['earthworking', 'mining', 'digging']
+
+def skillresult(skill):
+    skill = max(0, min(1, skill)) * 0.9 + 0.05
+    total = 50
+    alpha = skill * total
+    return betavariate(alpha, total - alpha)
+
 class Mining(ToolLabor):
+    __slots__ = ()
+    
     gerund = _(u'mining')
+    skill = Digging
     tools = [Pickax]
 
     def __init__(self, creature):
         ToolLabor.__init__(self, creature)
+
+    def adjoin(self, world, location):
+        for (x,y) in world.space.pathing.adjacent_xy(location[0:2]):
+            goal = (x,y,location[2])
+            adjacent = world.space[goal]
+            if (adjacent and adjacent.is_passable() and
+                not world.space[(x,y,location[2]-1)].is_passable()):
+                for step in goto(self.creature, world, goal):
+                    yield _(u'{going} adjacent to dig site').format(
+                        going=step), goal
+                if self.creature.location == goal:
+                    yield None, None
+
+    def mount(self, world, location):
+        goal = location[0:2] + (location[2]+1,)
+        atop = world.space[goal]
+        if atop.is_passable():
+            for step in goto(self.creature, world, goal):
+                yield _(u'{going} to top of dig site').format(
+                    going=step), goal
+            if self.creature.location == goal:
+                yield None, None
+
+    def approach(self, world, location):
+        for step, goal in self.adjoin(world, location):
+            if step:
+                yield step, goal
+            else:
+                break
+        else:
+            for step, goal in self.mount(world, location):
+                if step:
+                    yield step, goal
+                else:
+                    break                
 
     def toil(self, world):
         for step in ToolLabor.toil(self, world):
@@ -385,27 +435,10 @@ class Mining(ToolLabor):
 
         location = self.creature.player.digjobs.popleft()
 
-        for (x,y) in world.space.pathing.adjacent_xy(location[0:2]):
-            goal = (x,y,location[2])
-            adjacent = world.space[goal]
-            if (adjacent and adjacent.is_passable() and
-                not world.space[(x,y,location[2]-1)].is_passable()):
-                for step in goto(self.creature, world, goal):
-                    yield _(u'{going} adjacent to dig site').format(
-                        going=step)
-                if self.creature.location == goal:
-                    break
-        else:
-            goal = location[0:2] + (location[2]+1,)
-            atop = world.space[goal]
-            if atop.is_passable():
-                for step in goto(self.creature, world, goal):
-                    yield _(u'{going} to top of dig site').format(
-                        going=step)
-            else:
-                goal = None
+        for step, goal in self.approach(world, location):
+            yield step
 
-        if self.creature.location != goal:
+        if (self.creature.location != goal):
             self.creature.player.digjobs.append(location)
             return
 
@@ -414,7 +447,10 @@ class Mining(ToolLabor):
         work = 0
         while isinstance(tile, Earth) and work < tile.substance.density:
             yield _(u'mining {earth}').format(earth=tile.substance.noun)
-            work += max(1, 300 * self.creature.strength())
+
+            progress = max(1, 512 * self.creature.strength() * skillresult(0.5))
+            
+            work += progress
             tile = world.space[location]
 
         if isinstance(tile, Earth):
@@ -541,7 +577,8 @@ class Creature(Thing):
         '_work',
         'appetites',
         'player',
-        'labors'
+        'labors',
+        'strength'
         )
     
     def __init__(self, player, materials, color, location):
@@ -556,6 +593,7 @@ class Creature(Thing):
         self._work = None
         self.appetites = []
         self.player = player
+        self.strength = self._strength
 
     def propername(self):
         return _(u'this')
@@ -586,7 +624,7 @@ class Creature(Thing):
     def speed(self): 
         return 2 - gauss(self.attributes[Speed],10) / 100
 
-    def strength(self):
+    def _strength(self):
         return gauss(self.attributes[Strength],10) / 100
 
     def attributetext(self, attribute):
