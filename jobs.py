@@ -1,7 +1,7 @@
 from random import choice
 
 def pathto(creature, world, goal):
-    steps = 256
+    steps = 32
     
     p1 = world.space.pathing.path_op(creature.location, goal)
     p2 = world.space.pathing.path_op(goal, creature.location)

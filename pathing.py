@@ -155,7 +155,6 @@ class PathManager:
                         
                 loops += 1
             else:
-                self.done = True
                 return
 
             res = []
