@@ -41,6 +41,7 @@ def takeitem(creature, world, item):
     yield _(u'picking up {item}').format(item=item.description())
     item.reserved = False
     world.removeitem(item)
+    item.location = None
     creature.inventory.add(item)
 
 def takefromstockpile(creature, world, pile, itemtype):
@@ -82,6 +83,7 @@ def acquireitem(creature, world, stocktype, itemtype):
 def discarditem(creature, world, item):
     yield _(u'discarding {item}').format(item=item.description())
     creature.inventory.remove(item)
+    item.location = creature.location
     world.additem(item)
 
 def stashitem(creature, world, item):
