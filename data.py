@@ -450,11 +450,11 @@ class Mining(ToolLabor):
 
         location = self.creature.player.digjobs.popleft()
 
+        goal = None
         for step, goal in self.approach(world, location):
             yield step
 
         if (self.creature.location != goal):
-            self.creature.player.digjobs.append(location)
             return
 
         tile = world.space[location]
@@ -1119,13 +1119,13 @@ class World(object):
             n = self.space[nloc]
             if not n.revealed:
                 n.revealed = True
-                if n.designation == designation:
+                if n.designation and n.designation == designation:
                     n.designation.digjobs.append(nloc)
         if location[2]:
             bloc = location[0:2] + (location[2]-1,)
             b = self.space[bloc]
-            if not b.revealed and b.designation == designation:
-                self.digjobs.append(bloc)
+            if not b.revealed and b.designation and b.designation == designation:
+                b.designation.digjobs.append(bloc)
         self.space[location] = tile
             
     def additem(self, item, stockpiled = None):

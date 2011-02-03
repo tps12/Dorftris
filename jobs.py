@@ -17,8 +17,12 @@ def pathto(creature, world, goal):
 
         if p1.done:
             path = p1.path
+            break
         elif p2.path is not None:
             path = p2.path[::-1][1:] + [goal]
+            break
+        
+    yield _(u'found course'), path
 
 def goto(creature, world, goal):
     for step, path in pathto(creature, world, goal):
