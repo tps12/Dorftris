@@ -398,15 +398,15 @@ class Mining(ToolLabor):
             return
 
         tile = world.space[location]
-        if not isinstance(tile, Earth):
-            return
 
         work = 0
-        while work < tile.substance.density:
+        while isinstance(tile, Earth) and work < tile.substance.density:
             yield _(u'mining {earth}').format(earth=tile.substance.noun)
             work += max(1, 300 * self.creature.strength())
+            tile = world.space[location]
 
-        world.dig(location)
+        if isinstance(tile, Earth):
+            world.dig(location)
 
 class Appetite(object):
     __slots__ = '_pentup', '_creature', '_threshold'
