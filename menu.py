@@ -9,7 +9,7 @@ from button import Button
 from data import Barrel, Pickax, Dwarf, Goblin, SmallSpider, Tortoise, Player
 from game import Game
 from rendering import Renderer
-from substances import Wood
+from substances import Wood, Metal
 from prefs import DisplayOptions
 
 class MainMenu(object):
@@ -84,7 +84,7 @@ class MainMenu(object):
         self.game.world.additem(Pickax((randint(0,self.game.dimensions[0]-1),
                                         randint(0,self.game.dimensions[1]-1),
                                         64),
-                                       choice(Wood.__subclasses__()),
+                                       choice(Metal.__subclasses__()),
                                        choice(Wood.__subclasses__())))
 
 

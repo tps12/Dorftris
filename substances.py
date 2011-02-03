@@ -161,6 +161,164 @@ class Willow(Wood):
     color = (250,212,130)
     density = 420.0
 
+class Metal(Substance):
+    pass
+
+class Aluminum(Metal):
+    adjective = _(u'aluminum')
+    noun = _(u'aluminum')
+    color = 222, 220, 224
+    density = 2600.0
+
+class Beryllium(Metal):
+    adjective = _(u'beryllium')
+    noun = _(u'beryllium')
+    color = 114, 110, 99
+    density = 1840.0
+
+class Brass(Metal):
+    adjective = _(u'brass')
+    noun = _(u'brass')
+    color = 237, 208, 56
+    density = 8580.0
+
+class Bronze(Metal):
+    adjective = _(u'bronzen')
+    noun = _(u'bronze')
+    color = 159, 122, 92
+    density = 8150.0
+
+class AluminumBronze(Bronze):
+    adjective = _(u'aluminum bronze')
+    noun = _(u'aluminum bronze')
+    color = 145, 135, 132
+    density = 8200.0
+
+class Cobalt(Metal):
+    adjective = _(u'cobalt')
+    noun = _(u'cobalt')
+    color = 127, 130, 120
+    density = 8746.0
+
+class Copper(Metal):
+    adjective = _(u'copper')
+    noun = _(u'copper')
+    color = 221, 172, 134
+    density = 8930.0
+
+class BerylliumCopper(Copper):
+    adjective = _(u'beryllium copper')
+    noun = _(u'beryllium copper')
+    density = 8175.0
+
+class Electrum(Metal):
+    adjective = _(u'electrum')
+    noun = _(u'electrum')
+    color = 177, 153, 114
+    density = 8650.0
+
+class Gold(Metal):
+    adjective = _(u'golden')
+    noun = _(u'gold')
+    color = 209, 170, 116
+    density = 19320.0
+
+class Iron(Metal):
+    adjective = _(u'iron')
+    noun = _(u'iron')
+    color = 110, 115, 117
+    density = 7850.0
+
+class CastIron(Iron):
+    adjective = _(u'cast iron')
+    noun = _(u'cast iron')
+    color = 104, 97, 98
+    density = 7300.0
+
+class Steel(Iron):
+    adjective = _(u'steel')
+    noun = _(u'steel')
+    color = 198, 190, 188
+    density = 7850.0
+
+class Lead(Metal):
+    adjective = _(u'leaden')
+    noun = _(u'lead')
+    color = 106, 100, 108
+    density = 11340.0
+
+class Molybdenum(Metal):
+    adjective = _(u'molybdenum')
+    noun = _(u'molybdenum')
+    color = 105, 102, 104
+    density = 10188.0
+
+class Nickel(Metal):
+    adjective = _(u'nickel')
+    noun = _(u'nickel')
+    color = 79, 80, 73
+    density = 8800.0
+
+class NickelSilver(Metal):
+    adjective = _(u'nickel silver')
+    noun = _(u'nickel silver')
+    color = 173, 177, 180
+    density = 8650.0
+
+class Platinum(Metal):
+    adjective = _(u'platinum')
+    noun = _(u'platinum')
+    color = 151, 142, 139
+    density = 21400.0
+
+class Plutonium(Metal):
+    adjective = _(u'plutonium')
+    noun = _(u'plutonium')
+    color = 71, 76, 93
+    density = 19800.0
+
+class Silver(Metal):
+    adjective = _(u'silver')
+    noun = _(u'silver')
+    color = 197, 197, 197
+    density = 10490.0
+
+class Tin(Metal):
+    adjective = _(u'tin')
+    noun = _(u'tin')
+    color = 211, 201, 179
+    density = 7280.0
+
+class Titanium(Metal):
+    adjective = _(u'titanium')
+    noun = _(u'titanium')
+    color = 70, 72, 70
+    density = 4500.0
+
+class Tungsten(Metal):
+    adjective = _(u'tungsten')
+    noun = _(u'tungsten')
+    color = 111, 130, 138
+    density = 19600.0
+
+class Uranium(Metal):
+    adjective = _(u'uranium')
+    noun = _(u'uranium')
+    color = 134, 132, 127
+    density = 18900.0
+
+class Vanadium(Metal):
+    adjective = _(u'vanadium')
+    noun = _(u'vanadium')
+    color = 86, 89, 86
+    density = 5494.0
+
+class Zinc(Metal):
+    adjective = _(u'zinc')
+    noun = _(u'zinc')
+    color = 166, 164, 161
+    density = 7135.0
+	
 class Meat(Substance):
     color = (63,0,0)
     density = 1000.0
