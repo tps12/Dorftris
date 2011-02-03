@@ -80,11 +80,12 @@ class MainMenu(object):
                                             randint(0,self.game.dimensions[1]-1),
                                             64),
                                            choice(Wood.__subclasses__())))
-            self.game.world.additem(Pickax((randint(0,self.game.dimensions[0]-1),
-                                            randint(0,self.game.dimensions[1]-1),
-                                            64),
-                                           choice(Wood.__subclasses__()),
-                                           choice(Wood.__subclasses__())))
+
+        self.game.world.additem(Pickax((randint(0,self.game.dimensions[0]-1),
+                                        randint(0,self.game.dimensions[1]-1),
+                                        64),
+                                       choice(Wood.__subclasses__()),
+                                       choice(Wood.__subclasses__())))
 
 
         self.child = Renderer(self.game, user, self.zoom)

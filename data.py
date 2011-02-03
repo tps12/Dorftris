@@ -281,7 +281,8 @@ class Pickax(Item):
     stocktype = StockpileType(_(u'Pickax'))
     
     def __init__(self, location, blade, handle):
-        Item.__init__(self, [Material(blade, 0.825), Material(handle, 2.7)],
+        Item.__init__(self, [Material(blade, 0.00025),
+                             Material(handle, 0.0017)],
                       location)
 
     def description(self):
