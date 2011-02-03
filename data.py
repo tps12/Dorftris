@@ -1,5 +1,6 @@
 from codecs import open as openunicode
 from collections import deque
+from pdb import set_trace
 from random import betavariate, choice, gauss, randint, random
 from re import search
 from unicodedata import name as unicodename
@@ -594,6 +595,7 @@ class Creature(Thing):
         'activity',
         'attributes',
         'color',
+        'debug',
         'location',
         'inventory',
         'rest',
@@ -623,6 +625,8 @@ class Creature(Thing):
         self.appetites = []
         self.player = player
         self.skills = SkillSet()
+
+        self.debug = False
 
     def propername(self):
         return _(u'this')
@@ -744,6 +748,9 @@ class Creature(Thing):
             yield meander(self, world)
             
     def step(self, world, dt):
+        if self.debug:
+            set_trace()
+        
         for app in self.appetites:
             app.step(dt)
         

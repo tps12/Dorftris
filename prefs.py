@@ -7,6 +7,7 @@ class DisplayOptions(object):
         self.width = width
         self.height = height
         self.selectioncolor = 0, 255, 0
+        self.debugging = True
 
     @property
     def font(self):

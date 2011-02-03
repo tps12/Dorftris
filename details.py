@@ -13,6 +13,7 @@ class CreatureDetails(object):
         self._playfield = playfield
         self._activity = self._creature.activity
         self._prefs = prefs
+        self._showdetails = False
         
         self.scale(font)
 
@@ -51,8 +52,19 @@ class CreatureDetails(object):
         self._buttons = []
         dy = self._addbutton(self._background,
                              _(u'Description'),
-                             lambda: None,
+                             self._details,
                              dy)
+        if self._prefs.debugging:
+            dy = self._addbutton(self._background,
+                                 _(u'Debug'),
+                                 self._debug,
+                                 dy)
+
+    def _debug(self):
+        self._creature.debug = True
+
+    def _details(self):
+        self._showdetails = True
     
     def scale(self, font):
         self._font = font
@@ -70,8 +82,11 @@ class CreatureDetails(object):
             e.button == 1):
             for button in self._buttons:
                 if button.handle(e):
-                    return (True, False,
-                            CreatureDescription(self._creature, self._font))
+                    break
+        
+        if self._showdetails:
+            self._showdetails = False
+            return True, False, CreatureDescription(self._creature, self._font)
         
         return False, False, self
 

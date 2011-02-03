@@ -23,7 +23,7 @@ def pathto(creature, world, goal):
 def goto(creature, world, goal):
     for step, path in pathto(creature, world, goal):
         yield step
-        if path:
+        if path is not None:
             for location in path:
                 yield _(u'travelling')
                 world.movecreature(creature, location)
