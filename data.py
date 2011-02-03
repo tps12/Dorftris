@@ -532,7 +532,7 @@ class ItemAppetite(Appetite):
             yield step
 
 class BoozeDrinking(ItemAppetite):
-    __slots__ = ('_sip')
+    __slots__ = ('_sip', '_speed')
 
     requirement = _(u'alcoholic drinks or {water}').format(
         water = WaterDrinking.requirement)
@@ -544,6 +544,12 @@ class BoozeDrinking(ItemAppetite):
     def __init__(self, creature, sip):
         Appetite.__init__(self, creature, 3600) # once a month
         self._sip = sip
+        
+        self._speed = creature.speed
+        creature.speed = self.speed
+
+    def speed(self):
+        return self._speed() + (1 if self._pentup > self._threshold else 0)
 
     def consume(self, world):            
         vessel = self._creature.inventory.find(lambda item:
@@ -583,12 +589,16 @@ class Creature(Thing):
         'appetites',
         'player',
         'labors',
+        'speed',
         'strength',
         'skills'
         )
     
     def __init__(self, player, materials, color, location):
         Thing.__init__(self, materials)
+        self.speed = self._speed
+        self.strength = self._strength
+
         self.activity = _(u'revelling in the miracle of creation')
         self.attributes = sampleattributes(self.race)
         self.color = color
@@ -599,7 +609,6 @@ class Creature(Thing):
         self._work = None
         self.appetites = []
         self.player = player
-        self.strength = self._strength
         self.skills = SkillSet()
 
     def propername(self):
@@ -628,7 +637,7 @@ class Creature(Thing):
     def eyesight(self):
         return gauss(self.attributes[Sight],10) / 10
 
-    def speed(self): 
+    def _speed(self): 
         return 2 - gauss(self.attributes[Speed],10) / 100
 
     def _strength(self):
