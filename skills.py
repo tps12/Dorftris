@@ -1,4 +1,6 @@
 class Skill(object):
+    __slots__ = 'name', 'experience', 'subskills'
+    
     def __init__(self, name):
         self.name = name
         self.experience = 0
@@ -31,6 +33,8 @@ class Skill(object):
             skill.train(skillpath[1:], exp)
 
 class SkillSet(object):
+    __slots__ = 'skills'
+    
     def __init__(self):
         self.skills = []
 

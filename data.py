@@ -9,6 +9,7 @@ from jobs import *
 from space import Earth, Empty
 from substances import AEther, Meat, Water
 from language import Generator
+from skills import SkillSet
 from sound import Dig, Fight, Mine, Step
 
 class Material(object):
@@ -448,13 +449,17 @@ class Mining(ToolLabor):
         while isinstance(tile, Earth) and work < tile.substance.density:
             yield _(u'mining {earth}').format(earth=tile.substance.noun)
 
-            progress = max(1, 512 * self.creature.strength() * skillresult(0.5))
+            progress = max(1,
+                           512 *
+                           self.creature.strength() *
+                           skillresult(self.creature.skills.exp(self.skill)))
             
             work += progress
             tile = world.space[location]
 
         if isinstance(tile, Earth):
             world.dig(location)
+            self.creature.skills.train(self.skill, 0.0001)
 
 class Appetite(object):
     __slots__ = '_pentup', '_creature', '_threshold'
@@ -578,7 +583,8 @@ class Creature(Thing):
         'appetites',
         'player',
         'labors',
-        'strength'
+        'strength',
+        'skills'
         )
     
     def __init__(self, player, materials, color, location):
@@ -594,6 +600,7 @@ class Creature(Thing):
         self.appetites = []
         self.player = player
         self.strength = self._strength
+        self.skills = SkillSet()
 
     def propername(self):
         return _(u'this')
