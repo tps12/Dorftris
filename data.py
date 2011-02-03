@@ -1029,18 +1029,18 @@ class Player(object):
 
     def unstockpileditems(self, itemtype):
         if itemtype.subtypes:
-            for subtype in itemtype.subtypes:
-                for item in self.unstockpileditems(subtype):
-                    yield item
+            return [item
+                    for subtype in itemtype.subtypes
+                    for item in self.unstockpileditems(subtype)]
         else:
             try:
                 jobs = self.stockjobs[itemtype]
             except KeyError:
-                return
+                return []
             
             if not jobs[0]:
-                for item in jobs[1]:
-                    yield item
+                return [item for item in jobs[1]]
+        return []
 
     def addstockpile(self, stockpile):
         for t in stockpile.types:
@@ -1053,17 +1053,16 @@ class Player(object):
 
     def getstockpiles(self, itemtype):
         if itemtype.subtypes:
-            for subtype in itemtype.subtypes:
-                for pile in self.getstockpiles(subtype):
-                    yield pile
+            return [pile
+                    for subtype in itemtype.subtypes
+                    for pile in self.getstockpiles(subtype)]
         else:
             try:
                 piles = self.stockjobs[itemtype][0]
             except KeyError:
-                return
+                return []
             
-            for pile in piles:
-                yield pile
+            return [pile for pile in piles]
 
     def addtostockjobs(self, item):
         try:
