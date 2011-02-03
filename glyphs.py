@@ -25,6 +25,7 @@ class GlyphGraphics(object):
             'harp': u'\u01f7',
             Leaves: ('*', u'\u2051', u'\u2042'),
             'ox': u'\u2649',
+            Pickax: u'\u23c9',
             'pig': u'\u2364',
             'piller': u'\u2161',
             'pipe': u'\u221b',

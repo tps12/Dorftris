@@ -273,6 +273,22 @@ class Barrel(Container):
                            [Material(substance, 0.075)], location, 0.25)
         self.contents.append(Wine(self.capacity))
 
+class Pickax(Item):
+    __slots__ = ()
+    
+    noun = _(u'pickax')
+
+    stocktype = StockpileType(_(u'Pickax'))
+    
+    def __init__(self, location, blade, handle):
+        Item.__init__(self, [Material(blade, 0.825), Material(handle, 2.7)],
+                      location)
+
+    def description(self):
+        return _(u'{metal} pickax with {wooden} handle').format(
+            metal = self.materials[0].substance.adjective,
+            wooden = self.materials[1].substance.adjective)
+
 Arms = StockpileType(_(u'Weapons and armor'), [])
 BuildingMaterials = StockpileType(_(u'Building materials'), [])
 Clothing = StockpileType(_(u'Clothing'), [])
@@ -283,7 +299,7 @@ Products = StockpileType(_(u'Trade products and supplies'),
                          [Barrel.containerstocktype])
 Refuse = StockpileType(_(u'Refuse'), [Corpse.stocktype])
 Resources = StockpileType(_(u'Raw materials'), [])
-Tools = StockpileType(_(u'Tools and equipment'), [])
+Tools = StockpileType(_(u'Tools and equipment'), [Pickax.stocktype])
 
 StockpileCategories = [
     Arms,
@@ -348,10 +364,6 @@ class ToolLabor(Labor):
                 for step in acquireitem(self.creature,
                                         world, tool.stocktype, tool):
                     yield step
-
-class Pickax(object):
-    def volume(self):
-        return 0.01
            
 class Mining(ToolLabor):
     gerund = _(u'mining')
@@ -359,7 +371,6 @@ class Mining(ToolLabor):
 
     def __init__(self, creature):
         ToolLabor.__init__(self, creature)
-        creature.inventory.add(Pickax())
 
     def toil(self, world):
         for step in ToolLabor.toil(self, world):
