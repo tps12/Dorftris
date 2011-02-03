@@ -398,11 +398,13 @@ class Mining(ToolLabor):
             return
 
         tile = world.space[location]
+        if not isinstance(tile, Earth):
+            return
 
         work = 0
         while work < tile.substance.density:
             yield _(u'mining {earth}').format(earth=tile.substance.noun)
-            work += min(1, 0.3 * self.creature.strength())
+            work += max(1, 300 * self.creature.strength())
 
         world.dig(location)
 
@@ -1032,7 +1034,7 @@ class World(object):
             if not n.revealed:
                 n.revealed = True
                 if n.designation == designation:
-                    self.digjobs.append(nloc)
+                    n.designation.digjobs.append(nloc)
         if location[2]:
             bloc = location[0:2] + (location[2]-1,)
             b = self.space[bloc]
