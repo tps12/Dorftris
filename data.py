@@ -1071,8 +1071,13 @@ class Player(object):
                 self.stockjobs[t][0].append(stockpile)
             except KeyError:
                 self.stockjobs[t] = deque([stockpile]), deque()
+
+        for component in stockpile.components:
+            self._world.space[component.location].addstockpile(self, stockpile)
                 
         self._world.stockpiles.append(stockpile)
+
+        self._world.space.changed = True
 
     def getstockpiles(self, itemtype):
         if itemtype.subtypes:

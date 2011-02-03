@@ -52,6 +52,8 @@ class SelectionInfo(object):
             below = self._playfield.game.world.space[(x,y,z-1)]
             if not isinstance(below, Earth):
                 s = _(u'open space')
+            elif tile.stockpiles and self._playfield.player in tile.stockpiles:
+                s = tile.stockpiles[self._playfield.player].description()
             else:
                 s = below.description
                 covering = tile.description
