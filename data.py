@@ -375,109 +375,98 @@ def indefinitearticle(noun):
     return _(u'an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _(u'a')
 
 class Labor(object):
-    __slots__ = 'creature'
-    
-    def __init__(self, creature):
-        self.creature = creature
+    pass
 
 class SkilledLabor(Labor):
-    __slots__ = ()
-
     skill = []
     increment = 0
 
-    def __init__(self, creature):
-        Labor.__init__(self, creature)
-
-    def skilldisplayed(self):
+    @classmethod
+    def skilldisplayed(cls, creature):
         skill = max(0,
                     min(1,
-                        self.creature.skills.exp(self.skill))) * 0.9 + 0.05
+                        creature.skills.exp(cls.skill))) * 0.9 + 0.05
         total = 50
         alpha = skill * total
         return betavariate(alpha, total - alpha)
 
-    def trainskill(self):
-        self.creature.skills.train(self.skill, self.increment)
+    @classmethod
+    def trainskill(cls, creature):
+        creature.skills.train(cls.skill, cls.increment)
 
 class ToolLabor(SkilledLabor):
-    __slots__ = ()
-    
     tools = []
-    
-    def __init__(self, creature):
-        SkilledLabor.__init__(self, creature)
 
-    def toil(self, world):
-        for tool in self.tools:
-            if not self.creature.inventory.has(tool):
-                for step in acquireitem(self.creature,
+    @classmethod
+    def toil(cls, creature, world):
+        for tool in cls.tools:
+            if not creature.inventory.has(tool):
+                for step in acquireitem(creature,
                                         world, tool.stocktype, tool):
                     yield step
 
 class Mining(ToolLabor):
-    __slots__ = ()
-    
     gerund = _(u'mining')
     skill = ['earthworking', 'mining', 'digging']
     increment = 0.0001
     tools = [Pickax]
 
-    def __init__(self, creature):
-        ToolLabor.__init__(self, creature)
-
-    def adjoin(self, world, location):
+    @staticmethod
+    def adjoin(creature, world, location):
         for (x,y) in world.space.pathing.adjacent_xy(location[0:2]):
             goal = (x,y,location[2])
             adjacent = world.space[goal]
             if (adjacent and adjacent.is_passable() and
                 not world.space[(x,y,location[2]-1)].is_passable()):
-                for step in goto(self.creature, world, goal):
+                for step in goto(creature, world, goal):
                     yield _(u'{going} adjacent to dig site').format(
                         going=step), goal
-                if self.creature.location == goal:
+                if creature.location == goal:
                     yield None, None
 
-    def mount(self, world, location):
+    @staticmethod
+    def mount(creature, world, location):
         goal = location[0:2] + (location[2]+1,)
         atop = world.space[goal]
         if atop.is_passable():
-            for step in goto(self.creature, world, goal):
+            for step in goto(creature, world, goal):
                 yield _(u'{going} to top of dig site').format(
                     going=step), goal
-            if self.creature.location == goal:
+            if creature.location == goal:
                 yield None, None
 
-    def approach(self, world, location):
-        for step, goal in self.adjoin(world, location):
+    @classmethod
+    def approach(cls, creature, world, location):
+        for step, goal in cls.adjoin(creature, world, location):
             if step:
                 yield step, goal
             else:
                 break
         else:
-            for step, goal in self.mount(world, location):
+            for step, goal in cls.mount(creature, world, location):
                 if step:
                     yield step, goal
                 else:
                     break                
 
-    def toil(self, world):
-        for step in ToolLabor.toil(self, world):
+    @classmethod
+    def toil(cls, creature, world):
+        for step in super(Mining, cls).toil(creature, world):
             yield step
 
-        pick = self.creature.inventory.find(lambda item:
-                                            isinstance(item, self.tools[0]))
+        pick = creature.inventory.find(lambda item:
+                                       isinstance(item, cls.tools[0]))
 
-        if pick is None or not self.creature.player.digjobs:
+        if pick is None or not creature.player.digjobs:
             return
 
-        location = self.creature.player.digjobs.popleft()
+        location = creature.player.digjobs.popleft()
 
         goal = None
-        for step, goal in self.approach(world, location):
+        for step, goal in cls.approach(creature, world, location):
             yield step
 
-        if (self.creature.location != goal):
+        if (creature.location != goal):
             return
 
         tile = world.space[location]
@@ -488,78 +477,40 @@ class Mining(ToolLabor):
 
             progress = max(1,
                            512 *
-                           self.creature.strength() *
-                           self.skilldisplayed())
+                           creature.strength() *
+                           cls.skilldisplayed(creature))
             
             work += progress
             tile = world.space[location]
 
         if isinstance(tile, Earth):
             world.dig(location)
-            self.trainskill()
+            cls.trainskill(creature)
 
 class Hauling(Labor):
-    __slots__ = ()
-    
     gerund = _(u'hauling')
 
-    def __init__(self, creature):
-        Labor.__init__(self, creature)
-
-    def adjoin(self, world, location):
-        for (x,y) in world.space.pathing.adjacent_xy(location[0:2]):
-            goal = (x,y,location[2])
-            adjacent = world.space[goal]
-            if (adjacent and adjacent.is_passable() and
-                not world.space[(x,y,location[2]-1)].is_passable()):
-                for step in goto(self.creature, world, goal):
-                    yield _(u'{going} adjacent to dig site').format(
-                        going=step), goal
-                if self.creature.location == goal:
-                    yield None, None
-
-    def mount(self, world, location):
-        goal = location[0:2] + (location[2]+1,)
-        atop = world.space[goal]
-        if atop.is_passable():
-            for step in goto(self.creature, world, goal):
-                yield _(u'{going} to top of dig site').format(
-                    going=step), goal
-            if self.creature.location == goal:
-                yield None, None
-
-    def approach(self, world, location):
-        for step, goal in self.adjoin(world, location):
-            if step:
-                yield step, goal
-            else:
-                break
-        else:
-            for step, goal in self.mount(world, location):
-                if step:
-                    yield step, goal
-                else:
-                    break                
-
-    def toil(self, world):
-        jobs = self.creature.player.stockjobs
+    @classmethod
+    def toil(cls, creature, world):
+        jobs = creature.player.stockjobs
         for stocktype, (stockpiles, items) in jobs.iteritems():
             if stockpiles and items:
                 pile, item = stockpiles.popleft(), items.popleft()
-                for step in takeitem(self.creature, world, item):
+                for step in takeitem(creature, world, item):
                     yield step
-                if not self.creature.inventory.find(lambda i: i is item):
+                if not creature.inventory.find(lambda i: i is item):
                     return
 
-                for step in goto(self.creature,
-                                 world, pile.components[0].location):
+                for step in goto(creature, world, pile.components[0].location):
                     yield step
-                if (self.creature.location not in
+                if (creature.location not in
                     [c.location for c in pile.components]):
                     return
 
-                self.creature.inventory.remove(item)
+                creature.inventory.remove(item)
                 pile.add(item)
+
+        return
         
 class Appetite(object):
     __slots__ = '_pentup', '_creature', '_threshold'
@@ -820,7 +771,7 @@ class Creature(Thing):
             return
 
         for labor in self.labors:
-            for step in labor.toil(world):
+            for step in labor.toil(self, world):
                 yield step
 
     def work(self, world):
@@ -1010,7 +961,7 @@ class Dwarf(CulturedCreature):
         r = randint(80,255)
         CulturedCreature.__init__(self, player, [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location)
-        self.labors = [Mining(self), Hauling(self)]
+        self.labors = [Mining, Hauling]
 
     def colordescription(self):
         return _(u'has {hue} skin').format(hue=describecolor(self.color))
