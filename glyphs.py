@@ -36,6 +36,7 @@ class GlyphGraphics(object):
             'spider-big': u'\u046a',
             SmallSpider: u'\u046b',
             Stockpile: u'\u2263',
+            StockpileComponent: u'\u2263',
             TreeTrunk: (u'\u2b22', u'\u2b21', u'\u25ce'),
             Tortoise: u'\u237e'
             }
