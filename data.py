@@ -498,6 +498,69 @@ class Mining(ToolLabor):
             world.dig(location)
             self.trainskill()
 
+class Hauling(Labor):
+    __slots__ = ()
+    
+    gerund = _(u'hauling')
+
+    def __init__(self, creature):
+        Labor.__init__(self, creature)
+
+    def adjoin(self, world, location):
+        for (x,y) in world.space.pathing.adjacent_xy(location[0:2]):
+            goal = (x,y,location[2])
+            adjacent = world.space[goal]
+            if (adjacent and adjacent.is_passable() and
+                not world.space[(x,y,location[2]-1)].is_passable()):
+                for step in goto(self.creature, world, goal):
+                    yield _(u'{going} adjacent to dig site').format(
+                        going=step), goal
+                if self.creature.location == goal:
+                    yield None, None
+
+    def mount(self, world, location):
+        goal = location[0:2] + (location[2]+1,)
+        atop = world.space[goal]
+        if atop.is_passable():
+            for step in goto(self.creature, world, goal):
+                yield _(u'{going} to top of dig site').format(
+                    going=step), goal
+            if self.creature.location == goal:
+                yield None, None
+
+    def approach(self, world, location):
+        for step, goal in self.adjoin(world, location):
+            if step:
+                yield step, goal
+            else:
+                break
+        else:
+            for step, goal in self.mount(world, location):
+                if step:
+                    yield step, goal
+                else:
+                    break                
+
+    def toil(self, world):
+        jobs = self.creature.player.stockjobs
+        for stocktype, (stockpiles, items) in jobs.iteritems():
+            if stockpiles and items:
+                pile, item = stockpiles.popleft(), items.popleft()
+                for step in takeitem(self.creature, world, item):
+                    yield step
+                if not self.creature.inventory.find(lambda i: i is item):
+                    return
+
+                for step in goto(self.creature,
+                                 world, pile.components[0].location):
+                    yield step
+                if (self.creature.location not in
+                    [c.location for c in pile.components]):
+                    return
+
+                self.creature.inventory.remove(item)
+                pile.add(item)
+        
 class Appetite(object):
     __slots__ = '_pentup', '_creature', '_threshold'
 
@@ -947,7 +1010,7 @@ class Dwarf(CulturedCreature):
         r = randint(80,255)
         CulturedCreature.__init__(self, player, [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location)
-        self.labors = [Mining(self)]
+        self.labors = [Mining(self), Hauling(self)]
 
     def colordescription(self):
         return _(u'has {hue} skin').format(hue=describecolor(self.color))
@@ -1101,7 +1164,7 @@ class Player(object):
     def removefromstockjobs(self, item):
         try:
             self.stockjobs[item.stocktype][1].remove(item)
-        except KeyError:
+        except ValueError, KeyError:
             pass
         
 class World(object):
