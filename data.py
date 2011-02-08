@@ -374,6 +374,15 @@ def indefinitearticle(noun):
     m = search('LETTER ([^ ])', unicodename(unicode(noun[0])))
     return _(u'an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _(u'a')
 
+def conjunction(items):
+    if len(items) > 2:
+        return _(u', ').join(items[:-1]) + _(u', and {last}').format(
+            last=items[-1])
+    elif len == 2:
+        return _(u'{first} and {second}').format(first=items[0], second=items[1])
+    else:
+        return items[0]
+
 class Labor(object):
     pass
 
@@ -662,6 +671,7 @@ class Creature(Thing):
         self.appetites = []
         self.player = player
         self.skills = SkillSet()
+        self.labors = []
 
         self.debug = False
 
@@ -756,6 +766,39 @@ class Creature(Thing):
                              for status in stati])
         else:
             return None
+
+    def inventoryreport(self):
+        required = {}
+        for labor in self.labors:
+            if issubclass(labor, ToolLabor):
+                for tool in labor.tools:
+                    name, job = tool.noun, labor.gerund
+                    if name in required:
+                        required[name].append(job)
+                    else:
+                        required[name] = [job]
+
+        pronoun = self.subjectpronoun().capitalize()
+
+        lines = []
+        for item in self.inventory.contents:
+            name = item.noun
+            value = _(u'{he} is carrying {an} {item}').format(
+                he=pronoun, an=indefinitearticle(name), item=name)
+            if name in required:
+                value += _(u' for {jobs}').format(
+                    jobs=conjunction(required[name]))
+                del required[name]
+            value += '.'
+
+            lines.append(value)
+
+        for missing, jobs in required.iteritems():
+            lines.append(_(u'{he} needs {a} {tool} for {jobs}.').format(
+                he=pronoun, a=indefinitearticle(missing), tool=missing,
+                jobs=conjunction(jobs)))
+
+        return ' '.join(lines) if lines else None
 
     def _checkhealth(self, world):
         if self.health <= 0:

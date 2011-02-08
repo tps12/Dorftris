@@ -2,6 +2,7 @@ from pygame import Rect, Surface
 from pygame.locals import *
 from pygame.sprite import *
 
+from scroll import Scroll
 from text import TextRenderer
 
 class CreatureDescription(object):
@@ -16,8 +17,14 @@ class CreatureDescription(object):
 
     def _addline(self, surface, text, color, dy):
         image = self._renderer.render(text, color)
+        h = image.get_height() + dy
+        if h > surface.get_height():
+            bigger = Surface((surface.get_width(), h), flags=surface.get_flags())
+            bigger.blit(surface, (0,0))
+            surface = bigger
+            
         surface.blit(image, (0,dy))
-        return dy + image.get_height()
+        return surface, dy + image.get_height()
 
     def _makebackground(self, size):
         self._renderer = TextRenderer(self._font, size[0])
@@ -25,17 +32,28 @@ class CreatureDescription(object):
         self._background = Surface(size, flags=SRCALPHA)
         self._background.fill((0,0,0))
 
+        bg = self._background
+
         dy = 0
-        dy = self._addline(self._background,
+        bg, dy = self._addline(bg,
                            self._creature.physical(),
                            (255,255,255),
                            dy)
         appetites = self._creature.appetitereport()
         if appetites:
-            dy = self._addline(self._background,
+            bg, dy = self._addline(bg,
                                appetites,
                                (255,255,255),
                                dy)
+        inventory = self._creature.inventoryreport()
+        if inventory:
+            bg, dy = self._addline(bg,
+                               inventory,
+                               (255,255,255),
+                               dy)
+            
+        if bg != self._background:
+            Scroll(self._font, None).draw(self._background, bg)
 
     def scale(self, font):
         self._font = font
