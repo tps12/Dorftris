@@ -52,8 +52,8 @@ class CreatureDescription(object):
                                (255,255,255),
                                dy)
             
-        if bg != self._background:
-            Scroll(self._font, None).draw(self._background, bg)
+        self._scroll = Scroll(self._font, None)
+        self._scroll.draw(self._background, bg)
 
     def scale(self, font):
         self._font = font
