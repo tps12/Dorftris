@@ -5,7 +5,7 @@ from scrollbutton import ScrollButton
 class Scroll(object):
     glyphs = (u'\u25b3',u'\u25b2'), (u'\u25bd',u'\u25bc')
     
-    def __init__(self, font, prefs):
+    def __init__(self, font, prefs, moved):
         self._prefs = prefs       
         self._offset = 0
         self._buttons = [ScrollButton(self.glyphs[i],
@@ -13,6 +13,7 @@ class Scroll(object):
                                       self._prefs,
                                       (self.up, self.down)[i])
                          for i in range(2)]
+        self._moved = moved
         
         self.scale(font)
     
@@ -24,9 +25,11 @@ class Scroll(object):
     def up(self):
         if self._offset > 0:
             self._offset -= 1
+            self._moved()
 
     def down(self):
         self._offset += 1
+        self._moved()
 
     def handle(self, e):
         for b in self._buttons:

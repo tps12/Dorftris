@@ -51,8 +51,11 @@ class CreatureDescription(object):
                                dy)
             
         self._background = Surface(size, flags = bg.get_flags())
-        self._scroll = Scroll(self._font, None)
+        self._scroll = Scroll(self._font, None, self.scrolled)
         self._scroll.draw(self._background, bg)
+
+    def scrolled(self):
+        self._background = None
 
     def scale(self, font):
         self._font = font
