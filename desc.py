@@ -51,22 +51,8 @@ class CreatureDescription(object):
                                dy)
 
         self._background = Surface(size, flags = bg.get_flags())
-
-        if not hasattr(self, '_tree'):
-            from tree import TreeOptions
-            self._tree = TreeOptions(
-                [(0, 'Hello', [
-                    (1, 'First', False),
-                    (2, 'Second', False),
-                    (3, 'Third', False)]),
-                 (4, 'Nested', [
-                     (5, 'Test', [
-                         (6, 'testing', True),
-                         (7, 'this', True),
-                         (8, 'out', True)])])],
-                self._font, None, lambda: None)
         
-        self._scroll.draw(self._background, self._tree.draw())
+        self._scroll.draw(self._background, bg)
 
     def scrolled(self):
         self._background = None
@@ -85,10 +71,6 @@ class CreatureDescription(object):
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE:
                 return True, None
-
-        if hasattr(self, '_tree'):
-            if self._tree.handle(e):
-                self._background = None
 
         return False, self
 
