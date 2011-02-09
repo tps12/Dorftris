@@ -420,6 +420,47 @@ class Playfield(object):
             self.background = None
             self.sprites.empty()
 
+    @staticmethod
+    def _nextentity(tile, entity):
+        found = entity is None
+        if hasattr(tile, 'furnishing') and tile.furnishing:
+            if found:
+                return tile.furnishing
+            elif entity == tile.furnishing:
+                found = True
+        for creature in tile.creatures:
+            if found:
+                return creature
+            elif creature == entity:
+                found = True
+        for item in tile.items:
+            if found:
+                return item
+            elif item == entity:
+                found = True
+        if found:
+            return None
+
+        raise ValueError
+
+    def _select(self, location):
+        if self.selection is None:
+            self.selection = location
+        elif self.selection == location:
+            try:
+                self.selection = Playfield._nextentity(
+                    self.game.world.space[location], None)
+            except ValueError:
+                self.selection = None
+        elif isinstance(self.selection, Entity):
+            if self.selection.location == location:
+                self.selection = Playfield._nextentity(
+                    self.game.world.space[location], self.selection)
+            else:
+                self.selection = location
+        else:
+            self.selection = location
+
     def handle(self, e):
         if e.type == KEYDOWN:
             pressed = key.get_pressed()
