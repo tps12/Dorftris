@@ -155,22 +155,27 @@ class Space(object):
     def get_dimensions(self):
         return self.dim
 
+    def groundlevel(self, x, y):
+        return 64
+
     def __getitem__(self, loc):
         if not all([0 <= loc[i] < self.dim[i] for i in range(3)]):
             return None
         
-        if loc not in self.cache:
-            if loc[2] == 64:
+        g = self.groundlevel(loc[0], loc[1])
+        
+        if loc not in self.cache:            
+            if loc[2] == g:
                 self.cache[loc] = Empty(randint(0,3), Grass)
-            elif loc[2] > 64:
+            elif loc[2] > g:
                 self.cache[loc] = Empty(randint(0,3))
-            elif loc[2] >= 61:
+            elif loc[2] >= g - 3:
                 self.cache[loc] = Earth(Clay, randint(0,3))
             else:
                 self.cache[loc] = Earth(Stone, randint(0,3))
 
         tile = self.cache[loc]
-        if loc[2] >= 64:
+        if loc[2] >= g:
             tile.revealed = True
         return tile
 
