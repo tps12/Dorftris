@@ -57,9 +57,10 @@ class EntitySprite(DirtySprite):
             self.kill()
 
 class EntitySelectionSprite(DirtySprite):
-    def __init__(self, removed, sprite, prefs, *args, **kwargs):
+    def __init__(self, removed, entity, sprite, prefs, *args, **kwargs):
         DirtySprite.__init__(self, *args, **kwargs)
         self._removed = removed
+        self.selection = entity
         self._selection = sprite
 
         self.image = Surface(self._selection.image.get_size(), flags=SRCALPHA)
@@ -125,13 +126,39 @@ class TileSelectionSprite(DirtySprite):
         self.dirty = 1
 
 class ScreenSprites(LayeredDirty):
-    def __init__(self, visible, position, *args, **kwargs):
+    def __init__(self, visible, position, lines, prefs, *args, **kwargs):
         LayeredDirty.__init__(self, *args, **kwargs)
         self._visible = visible
         self._position = position
+        self._lines = lines
+        self._prefs = prefs
         self.entities = {}
         self._selectionsprite = None
         self.set_clip(None)
+
+    def setselection(self, selection):
+        if self._selectionsprite and self._selectionsprite.selection == selection:
+            return
+
+        if self._selectionsprite:
+            self._selectionsprite.kill()
+
+        if selection:
+            if isinstance(selection, Entity) and selection in self.entities:
+                sprite = EntitySelectionSprite(lambda: None,
+                                               selection,
+                                               self.entities[selection],
+                                               self._prefs)
+            else:
+                if isinstance(selection, tuple):
+                    selection = [selection]
+                sprite = TileSelectionSprite(self._visible,
+                                             self._position,
+                                             self._lines,
+                                             self._prefs,
+                                             selection)
+            self._selectionsprite = sprite
+            self.add(self._selectionsprite)
 
     def addspritefor(self, entity, graphics):
         sprite = EntitySprite(self._visible, self._position, graphics, entity)
@@ -155,7 +182,10 @@ class Playfield(object):
 
         self.zoom = zoom
 
-        self.sprites = ScreenSprites(self.visible, self.tilecoordinates)
+        self.sprites = ScreenSprites(self.visible,
+                                     self.tilecoordinates,
+                                     self.hexlines,
+                                     self.zoom)
 
         self.selection = None
 
@@ -536,6 +566,8 @@ class Playfield(object):
     def draw(self, surface):
         self.cursor = self._absolutetile(mouse.get_pos())
         
+        self.sprites.setselection(self.selection)
+
         self.sprites.update()
 
         if self.background and not self.game.world.space.changed:
