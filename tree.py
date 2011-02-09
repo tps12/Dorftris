@@ -56,6 +56,7 @@ class TreeOptions(object):
                         self._setvalue(branch[i][3], child[0], value)
                 else:
                     branch[i][3] = value
+                    self._changed()
                 break
         else:
             raise ValueError

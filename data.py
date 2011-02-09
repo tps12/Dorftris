@@ -520,6 +520,10 @@ class Hauling(Labor):
                 pile.add(item)
 
         return
+
+LaborOptions = [
+    (u'structural', [Mining]),
+    (u'unskilled', [Hauling])]
         
 class Appetite(object):
     __slots__ = '_pentup', '_creature', '_threshold'

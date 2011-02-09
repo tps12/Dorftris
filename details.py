@@ -5,6 +5,7 @@ from pygame.sprite import *
 from button import Button
 from data import Creature, CulturedCreature
 from desc import CreatureDescription
+from labors import LaborSelection
 from text import TextRenderer
 
 class CreatureDetails(object):
@@ -14,6 +15,7 @@ class CreatureDetails(object):
         self._activity = self._creature.activity
         self._prefs = prefs
         self._showdetails = False
+        self._showlabors = False
         
         self.scale(font)
 
@@ -54,6 +56,11 @@ class CreatureDetails(object):
                              _(u'Description'),
                              self._details,
                              dy)
+        if self._playfield.player == self._creature.player:
+            dy = self._addbutton(self._background,
+                                 _(u'Labors'),
+                                 self._labors,
+                                 dy)
         if self._prefs.debugging:
             dy = self._addbutton(self._background,
                                  _(u'Debug'),
@@ -65,6 +72,9 @@ class CreatureDetails(object):
 
     def _details(self):
         self._showdetails = True
+
+    def _labors(self):
+        self._showlabors = True
     
     def scale(self, font):
         self._font = font
@@ -87,6 +97,10 @@ class CreatureDetails(object):
         if self._showdetails:
             self._showdetails = False
             return True, False, CreatureDescription(self._creature, self._font)
+
+        if self._showlabors:
+            self._showlabors = False
+            return True, False, LaborSelection(self._creature, self._font)
         
         return False, False, self
 
