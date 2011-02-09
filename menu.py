@@ -6,7 +6,7 @@ from pygame import display, event, font, key
 from pygame.locals import *
 
 from button import Button
-from data import Barrel, Pickax, Dwarf, Goblin, SmallSpider, Tortoise, Player
+from data import Barrel, Pickax, Dwarf, Goblin, SmallSpider, Tortoise, Player, Workbench
 from game import Game
 from rendering import Renderer
 from substances import Wood, Metal
@@ -86,6 +86,11 @@ class MainMenu(object):
                                        choice(Metal.__subclasses__()),
                                        choice(Wood.__subclasses__())))
 
+
+        x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+        self.game.world.additem(Workbench((x,y,
+                                        self.game.world.space.groundlevel(x,y)),
+                                       choice(Wood.__subclasses__())))
 
         self.child = Renderer(self.game, user, self.zoom)
 

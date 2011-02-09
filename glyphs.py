@@ -38,7 +38,8 @@ class GlyphGraphics(object):
             Stockpile: u'\u2263',
             StockpileComponent: u'\u2263',
             TreeTrunk: (u'\u2b22', u'\u2b21', u'\u25ce'),
-            Tortoise: u'\u237e'
+            Tortoise: u'\u237e',
+            Workbench: u'\u2293'
             }
 
         self.images = {}

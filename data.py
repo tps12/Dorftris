@@ -74,6 +74,29 @@ class Item(Thing):
         self.location = location
         self.reserved = False
 
+    def description(self):
+        return _('{material} {thing}').format(
+            material = self.materials[0].substance.adjective,
+            thing = self.noun)
+
+class Furniture(Item):
+    __slots__ = ()
+
+    def __init__(self, materials, location):
+        Item.__init__(self, materials, location)
+
+class Workbench(Furniture):
+    __slots__ = ()
+    
+    noun = _(u'workbench')
+
+    stocktype = StockpileType(_(u'Workbench'))
+
+    def __init__(self, location, substance):
+        Furniture.__init__(self,
+                           [Material(substance, 0.025)],
+                           location)
+
 class LooseStone(Item):
     __slots__ = ()
     
@@ -320,7 +343,7 @@ BuildingMaterials = StockpileType(_(u'Building materials'), [])
 Clothing = StockpileType(_(u'Clothing'), [])
 Drinks = StockpileType(_(u'Drink'), [Wine.stocktype])
 Food = StockpileType(_(u'Food'), [])
-Furniture = StockpileType(_(u'Furnishings'), [])
+Furnishings = StockpileType(_(u'Furnishings'), [Workbench.stocktype])
 Products = StockpileType(_(u'Trade products and supplies'),
                          [Barrel.containerstocktype])
 Refuse = StockpileType(_(u'Refuse'), [Corpse.stocktype])

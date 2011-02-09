@@ -38,11 +38,12 @@ class Tile(object):
         return self.substance.noun if self.substance else None
 
 class Empty(Tile):
-    __slots__ = ('covering', 'stockpiles')
+    __slots__ = ('covering', 'furnishing', 'stockpiles')
     
     def __init__(self, varient, covering=None):
         Tile.__init__(self, True, None, varient)
         self.covering = covering
+        self.furnishing = None
         self.color = (self.randomizecolor(self.covering.color)
                       if self.covering else None)
         self.stockpiles = None
