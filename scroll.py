@@ -26,7 +26,7 @@ class Scroll(object):
 
     @property
     def _increment(self):
-        return self._buttons[0].height / 2
+        return self._buttons[0].height
 
     def up(self):
         self._offset = max(0, self._offset - self._increment)
@@ -37,13 +37,15 @@ class Scroll(object):
         self._moved()
 
     def poll(self):
+        p = mouse.get_pos()
+        changed = False
         for i in range(len(self._buttons)):
-            if (self._rects[i] and
-                self._rects[i].collidepoint(mouse.get_pos()) and
-                self._buttons[i].poll()):
-                return True
+            if self._rects[i]:
+                if self._buttons[i].poll((p[0]-self._rects[i].left,
+                                          p[1]-self._rects[i].top)):
+                    changed = True
             
-        return False
+        return changed
 
     def draw(self, surface, content):
         surface.fill((0,0,0))

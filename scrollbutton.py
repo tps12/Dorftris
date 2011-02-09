@@ -6,6 +6,7 @@ class ScrollButton(object):
         self._prefs = prefs
         self._down = down
         self._pressed = None
+        self._last = 0
 
         self.scale(font)
 
@@ -19,16 +20,22 @@ class ScrollButton(object):
     def height(self):
         return self._images[0].get_height()
 
-    def poll(self):
-        event.get()
-        pressed = mouse.get_pressed()[0]
+    def poll(self, pos):
+        if self._images[0].get_rect().collidepoint(pos):
+            event.get()            
+            pressed = mouse.get_pressed()[0]
+        else:
+            pressed = False
+            
+        changed = False
         if self._pressed != pressed:
             self._pressed = pressed
+            changed = True
+        
         if self._pressed:
             self._down()
-        return True
 
-        return False
+        return changed
 
     def draw(self):
         return self._images[1 if self._pressed else 0]

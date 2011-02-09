@@ -49,6 +49,9 @@ class CreatureDescription(object):
                                inventory,
                                (255,255,255),
                                dy)
+
+        for i in range(50):
+            bg, dy = self._addline(bg, "blah blah blah", (128,128,128), dy)
             
         self._background = Surface(size, flags = bg.get_flags())
         self._scroll.draw(self._background, bg)
