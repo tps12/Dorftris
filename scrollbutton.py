@@ -15,14 +15,18 @@ class ScrollButton(object):
                         for i in range(2)]
         self._pressed = False
 
+    @property
+    def height(self):
+        return self._images[0].get_height()
+
     def poll(self):
         event.get()
         pressed = mouse.get_pressed()[0]
         if self._pressed != pressed:
             self._pressed = pressed
-            if self._pressed:
-                self._down()
-            return True
+        if self._pressed:
+            self._down()
+        return True
 
         return False
 

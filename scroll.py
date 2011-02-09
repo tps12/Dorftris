@@ -24,13 +24,16 @@ class Scroll(object):
         for b in self._buttons:
             b.scale(self._font)
 
+    @property
+    def _increment(self):
+        return self._buttons[0].height / 2
+
     def up(self):
-        if self._offset > 0:
-            self._offset -= 1
-            self._moved()
+        self._offset = max(0, self._offset - self._increment)
+        self._moved()
 
     def down(self):
-        self._offset += 1
+        self._offset = min(self._limit, self._offset + self._increment)
         self._moved()
 
     def poll(self):
@@ -53,3 +56,6 @@ class Scroll(object):
                 h = surface.get_height() - sb.get_height() if i else 0
                 self._rects[i] = Rect((w, h), sb.get_size())
                 surface.blit(sb, (w,h))
+            self._limit = content.get_height() - surface.get_height()
+        else:
+            self._limit = 0
