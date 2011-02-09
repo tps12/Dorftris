@@ -461,6 +461,21 @@ class Playfield(object):
         else:
             self.selection = location
 
+    def _expandselection(self, location):
+        if self.selection is None or isinstance(self.selection, Entity):
+            return
+
+        if isinstance(self.selection, tuple):
+            locations = [self.selection]
+        else:
+            locations = self.selection
+
+        if location not in locations and any([a + (self.level,) in locations
+                                              for a in
+                                              self.game.world.space.pathing.
+                                              adjacent_xy(location[0:2])]):
+            self.selection = locations + [location]
+
     def handle(self, e):
         if e.type == KEYDOWN:
             pressed = key.get_pressed()
