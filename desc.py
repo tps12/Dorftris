@@ -29,10 +29,8 @@ class CreatureDescription(object):
     def _makebackground(self, size):
         self._renderer = TextRenderer(self._font, size[0])
 
-        self._background = Surface(size, flags=SRCALPHA)
-        self._background.fill((0,0,0))
-
-        bg = self._background
+        bg = Surface(size, flags=SRCALPHA)
+        bg.fill((0,0,0))
 
         dy = 0
         bg, dy = self._addline(bg,
@@ -52,6 +50,7 @@ class CreatureDescription(object):
                                (255,255,255),
                                dy)
             
+        self._background = Surface(size, flags = bg.get_flags())
         self._scroll = Scroll(self._font, None)
         self._scroll.draw(self._background, bg)
 
