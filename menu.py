@@ -61,29 +61,28 @@ class MainMenu(object):
         user = Player(self.game.world)
         
         for i in range(20):
-            self.game.world.space.maketree((randint(0, self.game.dimensions[0]-1),
-                           randint(0, self.game.dimensions[1]-1),
-                           64))    
+            x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+            self.game.world.space.maketree((x,y,
+                                            self.game.world.space.groundlevel(x,y)))
 
         kind = (Dwarf,Goblin,Tortoise,SmallSpider)
 
         for i in range(20):
             race = choice(kind)
             player = user if race is Dwarf else None
-            creature = race(player, (randint(0,self.game.dimensions[0]-1),
-                                     randint(0,self.game.dimensions[1]-1),
-                                     64))
+            x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+            creature = race(player, (x,y,self.game.world.space.groundlevel(x,y)))
             self.game.schedule(creature)
 
         for i in range(10):
-            self.game.world.additem(Barrel((randint(0,self.game.dimensions[0]-1),
-                                            randint(0,self.game.dimensions[1]-1),
-                                            64),
+            x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+            self.game.world.additem(Barrel((x,y,
+                                            self.game.world.space.groundlevel(x,y)),
                                            choice(Wood.__subclasses__())))
 
-        self.game.world.additem(Pickax((randint(0,self.game.dimensions[0]-1),
-                                        randint(0,self.game.dimensions[1]-1),
-                                        64),
+        x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+        self.game.world.additem(Pickax((x,y,
+                                        self.game.world.space.groundlevel(x,y)),
                                        choice(Metal.__subclasses__()),
                                        choice(Wood.__subclasses__())))
 

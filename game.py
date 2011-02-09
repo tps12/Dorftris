@@ -2,8 +2,8 @@ from collections import deque
 from random import choice, randint, sample
 
 from data import *
+from noisespace import NoiseSpace
 from pathing import PathManager
-from space import Space
 
 class Game(object):
     def __init__(self, dimensions):
@@ -13,7 +13,7 @@ class Game(object):
         self.timescales = [ 0.2, 0.5, 1.0, 2.0, 5.0 ]
         self.dt = 0.1
 
-        self.world = World(Space(self.dimensions), [])
+        self.world = World(NoiseSpace(self.dimensions), [])
         self._schedule = deque([[] for i in range(128)])
 
         self.t = 0
