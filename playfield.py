@@ -91,14 +91,13 @@ class TileSelectionSprite(DirtySprite):
         self.layer = 2
 
     def update(self):
-        ps = [self._position(loc)
-              for loc in self.selection
-              if self._visible(loc)]
-        
-        if not ps:
+        if not any([self._visible(loc) for loc in self.selection]):
             self.kill()
             return
-            
+        
+        ps = [self._position(loc)
+              for loc in self.selection]
+                    
         if len(self._ps) == len(ps) and all([self._ps[i] == ps[i]
                                              for i in range(len(ps))]):
             return
