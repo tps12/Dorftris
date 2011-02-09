@@ -1,3 +1,4 @@
+from pygame import mouse, Rect
 from pygame.locals import *
 
 from scrollbutton import ScrollButton
@@ -13,6 +14,7 @@ class Scroll(object):
                                       self._prefs,
                                       (self.up, self.down)[i])
                          for i in range(2)]
+        self._rects = [None for b in self._buttons]
         self._moved = moved
         
         self.scale(font)
@@ -32,18 +34,22 @@ class Scroll(object):
         self._moved()
 
     def handle(self, e):
-        for b in self._buttons:
-            if b.poll():
+        for i in range(len(self._buttons)):
+            if (self._rects[i] and
+                self._rects[i].collidepoint(mouse.get_pos()) and
+                self._buttons[i].poll()):
                 return True
-
+            
         return False
 
     def draw(self, surface, content):
-        surface.blit(content, (0, self._offset))
+        surface.fill((0,0,0))
+        surface.blit(content, (0, -self._offset))
 
         if content.get_height() > surface.get_height():
-            up = self._buttons[0].draw()
-            w = surface.get_width() - up.get_width()
-            surface.blit(up, (w, 0))
-            down = self._buttons[1].draw()
-            surface.blit(down, (w, surface.get_height() - down.get_height()))
+            for i in range(2):
+                sb = self._buttons[i].draw()
+                w = surface.get_width() - sb.get_width()
+                h = surface.get_height() - sb.get_height() if i else 0
+                self._rects[i] = Rect((w, h), sb.get_size())
+                surface.blit(sb, (w,h))

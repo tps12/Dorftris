@@ -12,7 +12,6 @@ class ScrollButton(object):
         self._font = font
         self._images = [self._font.render(self._glyphs[i], True, (255,255,255))
                         for i in range(2)]
-        self._background = None
         self._pressed = False
 
     def poll(self):

@@ -51,7 +51,6 @@ class CreatureDescription(object):
                                dy)
             
         self._background = Surface(size, flags = bg.get_flags())
-        self._scroll = Scroll(self._font, None, self.scrolled)
         self._scroll.draw(self._background, bg)
 
     def scrolled(self):
@@ -62,6 +61,7 @@ class CreatureDescription(object):
         
         self._sprites.empty()
         self._background = None
+        self._scroll = Scroll(self._font, None, self.scrolled)
 
     def resize(self, size):
         self._makebackground(size)
@@ -70,6 +70,9 @@ class CreatureDescription(object):
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE:
                 return True, None
+
+        elif self._scroll.handle(e):
+            return False, self
 
         return False, self
 
