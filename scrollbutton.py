@@ -1,10 +1,11 @@
-from pygame import mouse
+from pygame import event, mouse
 
 class ScrollButton(object):
     def __init__(self, glyphs, font, prefs, down):
         self._glyphs = glyphs
         self._prefs = prefs
         self._down = down
+        self._pressed = None
 
         self.scale(font)
 
@@ -15,9 +16,12 @@ class ScrollButton(object):
         self._pressed = False
 
     def poll(self):
-        self._pressed = mouse.get_pressed()[0]
-        if self._pressed:
-            self._down()
+        event.get()
+        pressed = mouse.get_pressed()[0]
+        if self._pressed != pressed:
+            self._pressed = pressed
+            if self._pressed:
+                self._down()
             return True
 
         return False

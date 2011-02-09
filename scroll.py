@@ -33,7 +33,7 @@ class Scroll(object):
         self._offset += 1
         self._moved()
 
-    def handle(self, e):
+    def poll(self):
         for i in range(len(self._buttons)):
             if (self._rects[i] and
                 self._rects[i].collidepoint(mouse.get_pos()) and

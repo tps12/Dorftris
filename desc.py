@@ -71,12 +71,12 @@ class CreatureDescription(object):
             if e.key == K_ESCAPE:
                 return True, None
 
-        elif self._scroll.handle(e):
-            return False, self
-
         return False, self
 
     def draw(self, surface):
+        if self._scroll.poll():
+            self._background = None
+        
         if not self._background:
             self._makebackground(surface.get_size())
             surface.blit(self._background, (0,0))
