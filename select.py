@@ -225,17 +225,6 @@ class SelectionInfo(object):
         if self._cursor != cursor:
             self._cursor = cursor
             self._background = None
-
-        entity = self._playfield.selectedentity
-        if self._entity != entity:
-            self._entity = entity
-            self._background = None
-
-        tiles = [t for t in self._playfield.selectedtiles]
-        if (len(self._tiles) != len(tiles) or
-            any([self._tiles[i] != tiles[i] for i in range(len(tiles))])):
-            self._tiles = tiles
-            self._background = None
         
         if not self._background:
             self._makebackground(surface.get_size())
