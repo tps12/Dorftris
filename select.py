@@ -5,6 +5,7 @@ from pygame.sprite import *
 from button import Button
 from data import Creature, Stockpile, Wine
 from details import CreatureDetails
+from furnish import FurnishingSelect
 from game import Earth, Empty
 from text import TextRenderer
 
@@ -15,6 +16,7 @@ class SelectionInfo(object):
         self._cursor = None
         self._entity = None
         self._tiles = []
+        self._selectfurnishing = None
         
         self._selectionrect = None
         self._details = None
@@ -52,6 +54,8 @@ class SelectionInfo(object):
             below = self._playfield.game.world.space[(x,y,z-1)]
             if not isinstance(below, Earth):
                 s = _(u'open space')
+            elif tile.furnishing:
+                s = tile.furnishing.description()
             elif tile.stockpiles and self._playfield.player in tile.stockpiles:
                 s = tile.stockpiles[self._playfield.player].description()
             else:
@@ -116,6 +120,13 @@ class SelectionInfo(object):
                                      _(u'Make stockpile'),
                                      self._stockpile,
                                      dy)
+                if (len(self._tiles) == 1 and
+                    not self._playfield.game.world.space[
+                        self._tiles[0]].furnishing):
+                    dy = self._addbutton(self._background,
+                                         _(u'Furnish'),
+                                         self._furnish,
+                                         dy)
             elif self._allsolidwalls(self._tiles):
                 dy = self._addbutton(self._background,
                                      _(u'Dig out'),
@@ -138,6 +149,11 @@ class SelectionInfo(object):
     def _stockpile(self):
         self._playfield.player.addstockpile(Stockpile(self._tiles,
                                                       [Wine.stocktype]))
+        self._clearselectedtiles()
+
+    def _furnish(self):
+        self._selectfurnishing = self._tiles[0]
+        
         self._clearselectedtiles()
 
     def _designatetile(self, location):
@@ -180,6 +196,8 @@ class SelectionInfo(object):
         pass
 
     def handle(self, e):
+        handled = False
+        
         if e.type == KEYDOWN:
             if e.key == K_RETURN and self._details:
                 return True, True, self._details()
@@ -190,9 +208,17 @@ class SelectionInfo(object):
                 return True, True, self._details()
             for button in self._buttons:
                 if button.handle(e):
-                    return True, False, self
+                    handled = True
+
+        if self._selectfurnishing is not None:
+            location = self._selectfurnishing
+            self._selectfurnishing = None
+            return True, True, FurnishingSelect(self._playfield.player,
+                                                location,
+                                                self._font,
+                                                self._prefs)
         
-        return False, False, self
+        return handled, False, self
 
     def draw(self, surface):
         cursor = self._playfield.cursor

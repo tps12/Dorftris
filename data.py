@@ -356,7 +356,7 @@ StockpileCategories = [
     Clothing,
     Drinks,
     Food,
-    Furniture,
+    Furnishings,
     Products,
     Resources,
     Tools
@@ -523,26 +523,65 @@ class Hauling(Labor):
     gerund = _(u'hauling')
 
     @classmethod
-    def toil(cls, creature, world):
+    def stockpileitem(cls, creature, world):
         jobs = creature.player.stockjobs
         for stocktype, (stockpiles, items) in jobs.iteritems():
             if stockpiles and items:
                 pile, item = stockpiles.popleft(), items.popleft()
+                stockpiles.append(pile)
                 for step in takeitem(creature, world, item):
-                    yield step
+                    yield False, step
                 if not creature.inventory.find(lambda i: i is item):
+                    items.append(item)
                     return
 
                 for step in goto(creature, world, pile.components[0].location):
-                    yield step
+                    yield False, step
                 if (creature.location not in
                     [c.location for c in pile.components]):
+                    items.append(item)
                     return
 
                 creature.inventory.remove(item)
                 pile.add(item)
 
-        return
+        yield True, None
+
+    @classmethod
+    def furnishlocation(cls, creature, world):
+        jobs = creature.player.furnishjobs
+        if jobs:
+            location, item = jobs.popleft()
+            for step in takeitem(creature, world, item):
+                yield False, step
+            if not creature.inventory.find(lambda i: i is item):
+                creature.player.furnish(location, item)
+                return
+
+            for step in goto(creature, world, location):
+                yield False, step
+            if creature.location != location:
+                creature.player.furnish(location, item)
+                return
+
+            creature.inventory.remove(item)
+            world.setfurnishing(location, item)
+
+        yield True, None
+
+    @classmethod
+    def toil(cls, creature, world):
+        for done, step in cls.furnishlocation(creature, world):
+            if done:
+                return
+            else:
+                yield step
+        
+        for done, step in cls.stockpileitem(creature, world):
+            if done:
+                return
+            else:
+                yield step
 
 LaborOptions = [
     (u'structural', [Mining]),
@@ -1121,6 +1160,7 @@ class Player(object):
         self._world = world
         self.digjobs = deque()
         self.stockjobs = {}
+        self.furnishjobs = deque()
 
         self._world.registerplayer(self)
     
@@ -1187,6 +1227,9 @@ class Player(object):
             self.stockjobs[item.stocktype][1].remove(item)
         except ValueError, KeyError:
             pass
+
+    def furnish(self, location, item):
+        self.furnishjobs.append((location, item))
         
 class World(object):
     def __init__(self, space, items):
@@ -1264,3 +1307,13 @@ class World(object):
                 player.removefromstockjobs(item)
             
         self.items.remove(item)
+
+    def setfurnishing(self, location, item):
+        tile = self.space[location]
+        if not isinstance(tile, Empty) or tile.furnishing:
+            raise ValueError
+
+        item.location = location
+        tile.furnishing = item
+
+        self.space.changed = True

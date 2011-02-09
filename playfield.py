@@ -350,11 +350,13 @@ class Playfield(object):
             entity = tile.items[-1]
             if not self.sprites.hasspritefor(entity):
                 self.sprites.addspritefor(entity, self.graphics)
-        if (isinstance(tile, Empty) and
-            tile.stockpiles and self.player in tile.stockpiles):
-            for component in tile.stockpiles[self.player].components:
-                if not self.sprites.hasspritefor(component):
-                    self.sprites.addspritefor(component, self.graphics)
+        if isinstance(tile, Empty):
+            if tile.furnishing and not self.sprites.hasspritefor(tile.furnishing):
+                self.sprites.addspritefor(tile.furnishing, self.graphics)
+            if tile.stockpiles and self.player in tile.stockpiles:
+                for component in tile.stockpiles[self.player].components:
+                    if not self.sprites.hasspritefor(component):
+                        self.sprites.addspritefor(component, self.graphics)
 
         self._addentityselection(location)
         
