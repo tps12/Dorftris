@@ -97,18 +97,19 @@ class Workbench(Furniture):
                            [Material(substance, 0.025)],
                            location)
 
-class LooseStone(Item):
+class LooseMaterial(Item):
     __slots__ = ()
-    
-    composition = Stone
-    stocktype = StockpileType(_(u'stone'))
 
     def __init__(self, substance, location):
         Item.__init__(self, [Material(substance, 0.1)], location)
 
     def description(self):
-        return _(u'loose {stone}').format(
-            soil = self.materials[0].substance.noun)
+        return _(u'loose {material}').format(
+            material = self.materials[0].substance.noun)
+
+    @property
+    def stocktype(self):
+        return self.materials[0].substance.noun
 
 class OutOfSpace(Exception):
     pass
@@ -1282,13 +1283,9 @@ class World(object):
             if not b.revealed and b.designation and b.designation == designation:
                 b.designation.digjobs.append(bloc)
 
-            if issubclass(substance, Stone):
-                self.additem(LooseStone(substance, location))
-            else:
-                tile.covering = substance
-                
         self.space[location] = tile
-            
+        self.additem(LooseMaterial(substance, location))
+                            
     def additem(self, item, stockpiled = None):
         if item.location is not None:
             self.space[item.location].items.append(item)

@@ -270,8 +270,10 @@ class Playfield(object):
                     self.zoom.width + self.zoom.height/3, self.zoom.height+1)
 
     def _colorfill(self, surface, color, location):
-        image = surface.subsurface(self._tilerect(location))
-        gfxdraw.filled_polygon(image, self._hex(), color)
+        rect = self._tilerect(location)
+        if surface.get_rect().contains(rect):
+            image = surface.subsurface(rect)
+            gfxdraw.filled_polygon(image, self._hex(), color)
 
     def _colortint(self, surface, color, location):
         rect = self._tilerect(location)

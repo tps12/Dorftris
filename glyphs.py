@@ -1,5 +1,6 @@
 from data import *
 from game import *
+from substances import *
 from space import *
 
 from pygame.font import Font
@@ -24,7 +25,6 @@ class GlyphGraphics(object):
             Earth: (u'\u02d2',u'\u02d3',u'\u02de',u'\u058a'),
             'harp': u'\u01f7',
             Leaves: ('*', u'\u2051', u'\u2042'),
-            LooseStone: u'\u2b22',
             'ox': u'\u2649',
             Pickax: u'\u23c9',
             'pig': u'\u2364',
@@ -32,11 +32,13 @@ class GlyphGraphics(object):
             'pipe': u'\u221b',
             'sheep': (u'\u222e', u'\u222b'),
             'shovel': u'\u020a',
+            Soil: u'\u2059',
             'spear': u'\u16cf',
             'spider-big': u'\u046a',
             SmallSpider: u'\u046b',
             Stockpile: u'\u2263',
             StockpileComponent: u'\u2263',
+            Stone: u'\u2b22',
             TreeTrunk: (u'\u2b22', u'\u2b21', u'\u25ce'),
             Tortoise: u'\u237e',
             Workbench: u'\u2293'
@@ -60,7 +62,14 @@ class GlyphGraphics(object):
         return tuple([self._getglyph(glyph) for glyph in glyphs])
 
     def __getitem__(self, thing):
-        key = thing if isinstance(thing, type) else thing.__class__
+        if isinstance(thing, type):
+            key = thing
+        elif isinstance(thing, LooseMaterial):
+            key = (Soil if issubclass(thing.materials[0].substance, Soil)
+                   else Stone)
+        else:
+            key = thing.__class__
+        
         try:
             return self.images[key]
         except KeyError:
