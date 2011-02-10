@@ -92,10 +92,6 @@ class TileSelectionSprite(DirtySprite):
         self.layer = 2
 
     def update(self):
-        if not any([self._visible(loc) for loc in self.selection]):
-            self.kill()
-            return
-        
         ps = [self._position(loc)
               for loc in self.selection]
                     
@@ -144,11 +140,14 @@ class ScreenSprites(LayeredDirty):
             self._selectionsprite.kill()
 
         if selection:
-            if isinstance(selection, Entity) and selection in self.entities:
-                sprite = EntitySelectionSprite(lambda: None,
-                                               selection,
-                                               self.entities[selection],
-                                               self._prefs)
+            if isinstance(selection, Entity):
+                if selection in self.entities:
+                    sprite = EntitySelectionSprite(lambda: None,
+                                                   selection,
+                                                   self.entities[selection],
+                                                   self._prefs)
+                else:
+                    return
             else:
                 if isinstance(selection, tuple):
                     selection = [selection]
@@ -169,6 +168,8 @@ class ScreenSprites(LayeredDirty):
         LayeredDirty.remove_internal(self, sprite)
         if isinstance(sprite, EntitySprite):
             del self.entities[sprite.entity]
+        if sprite is self._selectionsprite:
+            self._selectionsprite = None
 
     def hasspritefor(self, entity):
         return entity in self.entities
