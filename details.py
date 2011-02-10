@@ -88,6 +88,11 @@ class CreatureDetails(object):
         pass
 
     def handle(self, e):
+        if e.type == KEYDOWN:
+            if e.key == K_ESCAPE:
+                self._playfield.selection = None
+                return True
+            
         if (e.type == MOUSEBUTTONDOWN and
             e.button == 1):
             for button in self._buttons:
