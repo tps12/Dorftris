@@ -284,11 +284,11 @@ class Playfield(object):
         self._colortint(surface, (85, 85, 0), location)
 
     def _drawground(self, surface, space, ground, location):
-        self._colorfill(surface,
-                        [c/4 for c in space.color or ground.color],
-                        location)
         self._colortile(surface, ground,
                         ground.color, space.varient, location)
+
+        if space.color:
+            self._colortint(surface, space.color, location)
         
         if ground.designation:
             self._drawdesignation(surface, location)
