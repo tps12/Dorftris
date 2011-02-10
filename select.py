@@ -80,29 +80,7 @@ class SelectionInfo(object):
         pass
 
     def handle(self, e):
-        handled = False
-        
-##        if e.type == KEYDOWN:
-##            if e.key == K_RETURN and self._details:
-##                return True, True, self._details()
-##        
-##        elif (e.type == MOUSEBUTTONDOWN and e.button == 1):
-##            if (self._selectionrect and
-##                self._selectionrect.collidepoint(e.pos)):
-##                return True, True, self._details()
-##            for button in self._buttons:
-##                if button.handle(e):
-##                    handled = True
-##
-##        if self._selectfurnishing is not None:
-##            location = self._selectfurnishing
-##            self._selectfurnishing = None
-##            return True, True, FurnishingSelect(self._playfield.player,
-##                                                location,
-##                                                self._font,
-##                                                self._prefs)
-        
-        return handled, False, self
+        return False
 
     def draw(self, surface):
         if self._playfield.selection and isinstance(self._playfield.selection, Creature):

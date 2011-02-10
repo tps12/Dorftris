@@ -25,15 +25,11 @@ class GameScreen(object):
 
     def handle(self, e):
         if self._playfield.handle(e):
-            return True, self
+            return True
 
         if 'pos' in e.dict:
             e.dict['pos'] = (e.pos[0] - self._fieldwidth, e.pos[1])
-        handled, child = self._info.handle(e)
-        if handled:
-            return True, child if child is not self._info else self
-        
-        return False, self
+        return self._info.handle(e)
 
     def _playinfosurfaces(self, surface):
         size = surface.get_size()

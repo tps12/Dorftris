@@ -85,15 +85,15 @@ class CreatureDetails(object):
     def handle(self, e):
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE:
-                return True, False, None
+                return True
         
         elif (e.type == MOUSEBUTTONDOWN and
             e.button == 1):
             for button in self._buttons:
                 if button.handle(e):
-                    break
+                    return True
         
-        return False, False, self
+        return False
 
     def draw(self, surface):
         if self._playfield.selection != self._creature:

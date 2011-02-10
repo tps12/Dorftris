@@ -51,13 +51,13 @@ class LaborSelection(object):
     def handle(self, e):
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE:
-                return True, None
+                return True
 
         if self._tree.handle(e):
             self._background = None
-            return True, self
+            return True
 
-        return False, self
+        return False
 
     def draw(self, surface):
         if self._scroll.poll():

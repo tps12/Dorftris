@@ -47,8 +47,6 @@ class Renderer(object):
         self.makebackground()
 
     def _pushdisplay(self, child):
-        import pdb
-        pdb.set_trace()
         self.display.append(child)
         self.definetiles()
         self.makebackground()
@@ -60,11 +58,7 @@ class Renderer(object):
     def step(self):
         for e in event.get():
             
-            handled, child = self.display[-1].handle(e)
-            if not child:
-                self._popdisplay()
-            elif child is not self.display[-1]:
-                self._pushdisplay(child)
+            handled = self.display[-1].handle(e)
                 
             if not handled:
                 if e.type == QUIT:
