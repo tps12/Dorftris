@@ -7,6 +7,7 @@ from data import Creature, Stockpile, Wine
 from details import CreatureDetails
 from furnish import FurnishingSelect
 from game import Earth, Empty
+from region import RegionDetails
 from text import TextRenderer
 
 class SelectionInfo(object):
@@ -37,7 +38,7 @@ class SelectionInfo(object):
             dy += image.get_height()
         return dy
 
-    def _describetile(self, surface, location, dy):
+    def _description(self, location):
         x, y, z = location
         tile = self._playfield.game.world.space[location]
 
@@ -59,10 +60,16 @@ class SelectionInfo(object):
         else:
             s = _(u'unknown')
 
+        return s
+
+    def _describetile(self, surface, location, dy):
+        s = self._description(location)
+
         image = self._renderer.render(s.capitalize(), (255,255,255))
         surface.blit(image, (0,dy))
         dy += image.get_height()
 
+        tile = self._playfield.game.world.space[location]
         dy = self._describeentities(surface, tile.creatures, dy)
         dy = self._describeentities(surface, tile.items, dy)
 
@@ -87,14 +94,26 @@ class SelectionInfo(object):
         return False
 
     def draw(self, surface):
-        if self._playfield.selection and isinstance(self._playfield.selection, Creature):
-            self._pushchild(CreatureDetails(self._playfield.selection,
-                                            self._playfield,
-                                            self._font,
-                                            self._prefs,
-                                            self._popchild,
-                                            self._pushscreen,
-                                            self._popscreen))
+        if self._playfield.selection:
+            if isinstance(self._playfield.selection, Creature):
+                self._pushchild(CreatureDetails(self._playfield.selection,
+                                                self._playfield,
+                                                self._font,
+                                                self._prefs,
+                                                self._popchild,
+                                                self._pushscreen,
+                                                self._popscreen))
+            else:
+                region = self._playfield.selection
+                region = [region] if isinstance(region, tuple) else region
+                self._pushchild(RegionDetails(region,
+                                              self._playfield,
+                                              self._font,
+                                              self._prefs,
+                                              self._description,
+                                              self._popchild,
+                                              self._pushscreen,
+                                              self._popscreen))
             self._background = None
             return
 

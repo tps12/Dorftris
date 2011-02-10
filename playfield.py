@@ -455,13 +455,18 @@ class Playfield(object):
             self.background = None
             self.sprites.empty()
 
-    @staticmethod
-    def _nextentity(tile, entity):
+    def _nextentity(self, tile, entity):
         found = entity is None
         if hasattr(tile, 'furnishing') and tile.furnishing:
             if found:
                 return tile.furnishing
             elif entity == tile.furnishing:
+                found = True
+        elif (hasattr(tile, 'stockpiles') and tile.stockpiles and
+              self.player in tile.stockpiles):
+            if found:
+                return tile.stockpiles[self.player]
+            elif entity == tile.stockpiles[self.player]:
                 found = True
         for creature in tile.creatures:
             if found:
@@ -483,13 +488,13 @@ class Playfield(object):
             self.selection = location
         elif self.selection == location:
             try:
-                self.selection = Playfield._nextentity(
+                self.selection = self._nextentity(
                     self.game.world.space[location], None)
             except ValueError:
                 self.selection = None
         elif isinstance(self.selection, Entity):
             if self.selection.location == location:
-                self.selection = Playfield._nextentity(
+                self.selection = self._nextentity(
                     self.game.world.space[location], self.selection)
             else:
                 self.selection = location
