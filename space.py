@@ -165,17 +165,37 @@ class Space(object):
         
         g = self.groundlevel(loc[0], loc[1])
         
-        if loc not in self.cache:            
+        if loc not in self.cache:
             if loc[2] == g:
-                self.cache[loc] = Empty(randint(0,3), Grass)
+                tile = Empty(randint(0,3), Grass)
             elif loc[2] > g:
-                self.cache[loc] = Empty(randint(0,3))
+                tile = Empty(randint(0,3))
             elif loc[2] >= g - 3:
-                self.cache[loc] = Earth(Clay, randint(0,3))
+                tile = Earth(Clay, randint(0,3))
             else:
-                self.cache[loc] = Earth(Stone, randint(0,3))
+                tile = Earth(Stone, randint(0,3))
 
-        tile = self.cache[loc]
+            if isinstance(tile, Empty):
+                for adj in [xy + (loc[2],)
+                            for xy in self.pathing.adjacent_xy(loc[0:2])]:
+                    if adj in self.cache:
+                        neighbor = self.cache[adj]
+                        if isinstance(neighbor, Earth):
+                            neighbor.revealed = True
+                            self.changed = True
+            else:
+                for adj in [xy + (loc[2],)
+                            for xy in self.pathing.adjacent_xy(loc[0:2])]:
+                    if adj in self.cache:
+                        neighbor = self.cache[adj]
+                        if isinstance(neighbor, Empty):
+                            tile.revealed = True
+                            self.changed = True
+                
+            self.cache[loc] = tile
+        else:
+            tile = self.cache[loc]
+            
         if loc[2] >= g:
             tile.revealed = True
         return tile
