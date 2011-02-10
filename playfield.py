@@ -140,7 +140,17 @@ class ScreenSprites(LayeredDirty):
             self._selectionsprite.kill()
 
         if selection:
-            if isinstance(selection, Entity):
+            if isinstance(selection, Stockpile):
+                selection = [c.location for c in selection.components]
+                if any([self._visible(location) for location in selection]):
+                    sprite = TileSelectionSprite(self._visible,
+                                                 self._position,
+                                                 self._lines,
+                                                 self._prefs,
+                                                 selection)
+                else:
+                    return
+            elif isinstance(selection, Entity):
                 if selection in self.entities:
                     sprite = EntitySelectionSprite(lambda: None,
                                                    selection,
