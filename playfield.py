@@ -492,6 +492,10 @@ class Playfield(object):
                     self.game.world.space[location], None)
             except ValueError:
                 self.selection = None
+        elif isinstance(self.selection, Stockpile):
+            if location in [c.location for c in self.selection.components]:
+                self.selection = self._nextentity(
+                    self.game.world.space[location], self.selection)
         elif isinstance(self.selection, Entity):
             if self.selection.location == location:
                 self.selection = self._nextentity(

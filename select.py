@@ -103,6 +103,8 @@ class SelectionInfo(object):
                                                 self._popchild,
                                                 self._pushscreen,
                                                 self._popscreen))
+            elif isinstance(self._playfield.selection, Stockpile):
+                pass
             else:
                 region = self._playfield.selection
                 region = [region] if isinstance(region, tuple) else region
