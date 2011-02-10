@@ -151,11 +151,15 @@ class ScreenSprites(LayeredDirty):
             else:
                 if isinstance(selection, tuple):
                     selection = [selection]
-                sprite = TileSelectionSprite(self._visible,
-                                             self._position,
-                                             self._lines,
-                                             self._prefs,
-                                             selection)
+                if any([self._visible(location) for location in selection]):
+                    sprite = TileSelectionSprite(self._visible,
+                                                 self._position,
+                                                 self._lines,
+                                                 self._prefs,
+                                                 selection)
+                else:
+                    return
+                
             self._selectionsprite = sprite
             self.add(self._selectionsprite)
 
