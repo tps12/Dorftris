@@ -3,6 +3,7 @@ from pygame.locals import *
 from pygame.sprite import *
 
 from button import Button
+from data import Stockpile
 from space import Earth, Empty
 from text import TextRenderer
 
@@ -89,8 +90,7 @@ class RegionDetails(object):
         self._playfield.selection = None
 
     def _stockpile(self):
-        self._playfield.player.addstockpile(Stockpile(self._locations,
-                                                      [Wine.stocktype]))
+        self._playfield.player.addstockpile(Stockpile(self._locations, []))
         self._clearselectedtiles()
 
     def _furnish(self):
