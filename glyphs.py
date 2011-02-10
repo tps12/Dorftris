@@ -46,11 +46,13 @@ class GlyphGraphics(object):
 
         self.unknown = self._getimage(u'\ufffd')
 
+    def _getglyph(self, character):
+        return self.font.render(character, True, (0,0,0))
+
     def _getimage(self, glyphs):
         if type(glyphs) is not tuple:
             glyphs = (glyphs,)
-        return tuple([self.font.render(glyph, True, (0,0,0))
-                      for glyph in glyphs])
+        return tuple([self._getglyph(glyph) for glyph in glyphs])
 
     def __getitem__(self, thing):
         key = thing if isinstance(thing, type) else thing.__class__
