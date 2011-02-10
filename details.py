@@ -9,13 +9,12 @@ from labors import LaborSelection
 from text import TextRenderer
 
 class CreatureDetails(object):
-    def __init__(self, creature, playfield, font, prefs):
+    def __init__(self, creature, playfield, font, prefs, pushscreen):
         self._creature = creature
         self._playfield = playfield
         self._activity = self._creature.activity
         self._prefs = prefs
-        self._showdetails = False
-        self._showlabors = False
+        self._pushscreen = pushscreen
         
         self.scale(font)
 
@@ -71,10 +70,10 @@ class CreatureDetails(object):
         self._creature.debug = True
 
     def _details(self):
-        self._showdetails = True
+         self._pushscreen(CreatureDescription(self._creature, self._font))
 
     def _labors(self):
-        self._showlabors = True
+        self._pushscreen(LaborSelection(self._creature, self._font))
     
     def scale(self, font):
         self._font = font
@@ -93,14 +92,6 @@ class CreatureDetails(object):
             for button in self._buttons:
                 if button.handle(e):
                     break
-        
-        if self._showdetails:
-            self._showdetails = False
-            return True, False, CreatureDescription(self._creature, self._font)
-
-        if self._showlabors:
-            self._showlabors = False
-            return True, False, LaborSelection(self._creature, self._font)
         
         return False, False, self
 

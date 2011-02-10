@@ -1,13 +1,17 @@
 from select import SelectionInfo
 
 class InfoView(object):
-    def __init__(self, playfield, font, prefs):
+    def __init__(self, playfield, font, prefs, push):
         self._playfield = playfield
-        self._prefs = prefs       
+        self._prefs = prefs
+        self._pushscreen = push
+
         self._displays = [SelectionInfo(self._playfield,
                                         font,
                                         self._prefs,
-                                        self._pushdisplay)]
+                                        self._pushdisplay,
+                                        self._pushscreen)]
+        
         self.scale(font)
 
     @property

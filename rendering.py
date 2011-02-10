@@ -27,7 +27,8 @@ class Renderer(object):
         except AttributeError:
             self.status = StatusBar(self.game, self.uifont)
             self.display = [GameScreen(self.game, self._player,
-                                       self.uifont, self.zoom)]
+                                       self.uifont, self.zoom,
+                                       self._pushdisplay)]
                 
     def makebackground(self):
         self.status.resize(self.statussurf.get_size())
@@ -46,6 +47,8 @@ class Renderer(object):
         self.makebackground()
 
     def _pushdisplay(self, child):
+        import pdb
+        pdb.set_trace()
         self.display.append(child)
         self.definetiles()
         self.makebackground()
