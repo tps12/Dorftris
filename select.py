@@ -34,10 +34,6 @@ class SelectionInfo(object):
             image = self._renderer.render(self._entitydescription(entity),
                                           (255,255,255))
             surface.blit(image, (0, dy))
-            if entity is self._entity:
-                draw.rect(surface, self._prefs.selectioncolor,
-                          Rect((0,dy), image.get_size()), 1)
-                self._details = lambda: self._entitydetails(self._entity)
             dy += image.get_height()
         return dy
 
@@ -109,6 +105,12 @@ class SelectionInfo(object):
 ##                                                location,
 ##                                                self._font,
 ##                                                self._prefs)
+
+        if self._playfield.selection and isinstance(self._playfield.selection, Creature):
+            return True, True, CreatureDetails(self._playfield.selection,
+                                               self._playfield,
+                                               self._font,
+                                               self._prefs)
         
         return handled, False, self
 
