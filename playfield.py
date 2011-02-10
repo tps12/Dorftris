@@ -57,9 +57,10 @@ class EntitySprite(DirtySprite):
             self.kill()
 
 class EntitySelectionSprite(DirtySprite):
-    def __init__(self, removed, sprite, prefs, *args, **kwargs):
+    def __init__(self, removed, entity, sprite, prefs, *args, **kwargs):
         DirtySprite.__init__(self, *args, **kwargs)
         self._removed = removed
+        self.selection = entity
         self._selection = sprite
 
         self.image = Surface(self._selection.image.get_size(), flags=SRCALPHA)
@@ -92,13 +93,8 @@ class TileSelectionSprite(DirtySprite):
 
     def update(self):
         ps = [self._position(loc)
-              for loc in self.selection
-              if self._visible(loc)]
-        
-        if not ps:
-            self.kill()
-            return
-            
+              for loc in self.selection]
+                    
         if len(self._ps) == len(ps) and all([self._ps[i] == ps[i]
                                              for i in range(len(ps))]):
             return
@@ -126,12 +122,46 @@ class TileSelectionSprite(DirtySprite):
         self.dirty = 1
 
 class ScreenSprites(LayeredDirty):
-    def __init__(self, visible, position, *args, **kwargs):
+    def __init__(self, visible, position, lines, prefs, *args, **kwargs):
         LayeredDirty.__init__(self, *args, **kwargs)
         self._visible = visible
         self._position = position
+        self._lines = lines
+        self._prefs = prefs
         self.entities = {}
+        self._selectionsprite = None
         self.set_clip(None)
+
+    def setselection(self, selection):
+        if self._selectionsprite and self._selectionsprite.selection == selection:
+            return
+
+        if self._selectionsprite:
+            self._selectionsprite.kill()
+
+        if selection:
+            if isinstance(selection, Entity):
+                if selection in self.entities:
+                    sprite = EntitySelectionSprite(lambda: None,
+                                                   selection,
+                                                   self.entities[selection],
+                                                   self._prefs)
+                else:
+                    return
+            else:
+                if isinstance(selection, tuple):
+                    selection = [selection]
+                if any([self._visible(location) for location in selection]):
+                    sprite = TileSelectionSprite(self._visible,
+                                                 self._position,
+                                                 self._lines,
+                                                 self._prefs,
+                                                 selection)
+                else:
+                    return
+                
+            self._selectionsprite = sprite
+            self.add(self._selectionsprite)
 
     def addspritefor(self, entity, graphics):
         sprite = EntitySprite(self._visible, self._position, graphics, entity)
@@ -142,6 +172,8 @@ class ScreenSprites(LayeredDirty):
         LayeredDirty.remove_internal(self, sprite)
         if isinstance(sprite, EntitySprite):
             del self.entities[sprite.entity]
+        if sprite is self._selectionsprite:
+            self._selectionsprite = None
 
     def hasspritefor(self, entity):
         return entity in self.entities
@@ -155,22 +187,17 @@ class Playfield(object):
 
         self.zoom = zoom
 
-        self.sprites = ScreenSprites(self.visible, self.tilecoordinates)
+        self.sprites = ScreenSprites(self.visible,
+                                     self.tilecoordinates,
+                                     self.hexlines,
+                                     self.zoom)
 
-        self._selectedentity = None
-        self._selectedentitysprite = None
+        self.selection = None
 
         self.scale(font)
 
         self._dragging = False
         self.cursor = None
-        self.selection = []
-
-        self._selectionsprite = TileSelectionSprite(self.visible,
-                                                    self.tilecoordinates,
-                                                    self.hexlines,
-                                                    self.zoom,
-                                                    self.selection)
 
         self.offset = None
         
@@ -181,13 +208,8 @@ class Playfield(object):
         self.graphics = GlyphGraphics(max(self.zoom.width, self.zoom.height))
         
         self.sprites.empty()
-        if self._selectedentitysprite:
-            self._selectedentitysprite = None
         
         self.background = None
-
-    def clearselectedentitysprite(self):
-        self._selectedentitysprite = None
 
     def visible(self, location):
         return location and all([
@@ -329,17 +351,6 @@ class Playfield(object):
                 self._drawdesignation(surface, location)
 
         self._addtilesprites(tile, location)
-
-    def _addentityselection(self, location):
-        if (self._selectedentity and not self._selectedentitysprite and
-            self._selectedentity.location == location):
-            if not self.sprites.hasspritefor(self._selectedentity):
-                self.sprites.addspritefor(self._selectedentity, self.graphics)
-            self._selectedentitysprite = EntitySelectionSprite(
-                self.clearselectedentitysprite,
-                self.sprites.entities[self._selectedentity],
-                self.zoom)
-            self.sprites.add(self._selectedentitysprite)
             
     def _addtilesprites(self, tile, location):
         if tile.creatures:
@@ -357,8 +368,6 @@ class Playfield(object):
                 for component in tile.stockpiles[self.player].components:
                     if not self.sprites.hasspritefor(component):
                         self.sprites.addspritefor(component, self.graphics)
-
-        self._addentityselection(location)
         
     def _scanbackground(self, background, tileprocess):
         xs, ys = [range(self.offset[i], self.offset[i] + self.dimensions[i])
@@ -439,73 +448,68 @@ class Playfield(object):
 
         self.background = None
 
-    def _expandselection(self, tile):
-        if tile:
-            if (tile not in self._selectionsprite.selection and
-                (any([a + (self.level,) in self._selectionsprite.selection
-                      for a in self.game.world.space.pathing.adjacent_xy(
-                          tile[0:2])]))):
-                self._selectionsprite.selection.append(tile)
-
-    def deselecttiles(self):
-        del self._selectionsprite.selection[:]
-
-    def _select(self, tile):
-        if tile:
-            if self._selectionsprite.selection == [tile]:
-                # target is the sole selected tile
-                data = self.game.world.space[tile]
-                if data.creatures:
-                    self._selectedentity = data.creatures[0]
-                elif data.items:
-                    self._selectedentity = data.items[0]                    
-                self.deselecttiles()
-                
-            elif self._selectionsprite.selection:
-                # other tiles are selected
-                if tile not in self._selectionsprite.selection:
-                    # target is outside the selection
-                    self._selectionsprite.selection[:] = [tile]
-
-            else:
-                # no tiles selected
-                if self._selectedentity:
-                    # entity selected
-                    if self._selectedentitysprite:
-                        self._selectedentitysprite.kill()
-                    if self._selectedentity.location == tile:
-                        # iterate to next
-                        data = self.game.world.space[tile]
-                        found = False
-                        for creature in data.creatures:
-                            if found:
-                                self._selectedentity = creature
-                                break
-                            elif creature is self._selectedentity:
-                                found = True
-                        else:
-                            for item in data.items:
-                                if found:
-                                    self._selectedentity = item
-                                    break
-                                elif item is self._selectedentity:
-                                    found = True
-                            else:
-                                self._selectedentity = None
-                                self._selectionsprite.selection[:] = [tile]
-                    else:
-                        self._selectedentity = None
-                        self._selectionsprite.selection[:] = [tile]
-                else:
-                    # nothing selected
-                    self._selectionsprite.selection[:] = [tile]
-
     def _zscroll(self, dz):
         level = max(0, min(self.game.dimensions[2], self.level + dz))
         if self.level != level:
             self.level = level
             self.background = None
             self.sprites.empty()
+
+    @staticmethod
+    def _nextentity(tile, entity):
+        found = entity is None
+        if hasattr(tile, 'furnishing') and tile.furnishing:
+            if found:
+                return tile.furnishing
+            elif entity == tile.furnishing:
+                found = True
+        for creature in tile.creatures:
+            if found:
+                return creature
+            elif creature == entity:
+                found = True
+        for item in tile.items:
+            if found:
+                return item
+            elif item == entity:
+                found = True
+        if found:
+            return None
+
+        raise ValueError
+
+    def _select(self, location):
+        if self.selection is None:
+            self.selection = location
+        elif self.selection == location:
+            try:
+                self.selection = Playfield._nextentity(
+                    self.game.world.space[location], None)
+            except ValueError:
+                self.selection = None
+        elif isinstance(self.selection, Entity):
+            if self.selection.location == location:
+                self.selection = Playfield._nextentity(
+                    self.game.world.space[location], self.selection)
+            else:
+                self.selection = location
+        else:
+            self.selection = location
+
+    def _expandselection(self, location):
+        if self.selection is None or isinstance(self.selection, Entity):
+            return
+
+        if isinstance(self.selection, tuple):
+            locations = [self.selection]
+        else:
+            locations = self.selection
+
+        if location not in locations and any([a + (self.level,) in locations
+                                              for a in
+                                              self.game.world.space.pathing.
+                                              adjacent_xy(location[0:2])]):
+            self.selection = locations + [location]
 
     def handle(self, e):
         if e.type == KEYDOWN:
@@ -564,20 +568,10 @@ class Playfield(object):
             
         return False
 
-    @property
-    def selectedentity(self):
-        return self._selectedentity
-
-    @property
-    def selectedtiles(self):
-        return self._selectionsprite.selection
-                                        
     def draw(self, surface):
         self.cursor = self._absolutetile(mouse.get_pos())
         
-        if (self._selectionsprite.selection and
-            self._selectionsprite not in self.sprites):
-            self.sprites.add(self._selectionsprite)
+        self.sprites.setselection(self.selection)
 
         self.sprites.update()
 

@@ -27,7 +27,9 @@ class Renderer(object):
         except AttributeError:
             self.status = StatusBar(self.game, self.uifont)
             self.display = [GameScreen(self.game, self._player,
-                                       self.uifont, self.zoom)]
+                                       self.uifont, self.zoom,
+                                       self._pushdisplay,
+                                       self._popdisplay)]
                 
     def makebackground(self):
         self.status.resize(self.statussurf.get_size())
@@ -57,11 +59,7 @@ class Renderer(object):
     def step(self):
         for e in event.get():
             
-            handled, child = self.display[-1].handle(e)
-            if not child:
-                self._popdisplay()
-            elif child is not self.display[-1]:
-                self._pushdisplay(child)
+            handled = self.display[-1].handle(e)
                 
             if not handled:
                 if e.type == QUIT:

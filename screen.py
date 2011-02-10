@@ -7,10 +7,10 @@ from playfield import Playfield
 class GameScreen(object):
     dt = 0.05
     
-    def __init__(self, game, player, font, zoom):
+    def __init__(self, game, player, font, zoom, push, pop):
         self._game = game
         self._playfield = Playfield(self._game, player, font, zoom)
-        self._info = InfoView(self._playfield, font, zoom)
+        self._info = InfoView(self._playfield, font, zoom, push, pop)
         self.scale(font)
 
     def scale(self, font):
@@ -24,21 +24,12 @@ class GameScreen(object):
         self._info.resize((size[0] - self._fieldwidth, size[1]))
 
     def handle(self, e):
-        if e.type == KEYDOWN:
-            if e.unicode == 'c':
-                return True, CreatureDetails(self._game.world.creatures[0],
-                                             self._font)
-
         if self._playfield.handle(e):
-            return True, self
+            return True
 
         if 'pos' in e.dict:
             e.dict['pos'] = (e.pos[0] - self._fieldwidth, e.pos[1])
-        handled, child = self._info.handle(e)
-        if handled:
-            return True, child if child is not self._info else self
-        
-        return False, self
+        return self._info.handle(e)
 
     def _playinfosurfaces(self, surface):
         size = surface.get_size()

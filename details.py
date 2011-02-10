@@ -9,13 +9,15 @@ from labors import LaborSelection
 from text import TextRenderer
 
 class CreatureDetails(object):
-    def __init__(self, creature, playfield, font, prefs):
+    def __init__(self, creature, playfield, font, prefs,
+                 dismiss, pushscreen, popscreen):
         self._creature = creature
         self._playfield = playfield
         self._activity = self._creature.activity
         self._prefs = prefs
-        self._showdetails = False
-        self._showlabors = False
+        self._dismiss = dismiss
+        self._pushscreen = pushscreen
+        self._popscreen = popscreen
         
         self.scale(font)
 
@@ -71,10 +73,12 @@ class CreatureDetails(object):
         self._creature.debug = True
 
     def _details(self):
-        self._showdetails = True
+         self._pushscreen(CreatureDescription(self._creature, self._font,
+                                              self._popscreen))
 
     def _labors(self):
-        self._showlabors = True
+        self._pushscreen(LaborSelection(self._creature, self._font,
+                                        self._popscreen))
     
     def scale(self, font):
         self._font = font
@@ -86,28 +90,20 @@ class CreatureDetails(object):
     def handle(self, e):
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE:
-                return True, False, None
-        
-        elif (e.type == MOUSEBUTTONDOWN and
+                self._playfield.selection = None
+                return True
+            
+        if (e.type == MOUSEBUTTONDOWN and
             e.button == 1):
             for button in self._buttons:
                 if button.handle(e):
-                    break
+                    return True
         
-        if self._showdetails:
-            self._showdetails = False
-            return True, False, CreatureDescription(self._creature, self._font)
-
-        if self._showlabors:
-            self._showlabors = False
-            return True, False, LaborSelection(self._creature, self._font)
-        
-        return False, False, self
+        return False
 
     def draw(self, surface):
-        if self._playfield.selectedentity != self._creature:
-            event.post(event.Event(KEYDOWN,
-                                   {'key': K_ESCAPE, 'unicode': None, 'mod': None}))
+        if self._playfield.selection != self._creature:
+            self._dismiss()
         
         activity = self._creature.activity
         if self._activity != activity:
