@@ -47,6 +47,11 @@ class GlyphGraphics(object):
         self.unknown = self._getimage(u'\ufffd')
 
     def _getglyph(self, character):
+        if character == u'\u00b7':
+            blank = self.font.render(' ', True, (0,0,0))
+            blank.set_at(blank.get_rect().center, (0,0,0,255))
+            return blank
+        
         return self.font.render(character, True, (0,0,0))
 
     def _getimage(self, glyphs):
