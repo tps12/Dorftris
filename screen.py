@@ -7,10 +7,10 @@ from playfield import Playfield
 class GameScreen(object):
     dt = 0.05
     
-    def __init__(self, game, player, font, zoom, push):
+    def __init__(self, game, player, font, zoom, push, pop):
         self._game = game
         self._playfield = Playfield(self._game, player, font, zoom)
-        self._info = InfoView(self._playfield, font, zoom, push)
+        self._info = InfoView(self._playfield, font, zoom, push, pop)
         self.scale(font)
 
     def scale(self, font):

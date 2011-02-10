@@ -8,8 +8,9 @@ from tree import TreeOptions
 class LaborSelection(object):
     dt = 0.01
     
-    def __init__(self, creature, font):
+    def __init__(self, creature, font, dismiss):
         self._creature = creature
+        self._dismiss = dismiss
         self._tree = TreeOptions(self._laboroptions(), font, None, self.changed)
 
         self.scale(font)
@@ -51,6 +52,7 @@ class LaborSelection(object):
     def handle(self, e):
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE:
+                self._dismiss()
                 return True
 
         if self._tree.handle(e):

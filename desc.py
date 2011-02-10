@@ -8,8 +8,9 @@ from text import TextRenderer
 class CreatureDescription(object):
     dt = 0.01
     
-    def __init__(self, creature, font):
+    def __init__(self, creature, font, dismiss):
         self._creature = creature
+        self._dismiss = dismiss
 
         self._sprites = LayeredDirty()
 
@@ -70,6 +71,7 @@ class CreatureDescription(object):
     def handle(self, e):
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE:
+                self._dismiss()
                 return True
 
         return False

@@ -28,7 +28,8 @@ class Renderer(object):
             self.status = StatusBar(self.game, self.uifont)
             self.display = [GameScreen(self.game, self._player,
                                        self.uifont, self.zoom,
-                                       self._pushdisplay)]
+                                       self._pushdisplay,
+                                       self._popdisplay)]
                 
     def makebackground(self):
         self.status.resize(self.statussurf.get_size())

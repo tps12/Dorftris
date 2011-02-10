@@ -10,11 +10,15 @@ from game import Earth, Empty
 from text import TextRenderer
 
 class SelectionInfo(object):
-    def __init__(self, playfield, font, prefs, pushchild, pushscreen):
+    def __init__(self, playfield, font, prefs,
+                 pushchild, popchild,
+                 pushscreen, popscreen):
         self._playfield = playfield
         self._prefs = prefs
         self._pushchild = pushchild
+        self._popchild = popchild
         self._pushscreen = pushscreen
+        self._popscreen = popscreen
 
         self._cursor = None
         
@@ -88,7 +92,10 @@ class SelectionInfo(object):
                                             self._playfield,
                                             self._font,
                                             self._prefs,
-                                            self._pushscreen))
+                                            self._popchild,
+                                            self._pushscreen,
+                                            self._popscreen))
+            self._background = None
             return
 
         cursor = self._playfield.cursor
