@@ -6,10 +6,11 @@ from button import Button
 from data import Furnishings
 
 class FurnishingSelect(object):
-    def __init__(self, player, location, font, prefs):
+    def __init__(self, player, location, font, prefs, dismiss):
         self._player = player
         self._location = location
         self._prefs = prefs
+        self._dismiss = dismiss
         
         self.scale(font)
 
@@ -25,6 +26,7 @@ class FurnishingSelect(object):
 
     def _furnish(self, item):
         self._player.furnish(self._location, item)
+        self._dismiss()
                 
     def _makebackground(self, size):
         self._background = Surface(size, flags=SRCALPHA)
@@ -35,15 +37,22 @@ class FurnishingSelect(object):
         self._buttons = []
         for pile in self._player.getstockpiles(Furnishings):
             for item in pile.contents:
+                if item.reserved:
+                    continue
                 dy = self._addbutton(self._background,
                                      item.description(),
                                      self._choose(item),
                                      dy)
         for item in self._player.unstockpileditems(Furnishings):
+            if item.reserved:
+                continue
             dy = self._addbutton(self._background,
                                  item.description(),
                                  self._choose(item),
                                  dy)
+            
+        if not self._buttons:
+            self._dismiss()
    
     def scale(self, font):
         self._font = font
@@ -55,15 +64,16 @@ class FurnishingSelect(object):
     def handle(self, e):
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE:
-                return True, False, None
+                self._dismiss()
+                return True
         
         elif (e.type == MOUSEBUTTONDOWN and
             e.button == 1):
             for button in self._buttons:
                 if button.handle(e):
-                    return True, False, None
+                    return True
                 
-        return False, False, self
+        return False
 
     def draw(self, surface):
         if not self._background:

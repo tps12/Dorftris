@@ -122,6 +122,7 @@ class SelectionInfo(object):
                                               self._font,
                                               self._prefs,
                                               self._description,
+                                              self._pushchild,
                                               self._popchild,
                                               self._pushscreen,
                                               self._popscreen))

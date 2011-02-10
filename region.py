@@ -4,16 +4,18 @@ from pygame.sprite import *
 
 from button import Button
 from data import Stockpile
+from furnish import FurnishingSelect
 from space import Earth, Empty
 from text import TextRenderer
 
 class RegionDetails(object):
     def __init__(self, locations, playfield, font, prefs, describetile,
-                 dismiss, pushscreen, popscreen):
+                 showchild, dismiss, pushscreen, popscreen):
         self._locations = locations
         self._playfield = playfield
         self._prefs = prefs
         self._describe = describetile
+        self._showchild = showchild
         self._dismiss = dismiss
         self._pushscreen = pushscreen
         self._popscreen = popscreen
@@ -94,7 +96,11 @@ class RegionDetails(object):
         self._clearselectedtiles()
 
     def _furnish(self):
-        self._selectfurnishing = self._locations[0]
+        self._showchild(FurnishingSelect(self._playfield.player,
+                                         self._playfield.selection,
+                                         self._font,
+                                         self._prefs,
+                                         self._dismiss))
         
         self._clearselectedtiles()
 
