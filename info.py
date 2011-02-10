@@ -6,7 +6,8 @@ class InfoView(object):
         self._prefs = prefs       
         self._displays = [SelectionInfo(self._playfield,
                                         font,
-                                        self._prefs)]
+                                        self._prefs,
+                                        self._pushdisplay)]
         self.scale(font)
 
     @property

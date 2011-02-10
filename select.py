@@ -10,9 +10,10 @@ from game import Earth, Empty
 from text import TextRenderer
 
 class SelectionInfo(object):
-    def __init__(self, playfield, font, prefs):
+    def __init__(self, playfield, font, prefs, chain):
         self._playfield = playfield
         self._prefs = prefs
+        self._chain = chain
 
         self._cursor = None
         
@@ -22,12 +23,6 @@ class SelectionInfo(object):
         return (entity.namecard()
                 if isinstance(entity, Creature)
                 else entity.description())
-
-    def _entitydetails(self, entity):
-        return (CreatureDetails(entity,
-                                self._playfield, self._font, self._prefs)
-                if isinstance(entity, Creature)
-                else self)
 
     def _describeentities(self, surface, entities, dy):
         for entity in entities:
@@ -105,16 +100,17 @@ class SelectionInfo(object):
 ##                                                location,
 ##                                                self._font,
 ##                                                self._prefs)
-
-        if self._playfield.selection and isinstance(self._playfield.selection, Creature):
-            return True, True, CreatureDetails(self._playfield.selection,
-                                               self._playfield,
-                                               self._font,
-                                               self._prefs)
         
         return handled, False, self
 
     def draw(self, surface):
+        if self._playfield.selection and isinstance(self._playfield.selection, Creature):
+            self._chain(CreatureDetails(self._playfield.selection,
+                                        self._playfield,
+                                        self._font,
+                                        self._prefs))
+            return
+
         cursor = self._playfield.cursor
         if self._cursor != cursor:
             self._cursor = cursor
