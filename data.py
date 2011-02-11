@@ -517,7 +517,7 @@ class Mining(ToolLabor):
             tile = world.space[location]
 
         if isinstance(tile, Earth):
-            world.dig(location)
+            world.dig(location, creature)
             cls.trainskill(creature)
 
 class Hauling(Labor):
@@ -739,6 +739,9 @@ class Creature(Thing):
         self.player = player
         self.skills = SkillSet()
         self.labors = []
+
+        if self.player:
+            self.player.creaturecreated(self)
 
         self.debug = False
 
@@ -1156,15 +1159,105 @@ class SmallSpider(SexualCreature):
         return _(u'has {a} {hue} body').format(a=indefinitearticle(color),
                                               hue=color)
 
+class HistoricalEvent(object):
+    def __init__(self, time, event, location):
+        self.time = time
+        self.event = event
+        self.location = location
+
+    @property
+    def description(self):
+        return event
+
+class PerpetratedEvent(HistoricalEvent):
+    def __init__(self, time, perpetrators, event, location):
+        HistoricalEvent.__init__(self, time, event, location)
+        self.perpetrators = perpetrators
+
+    @property
+    def description(self):
+        return _(u'{people} {acted}').format(
+            people=conjunction([p.namecard() for p in self.perpetrators]),
+            acted=super(PerpetratedEvent, self).description)
+
+class ObjectEvent(PerpetratedEvent):
+    def __init__(self, time, perpetrators, objects, event, location):
+        PerpetratedEvent.__init__(self, perpetrators, event, location)
+        self.objects = objects
+
+    @property
+    def description(self):
+        return _(u'{acted} the {objects}',
+                 acted = super(ObjectEvent, self).description,
+                 objects = conjunction(self.objects))
+
+## {{{ http://code.activestate.com/recipes/576888/ (r10)
+def ordinal(value):
+
+    if value % 100//10 != 1:
+        if value % 10 == 1:
+            ordval = u"%d%s" % (value, "st")
+        elif value % 10 == 2:
+            ordval = u"%d%s" % (value, "nd")
+        elif value % 10 == 3:
+            ordval = u"%d%s" % (value, "rd")
+        else:
+            ordval = u"%d%s" % (value, "th")
+    else:
+        ordval = u"%d%s" % (value, "th")
+
+    return ordval
+
+class MilestoneEvent(PerpetratedEvent):
+    def __init__(self, time, perpetrators, objects, number, event, location):
+        ObjectEvent.__init__(self, perpetrators, objects, event, location)
+        self.number = number
+
+    @property
+    def description(self):
+        return _(u'{acted} the {nth} {objects}',
+                 acted = super(ObjectEvent, self).description,
+                 nth = ordinal(self.number),
+                 objects = conjunction(self.objects))
+
 class Player(object):
     def __init__(self, world):
         self._world = world
+        self.creatures = []
         self.digjobs = deque()
         self.stockjobs = {}
         self.furnishjobs = deque()
+        self.mined = 0
+        self.felled = 0
+        self.history = []
+        self.settlement = None
 
         self._world.registerplayer(self)
-    
+
+    def creaturecreated(self, creature):
+        self.creatures.append(creature)
+
+    def foundsettlement(self, name):
+        self.settlement = name
+
+        self.history.append(PerpetratedEvent(self._world.time,
+                                             [c for c in self.creatures],
+                                             _(u'began their settlement'),
+                                             None))
+
+    def recordmined(self, location, miner, substance):
+        if self.mined == 0:
+            self.history.append(MilestoneEvent(self._world.time,
+                                               [miner],
+                                               [Stone.noun],
+                                               1,
+                                               _(u'mined'),
+                                               location))
+        self.mined += 1
+
+    def describesettlement(self, time):
+        return _(u'the fledgling {settlement}').format(settlement=settlement)
+                                 
     def designatefordigging(self, location):
         tile = self._world.space[location]
         if isinstance(tile, Earth):
@@ -1240,6 +1333,7 @@ class World(object):
         self.stockpiles = []
         self._listener = None
         self._players = []
+        self.time = 0
 
     def registerplayer(self, player):
         self._players.append(player)
@@ -1262,7 +1356,7 @@ class World(object):
         if sound:
             self.makesound(Step, creature.location)
 
-    def dig(self, location):
+    def dig(self, location, miner):
         tile = self.space[location]
         designation = tile.designation
         substance = tile.substance
@@ -1285,6 +1379,9 @@ class World(object):
 
         self.space[location] = tile
         self.additem(LooseMaterial(substance, location))
+
+        if miner.player and issubclass(substance, Stone):
+            miner.player.recordmined(location, miner, substance)
                             
     def additem(self, item, stockpiled = None):
         if item.location is not None:

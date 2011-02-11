@@ -82,13 +82,13 @@ class StatusBar(object):
             self.fps.clear()
 
         if not self.lasttime:
-            self.lasttime = self.game.t, time()
+            self.lasttime = self.game.world.time, time()
         else:
             if self.paused:
                 fps = 0
-                self.lasttime = self.game.t, time()
+                self.lasttime = self.game.world.time, time()
             else:
-                frames = self.game.t - self.lasttime[0]
+                frames = self.game.world.time - self.lasttime[0]
                 t = time()
                 secs = t - self.lasttime[1]
                 if secs > 0:
@@ -99,7 +99,7 @@ class StatusBar(object):
                 else:
                     fps = None
 
-                self.lasttime = self.game.t, t
+                self.lasttime = self.game.world.time, t
 
             if fps is not None:
                 image = self.font.render(
