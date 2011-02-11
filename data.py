@@ -1160,8 +1160,7 @@ class SmallSpider(SexualCreature):
                                               hue=color)
 
 class HistoricalEvent(object):
-    def __init__(self, time, event, location):
-        self.time = time
+    def __init__(self, event, location):
         self.event = event
         self.location = location
 
@@ -1170,8 +1169,8 @@ class HistoricalEvent(object):
         return event
 
 class PerpetratedEvent(HistoricalEvent):
-    def __init__(self, time, perpetrators, event, location):
-        HistoricalEvent.__init__(self, time, event, location)
+    def __init__(self, perpetrators, event, location):
+        HistoricalEvent.__init__(self, event, location)
         self.perpetrators = perpetrators
 
     @property
@@ -1181,7 +1180,7 @@ class PerpetratedEvent(HistoricalEvent):
             acted=super(PerpetratedEvent, self).description)
 
 class ObjectEvent(PerpetratedEvent):
-    def __init__(self, time, perpetrators, objects, event, location):
+    def __init__(self, perpetrators, objects, event, location):
         PerpetratedEvent.__init__(self, perpetrators, event, location)
         self.objects = objects
 
@@ -1208,9 +1207,9 @@ def ordinal(value):
 
     return ordval
 
-class MilestoneEvent(PerpetratedEvent):
-    def __init__(self, time, perpetrators, objects, number, event, location):
-        PerpetratedEvent.__init__(self, perpetrators, objects, event, location)
+class MilestoneEvent(ObjectEvent):
+    def __init__(self, perpetrators, objects, number, event, location):
+        ObjectEvent.__init__(self, perpetrators, objects, event, location)
         self.number = number
 
     @property
@@ -1219,6 +1218,14 @@ class MilestoneEvent(PerpetratedEvent):
                  acted = super(ObjectEvent, self).description,
                  nth = ordinal(self.number),
                  objects = conjunction(self.objects))
+
+class History(object):
+    def __init__(self, world):
+        self._world = world
+        self.events = []
+
+    def record(self, event):
+        self.events.append((self._world.time, event))
 
 class Player(object):
     def __init__(self, world):
@@ -1229,7 +1236,7 @@ class Player(object):
         self.furnishjobs = deque()
         self.mined = 0
         self.felled = 0
-        self.history = []
+        self.history = History(self._world)
         self.settlement = None
 
         self._world.registerplayer(self)
@@ -1240,15 +1247,13 @@ class Player(object):
     def foundsettlement(self, name):
         self.settlement = name
 
-        self.history.append(PerpetratedEvent(self._world.time,
-                                             [c for c in self.creatures],
+        self.history.record(PerpetratedEvent([c for c in self.creatures],
                                              _(u'began their settlement'),
                                              None))
 
     def recordmined(self, location, miner, substance):
         if self.mined == 0:
-            self.history.append(MilestoneEvent(self._world.time,
-                                               [miner],
+            self.history.record(MilestoneEvent([miner],
                                                [Stone.noun],
                                                1,
                                                _(u'mined'),
