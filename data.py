@@ -1210,7 +1210,7 @@ def ordinal(value):
 
 class MilestoneEvent(PerpetratedEvent):
     def __init__(self, time, perpetrators, objects, number, event, location):
-        ObjectEvent.__init__(self, perpetrators, objects, event, location)
+        PerpetratedEvent.__init__(self, perpetrators, objects, event, location)
         self.number = number
 
     @property
