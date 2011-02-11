@@ -175,22 +175,11 @@ class Space(object):
             else:
                 tile = Earth(Stone, randint(0,3))
 
-            if isinstance(tile, Empty):
-                for adj in [xy + (loc[2],)
-                            for xy in self.pathing.adjacent_xy(loc[0:2])]:
-                    if adj in self.cache:
-                        neighbor = self.cache[adj]
-                        if isinstance(neighbor, Earth):
-                            neighbor.revealed = True
-                            self.changed = True
-            else:
-                for adj in [xy + (loc[2],)
-                            for xy in self.pathing.adjacent_xy(loc[0:2])]:
-                    if adj in self.cache:
-                        neighbor = self.cache[adj]
-                        if isinstance(neighbor, Empty):
-                            tile.revealed = True
-                            self.changed = True
+            if not isinstance(tile, Empty):
+                for x, y in self.pathing.adjacent_xy(loc[0:2]):
+                    if self.groundlevel(x, y) <= loc[2]:
+                        tile.revealed = True
+                        break
                 
             self.cache[loc] = tile
         else:
