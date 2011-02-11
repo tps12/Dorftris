@@ -17,8 +17,9 @@ class StatusBar(object):
         ]
     fpsstring = _(u'{num:d} {g}FPS')
 
-    def __init__(self, game, font):
+    def __init__(self, game, player, font):
         self.game = game
+        player.history.setcrier(self._eventcrier)
 
         self.sprites = LayeredDirty()
 
@@ -27,6 +28,9 @@ class StatusBar(object):
         self.clock = Clock()
         self.lasttime = None
         self.fps = deque()
+
+    def _eventcrier(self, event):
+        pass
 
     def _sprite(self, text, x, color = None):
         color = color if color is not None else (255,255,255)

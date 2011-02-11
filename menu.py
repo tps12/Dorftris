@@ -92,9 +92,9 @@ class MainMenu(object):
                                         self.game.world.space.groundlevel(x,y)),
                                        choice(Wood.__subclasses__())))
 
-        user.foundsettlement('the fortress')
-
         self.child = Renderer(self.game, user, self.zoom)
+
+        user.foundsettlement('the fortress')
 
     def quitgame(self):
         self.done = True

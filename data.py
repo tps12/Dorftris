@@ -1222,10 +1222,16 @@ class MilestoneEvent(ObjectEvent):
 class History(object):
     def __init__(self, world):
         self._world = world
+        self._crier = None
         self.events = []
 
     def record(self, event):
         self.events.append((self._world.time, event))
+        if self._crier:
+            self._crier(event)
+
+    def setcrier(self, crier):
+        self._crier = crier
 
 class Player(object):
     def __init__(self, world):

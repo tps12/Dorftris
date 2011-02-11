@@ -25,7 +25,7 @@ class Renderer(object):
             for d in self.display:
                 d.scale(self.uifont)
         except AttributeError:
-            self.status = StatusBar(self.game, self.uifont)
+            self.status = StatusBar(self.game, self._player, self.uifont)
             self.display = [GameScreen(self.game, self._player,
                                        self.uifont, self.zoom,
                                        self._pushdisplay,
