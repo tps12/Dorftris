@@ -159,6 +159,9 @@ class Space(object):
     def groundlevel(self, x, y):
         return 64
 
+    def soillevel(self, x, y):
+        return 3
+
     def __getitem__(self, loc):
         if not all([0 <= loc[i] < self.dim[i] for i in range(3)]):
             return None
@@ -170,7 +173,7 @@ class Space(object):
                 tile = Empty(randint(0,3), Grass)
             elif loc[2] > g:
                 tile = Empty(randint(0,3))
-            elif loc[2] >= g - 3:
+            elif loc[2] > g - self.soillevel(loc[0], loc[1]):
                 tile = Earth(Clay, randint(0,3))
             else:
                 tile = Earth(Stone, randint(0,3))
