@@ -11,6 +11,7 @@ from game import Game
 from rendering import Renderer
 from substances import Wood, Metal
 from prefs import DisplayOptions
+from world import RenderWorld
 
 class MainMenu(object):
     dt = 0.01
@@ -45,6 +46,7 @@ class MainMenu(object):
 
         self.buttons = [
             Button(self._font, _(u'New Game'), self.newgame, True),
+            Button(self._font, _(u'Make World'), self.world, True),
             Button(self._font, _(u'Quit'), self.quitgame, True)
             ]
 
@@ -96,6 +98,9 @@ class MainMenu(object):
 
         user.foundsettlement('the fortress')
 
+    def world(self):
+        self.child = RenderWorld(self.zoom)
+
     def quitgame(self):
         self.done = True
 
@@ -107,6 +112,7 @@ class MainMenu(object):
 
         if not self.game:
             self.newgame()
+            self.world()
         else:
             self.done = True
         

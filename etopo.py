@@ -12,7 +12,7 @@ class Earth(object):
                            dtype=self.datatypes[header['NUMBERTYPE']],
                            mode='r',
                            shape=tuple([int(header[key])
-                                            for key in 'NCOLS','NROWS']))
+                                            for key in 'NROWS','NCOLS']))
         self.bad = int(header['NODATA_VALUE'])
 
     def sample(self, latitude, longitude):
