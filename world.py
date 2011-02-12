@@ -2,6 +2,7 @@ from pygame import display, draw, event, font, key, Rect
 from pygame.locals import *
 
 from etopo import Earth
+from planet import Planet
 
 class RenderWorld(object):
     game = None
@@ -10,7 +11,7 @@ class RenderWorld(object):
     def __init__(self, zoom):
         self.zoom = zoom
 
-        self.planet = Earth()
+        self.planet = Planet()
         
         self.definetiles()
 
@@ -28,7 +29,7 @@ class RenderWorld(object):
                 draw.circle(self.screen,
                             color,
                             (2*lon,
-                             2*(lat+180 if lat < 0 else lat)),
+                             2*(lat+90)),
                             2)
 
     def makescreen(self, size):

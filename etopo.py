@@ -16,5 +16,6 @@ class Earth(object):
         self.bad = int(header['NODATA_VALUE'])
 
     def sample(self, latitude, longitude):
+        latitude += 90
         value = self.data[int(latitude*30)][int(longitude*30)]
         return value if value != self.bad else None
