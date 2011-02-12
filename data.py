@@ -437,6 +437,15 @@ class ToolLabor(SkilledLabor):
                 for step in acquireitem(creature,
                                         world, tool.stocktype, tool):
                     yield step
+##
+##class Manufacturing(SkilledLabor):
+##    @classmethod
+##    def toil(cls, creature, world):
+##        for tool in cls.tools:
+##            if not creature.inventory.has(tool):
+##                for step in acquireitem(creature,
+##                                        world, tool.stocktype, tool):
+##                    yield step
 
 class Mining(ToolLabor):
     gerund = _(u'mining')
@@ -577,7 +586,7 @@ class Furnishing(Labor):
                 return
 
             creature.inventory.remove(item)
-            world.setfurnishing(location, item)
+            world.setfurnishing(location, item, creature.player)
 
         yield True, None
 
@@ -1249,6 +1258,8 @@ class Player(object):
         self.felled = 0
         self.history = History(self._world)
         self.settlement = None
+        self._furniturelocations = {}
+        self._furnituretypes = {}
 
         self._world.registerplayer(self)
 
@@ -1340,6 +1351,14 @@ class Player(object):
 
     def furnish(self, location, item):
         self.furnishjobs.append((location, item))
+
+    def furnished(self, location):
+        furnishing = self._world.space[location].furnishing
+        self._furniturelocations[location] = furnishing
+        if not furnishing.__class__ in self._furnituretypes:
+            self._furnituretypes[furnishing.__class__] = [location]
+        else:
+            self._furnituretypes[furnishing.__class__].append(location)
         
 class World(object):
     def __init__(self, space, items):
@@ -1418,12 +1437,14 @@ class World(object):
             
         self.items.remove(item)
 
-    def setfurnishing(self, location, item):
+    def setfurnishing(self, location, item, player):
         tile = self.space[location]
         if not isinstance(tile, Empty) or tile.furnishing:
             raise ValueError
 
         item.location = location
         tile.furnishing = item
+
+        player.furnished(location)
 
         self.space.changed = True
