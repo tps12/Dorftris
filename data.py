@@ -1166,7 +1166,7 @@ class HistoricalEvent(object):
 
     @property
     def description(self):
-        return event
+        return self.event
 
 class PerpetratedEvent(HistoricalEvent):
     def __init__(self, perpetrators, event, location):
@@ -1254,7 +1254,7 @@ class Player(object):
         self.settlement = name
 
         self.history.record(PerpetratedEvent([c for c in self.creatures],
-                                             _(u'began their settlement'),
+                                             _(u'established the settlement'),
                                              None))
 
     def recordmined(self, location, miner, substance):

@@ -17,20 +17,26 @@ class StatusBar(object):
         ]
     fpsstring = _(u'{num:d} {g}FPS')
 
-    def __init__(self, game, player, font):
+    def __init__(self, game, player, prefs):
         self.game = game
         player.history.setcrier(self._eventcrier)
+        self._prefs = prefs
 
         self.sprites = LayeredDirty()
 
-        self.scale(font)
+        self.scale(self._prefs.font)
 
         self.clock = Clock()
         self.lasttime = None
         self.fps = deque()
 
     def _eventcrier(self, event):
-        pass
+        self.announcesprite.image = self.font.render(event.description,
+                                                     True,
+                                                     (255, 255, 255))
+        self.announcesprite.rect = self.announcesprite.image.get_rect()
+        self.announcesprite.dirty = 1
+        self.announcesprite.time = time()
 
     def _sprite(self, text, x, y, color = None):
         color = color if color is not None else (255,255,255)
@@ -48,6 +54,7 @@ class StatusBar(object):
 
         x = 0
         self.announcesprite = self._sprite(' ', x, 0)
+        self.sprites.add(self.announcesprite)
 
         y = self.announcesprite.rect.height
         self.pausesprite = self._sprite(self.pausestring, x, y)
@@ -75,6 +82,14 @@ class StatusBar(object):
         self._dirty()
 
     def draw(self, surface):
+        t = time()
+
+        if (self.announcesprite.time and
+            t - self.announcesprite.time > self._prefs.announcementtimeout):
+            self.announcesprite.image.fill((0,0,0))
+            self.announcesprite.dirty = 1
+            self.announcesprite.time = None
+        
         paused = self.game.paused
         if self.paused != paused:
             self.paused = paused
@@ -90,14 +105,13 @@ class StatusBar(object):
             self.fps.clear()
 
         if not self.lasttime:
-            self.lasttime = self.game.world.time, time()
+            self.lasttime = self.game.world.time, t
         else:
             if self.paused:
                 fps = 0
-                self.lasttime = self.game.world.time, time()
+                self.lasttime = self.game.world.time, t
             else:
                 frames = self.game.world.time - self.lasttime[0]
-                t = time()
                 secs = t - self.lasttime[1]
                 if secs > 0:
                     if len(self.fps) > 20:
