@@ -39,11 +39,11 @@ class Renderer(object):
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
-        self.statussurf = self.screen.subsurface(Rect((0, size[1]-self.uifont.get_linesize()),
+        self.statussurf = self.screen.subsurface(Rect((0, size[1]-2 * self.uifont.get_linesize()),
                                                       (size[0],
-                                                       self.uifont.get_linesize())))
+                                                       2 * self.uifont.get_linesize())))
         self.displaysurf = self.screen.subsurface(Rect((0, 0),
-                                                       (size[0], size[1]-self.uifont.get_linesize())))
+                                                       (size[0], size[1]-2 * self.uifont.get_linesize())))
         
         self.makebackground()
 

@@ -32,12 +32,12 @@ class StatusBar(object):
     def _eventcrier(self, event):
         pass
 
-    def _sprite(self, text, x, color = None):
+    def _sprite(self, text, x, y, color = None):
         color = color if color is not None else (255,255,255)
         
         sprite = DirtySprite()
         sprite.image = self.font.render(text, True, color)
-        sprite.rect = sprite.image.get_rect().move(x, 0)
+        sprite.rect = sprite.image.get_rect().move(x, y)
 
         return sprite
 
@@ -47,11 +47,15 @@ class StatusBar(object):
         self.sprites.empty()
 
         x = 0
-        self.pausesprite = self._sprite(self.pausestring, x)
+        self.announcesprite = self._sprite(' ', x, 0)
+
+        y = self.announcesprite.rect.height
+        self.pausesprite = self._sprite(self.pausestring, x, y)
         x += self.pausesprite.rect.width
-        self.timesprites = [self._sprite(t, x) for t in self.timestrings]
+        self.timesprites = [self._sprite(t, x, y) for t in self.timestrings]
         x += max([s.rect.width for s in self.timesprites])
-        self.fpssprites = [self._sprite(self.fpsstring.format(num=9999, g=g), x)
+        self.fpssprites = [self._sprite(self.fpsstring.format(num=9999, g=g),
+                                        x, y)
                            for g in '','G']
         self.fpssprites[1].rect.move_ip(self.fpssprites[1].rect.width, 0)
 
