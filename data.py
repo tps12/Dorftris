@@ -520,8 +520,8 @@ class Mining(ToolLabor):
             world.dig(location, creature)
             cls.trainskill(creature)
 
-class Hauling(Labor):
-    gerund = _(u'hauling')
+class Stockpiling(Labor):
+    gerund = _(u'stockpiling')
 
     @classmethod
     def stockpileitem(cls, creature, world):
@@ -547,6 +547,17 @@ class Hauling(Labor):
                 pile.add(item)
 
         yield True, None
+
+    @classmethod
+    def toil(cls, creature, world):
+        for done, step in cls.stockpileitem(creature, world):
+            if done:
+                return
+            else:
+                yield step
+
+class Furnishing(Labor):
+    gerund = _(u'furnishing')
 
     @classmethod
     def furnishlocation(cls, creature, world):
@@ -577,16 +588,10 @@ class Hauling(Labor):
                 return
             else:
                 yield step
-        
-        for done, step in cls.stockpileitem(creature, world):
-            if done:
-                return
-            else:
-                yield step
 
 LaborOptions = [
     (u'structural', [Mining]),
-    (u'unskilled', [Hauling])]
+    (u'hauling', [Stockpiling,Furnishing])]
         
 class Appetite(object):
     __slots__ = '_pentup', '_creature', '_threshold'
@@ -1074,7 +1079,7 @@ class Dwarf(CulturedCreature):
         r = randint(80,255)
         CulturedCreature.__init__(self, player, [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location)
-        self.labors = [Mining, Hauling]
+        self.labors = [Mining, Stockpiling, Furnishing]
 
     def colordescription(self):
         return _(u'has {hue} skin').format(hue=describecolor(self.color))
