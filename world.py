@@ -11,7 +11,7 @@ class RenderWorld(object):
     def __init__(self, zoom):
         self.zoom = zoom
 
-        self.planet = Planet()
+        self.planet = Earth()
         
         self.definetiles()
 
@@ -21,17 +21,18 @@ class RenderWorld(object):
         self.uifont = self.zoom.font
                 
     def makebackground(self):
-        for lat in range(-90, 90, 2):
-            for lon in range(0, 360, 2):
+        template = self.uifont.render(u'\u2588', True, (0,0,0,255))
+        width,height = template.get_size()
+        
+        for lat in range(-90, 90, 5):
+            for lon in range(0, 360, 5):
                 h = self.planet.sample(lat, lon)
                 color = ((0,int(255 * (h/10000.0)),0) if h > 0
                          else (0,0,int(255 * (1 + h/10000.0))))
-                draw.circle(self.screen,
-                            color,
-                            (2*lon,
-                             2*(lat+90)),
-                            2)
-
+                block = template.copy()
+                block.fill(color)
+                self.screen.blit(block, (width*lon/5, height*(lat+90)/5))
+                                 
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
         
