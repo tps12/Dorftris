@@ -1,7 +1,7 @@
 from collections import deque
 from time import time
 
-from pygame import Rect, Surface
+from pygame import error, Rect, Surface
 from pygame.locals import *
 from pygame.sprite import *
 from pygame.time import Clock
@@ -32,20 +32,29 @@ class StatusBar(object):
 
     def _eventcrier(self, event):
         text = event.description
+        contd = False
         width = self.background.get_width()
         while True:
-            self.announcesprite.image = self.font.render(text,
-                                                         True,
-                                                         (255, 255, 255))
-            if self.announcesprite.image.get_width() < width:
+            try:
+                self.announcesprite.image = self.font.render(text +
+                                                             ('...' if contd
+                                                              else ''),
+                                                             True,
+                                                             (255, 255, 255))
+            except error:
+                self.announcesprite.image = None
+            if (self.announcesprite.image and
+                self.announcesprite.image.get_width() < width):
                 break
             words = text.split()
             if len(words) == 1:
                 if len(words[0]) <= 1:
                     break
-                text = words[0][:-1] + '...'
+                text = words[0][:-1]
+                contd = True
             else:
-                text = ' '.join(words[:-1]) + '...'
+                text = ' '.join(words[:-1])
+                contd = True
             
         self.announcesprite.rect = self.announcesprite.image.get_rect()
         self.announcesprite.dirty = 1
