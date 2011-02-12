@@ -7,7 +7,7 @@ class DisplayOptions(object):
         self.width = width
         self.height = height
         self.selectioncolor = 0, 255, 0
-        self.announcementtimeout = 3
+        self.announcementtimeout = 5
         self.debugging = True
 
     @property

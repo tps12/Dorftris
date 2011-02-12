@@ -31,9 +31,22 @@ class StatusBar(object):
         self.fps = deque()
 
     def _eventcrier(self, event):
-        self.announcesprite.image = self.font.render(event.description,
-                                                     True,
-                                                     (255, 255, 255))
+        text = event.description
+        width = self.background.get_width()
+        while True:
+            self.announcesprite.image = self.font.render(text,
+                                                         True,
+                                                         (255, 255, 255))
+            if self.announcesprite.image.get_width() < width:
+                break
+            words = text.split()
+            if len(words) == 1:
+                if len(words[0]) <= 1:
+                    break
+                text = words[0][:-1] + '...'
+            else:
+                text = ' '.join(words[:-1]) + '...'
+            
         self.announcesprite.rect = self.announcesprite.image.get_rect()
         self.announcesprite.dirty = 1
         self.announcesprite.time = time()
@@ -54,6 +67,7 @@ class StatusBar(object):
 
         x = 0
         self.announcesprite = self._sprite(' ', x, 0)
+        self.announcesprite.time = None
         self.sprites.add(self.announcesprite)
 
         y = self.announcesprite.rect.height
@@ -87,7 +101,7 @@ class StatusBar(object):
         if (self.announcesprite.time and
             t - self.announcesprite.time > self._prefs.announcementtimeout):
             self.announcesprite.image.fill((0,0,0))
-            self.announcesprite.dirty = 1
+            self.announcesprite.dirty = True
             self.announcesprite.time = None
         
         paused = self.game.paused

@@ -1214,10 +1214,10 @@ class MilestoneEvent(ObjectEvent):
 
     @property
     def description(self):
-        return _(u'{acted} the {nth} {objects}',
-                 acted = super(ObjectEvent, self).description,
-                 nth = ordinal(self.number),
-                 objects = conjunction(self.objects))
+        return _(u'{acted} the {nth} {objects}').format(
+            acted = super(ObjectEvent, self).description,
+            nth = ordinal(self.number),
+            objects = conjunction(self.objects))
 
 class History(object):
     def __init__(self, world):
