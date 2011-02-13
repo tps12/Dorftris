@@ -12,6 +12,7 @@ class RenderWorld(object):
     
     def __init__(self, zoom):
         self.zoom = zoom
+        self.rotate = 0
 
         self.planet = Earth()
         
@@ -35,11 +36,11 @@ class RenderWorld(object):
             for x in range(o-r, o+r):
                 block = template.copy()
 
-                lon = asin(x/float(o+r)) * 360/pi
+                lon = self.rotate + asin(x/float(o+r)) * 360/pi
                 h = self.planet.sample(lat, lon)
-                color = ((0,int(255 * (h/10000.0)),0) if h > 0
-                         else (0,0,int(255 * (1 + h/10000.0))))
-                
+                color = ((0,int(255 * (h/9000.0)),0) if h > 0
+                         else (0,0,int(255 * (1 + h/11000.0))))
+
                 block.fill(color)
                 self.screen.blit(block, (x * width, y * height))
                                  
@@ -74,6 +75,11 @@ class RenderWorld(object):
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
                 self.definetiles()
+
+        self.rotate -= 15
+        if self.rotate <= -180:
+            self.rotate += 360
+        self.makebackground()
 
         display.flip()
 
