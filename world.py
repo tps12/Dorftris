@@ -14,7 +14,7 @@ class RenderWorld(object):
         self.zoom = zoom
         self.rotate = 0
 
-        self.planet = Earth()
+        self.planet = Planet()
         
         self.definetiles()
 
@@ -76,7 +76,7 @@ class RenderWorld(object):
                 self.makescreen(e.size)
                 self.definetiles()
 
-        self.rotate -= 15
+        self.rotate -= 5
         if self.rotate <= -180:
             self.rotate += 360
         self.makebackground()
