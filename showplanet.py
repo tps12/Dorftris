@@ -21,7 +21,8 @@ class Globe(object):
     def makebackground(self, surface):
         surface.fill((0,0,0))
         
-        template = Surface(2*(min(self.zoom.width, self.zoom.height),))
+        template = Surface(2*(min(self.zoom.width, self.zoom.height),),
+                           flags=SRCALPHA)
         template.fill((0,0,0,255))
         width,height = template.get_size()
 
@@ -52,7 +53,8 @@ class Globe(object):
                 block.fill(color)
                 if self.selected[0][0] <= lat <= self.selected[0][1]:
                     if self.selected[1][0] <= lon <= self.selected[1][1]:
-                        block.fill((64,0,0))
+                        block.fill((255,0,0,32),
+                                   special_flags = BLEND_ADD)
                 rect = Rect(x * width, y * height, width, height)
                 surface.blit(block, rect.topleft)
                 self.rects.append((rect, (lat, lon)))
