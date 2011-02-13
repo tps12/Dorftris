@@ -1,6 +1,6 @@
 from math import acos, asin, pi, sqrt
 
-from pygame import display, draw, event, font, key, Rect
+from pygame import display, draw, event, font, key, Rect, Surface
 from pygame.locals import *
 
 from etopo import Earth
@@ -24,7 +24,10 @@ class RenderWorld(object):
         self.uifont = self.zoom.font
                 
     def makebackground(self):
-        template = self.uifont.render(u'\u2588', True, (0,0,0,255))
+        self.screen.fill((0,0,0))
+        
+        template = Surface(2*(min(self.zoom.width, self.zoom.height),))
+        template.fill((0,0,0,255))
         width,height = template.get_size()
 
         o = min(self.screen.get_width()/width,
