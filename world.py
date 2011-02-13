@@ -6,6 +6,7 @@ from pygame.locals import *
 from etopo import Earth
 from planet import Planet
 from showplanet import Globe
+from showregion import Region
 
 class RenderWorld(object):
     game = None
@@ -16,6 +17,7 @@ class RenderWorld(object):
         self.rotate = 0
 
         self.globe = Globe(self.zoom, Planet())
+        self.region = Region(self.zoom, self.globe.planet)
         
         self.definetiles()
 
@@ -28,8 +30,9 @@ class RenderWorld(object):
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
-        gd = min(size)
+        gd = min(size[0]/2,size[1])
         self.globesurf = self.screen.subsurface(Rect(0,0,gd,gd))
+        self.regsurf = self.screen.subsurface(Rect(gd,0,gd,gd))
 
     def step(self):
         done = False
@@ -59,6 +62,7 @@ class RenderWorld(object):
                 self.definetiles()
 
         self.globe.draw(self.globesurf)
+        self.region.draw(self.regsurf)
 
         display.flip()
 
