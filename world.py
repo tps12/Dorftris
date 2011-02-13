@@ -1,3 +1,5 @@
+from math import acos, asin, pi, sqrt
+
 from pygame import display, draw, event, font, key, Rect
 from pygame.locals import *
 
@@ -23,15 +25,23 @@ class RenderWorld(object):
     def makebackground(self):
         template = self.uifont.render(u'\u2588', True, (0,0,0,255))
         width,height = template.get_size()
-        
-        for lat in range(-90, 90, 5):
-            for lon in range(0, 360, 5):
+
+        o = min(self.screen.get_width()/width,
+                self.screen.get_height()/height)/2
+
+        for y in range(2*o):
+            lat = 90 - acos(y/(2.0*o)) * 90
+            r = int(sqrt(o**2-(o-y)**2))
+            for x in range(o-r, o+r):
+                block = template.copy()
+
+                lon = asin(x/float(o+r)) * 360/pi
                 h = self.planet.sample(lat, lon)
                 color = ((0,int(255 * (h/10000.0)),0) if h > 0
                          else (0,0,int(255 * (1 + h/10000.0))))
-                block = template.copy()
+                
                 block.fill(color)
-                self.screen.blit(block, (width*lon/5, height*(lat+90)/5))
+                self.screen.blit(block, (x * width, y * height))
                                  
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
