@@ -4,7 +4,7 @@ from pygame import display, draw, event, font, key, Rect, Surface
 from pygame.locals import *
 
 class Globe(object):
-    def __init__(self, zoom, planet):
+    def __init__(self, zoom, planet, selection):
         self.zoom = zoom
         self.rotate = 0
 
@@ -12,7 +12,7 @@ class Globe(object):
         
         self.definetiles()
 
-        self.selected = ((15,30),(80,100))
+        self.selected = selection
 
     def definetiles(self):
         self.uifont = self.zoom.font

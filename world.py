@@ -16,8 +16,9 @@ class RenderWorld(object):
         self.zoom = zoom
         self.rotate = 0
 
-        self.globe = Globe(self.zoom, Planet())
-        self.region = Region(self.zoom, self.globe.planet)
+        self.selection = [(-20,-10),(0, 20)]
+        self.globe = Globe(self.zoom, Planet(), self.selection)
+        self.region = Region(self.zoom, self.globe.planet, self.selection)
         
         self.definetiles()
 
