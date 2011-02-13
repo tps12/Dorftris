@@ -52,6 +52,9 @@ class Globe(object):
                     if self.selected[1][0] <= lon <= self.selected[1][1]:
                         block.fill((64,0,0))
                 surface.blit(block, (x * width, y * height))
+
+    def handle(self, e):
+        return False
                                  
     def draw(self, surface):
         self.rotate += 5

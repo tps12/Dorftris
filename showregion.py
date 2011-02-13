@@ -41,6 +41,9 @@ class Region(object):
 
                 block.fill(color)
                 surface.blit(block, (x * width, y * height))
+
+    def handle(self, e):
+        return False
                                  
     def draw(self, surface):
         self.makebackground(surface)

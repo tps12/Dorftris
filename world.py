@@ -31,14 +31,22 @@ class RenderWorld(object):
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
-        gd = min(size[0]/2,size[1])
-        self.globesurf = self.screen.subsurface(Rect(0,0,gd,gd))
-        self.regsurf = self.screen.subsurface(Rect(gd,0,gd,gd))
+        self.globesize = min(size[0]/2,size[1])
+        self.globesurf = self.screen.subsurface(Rect((0,0),2*(self.globesize,)))
+        self.regsurf = self.screen.subsurface(Rect((self.globesize,0),
+                                                   2*(self.globesize,)))
 
     def step(self):
         done = False
         
         for e in event.get():
+            if self.globe.handle(e):
+                continue
+
+            if 'pos' in e.dict:
+                e.dict['pos'] = e.pos[0] - self.globesize, e.pos[1]
+            if self.region.handle(e):
+                continue
             
             if e.type == QUIT:
                 done = True
