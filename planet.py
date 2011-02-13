@@ -1,6 +1,6 @@
 from math import cos, pi, sin
 
-from noise import snoise3
+from noise import pnoise3
 
 class Planet(object):
     def sample(self, latitude, longitude):
@@ -8,12 +8,7 @@ class Planet(object):
         c = cos(lat)
         x, y, z = c * cos(lon), c * sin(lon), sin(lat)
 
-        amp = 1.0
-        persist = 0.75
-        m = 0.0
-        octaves = 24
-        for i in range(octaves):
-            m += amp
-            amp *= persist
+        octaves = 10
+        persist = 0.7
 
-        return 2000 * snoise3(x, y, z, octaves, persist) / m
+        return 9000 * pnoise3(x, y, z, octaves, persist)
