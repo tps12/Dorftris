@@ -18,7 +18,7 @@ class RenderWorld(object):
         
         self.definetiles()
 
-        self.selected = ((0,30),(30,60))
+        self.selected = ((15,30),(80,100))
 
         self.makescreen(display.get_surface().get_size())
 
@@ -36,13 +36,13 @@ class RenderWorld(object):
                 self.screen.get_height()/height)/2
 
         for y in range(2*o):
+            lat = 90 - acos(y/(2.0*o)) * 90
             r = int(sqrt(o**2-(o-y)**2))
             for x in range(o-r, o+r):
                 block = template.copy()
 
                 v = [float(x-r)/o, float(y-o)/o]
 
-                lat = 90 - acos(y/(2.0*o)) * 90
                 if x >= o:
                     lon = self.rotate - acos(float((x-(o-r)-r))/r) * 180/pi
                 else:
@@ -56,8 +56,9 @@ class RenderWorld(object):
                          else (0,0,int(255 * (1 + h/11000.0))))
 
                 block.fill(color)
-                if self.selected[1][0] <= lon <= self.selected[1][1]:
-                    block.fill((64,0,0))
+                if self.selected[0][0] <= lat <= self.selected[0][1]:
+                    if self.selected[1][0] <= lon <= self.selected[1][1]:
+                        block.fill((64,0,0))
                 self.screen.blit(block, (x * width, y * height))
                                  
     def makescreen(self, size):
