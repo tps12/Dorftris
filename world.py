@@ -16,6 +16,7 @@ class RenderWorld(object):
         self.zoom = zoom
         self.rotate = 0
 
+        self._zoomrate = 0
         self._zooming = None
 
         self.selection = [(-20,-10),(0, 20)]
@@ -46,10 +47,15 @@ class RenderWorld(object):
         d = self.leftsize
 
         if self._zooming is not None:
+            if self._zoomrate < 100:
+                self._zoomrate += 5
+            self._zooming += self._zoomrate
+            
             self.leftsize -= self._zooming
             if self.leftsize <= 0:
                 self.leftsize = d
                 self.left = self.right
+                self._zoomrate = 0
                 self._zooming = None
         
         self.leftsurf = self.screen.subsurface(Rect((0,0),2*(d,)))
@@ -90,7 +96,6 @@ class RenderWorld(object):
                 self.definetiles()
 
         if self._zooming is not None:
-            self._zooming += 5
             self.makescreen(self.screen.get_size())
 
         self.left.draw(self.leftsurf)
