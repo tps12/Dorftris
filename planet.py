@@ -20,5 +20,5 @@ class Planet(object):
         else:
             value *= 3
 
-        scale = 5000
+        scale = 7000
         return scale * value

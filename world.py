@@ -17,8 +17,8 @@ class RenderWorld(object):
         self.rotate = 0
 
         self.selection = [(-20,-10),(0, 20)]
-        self.globe = Globe(self.zoom, Planet(), self.selection, self._select)
-        self.region = Region(self.zoom, self.globe.planet, self.selection)
+        self.left = Globe(self.zoom, Planet(), self.selection, self._select)
+        self.right = Region(self.zoom, self.left.planet, self.selection)
         
         self.definetiles()
 
@@ -31,26 +31,27 @@ class RenderWorld(object):
 
     def definetiles(self):
         self.uifont = self.zoom.font
-        self.globe.definetiles()
+        self.left.definetiles()
+        self.right.definetiles()
                                                  
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
-        self.globesize = min(size[0]/2,size[1])
-        self.globesurf = self.screen.subsurface(Rect((0,0),2*(self.globesize,)))
-        self.regsurf = self.screen.subsurface(Rect((self.globesize,0),
-                                                   2*(self.globesize,)))
+        self.leftsize = min(size[0]/2,size[1])
+        self.leftsurf = self.screen.subsurface(Rect((0,0),2*(self.leftsize,)))
+        self.rightsurf = self.screen.subsurface(Rect((self.leftsize,0),
+                                                     2*(self.leftsize,)))
 
     def step(self):
         done = False
         
         for e in event.get():
-            if self.globe.handle(e):
+            if self.left.handle(e):
                 continue
 
             if 'pos' in e.dict:
-                e.dict['pos'] = e.pos[0] - self.globesize, e.pos[1]
-            if self.region.handle(e):
+                e.dict['pos'] = e.pos[0] - self.leftsize, e.pos[1]
+            if self.right.handle(e):
                 continue
             
             if e.type == QUIT:
@@ -75,8 +76,8 @@ class RenderWorld(object):
                 self.makescreen(e.size)
                 self.definetiles()
 
-        self.globe.draw(self.globesurf)
-        self.region.draw(self.regsurf)
+        self.left.draw(self.leftsurf)
+        self.right.draw(self.rightsurf)
 
         display.flip()
 

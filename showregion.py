@@ -3,6 +3,8 @@ from math import acos, asin, atan2, pi, sqrt
 from pygame import display, draw, event, font, key, Rect, Surface
 from pygame.locals import *
 
+from noiseregion import NoiseRegion
+
 class Region(object):
     def __init__(self, zoom, planet, selection):
         self.zoom = zoom
@@ -29,15 +31,32 @@ class Region(object):
                   (ylim,xlim)[i]
                   for i in range(2)]
 
+        region = NoiseRegion(self.planet, *self.selected)
+
+        limits = [float('inf'),-float('inf')]
+
+        hs = [[None for y in range(ylim)] for x in range(xlim)]
+
         for x in range(xlim):
             lon = self.selected[1][0] + x * dx
             for y in range(ylim):
-                block = template.copy()
                 lat = self.selected[0][0] + y * dy
 
-                h = self.planet.sample(lat, lon)
-                color = ((0,int(255 * (h/9000.0)),0) if h > 0
-                         else (0,0,int(255 * (1 + h/11000.0))))
+                h = region.sample(x * dx, y * dy)
+
+                if h < limits[0]:
+                    limits[0] = h
+                if h > limits[1]:
+                    limits[1] = h
+
+                hs[x][y] = h
+
+        for x in range(xlim):
+            for y in range(ylim):        
+                block = template.copy()
+                h = hs[x][y]
+                color = ((0,int(255 * (h/limits[1])),0) if h > 0
+                         else (0,0,int(255 * (1 - h/limits[0]))))
 
                 block.fill(color)
                 surface.blit(block, (x * width, y * height))
