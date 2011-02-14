@@ -16,9 +16,11 @@ class RenderWorld(object):
         self.zoom = zoom
         self.rotate = 0
 
+        self._zooming = None
+
         self.selection = [(-20,-10),(0, 20)]
         self.left = Globe(self.zoom, Planet(), self.selection, self._select)
-        self.right = Region(self.zoom, self.left.planet, self.selection)
+        self.right = Region(self.zoom, self.left.planet, self.selection, self._zoom)
         
         self.definetiles()
 
@@ -29,6 +31,9 @@ class RenderWorld(object):
             span = self.selection[i][1] - self.selection[i][0]
             self.selection[i] = coords[i] - span/2, coords[i] + span/2
 
+    def _zoom(self, coords):
+        self._zooming = 0
+
     def definetiles(self):
         self.uifont = self.zoom.font
         self.left.definetiles()
@@ -38,9 +43,17 @@ class RenderWorld(object):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
         self.leftsize = min(size[0]/2,size[1])
-        self.leftsurf = self.screen.subsurface(Rect((0,0),2*(self.leftsize,)))
-        self.rightsurf = self.screen.subsurface(Rect((self.leftsize,0),
-                                                     2*(self.leftsize,)))
+        d = self.leftsize
+
+        if self._zooming is not None:
+            self.leftsize -= self._zooming
+            if self.leftsize <= 0:
+                self.leftsize = d
+                self.left = self.right
+                self._zooming = None
+        
+        self.leftsurf = self.screen.subsurface(Rect((0,0),2*(d,)))
+        self.rightsurf = self.screen.subsurface(Rect((self.leftsize,0), 2*(d,)))
 
     def step(self):
         done = False
@@ -75,6 +88,10 @@ class RenderWorld(object):
             elif e.type == VIDEORESIZE:
                 self.makescreen(e.size)
                 self.definetiles()
+
+        if self._zooming is not None:
+            self._zooming += 5
+            self.makescreen(self.screen.get_size())
 
         self.left.draw(self.leftsurf)
         self.right.draw(self.rightsurf)

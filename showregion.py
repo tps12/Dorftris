@@ -6,7 +6,7 @@ from pygame.locals import *
 from noiseregion import NoiseRegion
 
 class Region(object):
-    def __init__(self, zoom, planet, selection):
+    def __init__(self, zoom, planet, selection, zoomin):
         self.zoom = zoom
 
         self.planet = planet
@@ -14,6 +14,8 @@ class Region(object):
         self.definetiles()
 
         self.selected = selection
+
+        self._zoom = zoomin
 
     def definetiles(self):
         self.uifont = self.zoom.font
@@ -62,6 +64,9 @@ class Region(object):
                 surface.blit(block, (x * width, y * height))
 
     def handle(self, e):
+        if e.type == MOUSEBUTTONDOWN and e.button == 1:
+            self._zoom((0,0))
+            return True
         return False
                                  
     def draw(self, surface):
