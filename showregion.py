@@ -14,6 +14,7 @@ class Region(object):
         self.definetiles()
 
         self.selected = source.selection
+        self.selection = [span for span in self.selected]
 
         self._zoom = zoomin
 
@@ -65,7 +66,10 @@ class Region(object):
 
     def handle(self, e):
         if e.type == MOUSEBUTTONDOWN and e.button == 1:
-            self._zoom((0,0))
+            for i in range(2):
+                span = self.selected[i][1] - self.selected[i][0]
+                self.selection[i] = 2*span/5, 3*span/5
+                self._zoom(self.selection)
             return True
         return False
                                  
