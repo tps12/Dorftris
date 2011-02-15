@@ -4,7 +4,7 @@ from pygame import display, draw, event, font, key, Rect, Surface
 from pygame.locals import *
 
 class Globe(object):
-    def __init__(self, zoom, planet, selection, select):
+    def __init__(self, zoom, planet):
         self.zoom = zoom
         self.rotate = 0
 
@@ -12,8 +12,7 @@ class Globe(object):
         
         self.definetiles()
 
-        self.selected = selection
-        self._select = select
+        self.selection = [(-20,-10),(0, 20)]
 
     def definetiles(self):
         self.uifont = self.zoom.font
@@ -51,13 +50,18 @@ class Globe(object):
                          else (0,0,int(255 * (1 + h/11000.0))))
 
                 block.fill(color)
-                if self.selected[0][0] <= lat <= self.selected[0][1]:
-                    if self.selected[1][0] <= lon <= self.selected[1][1]:
+                if self.selection[0][0] <= lat <= self.selection[0][1]:
+                    if self.selection[1][0] <= lon <= self.selection[1][1]:
                         block.fill((255,0,0,32),
                                    special_flags = BLEND_ADD)
                 rect = Rect(x * width, y * height, width, height)
                 surface.blit(block, rect.topleft)
                 self.rects.append((rect, (lat, lon)))
+
+    def _select(self, coords):
+        for i in range(2):
+            span = self.selection[i][1] - self.selection[i][0]
+            self.selection[i] = coords[i] - span/2, coords[i] + span/2
 
     def handle(self, e):
         if e.type == MOUSEBUTTONDOWN and e.button == 1:

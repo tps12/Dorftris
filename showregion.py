@@ -6,14 +6,14 @@ from pygame.locals import *
 from noiseregion import NoiseRegion
 
 class Region(object):
-    def __init__(self, zoom, planet, selection, zoomin):
+    def __init__(self, zoom, source, zoomin):
         self.zoom = zoom
 
-        self.planet = planet
+        self.planet = source.planet
         
         self.definetiles()
 
-        self.selected = selection
+        self.selected = source.selection
 
         self._zoom = zoomin
 

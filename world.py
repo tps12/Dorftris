@@ -19,18 +19,12 @@ class RenderWorld(object):
         self._zoomrate = 0
         self._zooming = None
 
-        self.selection = [(-20,-10),(0, 20)]
-        self.left = Globe(self.zoom, Planet(), self.selection, self._select)
-        self.right = Region(self.zoom, self.left.planet, self.selection, self._zoom)
+        self.left = Globe(self.zoom, Planet())
+        self.right = Region(self.zoom, self.left, self._zoom)
         
         self.definetiles()
 
         self.makescreen(display.get_surface().get_size())
-
-    def _select(self, coords):
-        for i in range(2):
-            span = self.selection[i][1] - self.selection[i][0]
-            self.selection[i] = coords[i] - span/2, coords[i] + span/2
 
     def _zoom(self, coords):
         self._zooming = 0
