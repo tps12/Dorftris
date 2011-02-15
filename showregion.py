@@ -30,22 +30,25 @@ class Region(object):
 
         ylim = surface.get_height()/height
         dlat = float(self.selected[0][1] - self.selected[0][0])/ylim
-        xlim = 0
+        xmax = 0
         for y in range(ylim):
             lat = self.selected[0][0] + y * dlat
             scale = cos(lat * pi/180)
 
             w = int(surface.get_width() * scale/width)
-            if w > xlim:
-                xlim = w
+            if w > xmax:
+                xmax = w
 
         hmin = hmax = 0
         for y in range(ylim):
             lat = self.selected[0][0] + y * dlat
             scale = cos(lat * pi/180)
 
-            for x in range(int(surface.get_width() * scale/width)):
-                lon = self.selected[1][0] + x * scale * dlat
+            xlim = int(surface.get_width() * scale/width)
+            for x in range(xlim):
+                dx = float(xmax - xlim)/2
+                
+                lon = self.selected[1][0] + (x + dx) * scale * dlat
                 
                 h = self.planet.sample(lat, lon)
                 if h < hmin:
@@ -57,8 +60,11 @@ class Region(object):
             lat = self.selected[0][0] + y * dlat
             scale = cos(lat * pi/180)
 
-            for x in range(int(surface.get_width() * scale/width)):
-                lon = self.selected[1][0] + x * scale * dlat
+            xlim = int(surface.get_width() * scale/width)
+            for x in range(xlim):
+                dx = float(xmax - xlim)/2
+                
+                lon = self.selected[1][0] + (x + dx) * scale * dlat
                 
                 block = template.copy()
                 h = self.planet.sample(lat, lon)
@@ -67,7 +73,7 @@ class Region(object):
                 else:
                     color = 0, int(255 * h/hmax), 0
                 block.fill(color)
-                surface.blit(block, (x*width, y*height))
+                surface.blit(block, (int((x+dx)*width), y*height))
 
     def _select(self, pos):
         for i in range(2):
