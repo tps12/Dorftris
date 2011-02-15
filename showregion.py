@@ -28,7 +28,7 @@ class Region(object):
         template.fill((0,0,0,255))
         width,height = template.get_size()
 
-        xlim, ylim = surface.get_width()/width, surface.get_height()/height
+        xlim, ylim = self.size[0]/width, self.size[1]/height
 
         dy, dx = [float(self.selected[i][1] - self.selected[i][0])/
                   (ylim,xlim)[i]
@@ -64,14 +64,27 @@ class Region(object):
                 block.fill(color)
                 surface.blit(block, (x * width, y * height))
 
+    def _select(self, pos):
+        for i in range(2):
+            span = (self.selected[i][1] - self.selected[i][0])/5
+            d = pos[i]/float(self.size[i])
+            limits = [d - span/2, d + span/2]
+            if limits[0] < self.selected[i][0]:
+                limits[1] += self.selected[i][0] - limits[0]
+                limits[0] = self.selected[i][0]
+            elif limits[1] > self.selected[i][1]:
+                limits[0] -= limits[1] - self.selected[i][1]
+                limits[1] = self.selected[i][1]
+                
+            self.selection[i] = limits
+        self._zoom()
+
     def handle(self, e):
         if e.type == MOUSEBUTTONDOWN and e.button == 1:
-            for i in range(2):
-                span = self.selected[i][1] - self.selected[i][0]
-                self.selection[i] = 2*span/5, 3*span/5
-                self._zoom(self.selection)
+            self._select(e.pos)
             return True
         return False
                                  
     def draw(self, surface):
+        self.size = surface.get_size()
         self.makebackground(surface)

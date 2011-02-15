@@ -26,7 +26,7 @@ class RenderWorld(object):
 
         self.makescreen(display.get_surface().get_size())
 
-    def _zoom(self, coords):
+    def _zoom(self):
         self._zooming = 0
 
     def definetiles(self):
