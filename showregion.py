@@ -1,4 +1,4 @@
-from math import acos, asin, atan2, pi, sqrt
+from math import acos, asin, atan2, cos, pi, sin, sqrt
 
 from pygame import display, draw, event, font, key, Rect, Surface
 from pygame.locals import *
@@ -28,41 +28,46 @@ class Region(object):
         template.fill((0,0,0,255))
         width,height = template.get_size()
 
-        xlim, ylim = self.size[0]/width, self.size[1]/height
+        ylim = surface.get_height()/height
+        dlat = float(self.selected[0][1] - self.selected[0][0])/ylim
+        xlim = 0
+        for y in range(ylim):
+            lat = self.selected[0][0] + y * dlat
+            scale = cos(lat * pi/180)
 
-        dy, dx = [float(self.selected[i][1] - self.selected[i][0])/
-                  (ylim,xlim)[i]
-                  for i in range(2)]
+            w = int(surface.get_width() * scale/width)
+            if w > xlim:
+                xlim = w
 
-        region = NoiseRegion(self.planet, *self.selected)
+        hmin = hmax = 0
+        for y in range(ylim):
+            lat = self.selected[0][0] + y * dlat
+            scale = cos(lat * pi/180)
 
-        limits = [float('inf'),-float('inf')]
+            for x in range(int(surface.get_width() * scale/width)):
+                lon = self.selected[1][0] + x * scale * dlat
+                
+                h = self.planet.sample(lat, lon)
+                if h < hmin:
+                    hmin = h
+                if h > hmax:
+                    hmax = h
 
-        hs = [[None for y in range(ylim)] for x in range(xlim)]
+        for y in range(ylim):
+            lat = self.selected[0][0] + y * dlat
+            scale = cos(lat * pi/180)
 
-        for x in range(xlim):
-            lon = self.selected[1][0] + x * dx
-            for y in range(ylim):
-                lat = self.selected[0][0] + y * dy
-
-                h = region.sample(x * dx, y * dy)
-
-                if h < limits[0]:
-                    limits[0] = h
-                if h > limits[1]:
-                    limits[1] = h
-
-                hs[x][y] = h
-
-        for x in range(xlim):
-            for y in range(ylim):        
+            for x in range(int(surface.get_width() * scale/width)):
+                lon = self.selected[1][0] + x * scale * dlat
+                
                 block = template.copy()
-                h = hs[x][y]
-                color = ((0,int(255 * (h/limits[1])),0) if h > 0
-                         else (0,0,int(255 * (1 - h/limits[0]))))
-
+                h = self.planet.sample(lat, lon)
+                if h < 0:
+                    color = 0, 0, int(255 * (1 - h/hmin))
+                else:
+                    color = 0, int(255 * h/hmax), 0
                 block.fill(color)
-                surface.blit(block, (x * width, y * height))
+                surface.blit(block, (x*width, y*height))
 
     def _select(self, pos):
         for i in range(2):
