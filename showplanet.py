@@ -12,7 +12,7 @@ class Globe(object):
         
         self.definetiles()
 
-        self.selection = [(-20,-10),(0, 20)]
+        self.selection = [(-19,-10),(5, 14)]
 
     def definetiles(self):
         self.uifont = self.zoom.font
@@ -30,7 +30,9 @@ class Globe(object):
 
         self.rects = []
         for y in range(2*o):
-            lat = 90 - acos(y/(2.0*o)) * 90
+            dy = y - o
+            py = dy / float(o)
+            lat = asin(py) * 180/pi
             r = int(sqrt(o**2-(o-y)**2))
             for x in range(o-r, o+r):
                 block = template.copy()
@@ -61,7 +63,15 @@ class Globe(object):
     def _select(self, coords):
         for i in range(2):
             span = self.selection[i][1] - self.selection[i][0]
-            self.selection[i] = coords[i] - span/2, coords[i] + span/2
+            self.selection[i] = [coords[i] - span/2, coords[i] + span/2]
+        if self.selection[0][0] < -80:
+            d = -80 - self.selection[0][0]
+            for i in range(2):
+                self.selection[0][i] += d
+        elif self.selection[0][1] > 80:
+            d = self.selection[0][1] - 80
+            for i in range(2):
+                self.selection[0][i] -= d
 
     def handle(self, e):
         if e.type == MOUSEBUTTONDOWN and e.button == 1:
