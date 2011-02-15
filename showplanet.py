@@ -30,9 +30,7 @@ class Globe(object):
 
         self.rects = []
         for y in range(2*o):
-            dy = y - o
-            py = dy / float(o)
-            lat = asin(py) * 180/pi
+            lat = asin(float(y-o)/o) * 180/pi
             r = int(sqrt(o**2-(o-y)**2))
             for x in range(o-r, o+r):
                 block = template.copy()
