@@ -76,7 +76,7 @@ class Region(object):
                 block.fill(color)
                 rect = Rect(int(x+dx)*width, y*height, width, height)
                 surface.blit(block, rect.topleft)
-                self.rects.append(rect)
+                self.rects.append((rect, (lat, lon)))
 
     def detail(self):
         return Region(self.zoom, self, self._zoom)
@@ -84,7 +84,7 @@ class Region(object):
     def _select(self, pos):
         
         
-        for i in range(2):
+        if False:#for i in range(2):
             span = (self.selected[i][1] - self.selected[i][0])/5
             d = pos[i]/float(self.size[i])
             limits = [d - span/2, d + span/2]
@@ -100,8 +100,10 @@ class Region(object):
 
     def handle(self, e):
         if e.type == MOUSEBUTTONDOWN and e.button == 1:
-            self._select(e.pos)
-            return True
+            for rect, coords in self.rects:
+                if rect.collidepoint(e.pos):                    
+                    self._select(coords)
+                    return True
         return False
                                  
     def draw(self, surface):
