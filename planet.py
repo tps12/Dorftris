@@ -8,7 +8,7 @@ class Planet(object):
         c = cos(lat)
         x, y, z = c * cos(lon), c * sin(lon), sin(lat)
 
-        octaves = 6
+        octaves = 12
         persist = 0.7
 
         b = 1 if pnoise3(x+18, y-3, z+3, 4, persist) > -0.125 else -1
