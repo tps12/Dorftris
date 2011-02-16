@@ -87,9 +87,11 @@ class Region(object):
         self.selection[0] = yo - yspan/2, yo + yspan/2
 
         scale = cos(yo * pi/180)
-        xspan = scale * yspan
+        xspan = yspan / scale
         xo = coords[1]
         self.selection[1] = xo - xspan/2, xo + xspan/2
+
+        print yspan * 111, xspan * scale * 111
 
         self._zoom()
 
