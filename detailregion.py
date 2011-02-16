@@ -3,7 +3,7 @@ from math import acos, asin, atan2, cos, pi, sin, sqrt
 from pygame import display, draw, event, font, key, Rect, Surface
 from pygame.locals import *
 
-from noiseregion import NoiseRegion
+from noise import pnoise2
 
 class DetailedRegion(object):
     def __init__(self, zoom, source, zoomin):
@@ -31,6 +31,11 @@ class DetailedRegion(object):
         xlim = surface.get_width()/width
 
         data = self.source.data()
+        noise = [[pnoise2(self.source.selection[1][0]+x,
+                          self.source.selection[0][0]+y,
+                          6, 0.65) * 1000
+                  for x in range(xlim)]
+                 for y in range(ylim)]
 
         hmin = hmax = 0
         for y in range(ylim):
@@ -39,6 +44,11 @@ class DetailedRegion(object):
                 xd = int(len(data[0])*float(x)/xlim)
 
                 h = data[yd][xd]
+                n = noise[y][x]
+                if h < 0:
+                    h += -n if n > 0 else n
+                else:
+                    h += n if n > 0 else -n
                 if h < hmin:
                     hmin = h
                 if h > hmax:
@@ -51,6 +61,11 @@ class DetailedRegion(object):
                 yd = int(len(data)*float(y)/ylim)
                 xd = int(len(data[0])*float(x)/xlim)
                 h = data[yd][xd]
+                n = noise[y][x]
+                if h < 0:
+                    h += -n if n > 0 else n
+                else:
+                    h += n if n > 0 else -n
                 if h < 0:
                     color = 0, 0, int(255 * (1 - h/hmin))
                 else:
