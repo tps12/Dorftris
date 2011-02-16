@@ -3,9 +3,9 @@ from math import acos, asin, atan2, cos, pi, sin, sqrt
 from pygame import display, draw, event, font, key, Rect, Surface
 from pygame.locals import *
 
-from detailregion import DetailedRegion
+from noiseregion import NoiseRegion
 
-class Region(object):
+class DetailedRegion(object):
     def __init__(self, zoom, source, zoomin):
         self.zoom = zoom
 
