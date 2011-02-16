@@ -49,7 +49,7 @@ class RenderWorld(object):
             if self.leftsize <= 0:
                 self.leftsize = d
                 self.left = self.right
-                self.right = Region(self.zoom, self.left, self._zoom)
+                self.right = self.left.detail()
                 self._zoomrate = 0
                 self._zooming = None
         

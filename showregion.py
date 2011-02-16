@@ -75,6 +75,9 @@ class Region(object):
                 block.fill(color)
                 surface.blit(block, (int((x+dx)*width), y*height))
 
+    def detail(self):
+        return Region(self.zoom, self, self._zoom)
+
     def _select(self, pos):
         for i in range(2):
             span = (self.selected[i][1] - self.selected[i][0])/5
