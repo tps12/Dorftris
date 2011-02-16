@@ -14,7 +14,7 @@ class Region(object):
         self.definetiles()
 
         self.selected = source.selection
-        self.selection = [span for span in self.selected]
+        self.selection = None
 
         self._zoom = zoomin
 
@@ -82,6 +82,12 @@ class Region(object):
         return Region(self.zoom, self, self._zoom)
 
     def _select(self, coords):
+        if not self.selection:
+            zoom = True
+            self.selection = [None, None]
+        else:
+            zoom = False
+        
         yspan = (self.selected[0][1] - self.selected[0][0])/10.0
         yo = coords[0]
         self.selection[0] = yo - yspan/2, yo + yspan/2
@@ -91,9 +97,8 @@ class Region(object):
         xo = coords[1]
         self.selection[1] = xo - xspan/2, xo + xspan/2
 
-        print yspan * 111, xspan * scale * 111
-
-        self._zoom()
+        if zoom:
+            self._zoom()
 
     def handle(self, e):
         if e.type == MOUSEBUTTONDOWN and e.button == 1:
