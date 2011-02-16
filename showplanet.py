@@ -61,7 +61,7 @@ class Globe(object):
     def _select(self, coords):
         for i in range(2):
             span = self.selection[i][1] - self.selection[i][0]
-            self.selection[i] = [coords[i] - span/2, coords[i] + span/2]
+            self.selection[i] = [coords[i] - span/2.0, coords[i] + span/2.0]
         if self.selection[0][0] < -80:
             d = -80 - self.selection[0][0]
             for i in range(2):
