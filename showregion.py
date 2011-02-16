@@ -81,21 +81,16 @@ class Region(object):
     def detail(self):
         return Region(self.zoom, self, self._zoom)
 
-    def _select(self, pos):
-        
-        
-        if False:#for i in range(2):
-            span = (self.selected[i][1] - self.selected[i][0])/5
-            d = pos[i]/float(self.size[i])
-            limits = [d - span/2, d + span/2]
-            if limits[0] < self.selected[i][0]:
-                limits[1] += self.selected[i][0] - limits[0]
-                limits[0] = self.selected[i][0]
-            elif limits[1] > self.selected[i][1]:
-                limits[0] -= limits[1] - self.selected[i][1]
-                limits[1] = self.selected[i][1]
-                
-            self.selection[i] = limits
+    def _select(self, coords):
+        yspan = (self.selected[0][1] - self.selected[0][0])/10.0
+        yo = coords[0]
+        self.selection[0] = yo - yspan/2, yo + yspan/2
+
+        scale = cos(yo * pi/180)
+        xspan = scale * yspan
+        xo = coords[1]
+        self.selection[1] = xo - xspan/2, xo + xspan/2
+
         self._zoom()
 
     def handle(self, e):
