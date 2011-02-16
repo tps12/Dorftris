@@ -100,6 +100,18 @@ class Region(object):
         if zoom:
             self._zoom()
 
+    def data(self):
+        xlim = ylim = 100
+        data = [[None for x in range(xlim)] for y in range(ylim)]
+        dlat = (self.selection[0][1] - self.selection[0][0])/ylim
+        for y in range(ylim):
+            lat = self.selection[0][0] + y * dlat
+            dlon = dlat * cos(lat * pi/180)
+            for x in range(xlim):
+                lon = self.selection[1][0] + x * dlon
+                data[y][x] = self.planet.sample(lat, lon)
+        return data
+
     def handle(self, e):
         if e.type == MOUSEBUTTONDOWN and e.button == 1:
             for rect, coords in self.rects:
