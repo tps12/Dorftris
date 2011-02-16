@@ -56,6 +56,7 @@ class Region(object):
                 if h > hmax:
                     hmax = h
 
+        self.rects = []
         for y in range(ylim):
             lat = self.selected[0][0] + y * dlat
             scale = cos(lat * pi/180)
@@ -73,12 +74,16 @@ class Region(object):
                 else:
                     color = 0, int(255 * h/hmax), 0
                 block.fill(color)
-                surface.blit(block, (int((x+dx)*width), y*height))
+                rect = Rect(int(x+dx)*width, y*height, width, height)
+                surface.blit(block, rect.topleft)
+                self.rects.append(rect)
 
     def detail(self):
         return Region(self.zoom, self, self._zoom)
 
     def _select(self, pos):
+        
+        
         for i in range(2):
             span = (self.selected[i][1] - self.selected[i][0])/5
             d = pos[i]/float(self.size[i])
