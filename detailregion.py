@@ -19,6 +19,10 @@ class DetailedRegion(object):
 
     def definetiles(self):
         self.uifont = self.zoom.font
+
+    @staticmethod
+    def _height(data, sy, sx):
+        return data[int(sy)][int(sx)]
                 
     def makebackground(self, surface):
         surface.fill((0,0,0))
@@ -40,10 +44,10 @@ class DetailedRegion(object):
         hmin = hmax = 0
         for y in range(ylim):
             for x in range(xlim):
-                yd = int(len(data)*float(y)/ylim)
-                xd = int(len(data[0])*float(x)/xlim)
+                yd = len(data)*float(y)/ylim
+                xd = len(data[0])*float(x)/xlim
 
-                h = data[yd][xd]
+                h = self._height(data, yd, xd)
                 n = noise[y][x]
                 if h < 0:
                     h += -n if n > 0 else n
@@ -58,9 +62,10 @@ class DetailedRegion(object):
         for y in range(ylim):
             for x in range(xlim):
                 block = template.copy()
-                yd = int(len(data)*float(y)/ylim)
-                xd = int(len(data[0])*float(x)/xlim)
-                h = data[yd][xd]
+                yd = len(data)*float(y)/ylim
+                xd = len(data[0])*float(x)/xlim
+
+                h = self._height(data, yd, xd)
                 n = noise[y][x]
                 if h < 0:
                     h += -n if n > 0 else n
@@ -73,7 +78,7 @@ class DetailedRegion(object):
                 block.fill(color)
                 rect = Rect(x*width, y*height, width, height)
                 surface.blit(block, rect.topleft)
-                self.rects.append((rect, (yd, xd)))
+                self.rects.append((rect, (int(yd), int(xd))))
 
     def detail(self):
         return DetailedRegion(self.zoom, self, self._zoom)
