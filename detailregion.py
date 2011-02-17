@@ -24,12 +24,8 @@ class DetailedRegion(object):
     def _height(data, sy, sx):
         y0 = int(sy)
         y1 = y0+1
-        if y1 == len(data):
-            y1 = y0
         x0 = int(sx)
         x1 = x0+1
-        if x1 == len(data[0]):
-            x1 = x0
         dy = sy - y0
         dx = sx - x0
 
@@ -101,8 +97,8 @@ class DetailedRegion(object):
         value = [[None for x in range(xlim)] for y in range(ylim)]
         
         data = self.source.data()
-        noise = [[pnoise2(self.source.selection[1][0]+x,
-                          self.source.selection[0][0]+y,
+        noise = [[pnoise2(self.source.selection[1][0]+self.selection[1][0]+float(x)/xlim,
+                          self.source.selection[0][0]+self.selection[0][0]+float(y)/ylim,
                           6, 0.65) * 1000
                   for x in range(xlim)]
                  for y in range(ylim)]
@@ -110,8 +106,8 @@ class DetailedRegion(object):
         hmin = hmax = 0
         for y in range(ylim):
             for x in range(xlim):
-                yd = len(data)*float(y)/ylim
-                xd = len(data[0])*float(x)/xlim
+                yd = len(data)*(self.selection[1][0]/ylim+y/10.0/ylim)
+                xd = len(data[0])*(self.selection[0][0]/xlim+x/10.0/xlim)
 
                 h = self._height(data, yd, xd)
                 n = noise[y][x]
