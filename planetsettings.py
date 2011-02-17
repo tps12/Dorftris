@@ -1,5 +1,5 @@
 from math import acos, asin, atan2, pi, sqrt
-from random import randint
+from random import random
 
 from pygame import display, draw, event, font, key, Rect, Surface
 from pygame.locals import *
@@ -36,7 +36,7 @@ class PlanetSettings(object):
             y += b.size[1]
 
     def _randomize(self):
-        self.planet.seeds = tuple([randint(-3,3)
+        self.planet.seeds = tuple([-5 + 5 * random()
                                    for i in range(len(self.planet.seeds))])
         
     def handle(self, e):
