@@ -5,9 +5,7 @@ from pygame.locals import *
 
 from noise import pnoise2
 
-from locality import Locality
-
-class DetailedRegion(object):
+class Locality(object):
     def __init__(self, zoom, source, zoomin):
         self.zoom = zoom
 
