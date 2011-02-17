@@ -24,8 +24,12 @@ class DetailedRegion(object):
     def _height(data, sy, sx):
         y0 = int(sy)
         y1 = y0+1
+        if y1 == len(data):
+            y1 = y0
         x0 = int(sx)
         x1 = x0+1
+        if x1 == len(data[0]):
+            x1 = x0
         dy = sy - y0
         dx = sx - x0
 
@@ -87,13 +91,36 @@ class DetailedRegion(object):
                 block.fill(color)
                 rect = Rect(x*width, y*height, width, height)
                 surface.blit(block, rect.topleft)
-                self.rects.append((rect, (int(yd), int(xd))))
+                self.rects.append((rect, (yd, xd)))
 
     def detail(self):
         return DetailedRegion(self.zoom, self, self._zoom)
 
     def data(self):
-        return None
+        xlim = ylim = 100
+        value = [[None for x in range(xlim)] for y in range(ylim)]
+        
+        data = self.source.data()
+        noise = [[pnoise2(self.source.selection[1][0]+x,
+                          self.source.selection[0][0]+y,
+                          6, 0.65) * 1000
+                  for x in range(xlim)]
+                 for y in range(ylim)]
+
+        hmin = hmax = 0
+        for y in range(ylim):
+            for x in range(xlim):
+                yd = len(data)*float(y)/ylim
+                xd = len(data[0])*float(x)/xlim
+
+                h = self._height(data, yd, xd)
+                n = noise[y][x]
+                if h < 0:
+                    h += -n if n > 0 else n
+                else:
+                    h += n if n > 0 else -n
+                value[y][x] = h
+        return value
 
     def _select(self, coords):
         if not self.selection:
@@ -101,6 +128,9 @@ class DetailedRegion(object):
             self.selection = [None, None]
         else:
             zoom = False
+
+        for i in range(2):
+            self.selection[i] = coords[i] - 5.0, coords[i] + 5.0
         
         if zoom:
             self._zoom()
