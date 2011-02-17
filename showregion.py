@@ -74,6 +74,11 @@ class Region(object):
                 else:
                     color = 0, int(255 * h/hmax), 0
                 block.fill(color)
+                if self.selection:
+                    if self.selection[0][0] <= lat <= self.selection[0][1]:
+                        if self.selection[1][0] <= lon <= self.selection[1][1]:
+                            block.fill((255,0,0,32),
+                                       special_flags = BLEND_ADD)
                 rect = Rect(int(x+dx)*width, y*height, width, height)
                 surface.blit(block, rect.topleft)
                 self.rects.append((rect, (lat, lon)))
