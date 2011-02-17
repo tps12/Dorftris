@@ -22,7 +22,16 @@ class DetailedRegion(object):
 
     @staticmethod
     def _height(data, sy, sx):
-        return data[int(sy)][int(sx)]
+        y0 = int(sy)
+        y1 = y0+1
+        x0 = int(sx)
+        x1 = x0+1
+        dy = sy - y0
+        dx = sx - x0
+
+        a = data[y0][x0] * dy + data[y1][x0] * (1-dy)
+        b = data[y0][x1] * dy + data[y1][x1] * (1-dy)
+        return a * dx + b * (1-dx)
                 
     def makebackground(self, surface):
         surface.fill((0,0,0))
