@@ -15,6 +15,9 @@ class Earth(object):
                                             for key in 'NROWS','NCOLS']))
         self.bad = int(header['NODATA_VALUE'])
 
+    def actions(self):
+        return []
+
     def sample(self, latitude, longitude):
         latitude += 90
         value = self.data[int(latitude*30)][int(longitude*30)]

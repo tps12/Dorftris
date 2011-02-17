@@ -7,6 +7,9 @@ class Planet(object):
     def __init__(self):
         self.randomize()
 
+    def actions(self):
+        return [(_(u'Randomize'), self.randomize)]
+
     def randomize(self):
         self.seeds = [-5 + 5 * random() for i in range(6)]
         

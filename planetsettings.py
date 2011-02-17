@@ -22,10 +22,12 @@ class PlanetSettings(object):
                 
     def makebackground(self, surface):
         surface.fill((0,0,0))
-        
-        self._buttons = [
-            Button(self.uifont, _(u'Randomize'), self._randomize)
-            ]
+
+        del self._buttons[:]
+        for label, action in self.planet.actions():
+            self._buttons = [
+                Button(self.uifont, label, action)
+                ]
 
         size = surface.get_size()
         y = 0
@@ -33,9 +35,6 @@ class PlanetSettings(object):
             b.location = (0, y)
             b.draw(surface)
             y += b.size[1]
-
-    def _randomize(self):
-        self.planet.randomize()
         
     def handle(self, e):
         for b in self._buttons:
