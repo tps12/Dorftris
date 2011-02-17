@@ -3,16 +3,19 @@ from math import acos, asin, atan2, pi, sqrt
 from pygame import display, draw, event, font, key, Rect, Surface
 from pygame.locals import *
 
+from showregion import Region
+
 class Globe(object):
-    def __init__(self, zoom, planet):
+    def __init__(self, zoom, planet, zoomin):
         self.zoom = zoom
         self.rotate = 0
 
         self.planet = planet
+        self._zoom = zoomin
         
         self.definetiles()
 
-        self.selection = [(-19,-10),(5, 14)]
+        self.selection = None
 
     def definetiles(self):
         self.uifont = self.zoom.font
@@ -50,18 +53,24 @@ class Globe(object):
                          else (0,0,int(255 * (1 + h/11000.0))))
 
                 block.fill(color)
-                if self.selection[0][0] <= lat <= self.selection[0][1]:
-                    if self.selection[1][0] <= lon <= self.selection[1][1]:
-                        block.fill((255,0,0,32),
-                                   special_flags = BLEND_ADD)
+                if self.selection:
+                    if self.selection[0][0] <= lat <= self.selection[0][1]:
+                        if self.selection[1][0] <= lon <= self.selection[1][1]:
+                            block.fill((255,0,0,32),
+                                       special_flags = BLEND_ADD)
                 rect = Rect(x * width, y * height, width, height)
                 surface.blit(block, rect.topleft)
                 self.rects.append((rect, (lat, lon)))
 
     def _select(self, coords):
+        if not self.selection:
+            zoom = True
+            self.selection = [None, None]
+        else:
+            zoom = False
+        
         for i in range(2):
-            span = self.selection[i][1] - self.selection[i][0]
-            self.selection[i] = [coords[i] - span/2.0, coords[i] + span/2.0]
+            self.selection[i] = [coords[i] - 4.5, coords[i] + 4.5]
         if self.selection[0][0] < -80:
             d = -80 - self.selection[0][0]
             for i in range(2):
@@ -70,6 +79,12 @@ class Globe(object):
             d = self.selection[0][1] - 80
             for i in range(2):
                 self.selection[0][i] -= d
+
+        if zoom:
+            self._zoom()
+
+    def detail(self):
+        return Region(self.zoom, self, self._zoom)
 
     def handle(self, e):
         if e.type == MOUSEBUTTONDOWN and e.button == 1:

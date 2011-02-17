@@ -6,7 +6,6 @@ from pygame.locals import *
 from etopo import Earth
 from planet import Planet
 from showplanet import Globe
-from showregion import Region
 
 class RenderWorld(object):
     game = None
@@ -19,8 +18,8 @@ class RenderWorld(object):
         self._zoomrate = 0
         self._zooming = None
 
-        self.left = Globe(self.zoom, Planet())
-        self.right = Region(self.zoom, self.left, self._zoom)
+        self.left = Globe(self.zoom, Planet(), self._zoom)
+        self.right = self.left
         
         self.definetiles()
 
