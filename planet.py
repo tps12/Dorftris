@@ -1,10 +1,14 @@
 from math import cos, pi, sin
+from random import random
 
 from noise import pnoise3
 
 class Planet(object):
     def __init__(self):
-        self.seeds = 18, -3, 3, -3, 2, 0
+        self.randomize()
+
+    def randomize(self):
+        self.seeds = [-5 + 5 * random() for i in range(6)]
         
     def sample(self, latitude, longitude):
         lat, lon = [v*pi/180 for v in latitude, longitude]
