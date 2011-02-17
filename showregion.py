@@ -98,7 +98,7 @@ class Region(object):
         self.selection[0] = yo - yspan/2, yo + yspan/2
 
         scale = cos(yo * pi/180)
-        xspan = yspan / scale
+        xspan = yspan * scale
         xo = coords[1]
         self.selection[1] = xo - xspan/2, xo + xspan/2
 
