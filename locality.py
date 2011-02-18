@@ -49,7 +49,7 @@ class Locality(object):
         data = self._data
         noise = [[pnoise2(self._selected[1][0]+x,
                           self._selected[0][0]+y,
-                          6, 0.65) * 1000
+                          6, 0.75) * 250
                   for x in range(xlim)]
                  for y in range(ylim)]
 
