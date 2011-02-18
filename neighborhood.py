@@ -5,10 +5,8 @@ from pygame.locals import *
 
 from noise import pnoise2
 
-from neighborhood import Neighborhood
-
-class Locality(object):
-    description = _('Locality')
+class Neighborhood(object):
+    description = _('Neighborhood')
     
     def __init__(self, zoom, source, zoomin):
         self.zoom = zoom
@@ -51,7 +49,7 @@ class Locality(object):
         data = self._data
         noise = [[pnoise2(self._selected[1][0]+x,
                           self._selected[0][0]+y,
-                          6, 0.75) * 250
+                          4, 0.85) * 50
                   for x in range(xlim)]
                  for y in range(ylim)]
 
@@ -100,7 +98,7 @@ class Locality(object):
                 self.rects.append((rect, (yd, xd)))
 
     def detail(self):
-        return Neighborhood(self.zoom, self, self._zoom)
+        return None
 
     def data(self):
         xlim = ylim = 100
