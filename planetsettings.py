@@ -17,6 +17,10 @@ class PlanetSettings(object):
         self.selection = None
         self._buttons = []
 
+    @property
+    def description(self):
+        return _(u'{planet} Settings').format(planet=self.planet.name)
+
     def definetiles(self):
         self.uifont = self.zoom.font
                 

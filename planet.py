@@ -4,6 +4,8 @@ from random import random
 from noise import pnoise3
 
 class Planet(object):
+    name = _(u'Random Planet')
+    
     def __init__(self):
         self.randomize()
 

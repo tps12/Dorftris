@@ -8,6 +8,8 @@ from noise import pnoise2
 from locality import Locality
 
 class DetailedRegion(object):
+    description = _('Sub-Region')
+    
     def __init__(self, zoom, source, zoomin):
         self.zoom = zoom
 

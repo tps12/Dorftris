@@ -6,6 +6,8 @@ from pygame.locals import *
 from detailregion import DetailedRegion
 
 class Region(object):
+    description = _('Region')
+    
     def __init__(self, zoom, source, zoomin):
         self.zoom = zoom
 

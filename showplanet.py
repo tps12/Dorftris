@@ -6,6 +6,8 @@ from pygame.locals import *
 from showregion import Region
 
 class Globe(object):
+    description = _('Planet')
+    
     def __init__(self, zoom, planet, zoomin):
         self.zoom = zoom
         self.rotate = 0

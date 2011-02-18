@@ -3,6 +3,7 @@ from numpy import memmap
 class Earth(object):
     base = 'ETOPO2v2c_i2_LSB'
     datatypes = { '2_BYTE_INTEGER' : 'int16' }
+    name = _(u'Earth Topographical Data')
 
     def __init__(self):
         with open(self.base + '.hdr', 'r') as h:

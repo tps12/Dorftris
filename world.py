@@ -37,9 +37,9 @@ class RenderWorld(object):
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
-        th = self.uifont.get_height()
+        self.titleheight = self.uifont.get_height()
 
-        self.leftsize = min(size[0]/2,size[1]-th)
+        self.leftsize = min(size[0]/2,size[1]-self.titleheight)
         d = self.leftsize
 
         if self._zooming is not None:
@@ -55,28 +55,36 @@ class RenderWorld(object):
                 self._zoomrate = 0
                 self._zooming = None
 
-        lt = self.uifont.render(self.left.__class__.__name__,
-                                True, (255,255,255))
+        lt = self.uifont.render(self.left.description, True, (255,255,255))
         self.screen.blit(lt, ((d - lt.get_width())/2,0))
         if not self._zooming:
-            rt = self.uifont.render(self.right.__class__.__name__,
-                                    True, (255,255,255))
+            rt = self.uifont.render(self.right.description, True, (255,255,255))
             self.screen.blit(rt, (d + (d - rt.get_width())/2, 0))
         
-        self.leftsurf = self.screen.subsurface(Rect((0,th),2*(d,)))
-        self.rightsurf = self.screen.subsurface(Rect((self.leftsize,th), 2*(d,)))
+        self.leftsurf = self.screen.subsurface(Rect((0,self.titleheight),
+                                                    2*(d,)))
+        self.rightsurf = self.screen.subsurface(Rect((self.leftsize,
+                                                      self.titleheight),
+                                                     2*(d,)))
 
     def step(self):
         done = False
         
         for e in event.get():
+
+            pos = e.pos if 'pos' in e.dict else None
+            if pos:
+                e.dict['pos'] = pos[0], pos[1] - self.titleheight
             if self.left.handle(e):
                 continue
 
-            if 'pos' in e.dict:
-                e.dict['pos'] = e.pos[0] - self.leftsize, e.pos[1]
+            if pos:
+                e.dict['pos'] = pos[0] - self.leftsize, pos[1] - self.titleheight
             if self.right.handle(e):
                 continue
+
+            if pos:
+                e.dict['pos'] = pos
             
             if e.type == QUIT:
                 done = True
