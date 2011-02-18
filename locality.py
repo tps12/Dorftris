@@ -150,7 +150,7 @@ class Locality(object):
     def draw(self, surface):
         self.size = surface.get_size()
 
-        selected = self.source.selection
+        selected = [s for s in self.source.selection]
         if self._selected != selected:
             self._selected = selected
             self._data = self.source.data()
