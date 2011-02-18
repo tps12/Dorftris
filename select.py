@@ -3,10 +3,11 @@ from pygame.locals import *
 from pygame.sprite import *
 
 from button import Button
-from data import Creature, Item, Stockpile
+from data import Creature, Item, Stockpile, Workbench
 from details import CreatureDetails
 from furnish import FurnishingSelect
 from game import Earth, Empty
+from manufacture import ChooseManufacturingType
 from item import ItemDetails
 from region import RegionDetails
 from text import TextRenderer
@@ -104,6 +105,13 @@ class SelectionInfo(object):
                                                 self._popchild,
                                                 self._pushscreen,
                                                 self._popscreen))
+            elif isinstance(self._playfield.selection, Workbench):
+                self._pushchild(ChooseManufacturingType(self._playfield.player,
+                                                        self._playfield.selection,
+                                                        self._font,
+                                                        self._prefs,
+                                                        self._pushchild,
+                                                        self._popchild))
             elif isinstance(self._playfield.selection, Item):
                 self._pushchild(ItemDetails(self._playfield.selection,
                                             self._playfield,

@@ -112,7 +112,6 @@ class MainMenu(object):
 
         if not self.game:
             self.newgame()
-            self.world()
         else:
             self.done = True
         

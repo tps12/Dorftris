@@ -8,7 +8,7 @@ from unicodedata import name as unicodename
 from colordb import match as describecolor
 from jobs import *
 from space import Earth, Empty
-from substances import AEther, Meat, Water, Stone
+from substances import AEther, Meat, Water, Stone, Wood
 from language import Generator
 from skills import SkillSet
 from sound import Dig, Fight, Mine, Step
@@ -67,7 +67,7 @@ class Wine(Beverage):
 
 class Item(Thing):
     __slots__ = 'color', 'location', 'reserved'
-    
+   
     def __init__(self, materials, location):
         Thing.__init__(self, materials)
         self.color = self.materials[0].substance.color
@@ -79,11 +79,19 @@ class Item(Thing):
             material = self.materials[0].substance.adjective,
             thing = self.noun)
 
+    @classmethod
+    def substancetest(cls, s):
+        return False
+
 class Furniture(Item):
     __slots__ = ()
 
     def __init__(self, materials, location):
         Item.__init__(self, materials, location)
+
+    @classmethod
+    def substancetest(cls, s):
+        return s.rigid
 
 class Workbench(Furniture):
     __slots__ = ()
@@ -96,6 +104,7 @@ class Workbench(Furniture):
         Furniture.__init__(self,
                            [Material(substance, 0.025)],
                            location)
+        self.jobs = deque()
 
 class LooseMaterial(Item):
     __slots__ = ()
@@ -312,6 +321,10 @@ class Barrel(Container):
                            [Material(substance, 0.075)], location, 0.25)
         self.contents.append(Wine(self.capacity))
 
+    @classmethod
+    def substancetest(cls, s):
+        return s.rigid
+
 class Bag(Container):
     __slots__ = ()
 
@@ -321,6 +334,10 @@ class Bag(Container):
 
     def __init__(self, location, substance):
         Container.__init__(self, [Material(substance, 0.05)], location, 0.1)
+
+    @classmethod
+    def substancetest(cls, s):
+        return not s.rigid
 
 class Pickax(Item):
     __slots__ = ()
@@ -437,15 +454,26 @@ class ToolLabor(SkilledLabor):
                 for step in acquireitem(creature,
                                         world, tool.stocktype, tool):
                     yield step
-##
-##class Manufacturing(SkilledLabor):
-##    @classmethod
-##    def toil(cls, creature, world):
-##        for tool in cls.tools:
-##            if not creature.inventory.has(tool):
-##                for step in acquireitem(creature,
-##                                        world, tool.stocktype, tool):
-##                    yield step
+
+class Manufacturing(SkilledLabor):
+    substance = None
+
+    @classmethod
+    def description(cls, substance, item):
+        return _(u'make {substance} {item}').format(
+            substance=substance.adjective,
+            item=item.noun)
+    
+    @classmethod
+    def toil(cls, creature, world):
+        return
+
+class Carpentry(Manufacturing):
+    substance = Wood
+    gerund = _(u'carpentry')
+    skill = ['crafting', 'woodwork']
+
+    
 
 class Mining(ToolLabor):
     gerund = _(u'mining')

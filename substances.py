@@ -3,6 +3,7 @@ from sound import Dig, Mine
 class Substance(object):
     color = None
     density = None
+    rigid = False
 
 class Cloth(Substance):
     pass
@@ -59,12 +60,14 @@ class Leaf(Substance):
     color = (0, 128, 0)
 
 class Wood(Substance):
-    pass
+    noun = _(u'wood')
+    rigid = True
 
 class Stone(Substance):
     color = (128,128,128)
     density = 1500.0
     noun = _(u'stone')
+    rigid = True
     sound = Mine
 
 class Oak(Wood):
@@ -170,7 +173,8 @@ class Willow(Wood):
     density = 420.0
 
 class Metal(Substance):
-    pass
+    noun = _(u'metal')
+    rigid = True
 
 class Aluminum(Metal):
     adjective = _(u'aluminum')
