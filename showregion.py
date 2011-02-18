@@ -107,6 +107,10 @@ class Region(object):
         if zoom:
             self._zoom()
 
+    @property
+    def scale(self):
+        return u'1000km'
+    
     def data(self):
         xlim = ylim = 100
         data = [[None for x in range(xlim)] for y in range(ylim)]

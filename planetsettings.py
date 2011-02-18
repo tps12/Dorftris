@@ -6,6 +6,8 @@ from pygame.locals import *
 from button import Button
 
 class PlanetSettings(object):
+    scale = None
+    
     def __init__(self, zoom, planet):
         self.zoom = zoom
         self.rotate = 0

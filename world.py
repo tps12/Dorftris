@@ -39,7 +39,7 @@ class RenderWorld(object):
 
         self.titleheight = self.uifont.get_height()
 
-        self.leftsize = min(size[0]/2,size[1]-self.titleheight)
+        self.leftsize = min(size[0]/2,size[1]-2*self.titleheight)
         d = self.leftsize
 
         if self._zooming is not None:
@@ -57,15 +57,29 @@ class RenderWorld(object):
 
         lt = self.uifont.render(self.left.description, True, (255,255,255))
         self.screen.blit(lt, ((d - lt.get_width())/2,0))
+        scale = self.left.scale
+        if scale:
+            ls = self.uifont.render(_(u'Scale: {scale}').format(scale=scale),
+                                    True, (255,255,255))
+            self.screen.blit(ls, (0,d+self.titleheight))
+
         if not self._zooming:
             rt = self.uifont.render(self.right.description, True, (255,255,255))
             self.screen.blit(rt, (d + (d - rt.get_width())/2, 0))
+
+            scale = self.right.scale
+            if scale:
+                rs = self.uifont.render(_(u'Scale: {scale}').format(scale=scale),
+                                        True, (255,255,255))
+                self.screen.blit(rs, (d,d+self.titleheight))
         
         self.leftsurf = self.screen.subsurface(Rect((0,self.titleheight),
                                                     2*(d,)))
         self.rightsurf = self.screen.subsurface(Rect((self.leftsize,
                                                       self.titleheight),
                                                      2*(d,)))
+
+        
 
     def step(self):
         done = False

@@ -23,6 +23,10 @@ class Neighborhood(object):
     def definetiles(self):
         self.uifont = self.zoom.font
 
+    @property
+    def scale(self):
+        return u'1km'
+
     @staticmethod
     def _height(data, sy, sx):
         y0 = int(sy)

@@ -21,6 +21,10 @@ class Globe(object):
 
     def definetiles(self):
         self.uifont = self.zoom.font
+
+    @property
+    def scale(self):
+        return u'54\u2032'
                 
     def makebackground(self, surface):
         surface.fill((0,0,0))
