@@ -17,6 +17,7 @@ class DetailedRegion(object):
         
         self.definetiles()
 
+        self._selected = None
         self.selection = None
 
         self._zoom = zoomin
@@ -47,9 +48,9 @@ class DetailedRegion(object):
         ylim = surface.get_height()/height
         xlim = surface.get_width()/width
 
-        data = self.source.data()
-        noise = [[pnoise2(self.source.selection[1][0]+x,
-                          self.source.selection[0][0]+y,
+        data = self._data
+        noise = [[pnoise2(self._selected[1][0]+x,
+                          self._selected[0][0]+y,
                           6, 0.65) * 1000
                   for x in range(xlim)]
                  for y in range(ylim)]
@@ -150,4 +151,10 @@ class DetailedRegion(object):
                                  
     def draw(self, surface):
         self.size = surface.get_size()
+
+        selected = self.source.selection
+        if self._selected != selected:
+            self._selected = selected
+            self._data = self.source.data()
+        
         self.makebackground(surface)
