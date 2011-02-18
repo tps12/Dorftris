@@ -12,6 +12,7 @@ from substances import AEther, Meat, Water, Stone, Wood
 from language import Generator
 from skills import SkillSet
 from sound import Dig, Fight, Mine, Step
+from stocktype import StockpileType
 
 class Material(object):
     __slots__ = 'substance', 'amount'
@@ -39,11 +40,6 @@ class Thing(Entity):
 
     def mass(self):
         return sum([m.mass() for m in self.materials])
-
-class StockpileType(object):
-    def __init__(self, description, subtypes = None):
-        self.description = description
-        self.subtypes = subtypes if subtypes else []
 
 class Beverage(Thing):
     __slots__ = ()
@@ -114,11 +110,15 @@ class LooseMaterial(Item):
 
     def description(self):
         return _(u'loose {material}').format(
-            material = self.materials[0].substance.noun)
+            material = self.substance.noun)
+
+    @property
+    def substance(self):
+        return self.materials[0].substance
 
     @property
     def stocktype(self):
-        return self.materials[0].substance.noun
+        return self.substance.stocktype
 
 class OutOfSpace(Exception):
     pass
@@ -465,16 +465,75 @@ class Manufacturing(SkilledLabor):
             item=item.noun)
     
     @classmethod
+    def manufacture(cls, creature, world):
+        for loc, bench in creature.player.furniture(Workbench):
+            if not bench.reserved and bench.jobs and issubclass(bench.jobs[0][1], cls.substance):
+                itemtype, substance = bench.jobs.popleft()
+                bench.reserved = True
+                break
+        else:
+            yield True, None
+
+        for step in acquireitem(creature, world, substance.stocktype,
+                                                 LooseMaterial):
+            yield False, step
+
+        material = creature.inventory.find(
+            lambda item: isinstance(item, LooseMaterial) and
+            item.stocktype == substance.stocktype)
+        if not material:
+            bench.reserved = False
+            bench.jobs.append((itemtype, substance))
+            yield True, None
+        material.reserved = True
+
+        for step in goto(creature, world, loc):
+            yield False, _(u'{going} to {bench}').format(
+                going=step, bench=bench.description)
+        if creature.location != loc:
+            bench.reserved = False
+            bench.jobs.append((itemtype, substance))
+
+            for step in stashitem(creature, world, material):
+                yield False, step
+
+            yield True, None
+
+        work = 0
+        while work < material.substance.density:
+            yield False, _(u'crafting {item}').format(item = itemtype.noun)
+
+            progress = max(1,
+                           512 *
+                           cls.skilldisplayed(creature))
+            
+            work += progress
+
+        creature.inventory.remove(material)
+        world.additem(itemtype(creature.location, material.substance))
+        
+        cls.trainskill(creature)
+
+        yield True, None
+        
+    @classmethod
     def toil(cls, creature, world):
-        return
+        for done, step in cls.manufacture(creature, world):
+            if done:
+                return
+            else:
+                yield step
 
 class Carpentry(Manufacturing):
     substance = Wood
     gerund = _(u'carpentry')
     skill = ['crafting', 'woodwork']
 
+class Masonry(Manufacturing):
+    substance = Stone
+    gerund = _(u'masonry')
+    skill = ['crafting', 'stonework']
     
-
 class Mining(ToolLabor):
     gerund = _(u'mining')
     skill = ['earthworking', 'mining', 'digging']
@@ -627,6 +686,7 @@ class Furnishing(Labor):
                 yield step
 
 LaborOptions = [
+    (u'crafts', [Carpentry,Masonry]),
     (u'structural', [Mining]),
     (u'hauling', [Stockpiling,Furnishing])]
         
@@ -1116,7 +1176,7 @@ class Dwarf(CulturedCreature):
         r = randint(80,255)
         CulturedCreature.__init__(self, player, [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location)
-        self.labors = [Mining, Stockpiling, Furnishing]
+        self.labors = [Mining, Stockpiling, Furnishing, Carpentry, Masonry]
 
     def colordescription(self):
         return _(u'has {hue} skin').format(hue=describecolor(self.color))
@@ -1387,6 +1447,13 @@ class Player(object):
             self._furnituretypes[furnishing.__class__] = [location]
         else:
             self._furnituretypes[furnishing.__class__].append(location)
+
+    def furniture(self, furnituretype):
+        locations = (self._furnituretypes[furnituretype]
+                     if furnituretype in self._furnituretypes
+                     else [])
+        return [(loc, self._world.space[loc].furnishing)
+                for loc in locations]
         
 class World(object):
     def __init__(self, space, items):

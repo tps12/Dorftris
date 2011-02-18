@@ -1,4 +1,5 @@
 from sound import Dig, Mine
+from stocktype import StockpileType
 
 class Substance(object):
     color = None
@@ -6,7 +7,7 @@ class Substance(object):
     rigid = False
 
 class Cloth(Substance):
-    pass
+    stocktype = StockpileType(_(u'cloth'))
 
 class Burlap(Cloth):
     color = (172, 127, 72)
@@ -17,6 +18,7 @@ class AEther(Substance):
     density = 0
 
 class Soil(Substance):
+    stocktype = StockpileType(_(u'soil'))
     color = (200,150,0)
     sound = Dig
 
@@ -60,13 +62,16 @@ class Leaf(Substance):
     color = (0, 128, 0)
 
 class Wood(Substance):
+    stocktype = StockpileType(_(u'wood'))
     noun = _(u'wood')
     rigid = True
 
 class Stone(Substance):
+    stocktype = StockpileType(_(u'stone'))
     color = (128,128,128)
     density = 1500.0
     noun = _(u'stone')
+    adjective = _(u'stone')
     rigid = True
     sound = Mine
 
@@ -173,6 +178,7 @@ class Willow(Wood):
     density = 420.0
 
 class Metal(Substance):
+    stocktype = StockpileType(_(u'metal'))
     noun = _(u'metal')
     rigid = True
 
