@@ -37,7 +37,9 @@ class RenderWorld(object):
     def makescreen(self, size):
         self.screen = display.set_mode(size, HWSURFACE | RESIZABLE)
 
-        self.leftsize = min(size[0]/2,size[1])
+        th = self.uifont.get_height()
+
+        self.leftsize = min(size[0]/2,size[1]-th)
         d = self.leftsize
 
         if self._zooming is not None:
@@ -52,9 +54,17 @@ class RenderWorld(object):
                 self.right = self.left.detail()
                 self._zoomrate = 0
                 self._zooming = None
+
+        lt = self.uifont.render(self.left.__class__.__name__,
+                                True, (255,255,255))
+        self.screen.blit(lt, ((d - lt.get_width())/2,0))
+        if not self._zooming:
+            rt = self.uifont.render(self.right.__class__.__name__,
+                                    True, (255,255,255))
+            self.screen.blit(rt, (d + (d - rt.get_width())/2, 0))
         
-        self.leftsurf = self.screen.subsurface(Rect((0,0),2*(d,)))
-        self.rightsurf = self.screen.subsurface(Rect((self.leftsize,0), 2*(d,)))
+        self.leftsurf = self.screen.subsurface(Rect((0,th),2*(d,)))
+        self.rightsurf = self.screen.subsurface(Rect((self.leftsize,th), 2*(d,)))
 
     def step(self):
         done = False
