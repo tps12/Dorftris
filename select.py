@@ -106,8 +106,7 @@ class SelectionInfo(object):
                                                 self._pushscreen,
                                                 self._popscreen))
             elif isinstance(self._playfield.selection, Workbench):
-                self._pushchild(ChooseManufacturingType(self._playfield.player,
-                                                        self._playfield.selection,
+                self._pushchild(ChooseManufacturingType(self._playfield,
                                                         self._font,
                                                         self._prefs,
                                                         self._pushchild,

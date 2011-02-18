@@ -39,7 +39,11 @@ class ChooseManufacturingItem(object):
                                                      self._substance,
                                                      self._font,
                                                      self._prefs,
-                                                     self._dismiss))
+                                                     self._dismisschild))
+
+    def _dismisschild(self):
+        self._dismiss()
+        self._background = None
                 
     def _makebackground(self, size):
         self._background = Surface(size, flags=SRCALPHA)

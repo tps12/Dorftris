@@ -7,9 +7,9 @@ from data import Manufacturing
 from makeitem import ChooseManufacturingItem
 
 class ChooseManufacturingType(object):
-    def __init__(self, player, bench, font, prefs, showchild, dismiss):
-        self._player = player
-        self._bench = bench
+    def __init__(self, playfield, font, prefs, showchild, dismiss):
+        self._playfield = playfield
+        self._bench = self._playfield.selection
         self._prefs = prefs
         self._showchild = showchild
         self._dismiss = dismiss
@@ -27,12 +27,16 @@ class ChooseManufacturingType(object):
         return lambda: self._chooseitem(job)
 
     def _chooseitem(self, job):
-        self._showchild(ChooseManufacturingItem(self._player,
+        self._showchild(ChooseManufacturingItem(self._playfield.player,
                                                 job.substance,
                                                 self._font,
                                                 self._prefs,
                                                 self._showchild,
-                                                self._dismiss))
+                                                self._dismisschild))
+
+    def _dismisschild(self):
+        self._dismiss()
+        self._background = None
                 
     def _makebackground(self, size):
         self._background = Surface(size, flags=SRCALPHA)
@@ -60,7 +64,7 @@ class ChooseManufacturingType(object):
     def handle(self, e):
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE:
-                self._dismiss()
+                self._playfield.selection = None
                 return True
         
         elif (e.type == MOUSEBUTTONDOWN and
@@ -72,6 +76,9 @@ class ChooseManufacturingType(object):
         return False
 
     def draw(self, surface):
+        if self._playfield.selection != self._bench:
+            self._dismiss()
+        
         if not self._background:
             self._makebackground(surface.get_size())
             surface.blit(self._background, (0,0))
