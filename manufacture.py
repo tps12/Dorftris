@@ -32,7 +32,12 @@ class ChooseManufacturingType(object):
                                                 self._font,
                                                 self._prefs,
                                                 self._showchild,
+                                                self._chose,
                                                 self._dismisschild))
+
+    def _chose(self, item, substance):
+        print 'chose',item,substance
+        self._dismiss()
 
     def _dismisschild(self):
         self._dismiss()

@@ -6,10 +6,11 @@ from button import Button
 from data import Item
 
 class ChooseManufacturingSubstance(object):
-    def __init__(self, player, substance, font, prefs, dismiss):
+    def __init__(self, player, substance, font, prefs, chose, dismiss):
         self._player = player
         self._substance = substance
         self._prefs = prefs
+        self._chose = chose
         self._dismiss = dismiss
         
         self.scale(font)
@@ -33,7 +34,7 @@ class ChooseManufacturingSubstance(object):
         return lambda: self._choosesubstance(substance)
 
     def _choosesubstance(self, substance):
-        print 'chose', substance
+        self._chose(substance)
         self._dismiss()
                 
     def _makebackground(self, size):

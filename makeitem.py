@@ -7,11 +7,12 @@ from data import Item
 from makesubstance import ChooseManufacturingSubstance
 
 class ChooseManufacturingItem(object):
-    def __init__(self, player, substance, font, prefs, showchild, dismiss):
+    def __init__(self, player, substance, font, prefs, showchild, chose, dismiss):
         self._player = player
         self._substance = substance
         self._prefs = prefs
         self._showchild = showchild
+        self._chose = chose
         self._dismiss = dismiss
         
         self.scale(font)
@@ -39,7 +40,15 @@ class ChooseManufacturingItem(object):
                                                      self._substance,
                                                      self._font,
                                                      self._prefs,
+                                                     self._choosesubstance(item),
                                                      self._dismisschild))
+
+    def _choosesubstance(self, item):
+        return lambda s: self._chosesubstance(item, s)
+
+    def _chosesubstance(self, item, substance):
+        self._chose(item, substance)
+        self._dismiss()
 
     def _dismisschild(self):
         self._dismiss()
