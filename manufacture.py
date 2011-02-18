@@ -36,7 +36,7 @@ class ChooseManufacturingType(object):
                                                 self._dismisschild))
 
     def _chose(self, item, substance):
-        print 'chose',item,substance
+        self._bench.jobs.append((item, substance))
         self._dismiss()
 
     def _dismisschild(self):
