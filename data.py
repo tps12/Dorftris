@@ -1546,28 +1546,7 @@ class FallingTree(object):
         self.tree = tree
         self.rest = 0
         self.angle = 0
-
-    @staticmethod
-    def line(x0, y0, x1, y1):
-        dx = abs(x1-x0)
-        dy = abs(y1-y0) 
-        sx = 1 if x0 < x1 else -1
-        sy = 1 if y0 < y1 else -1
-        err = dx-dy
-
-        value = []
-        while True:
-            value.append((x0,y0))
-            if x0 == x1 and y0 == y1:
-                break
-            e2 = 2*err
-            if e2 > -dy:
-                err = err - dy
-                x0 = x0 + sx
-            if e2 < dx:
-                err = err + dx
-                y0 = y0 + sy
-        return value
+        self.speed = pi/180
 
     def step(self, world, dt):
         if not self.angle:
@@ -1575,7 +1554,8 @@ class FallingTree(object):
                 world.space[loc] = Empty()
         
         if self.angle < pi/2:
-            self.angle += pi/32
+            self.angle += self.speed
+            self.speed += sin(self.angle)/10
 
         for i in range(len(self.tree.trunk)):
             offset = [int(i * f(self.angle)) for f in sin, cos]
@@ -1588,7 +1568,7 @@ class FallingTree(object):
                 loc = Direction.move(loc, self.tree.fell)
             self.tree.trunk[i] = loc
             if isinstance(world.space[self.tree.trunk[i]], Floor):
-                world.additem(LooseMaterial(self.tree.wood), self.tree.trunk[i])
+                world.additem(LooseMaterial(self.tree.wood, self.tree.trunk[i]))
             else:
                 world.space[self.tree.trunk[i]] = trunk
 
