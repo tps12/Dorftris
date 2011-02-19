@@ -23,7 +23,7 @@ class LaborSelection(object):
             return branch, branch[0], [self._laboroptions(child)
                                        for child in branch[1]]
         else:
-            return branch, branch.gerund, (branch in self._creature.labors)
+            return branch, branch.noun, (branch in self._creature.labors)
 
     def _makebackground(self, size):
         self._background = Surface(size, flags = SRCALPHA)

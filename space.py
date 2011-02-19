@@ -93,6 +93,40 @@ class Direction(object):
     SE = 4
     SW = 5
 
+    opposite = {
+        N: S,
+        S: N,
+        NE: SW,
+        NW: SE,
+        SE: NW,
+        SW: NE
+        }
+
+    @staticmethod
+    def move(location, direction):
+        x, y = location[0:2]
+        if direction == Direction.N:
+            y -= 1
+        elif direction == Direction.S:
+            y += 1
+        elif direction == Direction.NE:
+            x += 1
+            y -= x&1
+        elif direction == Direction.NW:
+            x -= 1
+            y -= x&1
+        elif direction == Direction.SE:
+            x += 1
+            y += 1-(x&1)
+        elif direction == Direction.SW:
+            x -= 1
+            y += 1-(x&1)
+
+        value = x,y
+        if len(location) > 2:
+            value += location[2:]
+        return value
+        
 class Tree(object):
     __slots__ = 'location','wood','leaf','color','trunk','branches','leaves','fell'
     
@@ -117,7 +151,6 @@ class Branch(Tile):
     def __init__(self, tree, varient):
         Tile.__init__(self, False, tree.wood, varient, tree.color)
         self.tree = tree
-        self.tree.branches.append(self)
 
     @property
     def description(self):
@@ -129,7 +162,6 @@ class Leaves(Tile):
     def __init__(self, tree):
         Tile.__init__(self, True, tree.leaf, randint(0,2))
         self.tree = tree
-        self.tree.leaves.append(self)
 
     @property
     def description(self):
@@ -141,7 +173,6 @@ class TreeTrunk(Tile):
     def __init__(self, tree):
         Tile.__init__(self, False, tree.wood, 0, tree.color)
         self.tree = tree
-        self.tree.trunk.append(self)
 
     @property
     def description(self):
@@ -163,6 +194,7 @@ class Space(object):
         for i in range(height):
             trunk = (loc[0], loc[1], loc[2] + i)
             tile = TreeTrunk(tree)
+            tree.trunk.append(trunk)
             self.cache[trunk] = tile
             color = tile.color
             if i > 3:
@@ -185,13 +217,16 @@ class Space(object):
                         else:
                             varient = 5 # NE
                     self.cache[branch + (loc[2]+i,)] = Branch(tree, varient)
+                    tree.branches.append(branch + (loc[2]+i,))
             if i > 2:
                 available = [s for s in surround
                              if s + (loc[2]+i,) not in self.cache]
                 leaves = sample(available, len(available)-1)
                 for leaf in leaves:
                     self.cache[leaf + (loc[2]+i,)] = Leaves(tree)
+                    tree.leaves.append(leaf + (loc[2]+i,))
         self.cache[loc[0:2] + (loc[2]+height,)] = Leaves(tree)
+        tree.leaves.append(loc[0:2] + (loc[2]+height,))
 
     def get_dimensions(self):
         return self.dim

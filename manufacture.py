@@ -52,7 +52,7 @@ class ChooseManufacturingType(object):
         self._buttons = []
         for job in Manufacturing.__subclasses__():
             dy = self._addbutton(self._background,
-                                 job.gerund.capitalize(),
+                                 job.noun.capitalize(),
                                  self._choose(job),
                                  dy)
             

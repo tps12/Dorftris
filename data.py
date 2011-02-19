@@ -7,7 +7,7 @@ from unicodedata import name as unicodename
 
 from colordb import match as describecolor
 from jobs import *
-from space import Earth, Empty, Floor, TreeTrunk
+from space import Direction, Earth, Empty, Floor, TreeTrunk
 from substances import AEther, Meat, Water, Stone, Wood
 from language import Generator
 from skills import SkillSet
@@ -385,7 +385,7 @@ Products = StockpileType(_(u'Trade products and supplies'),
                          [Barrel.containerstocktype])
 Refuse = StockpileType(_(u'Refuse'), [Corpse.stocktype])
 Resources = StockpileType(_(u'Raw materials'), [])
-Tools = StockpileType(_(u'Tools and equipment'), [Pickax.stocktype])
+Tools = StockpileType(_(u'Tools and equipment'), [Pickax.stocktype, Ax.stocktype])
 
 StockpileCategories = [
     Arms,
@@ -451,10 +451,11 @@ class SkilledLabor(Labor):
     increment = 0
 
     @classmethod
-    def skilldisplayed(cls, creature):
+    def skilldisplayed(cls, creature, boost = None):
+        boost = boost if boost is not None else 0
         skill = max(0,
                     min(1,
-                        creature.skills.exp(cls.skill))) * 0.9 + 0.05
+                        creature.skills.exp(cls.skill) + boost)) * 0.9 + 0.05
         total = 50
         alpha = skill * total
         return betavariate(alpha, total - alpha)
@@ -545,17 +546,17 @@ class Manufacturing(SkilledLabor):
 
 class Carpentry(Manufacturing):
     substance = Wood
-    gerund = _(u'carpentry')
+    noun = _(u'carpentry')
     skill = ['crafting', 'woodwork']
 
 class Masonry(Manufacturing):
     substance = Stone
-    gerund = _(u'masonry')
+    noun = _(u'masonry')
     skill = ['crafting', 'stonework']
     
 class Mining(ToolLabor):
-    gerund = _(u'mining')
-    skill = ['earthworking', 'mining', 'digging']
+    noun = _(u'mining')
+    skill = ['earthwork', 'mining', 'digging']
     increment = 0.0001
     tools = [Pickax]
 
@@ -634,9 +635,58 @@ class Mining(ToolLabor):
         if isinstance(tile, Earth):
             world.dig(location, creature)
             cls.trainskill(creature)
+    
+class Woodcutting(ToolLabor):
+    noun = _(u'woodcutting')
+    skill = ['lumberwork', 'woodcutting']
+    increment = 0.0001
+    tools = [Ax]
 
+    @classmethod
+    def toil(cls, creature, world):
+        for step in super(Woodcutting, cls).toil(creature, world):
+            yield step
+
+        ax = creature.inventory.find(lambda item:
+                                     isinstance(item, cls.tools[0]))
+
+        if ax is None or not creature.player.felljobs:
+            return
+
+        tree = creature.player.felljobs.popleft()
+
+        goal = Direction.move(tree.location, Direction.opposite[tree.fell])
+        if not isinstance(world.space[goal], Floor):
+            creature.player.felljobs.append(tree)
+            return
+
+        for step in goto(creature, world, goal):
+            yield _(u'{going} to fell {tree}').format(
+                going=step, tree=tree.description), goal
+
+        if (creature.location != goal):
+            return
+
+        work = 0
+        while work < tree.wood.density:
+            yield _(u'felling {tree}').format(tree=tree.description)
+
+            progress = max(1,
+                           512 *
+                           creature.strength() *
+                           cls.skilldisplayed(creature))
+            
+            work += progress
+
+        push = int((1-cls.skilldisplayed(creature, 0.75)) * 6)
+        if push != 0:
+            push *= choice((-1,1))
+        world.collapsetree(creature, tree, (tree.fell + push)%6)
+
+        cls.trainskill(creature)
+            
 class Stockpiling(Labor):
-    gerund = _(u'stockpiling')
+    noun = _(u'stockpiling')
 
     @classmethod
     def stockpileitem(cls, creature, world):
@@ -672,7 +722,7 @@ class Stockpiling(Labor):
                 yield step
 
 class Furnishing(Labor):
-    gerund = _(u'furnishing')
+    noun = _(u'furnishing')
 
     @classmethod
     def furnishlocation(cls, creature, world):
@@ -706,7 +756,7 @@ class Furnishing(Labor):
 
 LaborOptions = [
     (u'crafts', [Carpentry,Masonry]),
-    (u'structural', [Mining]),
+    (u'physical labor', [Mining,Woodcutting]),
     (u'hauling', [Stockpiling,Furnishing])]
         
 class Appetite(object):
@@ -963,7 +1013,7 @@ class Creature(Thing):
         for labor in self.labors:
             if issubclass(labor, ToolLabor):
                 for tool in labor.tools:
-                    name, job = tool.noun, labor.gerund
+                    name, job = tool.noun, labor.noun
                     if name in required:
                         required[name].append(job)
                     else:
@@ -1390,6 +1440,15 @@ class Player(object):
                                                location))
         self.mined += 1
 
+    def recordfelled(self, tree, feller):
+        if self.felled == 0:
+            self.history.record(MilestoneEvent([feller],
+                                               [tree.description],
+                                               1,
+                                               _(u'felled'),
+                                               tree.location))
+        self.felled += 1
+
     def describesettlement(self, time):
         return _(u'the fledgling {settlement}').format(settlement=settlement)
                                  
@@ -1541,6 +1600,20 @@ class World(object):
 
         if miner.player and issubclass(substance, Stone):
             miner.player.recordmined(location, miner, substance)
+
+    def collapsetree(self, feller, tree, direction):
+        wood = len(tree.trunk) + len(tree.branches)/4
+
+        for loc in tree.trunk + tree.branches + tree.leaves:
+            self.space[loc] = (Empty() if loc[2] != tree.location[2]
+                               else Floor(randint(0,3)))
+
+        for i in range(wood):
+            self.additem(LooseMaterial(tree.wood,
+                                       Direction.move(tree.location, direction)))
+
+        if feller and feller.player:
+            feller.player.recordfelled(tree, feller)
                             
     def additem(self, item, stockpiled = None):
         if item.location is not None:
