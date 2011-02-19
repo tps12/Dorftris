@@ -7,7 +7,7 @@ from unicodedata import name as unicodename
 
 from colordb import match as describecolor
 from jobs import *
-from space import Earth, Empty
+from space import Earth, Empty, Floor
 from substances import AEther, Meat, Water, Stone, Wood
 from language import Generator
 from skills import SkillSet
@@ -1379,7 +1379,7 @@ class Player(object):
             tile.designation = self
             if (tile.revealed or
                 isinstance(self._world.space[location[0:2] + (location[2]+1,)],
-                           Empty)):
+                           Floor)):
                 self.digjobs.append(location)
             self._world.space.changed = True
 
@@ -1492,7 +1492,10 @@ class World(object):
         substance = tile.substance
         self.makesound(substance.sound, location)
             
-        tile = Empty(randint(0,3))
+        tile = (Empty()
+                if location[2] and
+                self.space[location[0:2] + (location[2],)].is_passable()
+                else Floor(randint(0,3)))
         tile.revealed = True
         for x,y in self.space.pathing.adjacent_xy(location[0:2]):
             nloc = x, y, location[2]
@@ -1534,7 +1537,7 @@ class World(object):
 
     def setfurnishing(self, location, item, player):
         tile = self.space[location]
-        if not isinstance(tile, Empty) or tile.furnishing:
+        if not hasattr(tile, 'furnishing') or tile.furnishing:
             raise ValueError
 
         item.location = location

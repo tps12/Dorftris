@@ -5,7 +5,7 @@ from pygame.sprite import *
 from button import Button
 from data import Stockpile
 from furnish import FurnishingSelect
-from space import Earth, Empty
+from space import Earth, Floor
 from text import TextRenderer
 
 class RegionDetails(object):
@@ -80,8 +80,7 @@ class RegionDetails(object):
 
 
     def _allclearfloor(self, tiles):
-        return all([isinstance(self._playfield.game.world.space[(x,y,z)], Empty) and
-                    isinstance(self._playfield.game.world.space[(x,y,z-1)], Earth)
+        return all([isinstance(self._playfield.game.world.space[(x,y,z)], Floor)
                     for (x,y,z) in tiles])
 
     def _allsolidwalls(self, tiles):
@@ -107,7 +106,7 @@ class RegionDetails(object):
     def _designatetile(self, location):
         x, y, z = location
         tile = self._playfield.game.world.space[(x,y,z)]
-        if isinstance(tile, Empty):
+        if isinstance(tile, Floor):
             floor = self._playfield.game.world.space[(x,y,z-1)]
             if isinstance(floor, Earth):
                 self._playfield.player.designatefordigging((x,y,z-1))

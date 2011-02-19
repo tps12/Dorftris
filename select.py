@@ -6,7 +6,7 @@ from button import Button
 from data import Creature, Item, Stockpile, Workbench
 from details import CreatureDetails
 from furnish import FurnishingSelect
-from game import Earth, Empty
+from game import Earth, Floor
 from manufacture import ChooseManufacturingType
 from item import ItemDetails
 from region import RegionDetails
@@ -44,11 +44,9 @@ class SelectionInfo(object):
         x, y, z = location
         tile = self._playfield.game.world.space[location]
 
-        if isinstance(tile, Empty):
+        if isinstance(tile, Floor):
             below = self._playfield.game.world.space[(x,y,z-1)]
-            if not isinstance(below, Earth):
-                s = _(u'open space')
-            elif tile.furnishing:
+            if tile.furnishing:
                 s = tile.furnishing.description()
             elif tile.stockpiles and self._playfield.player in tile.stockpiles:
                 s = tile.stockpiles[self._playfield.player].description()

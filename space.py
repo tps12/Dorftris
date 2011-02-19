@@ -38,6 +38,16 @@ class Tile(object):
         return self.substance.noun if self.substance else None
 
 class Empty(Tile):
+    __slots__ = ()
+    
+    def __init__(self):
+        Tile.__init__(self, True, None, 0)
+
+    @property
+    def description(self):
+        return _(u'empty space')
+
+class Floor(Tile):
     __slots__ = ('covering', 'furnishing', 'stockpiles')
     
     def __init__(self, varient, covering=None):
@@ -170,9 +180,9 @@ class Space(object):
         
         if loc not in self.cache:
             if loc[2] == g:
-                tile = Empty(randint(0,3), Grass)
+                tile = Floor(randint(0,3), Grass)
             elif loc[2] > g:
-                tile = Empty(randint(0,3))
+                tile = Empty()
             elif loc[2] > g - self.soillevel(loc[0], loc[1]):
                 tile = Earth(Clay, randint(0,3))
             else:

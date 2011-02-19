@@ -340,10 +340,14 @@ class Playfield(object):
             else:
                 self._drawfarground(surface, below, farbelow,
                                     locationfarbelow)
-        elif isinstance(below, Earth):
-            self._drawground(surface, tile, below, location)
         else:
             self._drawfarground(surface, tile, below, location)
+            
+    def _drawfloor(self, surface, tile, location):
+        x, y, z = location
+        locationbelow = x, y, z - 1
+        below = self.game.world.space[locationbelow]
+        self._drawground(surface, tile, below, location)
 
     def _processlocation(self, surface, location, process):
         x, y, z = location
@@ -357,6 +361,8 @@ class Playfield(object):
     def _drawtilebackground(self, surface, tile, location):
         if isinstance(tile, Empty):
             self._drawopen(surface, tile, location)
+        elif isinstance(tile, Floor):
+            self._drawfloor(surface, tile, location)
         elif not isinstance(tile, Earth):
             self._drawtile(surface, tile, location)
         else:
@@ -376,7 +382,7 @@ class Playfield(object):
             entity = tile.items[-1]
             if not self.sprites.hasspritefor(entity):
                 self.sprites.addspritefor(entity, self.graphics)
-        if isinstance(tile, Empty):
+        if isinstance(tile, Floor):
             if tile.furnishing and not self.sprites.hasspritefor(tile.furnishing):
                 self.sprites.addspritefor(tile.furnishing, self.graphics)
             if tile.stockpiles and self.player in tile.stockpiles:
