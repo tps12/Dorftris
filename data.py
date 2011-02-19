@@ -1541,6 +1541,38 @@ class Player(object):
         return [(loc, self._world.space[loc].furnishing)
                 for loc in locations]
 
+class FallingObject(object):
+    def __init__(self, item, speed):
+        self.item = item
+        self.position = 0
+        self.speed = speed
+        self.rest = 0
+
+    def step(self, world, dt):
+        self.position += self.speed
+        self.speed += 0.1
+        dz = int(self.position)
+        if dz:
+            world.removeitem(self.item)
+            done = False
+            for z in range(dz):
+                if isinstance(world.space[self.item.location[0:2] +
+                                          (self.item.location[2]-z,)], Floor):
+                    done = True
+                    break
+            else:
+                z = dz
+            self.item.location = (self.item.location[0:2] +
+                                  (self.item.location[2]-z,))
+            world.additem(self.item)
+            if done:
+                return True
+
+            self.position -= dz
+
+        self.rest = 0
+        return False
+
 class FallingTree(object):
     def __init__(self, tree):
         self.tree = tree
@@ -1553,33 +1585,37 @@ class FallingTree(object):
             for loc in self.tree.branches + self.tree.leaves:
                 world.space[loc] = Empty()
         
-        if self.angle < pi/2:
-            self.angle += self.speed
-            self.speed += sin(self.angle)/10
+        self.angle += self.speed
+        self.speed += sin(self.angle)/10
 
         for i in range(len(self.tree.trunk)):
             offset = [int(i * f(self.angle)) for f in sin, cos]
             trunk = world.space[self.tree.trunk[i]]
-            if not isinstance(trunk, TreeTrunk):
-                continue
             world.space[self.tree.trunk[i]] = Empty()
             loc = self.tree.location[0:2] + (self.tree.location[2]+offset[1],)
             for j in range(offset[0]):
                 loc = Direction.move(loc, self.tree.fell)
             self.tree.trunk[i] = loc
             if isinstance(world.space[self.tree.trunk[i]], Floor):
-                world.additem(LooseMaterial(self.tree.wood, self.tree.trunk[i]))
+                for j in range(len(self.tree.trunk)):
+                    if isinstance(world.space[self.tree.trunk[j]], TreeTrunk):
+                        world.space[self.tree.trunk[j]] = Empty()
+                    wood = LooseMaterial(self.tree.wood, self.tree.trunk[j])
+                    world.additem(wood)
+                    world.schedule(FallingObject(wood, self.speed))
+                break
             else:
                 world.space[self.tree.trunk[i]] = trunk
 
         world.space.changed = True
-        
+
+        self.rest = 0
         return False
         
 class World(object):
     def __init__(self, space, schedule):
         self.space = space
-        self._schedule = schedule
+        self.schedule = schedule
         self.items = []
         self.creatures = []
         self.stockpiles = []
@@ -1639,7 +1675,7 @@ class World(object):
             miner.player.recordmined(location, miner, substance)
 
     def collapsetree(self, feller, tree, direction):
-        self._schedule(FallingTree(tree))
+        self.schedule(FallingTree(tree))
         
 ##        wood = len(tree.trunk) + len(tree.branches)/4
 ##
