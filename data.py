@@ -1385,9 +1385,9 @@ class Player(object):
             self._world.space.changed = True
 
     def felltree(self, location, direction):
-        tree = self._world.space[location]
-        if isinstance(tree, TreeTrunk):
-            tree.felldirection = direction
+        trunk = self._world.space[location]
+        if isinstance(trunk, TreeTrunk):
+            trunk.tree.fell = direction
             self.felljobs.append(location)
 
     def unstockpileditems(self, itemtype):

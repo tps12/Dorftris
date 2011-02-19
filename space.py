@@ -85,36 +85,66 @@ class Earth(Tile):
     def __init__(self, substance, varient):
         Tile.__init__(self, False, substance, varient)
 
-class Branch(Tile):
-    __slots__ = ()
+class Direction(object):
+    N = 0
+    S = 1
+    NE = 2
+    NW = 3
+    SE = 4
+    SW = 5
 
-    def __init__(self, substance, varient, color):
-        Tile.__init__(self, False, substance, varient, color)
+class Tree(object):
+    __slots__ = 'wood','leaf','color','trunk','branches','leaves','fell'
+    
+    def __init__(self, wood, leaf):
+        self.wood = wood
+        self.leaf = leaf
+        self.color = Tile.randomizecolor(self.wood.color)
+        
+        self.trunk = []
+        self.branches = []
+        self.leaves = []
+        self.fell = None
 
     @property
     def description(self):
-        return _(u'{tree} branch').format(tree=self.substance.noun)
+        return self.wood.noun
+
+class Branch(Tile):
+    __slots__ = ('tree')
+
+    def __init__(self, tree, varient):
+        Tile.__init__(self, False, tree.wood, varient, tree.color)
+        self.tree = tree
+        self.tree.branches.append(self)
+
+    @property
+    def description(self):
+        return _(u'{tree} branch').format(tree=self.tree.description)
 
 class Leaves(Tile):
-    __slots__ = ()
+    __slots__ = ('tree')
 
-    def __init__(self, substance):
-        Tile.__init__(self, True, substance, randint(0,2))
+    def __init__(self, tree):
+        Tile.__init__(self, True, tree.leaf, randint(0,2))
+        self.tree = tree
+        self.tree.leaves.append(self)
 
     @property
     def description(self):
-        return self.substance.noun
+        return _(u'{tree} leaves').format(tree=self.tree.description)
 
 class TreeTrunk(Tile):
-    __slots__ = ('felldirection')
+    __slots__ = ('tree')
 
-    def __init__(self, substance, color=None):
-        Tile.__init__(self, False, substance, 0, color)
-        self.felldirection = None
+    def __init__(self, tree):
+        Tile.__init__(self, False, tree.wood, 0, tree.color)
+        self.tree = tree
+        self.tree.trunk.append(self)
 
     @property
     def description(self):
-        return _(u'{wood} tree').format(wood=self.substance.noun)
+        return _(u'{tree} trunk').format(tree=self.tree.description)
 
 class Space(object):
     def __init__(self, dim):
@@ -124,14 +154,14 @@ class Space(object):
         self.changed = False
 
     def maketree(self, loc):
+        tree = Tree(choice(Wood.__subclasses__()), Leaf)
+        
         surround = self.pathing.adjacent_xy(loc[0:2])
         height = randint(6,18)
         branch = None
-        wood = choice(Wood.__subclasses__())
-        color = None
         for i in range(height):
             trunk = (loc[0], loc[1], loc[2] + i)
-            tile = TreeTrunk(wood, color)
+            tile = TreeTrunk(tree)
             self.cache[trunk] = tile
             color = tile.color
             if i > 3:
@@ -153,16 +183,14 @@ class Space(object):
                             varient = 3 # SE
                         else:
                             varient = 5 # NE
-                    self.cache[branch + (loc[2]+i,)] = Branch(wood,
-                                                              varient,
-                                                              color)
+                    self.cache[branch + (loc[2]+i,)] = Branch(tree, varient)
             if i > 2:
                 available = [s for s in surround
                              if s + (loc[2]+i,) not in self.cache]
                 leaves = sample(available, len(available)-1)
                 for leaf in leaves:
-                    self.cache[leaf + (loc[2]+i,)] = Leaves(Leaf)
-        self.cache[loc[0:2] + (loc[2]+height,)] = Leaves(Leaf)
+                    self.cache[leaf + (loc[2]+i,)] = Leaves(tree)
+        self.cache[loc[0:2] + (loc[2]+height,)] = Leaves(tree)
 
     def get_dimensions(self):
         return self.dim
