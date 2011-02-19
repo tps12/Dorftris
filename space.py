@@ -94,9 +94,10 @@ class Direction(object):
     SW = 5
 
 class Tree(object):
-    __slots__ = 'wood','leaf','color','trunk','branches','leaves','fell'
+    __slots__ = 'location','wood','leaf','color','trunk','branches','leaves','fell'
     
-    def __init__(self, wood, leaf):
+    def __init__(self, location, wood, leaf):
+        self.location = location
         self.wood = wood
         self.leaf = leaf
         self.color = Tile.randomizecolor(self.wood.color)
@@ -154,7 +155,7 @@ class Space(object):
         self.changed = False
 
     def maketree(self, loc):
-        tree = Tree(choice(Wood.__subclasses__()), Leaf)
+        tree = Tree(loc, choice(Wood.__subclasses__()), Leaf)
         
         surround = self.pathing.adjacent_xy(loc[0:2])
         height = randint(6,18)

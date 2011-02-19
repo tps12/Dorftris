@@ -1388,7 +1388,7 @@ class Player(object):
         trunk = self._world.space[location]
         if isinstance(trunk, TreeTrunk):
             trunk.tree.fell = direction
-            self.felljobs.append(location)
+            self.felljobs.append(trunk.tree)
 
     def unstockpileditems(self, itemtype):
         if itemtype.subtypes:

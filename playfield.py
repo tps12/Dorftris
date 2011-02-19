@@ -335,7 +335,7 @@ class Playfield(object):
             tile = self.game.world.space[(x,y,z)]
         else:
             self._drawtilefield(surface, tile, (x,y,z))
-            alpha = min(255, 156 + 16 * (location[2]-z))
+            alpha = min(255, 192 + 8 * (location[2]-z))
             self._colortint(surface, (0,0,0), location, alpha)
             return
 
