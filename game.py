@@ -7,13 +7,12 @@ from pathing import PathManager
 
 class Game(object):
     def __init__(self, dimensions):
-     
         self.dimensions = dimensions
 
         self.timescales = [ 0.2, 0.5, 1.0, 2.0, 5.0 ]
         self.dt = 0.1
 
-        self.world = World(NoiseSpace(self.dimensions), [])
+        self.world = World(NoiseSpace(self.dimensions), self.reschedule)
         self._schedule = deque([[] for i in range(120)])
             
         self.done = False

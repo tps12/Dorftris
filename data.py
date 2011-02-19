@@ -1,5 +1,6 @@
 from codecs import open as openunicode
 from collections import deque
+from math import pi, sin, cos
 from pdb import set_trace
 from random import betavariate, choice, gauss, randint, random
 from re import search
@@ -1245,7 +1246,7 @@ class Dwarf(CulturedCreature):
         r = randint(80,255)
         CulturedCreature.__init__(self, player, [Material(Meat, 0.075)],
                                   (r, r-40, r-80), location)
-        self.labors = [Mining, Stockpiling, Furnishing, Carpentry, Masonry]
+        self.labors = [Mining, Woodcutting, Stockpiling, Furnishing, Carpentry, Masonry]
 
     def colordescription(self):
         return _(u'has {hue} skin').format(hue=describecolor(self.color))
@@ -1539,11 +1540,67 @@ class Player(object):
                      else [])
         return [(loc, self._world.space[loc].furnishing)
                 for loc in locations]
+
+class FallingTree(object):
+    def __init__(self, tree):
+        self.tree = tree
+        self.rest = 0
+        self.angle = 0
+
+    @staticmethod
+    def line(x0, y0, x1, y1):
+        dx = abs(x1-x0)
+        dy = abs(y1-y0) 
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+        err = dx-dy
+
+        value = []
+        while True:
+            value.append((x0,y0))
+            if x0 == x1 and y0 == y1:
+                break
+            e2 = 2*err
+            if e2 > -dy:
+                err = err - dy
+                x0 = x0 + sx
+            if e2 < dx:
+                err = err + dx
+                y0 = y0 + sy
+        return value
+
+    def step(self, world, dt):
+        if not self.angle:
+            for loc in self.tree.branches + self.tree.leaves:
+                world.space[loc] = Empty()
+        
+        if self.angle < pi/2:
+            self.angle += pi/32
+
+        for i in range(len(self.tree.trunk)):
+            offset = [int(i * f(self.angle)) for f in sin, cos]
+            trunk = world.space[self.tree.trunk[i]]
+            if not isinstance(trunk, TreeTrunk):
+                continue
+            world.space[self.tree.trunk[i]] = Empty()
+            loc = self.tree.location[0:2] + (self.tree.location[2]+offset[1],)
+            for j in range(offset[0]):
+                loc = Direction.move(loc, self.tree.fell)
+            self.tree.trunk[i] = loc
+            if isinstance(world.space[self.tree.trunk[i]], Floor):
+                world.additem(LooseMaterial(self.tree.wood), self.tree.trunk[i])
+            else:
+                world.space[self.tree.trunk[i]] = trunk
+
+        world.space.changed = True
+        
+        return False
         
 class World(object):
-    def __init__(self, space, items):
+    def __init__(self, space, schedule):
         self.space = space
-        self.items = items
+        self._schedule = schedule
+        self.items = []
         self.creatures = []
         self.stockpiles = []
         self._listener = None
@@ -1602,15 +1659,17 @@ class World(object):
             miner.player.recordmined(location, miner, substance)
 
     def collapsetree(self, feller, tree, direction):
-        wood = len(tree.trunk) + len(tree.branches)/4
-
-        for loc in tree.trunk + tree.branches + tree.leaves:
-            self.space[loc] = (Empty() if loc[2] != tree.location[2]
-                               else Floor(randint(0,3)))
-
-        for i in range(wood):
-            self.additem(LooseMaterial(tree.wood,
-                                       Direction.move(tree.location, direction)))
+        self._schedule(FallingTree(tree))
+        
+##        wood = len(tree.trunk) + len(tree.branches)/4
+##
+##        for loc in tree.trunk:# + tree.branches + tree.leaves:
+##            self.space[loc] = (Empty() if loc[2] != tree.location[2]
+##                               else Floor(randint(0,3)))
+##
+##        for i in range(wood):
+##            self.additem(LooseMaterial(tree.wood,
+##                                       Direction.move(tree.location, direction)))
 
         if feller and feller.player:
             feller.player.recordfelled(tree, feller)
