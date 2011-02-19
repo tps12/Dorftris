@@ -329,19 +329,7 @@ class Playfield(object):
         self._colorfill(surface, (0, 85, 85), location)
 
     def _drawopen(self, surface, tile, location):
-        x, y, z = location
-        locationbelow = x, y, z - 1
-        below = self.game.world.space[locationbelow]
-        if isinstance(below, Empty):
-            locationfarbelow = x, y, z - 2
-            farbelow = self.game.world.space[locationfarbelow]
-            if not isinstance(farbelow, Earth):
-                self._drawair(surface, locationfarbelow)
-            else:
-                self._drawfarground(surface, below, farbelow,
-                                    locationfarbelow)
-        else:
-            self._drawfarground(surface, tile, below, location)
+        self._drawair(surface, location)
             
     def _drawfloor(self, surface, tile, location):
         x, y, z = location
