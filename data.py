@@ -1588,23 +1588,36 @@ class FallingTree(object):
         self.angle += self.speed
         self.speed += sin(self.angle)/10
 
+        down = False
+        locs = [None for i in self.tree.trunk]
         for i in range(len(self.tree.trunk)):
             offset = [int(i * f(self.angle)) for f in sin, cos]
-            trunk = world.space[self.tree.trunk[i]]
-            world.space[self.tree.trunk[i]] = Empty()
-            loc = self.tree.location[0:2] + (self.tree.location[2]+offset[1],)
+            locs[i] = self.tree.location[0:2] + (self.tree.location[2]+offset[1],)
             for j in range(offset[0]):
-                loc = Direction.move(loc, self.tree.fell)
-            self.tree.trunk[i] = loc
-            if isinstance(world.space[self.tree.trunk[i]], Floor):
+                locs[i] = Direction.move(locs[i], self.tree.fell)
+            if not world.space[locs[i]].is_passable():
+                print 'hit ground', i
                 for j in range(len(self.tree.trunk)):
-                    if isinstance(world.space[self.tree.trunk[j]], TreeTrunk):
-                        world.space[self.tree.trunk[j]] = Empty()
+                    space = (Empty() if self.tree.trunk[j][2] and
+                             world.space[self.tree.trunk[j][0:2] +
+                                         (self.tree.trunk[j][2]-1,)].is_passable()
+                             else Floor(randint(0,3)))
+                    world.space[self.tree.trunk[j]] = space
                     wood = LooseMaterial(self.tree.wood, self.tree.trunk[j])
                     world.additem(wood)
-                    world.schedule(FallingObject(wood, self.speed))
-                break
-            else:
+                    world.schedule(FallingObject(wood,
+                                                 self.speed * sin(self.angle)))
+                return True
+        else:
+            print 'falling'
+            for i in range(len(self.tree.trunk)):
+                trunk = world.space[self.tree.trunk[i]]
+                space = (Empty() if self.tree.trunk[i][2] and
+                         world.space[self.tree.trunk[i][0:2] +
+                                     (self.tree.trunk[i][2]-1,)].is_passable()
+                         else Floor(randint(0,3)))
+                world.space[self.tree.trunk[i]] = space
+                self.tree.trunk[i] = locs[i]
                 world.space[self.tree.trunk[i]] = trunk
 
         world.space.changed = True
