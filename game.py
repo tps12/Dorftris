@@ -14,7 +14,7 @@ class Game(object):
         self.dt = 0.1
 
         self.world = World(NoiseSpace(self.dimensions), [])
-        self._schedule = deque([[] for i in range(128)])
+        self._schedule = deque([[] for i in range(120)])
             
         self.done = False
         self.paused = False
@@ -24,10 +24,10 @@ class Game(object):
         self.world.creatures.append((creature, self.world.time))
         self.reschedule(creature)
 
-    def reschedule(self, creature):
-        rest = int(creature.rest)
-        self._schedule[rest].append((creature, self.world.time))
-        creature.rest -= rest
+    def reschedule(self, target):
+        rest = int(target.rest)
+        self._schedule[rest].append((target, self.world.time))
+        target.rest -= rest
 
     def getscheduled(self):
         scheduled = self._schedule.popleft()
@@ -36,10 +36,11 @@ class Game(object):
 
     def step(self):       
         if not self.paused:
-            creatures = self.getscheduled()
-            for creature, t in creatures:
-                if creature.step(self.world, self.world.time - t):
-                    self.world.creatures.remove((creature, t))
+            targets = self.getscheduled()
+            for target, t in targets:
+                if target.step(self.world, self.world.time - t):
+                    if isinstance(target, Creature):
+                        self.world.creatures.remove((target, t))
                 else:
-                    self.reschedule(creature)
+                    self.reschedule(target)
             self.world.time += 1
