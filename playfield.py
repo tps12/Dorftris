@@ -275,10 +275,10 @@ class Playfield(object):
             image = surface.subsurface(rect)
             gfxdraw.filled_polygon(image, self._hex(), color)
 
-    def _colortint(self, surface, color, location):
+    def _colortint(self, surface, color, location, alpha = None):
         rect = self._tilerect(location)
         image = Surface(rect.size, flags=SRCALPHA)
-        gfxdraw.filled_polygon(image, self._hex(), (0, 0, 0, 128))
+        gfxdraw.filled_polygon(image, self._hex(), (0, 0, 0, alpha or 128))
         image.fill(color, special_flags=BLEND_ADD)
         surface.blit(image, rect.topleft)
 
@@ -330,18 +330,16 @@ class Playfield(object):
 
     def _drawopen(self, surface, tile, location):
         x, y, z = location
-        locationbelow = x, y, z - 1
-        below = self.game.world.space[locationbelow]
-        if isinstance(below, Empty):
-            locationfarbelow = x, y, z - 2
-            farbelow = self.game.world.space[locationfarbelow]
-            if not isinstance(farbelow, Earth):
-                self._drawair(surface, locationfarbelow)
-            else:
-                self._drawfarground(surface, below, farbelow,
-                                    locationfarbelow)
+        while z and isinstance(tile, Empty):
+            z -= 1
+            tile = self.game.world.space[(x,y,z)]
         else:
-            self._drawfarground(surface, tile, below, location)
+            self._drawtilefield(surface, tile, (x,y,z))
+            alpha = min(255, 156 + 16 * (location[2]-z))
+            self._colortint(surface, (0,0,0), location, alpha)
+            return
+
+        self._drawair(surface, location)
             
     def _drawfloor(self, surface, tile, location):
         x, y, z = location
@@ -358,7 +356,7 @@ class Playfield(object):
 
         process(surface, tile, location)
 
-    def _drawtilebackground(self, surface, tile, location):
+    def _drawtilefield(self, surface, tile, location):
         if isinstance(tile, Empty):
             self._drawopen(surface, tile, location)
         elif isinstance(tile, Floor):
@@ -371,6 +369,9 @@ class Playfield(object):
             elif tile.designation:
                 self._drawdesignation(surface, location)
 
+    def _drawtilebackground(self, surface, tile, location):
+        self._drawtilefield(surface, tile, location)
+        
         self._addtilesprites(tile, location)
             
     def _addtilesprites(self, tile, location):
