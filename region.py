@@ -5,8 +5,9 @@ from pygame.sprite import *
 from button import Button
 from data import Stockpile
 from furnish import FurnishingSelect
-from space import Earth, Floor
+from space import Earth, Floor, TreeTrunk
 from text import TextRenderer
+from trunk import DirectTree
 
 class RegionDetails(object):
     def __init__(self, locations, playfield, font, prefs, describetile,
@@ -77,7 +78,13 @@ class RegionDetails(object):
                                  _(u'Dig out'),
                                  self._designate,
                                  dy)
-
+        elif (len(self._locations) == 1 and
+              isinstance(self._playfield.game.world.space[
+                  self._locations[0]], TreeTrunk)):
+            dy = self._addbutton(self._background,
+                                 _(u'Fell'),
+                                 self._fell,
+                                 dy)
 
     def _allclearfloor(self, tiles):
         return all([isinstance(self._playfield.game.world.space[(x,y,z)], Floor)
@@ -92,6 +99,15 @@ class RegionDetails(object):
 
     def _stockpile(self):
         self._playfield.player.addstockpile(Stockpile(self._locations, []))
+        self._clearselectedtiles()
+
+    def _fell(self):
+        self._showchild(DirectTree(self._playfield.player,
+                                   self._playfield.selection,
+                                   self._font,
+                                   self._prefs,
+                                   self._dismiss))
+        
         self._clearselectedtiles()
 
     def _furnish(self):

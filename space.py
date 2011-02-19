@@ -106,10 +106,11 @@ class Leaves(Tile):
         return self.substance.noun
 
 class TreeTrunk(Tile):
-    __slots__ = ()
+    __slots__ = ('felldirection')
 
     def __init__(self, substance, color=None):
         Tile.__init__(self, False, substance, 0, color)
+        self.felldirection = None
 
     @property
     def description(self):

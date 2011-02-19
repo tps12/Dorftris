@@ -7,7 +7,7 @@ from unicodedata import name as unicodename
 
 from colordb import match as describecolor
 from jobs import *
-from space import Earth, Empty, Floor
+from space import Earth, Empty, Floor, TreeTrunk
 from substances import AEther, Meat, Water, Stone, Wood
 from language import Generator
 from skills import SkillSet
@@ -1340,6 +1340,7 @@ class Player(object):
         self._world = world
         self.creatures = []
         self.digjobs = deque()
+        self.felljobs = deque()
         self.stockjobs = {}
         self.furnishjobs = deque()
         self.mined = 0
@@ -1382,6 +1383,12 @@ class Player(object):
                            Floor)):
                 self.digjobs.append(location)
             self._world.space.changed = True
+
+    def felltree(self, location, direction):
+        tree = self._world.space[location]
+        if isinstance(tree, TreeTrunk):
+            tree.felldirection = direction
+            self.felljobs.append(location)
 
     def unstockpileditems(self, itemtype):
         if itemtype.subtypes:
