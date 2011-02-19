@@ -275,10 +275,10 @@ class Playfield(object):
             image = surface.subsurface(rect)
             gfxdraw.filled_polygon(image, self._hex(), color)
 
-    def _colortint(self, surface, color, location):
+    def _colortint(self, surface, color, location, alpha = None):
         rect = self._tilerect(location)
         image = Surface(rect.size, flags=SRCALPHA)
-        gfxdraw.filled_polygon(image, self._hex(), (0, 0, 0, 128))
+        gfxdraw.filled_polygon(image, self._hex(), (0, 0, 0, alpha or 128))
         image.fill(color, special_flags=BLEND_ADD)
         surface.blit(image, rect.topleft)
 
@@ -334,7 +334,9 @@ class Playfield(object):
             z -= 1
             tile = self.game.world.space[(x,y,z)]
         else:
-            self._drawtilebackground(surface, tile, (x,y,z))
+            self._drawtilefield(surface, tile, (x,y,z))
+            alpha = min(255, 156 + 16 * (location[2]-z))
+            self._colortint(surface, (0,0,0), location, alpha)
             return
 
         self._drawair(surface, location)
@@ -354,7 +356,7 @@ class Playfield(object):
 
         process(surface, tile, location)
 
-    def _drawtilebackground(self, surface, tile, location):
+    def _drawtilefield(self, surface, tile, location):
         if isinstance(tile, Empty):
             self._drawopen(surface, tile, location)
         elif isinstance(tile, Floor):
@@ -367,6 +369,9 @@ class Playfield(object):
             elif tile.designation:
                 self._drawdesignation(surface, location)
 
+    def _drawtilebackground(self, surface, tile, location):
+        self._drawtilefield(surface, tile, location)
+        
         self._addtilesprites(tile, location)
             
     def _addtilesprites(self, tile, location):
