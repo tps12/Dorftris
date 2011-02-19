@@ -339,6 +339,24 @@ class Bag(Container):
     def substancetest(cls, s):
         return not s.rigid
 
+class Ax(Item):
+    __slots__ = ()
+
+    noun = _(u'ax')
+
+    stocktype = StockpileType(_(u'Ax'))
+
+    def __init__(self, location, blade, handle):
+        Item.__init__(self, [Material(blade, 0.0005),
+                             Material(handle, 0.0017)],
+                      location)
+
+    def description(self):
+        return _(u'{metal} {ax} with {wooden} handle').format(
+            metal = self.materials[0].substance.adjective,
+            ax = self.noun,
+            wooden = self.materials[1].substance.adjective)
+
 class Pickax(Item):
     __slots__ = ()
     
@@ -352,8 +370,9 @@ class Pickax(Item):
                       location)
 
     def description(self):
-        return _(u'{metal} pickax with {wooden} handle').format(
+        return _(u'{metal} {pick} with {wooden} handle').format(
             metal = self.materials[0].substance.adjective,
+            pick = self.noun,
             wooden = self.materials[1].substance.adjective)
 
 Arms = StockpileType(_(u'Weapons and armor'), [])

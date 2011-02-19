@@ -13,6 +13,7 @@ class GlyphGraphics(object):
         self.font = Font('FreeMono.ttf', size)
         self.glyphs = {
             Air: u'\u00b7',
+            Ax: u'\u16b9',
             Bag: u'\u01d2',
             Barrel: u'\u2338',
             Branch: (u'\u2b06',u'\u2b07',u'\u2b08',u'\u2b09',u'\u2b0a',u'\u2b0b'),
