@@ -329,6 +329,14 @@ class Playfield(object):
         self._colorfill(surface, (0, 85, 85), location)
 
     def _drawopen(self, surface, tile, location):
+        x, y, z = location
+        while z and isinstance(tile, Empty):
+            z -= 1
+            tile = self.game.world.space[(x,y,z)]
+        else:
+            self._drawtilebackground(surface, tile, (x,y,z))
+            return
+
         self._drawair(surface, location)
             
     def _drawfloor(self, surface, tile, location):
