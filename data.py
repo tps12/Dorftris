@@ -1630,7 +1630,7 @@ class FallingTree(object):
 
             loc = self._trunkoffset(i)
 
-            if not world.space[loc].is_passable():
+            if loc != self.tree.trunk[i] and not world.space[loc].is_passable():
                 self._placewood(world, loc)
                 locs[i] = None
             else:
