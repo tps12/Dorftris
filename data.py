@@ -1581,8 +1581,8 @@ class FallingTree(object):
         self.speed = pi/180
 
     def _trunkoffset(self, i):
-        offset = [int(i * f(self.angle)) for f in sin, cos]
-        loc = self.tree.location[0:2] + (self.tree.location[2]+i+offset[1],)
+        offset = [int(i * f(self.angle) + 0.5) for f in sin, cos]
+        loc = self.tree.location[0:2] + (self.tree.location[2]+offset[1],)
         return reduce(Direction.move, (self.tree.fell,) * offset[0], loc)
 
     def _placewood(self, world, location):
