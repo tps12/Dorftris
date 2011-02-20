@@ -1745,16 +1745,6 @@ class World(object):
 
     def collapsetree(self, feller, tree, direction):
         self.schedule(FallingTree(tree, direction))
-        
-##        wood = len(tree.trunk) + len(tree.branches)/4
-##
-##        for loc in tree.trunk:# + tree.branches + tree.leaves:
-##            self.space[loc] = (Empty() if loc[2] != tree.location[2]
-##                               else Floor(randint(0,3)))
-##
-##        for i in range(wood):
-##            self.additem(LooseMaterial(tree.wood,
-##                                       Direction.move(tree.location, direction)))
 
         if feller and feller.player:
             feller.player.recordfelled(tree, feller)
