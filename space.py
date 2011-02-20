@@ -48,15 +48,23 @@ class Empty(Tile):
         return _(u'empty space')
 
 class Floor(Tile):
-    __slots__ = ('covering', 'furnishing', 'stockpiles')
+    __slots__ = ('_covering', 'furnishing', 'stockpiles')
     
     def __init__(self, varient, covering=None):
         Tile.__init__(self, True, None, varient)
         self.covering = covering
         self.furnishing = None
+        self.stockpiles = None
+
+    @property
+    def covering(self):
+        return self._covering
+
+    @covering.setter
+    def covering(self, value):
+        self._covering = value
         self.color = (self.randomizecolor(self.covering.color)
                       if self.covering else None)
-        self.stockpiles = None
 
     def addstockpile(self, player, stockpile):
         if self.stockpiles is None:
