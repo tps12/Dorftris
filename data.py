@@ -1576,8 +1576,9 @@ class FallingObject(object):
         return False
 
 class FallingTree(object):
-    def __init__(self, tree):
+    def __init__(self, tree, direction):
         self.tree = tree
+        self.direction = direction
         self.rest = 0
         self.angle = 0
         self.speed = pi/180
@@ -1585,7 +1586,7 @@ class FallingTree(object):
     def _trunkoffset(self, i):
         offset = [int(i * f(self.angle) + 0.5) for f in sin, cos]
         loc = self.tree.location[0:2] + (self.tree.location[2]+offset[1],)
-        return reduce(Direction.move, (self.tree.fell,) * offset[0], loc)
+        return reduce(Direction.move, (self.direction,) * offset[0], loc)
 
     def _placewood(self, world, location):
         while not world.space[location].is_passable():
@@ -1729,7 +1730,7 @@ class World(object):
             miner.player.recordmined(location, miner, substance)
 
     def collapsetree(self, feller, tree, direction):
-        self.schedule(FallingTree(tree))
+        self.schedule(FallingTree(tree, direction))
         
 ##        wood = len(tree.trunk) + len(tree.branches)/4
 ##
