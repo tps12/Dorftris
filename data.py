@@ -26,7 +26,9 @@ class Material(object):
         return self.substance.density * self.amount
 
 class Entity(object):
-    pass
+    __slots__ = ()
+    
+    volatile = False
 
 class Thing(Entity):
     __slots__ = 'materials',
@@ -80,6 +82,18 @@ class Item(Thing):
     def substancetest(cls, s):
         return False
 
+class Liquid(Item):
+    __slots__ = ()
+    volatile = True
+
+    stocktype = None
+
+    def __init__(self, substance, location):
+        Item.__init__(self, [Material(substance, 1.0)], location)
+
+    def description(self):
+        return self.materials[0].substance.noun
+
 class Furniture(Item):
     __slots__ = ()
 
@@ -91,7 +105,7 @@ class Furniture(Item):
         return s.rigid
 
 class Workbench(Furniture):
-    __slots__ = ()
+    __slots__ = ('jobs')
     
     noun = _(u'workbench')
 

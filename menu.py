@@ -6,10 +6,10 @@ from pygame import display, event, font, key
 from pygame.locals import *
 
 from button import Button
-from data import Ax, Barrel, Pickax, Dwarf, Goblin, SmallSpider, Tortoise, Player, Workbench
+from data import Ax, Barrel, Pickax, Dwarf, Goblin, Liquid, SmallSpider, Tortoise, Player, Workbench
 from game import Game
 from rendering import Renderer
-from substances import Wood, Metal
+from substances import Wood, Metal, Water
 from prefs import DisplayOptions
 from world import RenderWorld
 
@@ -99,6 +99,11 @@ class MainMenu(object):
         self.game.world.additem(Workbench((x,y,
                                         self.game.world.space.groundlevel(x,y)),
                                        choice(Wood.__subclasses__())))
+
+        for i in range(5000):
+            x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+            liquid = Liquid(Water, (x,y,self.game.world.space.groundlevel(x,y)))
+            self.game.world.additem(liquid)
 
         self.child = Renderer(self.game, user, self.zoom)
 

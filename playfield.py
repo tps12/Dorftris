@@ -1,3 +1,5 @@
+from random import choice
+
 from pygame import draw, event, gfxdraw, key, mouse, Rect, Surface
 from pygame.locals import *
 from pygame.mixer import *
@@ -37,18 +39,28 @@ class EntitySprite(DirtySprite):
     def __init__(self, visible, position, graphics, entity, *args, **kwargs):
         DirtySprite.__init__(self, *args, **kwargs)
         self.entity = entity
-        
+
+        self._graphics = graphics
         self._position = position
         self._visible = visible
 
-        self.image = graphics[self.entity][0].copy()
-        self.image.fill(self.entity.color, special_flags=BLEND_ADD)
+        self._setimage()
         self.rect = self.image.get_rect().move(
             self._position(self.entity.location))
         self.layer = 1
+
+    def _setimage(self):
+        self.image = (choice(self._graphics[self.entity])
+                      if self.entity.volatile
+                      else self._graphics[self.entity][0]).copy()
+        self.image.fill(self.entity.color, special_flags=BLEND_ADD)
         
     def update(self):
         if self._visible(self.entity.location):
+            if self.entity.volatile:
+                self._setimage()
+                self.dirty = True
+            
             pos = self._position(self.entity.location)
             if self.rect.topleft != pos:
                 self.rect.topleft = pos
