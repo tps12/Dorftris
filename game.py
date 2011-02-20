@@ -42,4 +42,5 @@ class Game(object):
                         self.world.creatures.remove((target, t))
                 else:
                     self.reschedule(target)
+            self.world.liquids()
             self.world.time += 1

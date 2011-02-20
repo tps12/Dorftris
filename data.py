@@ -1680,6 +1680,25 @@ class FallingTree(object):
 
         self.rest = 0
         return all([t is None for t in self.tree.trunk])
+
+class LiquidPhysics(object):
+    def __init__(self, world):
+        self._world = world
+        self._items = []
+
+    def add(self, item):
+        self._items.append(item)
+
+    def remove(self, item):
+        self._item.remove(item)
+
+    def step(self):
+        for liquid in self._items:
+            lower = [adj for adj in
+                     self._world.space.pathing.open_adjacent(liquid.location)
+                     if adj[2] < liquid.location[2]]
+            if lower:
+                liquid.location = choice(lower)
         
 class World(object):
     def __init__(self, space, schedule):
@@ -1688,9 +1707,13 @@ class World(object):
         self.items = []
         self.creatures = []
         self.stockpiles = []
+        self._liquids = LiquidPhysics(self)
         self._listener = None
         self._players = []
         self.time = 0
+
+    def liquids(self):
+        self._liquids.step()
 
     def registerplayer(self, player):
         self._players.append(player)
@@ -1753,6 +1776,9 @@ class World(object):
         if item.location is not None:
             self.space[item.location].items.append(item)
 
+        if isinstance(item, Liquid):
+            self._liquids.add(item)
+
         for player in self._players:
             player.addtostockjobs(item)
             
@@ -1761,6 +1787,9 @@ class World(object):
     def removeitem(self, item, stockpiled = None):
         if item.location is not None:
             self.space[item.location].items.remove(item)
+
+        if isinstance(item, Liquid):
+            self._liquids.remove(item)
 
         if not stockpiled:
             for player in self._players:
