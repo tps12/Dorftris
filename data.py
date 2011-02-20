@@ -1582,7 +1582,7 @@ class FallingTree(object):
 
     def _trunkoffset(self, i):
         offset = [int(i * f(self.angle)) for f in sin, cos]
-        loc = self.tree.location[0:2] + (self.tree.location[2]+offset[1],)
+        loc = self.tree.location[0:2] + (self.tree.location[2]+i+offset[1],)
         return reduce(Direction.move, (self.tree.fell,) * offset[0], loc)
 
     def _placewood(self, world, location):
@@ -1599,8 +1599,8 @@ class FallingTree(object):
             world.schedule(FallingObject(material, 0))
 
     def _clear(self, world, location):
-        if (location[2] and
-            world.space[location[0:2] + (location[2]-1,)].is_passable()):
+        if location[2] and not isinstance(world.space[location[0:2] + (location[2]-1,)],
+                                          Earth):
             tile = Empty()
         else:
             tile = Floor(randint(0,3))
