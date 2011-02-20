@@ -81,7 +81,8 @@ class SelectionInfo(object):
         self._background = Surface(size, flags=SRCALPHA)
         self._background.fill((0,0,0))
 
-        dy = self._describetile(self._background, self._cursor, 0)
+        if self._cursor is not None:
+            dy = self._describetile(self._background, self._cursor, 0)
     
     def scale(self, font):
         self._font = font
