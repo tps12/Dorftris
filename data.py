@@ -1580,6 +1580,32 @@ class FallingTree(object):
         self.angle = 0
         self.speed = pi/180
 
+    def _trunkoffset(self, i):
+        offset = [int(i * f(self.angle)) for f in sin, cos]
+        loc = self.tree.location[0:2] + (self.tree.location[2]+offset[1],)
+        return reduce(Direction.move, (self.tree.fell,) * offset[0], loc)
+
+    def _placewood(self, world, location):
+        while not world.space[location].is_passable():
+            if location[2] == world.space.dim[2]-1:
+                return
+
+            location = location[0:2] + (location[2]+1,)
+
+        material = LooseMaterial(self.tree.wood, location)
+        world.additem(material)
+
+        if not isinstance(world.space[location], Floor):
+            world.schedule(FallingObject(material, 0))
+
+    def _clear(self, world, location):
+        if (location[2] and
+            world.space[location[0:2] + (location[2]-1,)].is_passable()):
+            tile = Empty()
+        else:
+            tile = Floor(randint(0,3))
+        world.space[location] = tile
+
     def step(self, world, dt):
         if not self.angle:
             for loc in self.tree.branches + self.tree.leaves:
@@ -1588,42 +1614,42 @@ class FallingTree(object):
         self.angle += self.speed
         self.speed += sin(self.angle)/10
 
-        down = False
+        if self.angle > pi/2:
+            for i in range(len(self.tree.trunk)):
+                if self.tree.trunk[i] is None:
+                    continue
+
+                self._clear(world, self.tree.trunk[i])
+                self._placewood(world, self.tree.trunk[i])
+            return True
+
         locs = [None for i in self.tree.trunk]
         for i in range(len(self.tree.trunk)):
-            offset = [int(i * f(self.angle)) for f in sin, cos]
-            locs[i] = self.tree.location[0:2] + (self.tree.location[2]+offset[1],)
-            for j in range(offset[0]):
-                locs[i] = Direction.move(locs[i], self.tree.fell)
-            if not world.space[locs[i]].is_passable():
-                print 'hit ground', i
-                for j in range(len(self.tree.trunk)):
-                    space = (Empty() if self.tree.trunk[j][2] and
-                             world.space[self.tree.trunk[j][0:2] +
-                                         (self.tree.trunk[j][2]-1,)].is_passable()
-                             else Floor(randint(0,3)))
-                    world.space[self.tree.trunk[j]] = space
-                    wood = LooseMaterial(self.tree.wood, self.tree.trunk[j])
-                    world.additem(wood)
-                    world.schedule(FallingObject(wood,
-                                                 self.speed * sin(self.angle)))
-                return True
-        else:
-            print 'falling'
-            for i in range(len(self.tree.trunk)):
-                trunk = world.space[self.tree.trunk[i]]
-                space = (Empty() if self.tree.trunk[i][2] and
-                         world.space[self.tree.trunk[i][0:2] +
-                                     (self.tree.trunk[i][2]-1,)].is_passable()
-                         else Floor(randint(0,3)))
-                world.space[self.tree.trunk[i]] = space
-                self.tree.trunk[i] = locs[i]
-                world.space[self.tree.trunk[i]] = trunk
+            if self.tree.trunk[i] is None:
+                continue
+
+            loc = self._trunkoffset(i)
+
+            if not world.space[loc].is_passable():
+                self._placewood(world, loc)
+                locs[i] = None
+            else:
+                locs[i] = loc
+
+        for i in range(len(self.tree.trunk)):
+            if self.tree.trunk[i] is None:
+                continue
+
+            self._clear(world, self.tree.trunk[i])
+            self.tree.trunk[i] = locs[i]
+            
+            if self.tree.trunk[i] is not None:
+                world.space[self.tree.trunk[i]] = TreeTrunk(self.tree)
 
         world.space.changed = True
 
         self.rest = 0
-        return False
+        return all([t is None for t in self.tree.trunk])
         
 class World(object):
     def __init__(self, space, schedule):
