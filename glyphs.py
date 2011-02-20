@@ -42,6 +42,7 @@ class GlyphGraphics(object):
             Stone: u'\u2b22',
             TreeTrunk: (u'\u2b22', u'\u2b21', u'\u25ce'),
             Tortoise: u'\u237e',
+            Wood: u'\u25b0',
             Workbench: u'\u2293'
             }
 
@@ -67,6 +68,7 @@ class GlyphGraphics(object):
             key = thing
         elif isinstance(thing, LooseMaterial):
             key = (Soil if issubclass(thing.materials[0].substance, Soil)
+                   else Wood if issubclass(thing.materials[0].substance, Wood)
                    else Stone)
         else:
             key = thing.__class__
