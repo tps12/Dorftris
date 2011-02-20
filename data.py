@@ -1608,11 +1608,7 @@ class FallingTree(object):
             tile = Floor(randint(0,3))
         world.space[location] = tile
 
-    def step(self, world, dt):
-        if not self.angle:
-            for loc in self.tree.branches + self.tree.leaves:
-                world.space[loc] = Empty()
-        
+    def _advanceangle(self, world):        
         self.angle += self.speed
         self.speed += sin(self.angle)/10
 
@@ -1624,7 +1620,10 @@ class FallingTree(object):
                 self._clear(world, self.tree.trunk[i])
                 self._placewood(world, self.tree.trunk[i])
             return True
+        
+        return False
 
+    def _nextlocs(self, world):
         locs = [None for i in self.tree.trunk]
         for i in range(len(self.tree.trunk)):
             if self.tree.trunk[i] is None:
@@ -1637,7 +1636,9 @@ class FallingTree(object):
                 locs[i] = None
             else:
                 locs[i] = loc
+        return locs
 
+    def _movetrunks(self, world, locs):
         for i in range(len(self.tree.trunk)):
             if self.tree.trunk[i] is None:
                 continue
@@ -1649,6 +1650,18 @@ class FallingTree(object):
                 world.space[self.tree.trunk[i]] = TreeTrunk(self.tree)
 
         world.space.changed = True
+
+    def step(self, world, dt):
+        if not self.angle:
+            for loc in self.tree.branches + self.tree.leaves:
+                world.space[loc] = Empty()
+
+        if self._advanceangle(world):
+            return True
+
+        locs = self._nextlocs(world)
+
+        self._movetrunks(world, locs)
 
         self.rest = 0
         return all([t is None for t in self.tree.trunk])
