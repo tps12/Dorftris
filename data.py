@@ -682,7 +682,9 @@ class Woodcutting(ToolLabor):
         push = int((1-cls.skilldisplayed(creature, 0.75)) * 6)
         if push != 0:
             push *= choice((-1,1))
-        world.collapsetree(creature, tree, (tree.fell + push)%6)
+        direction = Direction.clockwise[
+            Direction.clockwise.index(tree.fell) + push]
+        world.collapsetree(creature, tree, direction)
 
         cls.trainskill(creature)
             

@@ -102,6 +102,8 @@ class Direction(object):
         SW: NE
         }
 
+    clockwise = [N, NE, SE, S, SW, NW]
+
     @staticmethod
     def move(location, direction):
         x, y = location[0:2]
