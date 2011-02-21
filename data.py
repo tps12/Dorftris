@@ -1690,15 +1690,31 @@ class LiquidPhysics(object):
         self._items.append(item)
 
     def remove(self, item):
-        self._item.remove(item)
+        self._items.remove(item)
 
     def step(self):
+        static = []
         for liquid in self._items:
-            lower = [adj for adj in
-                     self._world.space.pathing.open_adjacent(liquid.location)
-                     if adj[2] < liquid.location[2]]
-            if lower:
-                liquid.location = choice(lower)
+            tile = self._world.space[liquid.location]
+            if tile.downhill is None:
+                down = [a for a in
+                        self._world.space.pathing.open_adjacent(liquid.location)
+                        if a[2] < liquid.location[2]]
+                if not down:
+                    tile.downhill = 0, None
+                else:
+                    downhill = sorted(down, key=lambda loc: loc[2])[0]
+                    tile.downhill = liquid.location[2] - downhill[2], downhill
+
+            if tile.downhill[0]:
+                tile.items.remove(liquid)
+                liquid.location = tile.downhill[1]
+                self._world.space[liquid.location].items.append(liquid)
+            else:
+                static.append(liquid)
+
+        for liquid in static:
+            self.remove(liquid)
         
 class World(object):
     def __init__(self, space, schedule):

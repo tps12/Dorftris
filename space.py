@@ -6,6 +6,7 @@ from pathing import PathManager
 class Tile(object):
     __slots__ = ('passable',
                  'color',
+                 'downhill',
                  'substance',
                  'revealed',
                  'designation',
@@ -18,6 +19,7 @@ class Tile(object):
         self.color = (color if color is not None
                       else self.randomizecolor(self.substance.color)
                       if self.substance else None)
+        self.downhill = None
         self.passable = passable
         self.revealed = False
         self.designation = None
@@ -255,7 +257,7 @@ class Space(object):
         
         if loc not in self.cache:
             if loc[2] == g:
-                tile = Floor(randint(0,3), Grass)
+                tile = Floor(randint(0,3), Grass)                
             elif loc[2] > g:
                 tile = Empty()
             elif loc[2] > g - self.soillevel(loc[0], loc[1]):
