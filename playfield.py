@@ -307,6 +307,9 @@ class Playfield(object):
         if ground.designation:
             self._drawdesignation(surface, location)
 
+    def _drawliquid(self, surface, tile, location):
+        self._colorfill(surface, tile.liquid.color, location)
+
     def _drawwall(self, surface, wall, location):
         self._colorfill(surface, wall.color, location)
         
@@ -369,7 +372,9 @@ class Playfield(object):
         process(surface, tile, location)
 
     def _drawtilefield(self, surface, tile, location):
-        if isinstance(tile, Empty):
+        if tile.liquid:
+            self._drawliquid(surface, tile, location)
+        elif isinstance(tile, Empty):
             self._drawopen(surface, tile, location)
         elif isinstance(tile, Floor):
             self._drawfloor(surface, tile, location)

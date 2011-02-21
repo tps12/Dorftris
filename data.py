@@ -1707,14 +1707,23 @@ class LiquidPhysics(object):
                     tile.downhill = liquid.location[2] - downhill[2], downhill
 
             if tile.downhill[0]:
-                tile.items.remove(liquid)
-                liquid.location = tile.downhill[1]
-                self._world.space[liquid.location].items.append(liquid)
+                downhill = self._world.space[tile.downhill[1]]
+
+                if downhill.liquid:
+                    tile.liquid = liquid.materials[0].substance
+                    self._world.space.changed = True
+                    static.append(liquid)
+                else:
+                    tile.items.remove(liquid)
+                    liquid.location = tile.downhill[1]
+                    downhill.items.append(liquid)
             else:
+                tile.liquid = liquid.materials[0].substance
+                self._world.space.changed = True
                 static.append(liquid)
 
         for liquid in static:
-            self.remove(liquid)
+            self._world.removeitem(liquid)
         
 class World(object):
     def __init__(self, space, schedule):

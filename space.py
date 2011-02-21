@@ -7,6 +7,7 @@ class Tile(object):
     __slots__ = ('passable',
                  'color',
                  'downhill',
+                 'liquid',
                  'substance',
                  'revealed',
                  'designation',
@@ -21,6 +22,7 @@ class Tile(object):
                       if self.substance else None)
         self.downhill = None
         self.passable = passable
+        self.liquid = None
         self.revealed = False
         self.designation = None
         self.varient = varient

@@ -100,7 +100,7 @@ class MainMenu(object):
                                         self.game.world.space.groundlevel(x,y)),
                                        choice(Wood.__subclasses__())))
 
-        for i in range(5000):
+        for i in range(500):
             x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
             liquid = Liquid(Water, (x,y,self.game.world.space.groundlevel(x,y)))
             self.game.world.additem(liquid)
