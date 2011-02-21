@@ -349,7 +349,7 @@ class Water(Substance):
 
 class Blood(Substance):
     density = 1025.0 # thicker than water
-    color = 64,0,0
+    color = 128,0,0
     noun = _(u'blood')
     adjective = _(u'blood-soaked')
 
