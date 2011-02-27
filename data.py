@@ -1766,11 +1766,15 @@ class World(object):
         designation = tile.designation
         substance = tile.substance
         self.makesound(substance.sound, location)
-            
-        tile = (Empty()
-                if location[2] and
-                self.space[location[0:2] + (location[2],)].is_passable()
-                else Floor(randint(0,3)))
+
+        if (location[2] and
+            self.space[location[0:2] + (location[2]-1,)].is_passable()):
+            tile = Empty()
+        else:
+            if isinstance(self.space[location[0:2] + (location[2]+1,)],
+                          Floor):
+                self.space[location[0:2] + (location[2]+1,)] = Empty()
+            tile = Floor(randint(0,3))
         tile.revealed = True
         for x,y in self.space.pathing.adjacent_xy(location[0:2]):
             nloc = x, y, location[2]
