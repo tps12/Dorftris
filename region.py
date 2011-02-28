@@ -20,6 +20,7 @@ class RegionDetails(object):
         self._dismiss = dismiss
         self._pushscreen = pushscreen
         self._popscreen = popscreen
+        self._buttons = []
         
         self.scale(font)
 

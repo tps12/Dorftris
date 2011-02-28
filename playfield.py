@@ -91,21 +91,20 @@ class EntitySelectionSprite(DirtySprite):
         Sprite.kill(self)
         self._removed()
 
-class TileSelectionSprite(DirtySprite):
-    def __init__(self, visible, position, lines, zoom, selection, *args, **kwargs):
+class RegionOutlineSprite(DirtySprite):
+    def __init__(self, visible, position, lines, zoom, color, region, *args, **kwargs):
         DirtySprite.__init__(self, *args, **kwargs)
         self._visible = visible
         self._position = position
         self._lines = lines
         self._zoom = zoom
-        self.selection = selection
+        self._color = color
+        self._region = region
         self._ps = []
-
-        self.layer = 2
 
     def update(self):
         ps = [self._position(loc)
-              for loc in self.selection]
+              for loc in self._region]
                     
         if len(self._ps) == len(ps) and all([self._ps[i] == ps[i]
                                              for i in range(len(ps))]):
@@ -128,10 +127,19 @@ class TileSelectionSprite(DirtySprite):
                 else:
                     lines.append(edge)
         for line in lines:
-            draw.line(self.image, self._zoom.selectioncolor, line[0], line[1])
+            draw.line(self.image, self._color, line[0], line[1])
         self.rect = self.image.get_rect().move((pos[0]-self._zoom.height/3,
                                                 pos[1]))
         self.dirty = 1
+        
+class TileSelectionSprite(RegionOutlineSprite):
+    def __init__(self, visible, position, lines, zoom, selection, *args, **kwargs):
+        RegionOutlineSprite.__init__(self, visible, position, lines,
+                                     zoom, zoom.selectioncolor,
+                                     selection, *args, **kwargs)
+        self.selection = selection
+
+        self.layer = 2
 
 class ScreenSprites(LayeredDirty):
     def __init__(self, visible, position, lines, prefs, *args, **kwargs):
