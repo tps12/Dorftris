@@ -29,10 +29,11 @@ class PlanetSettings(object):
     def makebackground(self, surface):
         surface.fill((0,0,0))
 
+        hotkeys = []
         del self._buttons[:]
         for label, action in self.planet.actions():
             self._buttons = [
-                Button(self.uifont, label, action)
+                Button(self.zoom, hotkeys, label, action)
                 ]
 
         size = surface.get_size()

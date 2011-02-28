@@ -23,7 +23,7 @@ class ItemDetails(object):
         return dy + image.get_height()
 
     def _addbutton(self, surface, text, click, dy):
-        button = Button(self._font, text, click)
+        button = Button(self._prefs, self._hotkeys, text, click)
         button.location = 0, dy
         button.draw(surface)
         self._buttons.append(button)
@@ -41,6 +41,7 @@ class ItemDetails(object):
                            self._prefs.selectioncolor,
                            dy)
 
+        self._hotkeys = []
         self._buttons = []
 
     def scale(self, font):
@@ -56,11 +57,9 @@ class ItemDetails(object):
                 self._playfield.selection = None
                 return True
             
-        if (e.type == MOUSEBUTTONDOWN and
-            e.button == 1):
-            for button in self._buttons:
-                if button.handle(e):
-                    return True
+        for button in self._buttons:
+            if button.handle(e):
+                return True
         
         return False
 

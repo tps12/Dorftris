@@ -2,7 +2,6 @@ from pygame import draw, Rect, Surface
 from pygame.locals import *
 from pygame.sprite import *
 
-from button import Button
 from data import Creature, Item, Stockpile, Workbench
 from details import CreatureDetails
 from furnish import FurnishingSelect

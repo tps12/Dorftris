@@ -17,7 +17,7 @@ class ChooseManufacturingType(object):
         self.scale(font)
 
     def _addbutton(self, surface, text, click, dy):
-        button = Button(self._font, text, click)
+        button = Button(self._prefs, self._hotkeys, text, click)
         button.location = 0, dy
         button.draw(surface)
         self._buttons.append(button)
@@ -49,6 +49,7 @@ class ChooseManufacturingType(object):
 
         dy = 0
 
+        self._hotkeys = []
         self._buttons = []
         for job in Manufacturing.__subclasses__():
             dy = self._addbutton(self._background,
@@ -72,11 +73,9 @@ class ChooseManufacturingType(object):
                 self._playfield.selection = None
                 return True
         
-        elif (e.type == MOUSEBUTTONDOWN and
-            e.button == 1):
-            for button in self._buttons:
-                if button.handle(e):
-                    return True
+        for button in self._buttons:
+            if button.handle(e):
+                return True
                 
         return False
 

@@ -15,7 +15,7 @@ class FurnishingSelect(object):
         self.scale(font)
 
     def _addbutton(self, surface, text, click, dy):
-        button = Button(self._font, text, click)
+        button = Button(self._prefs, self._hotkeys, text, click)
         button.location = 0, dy
         button.draw(surface)
         self._buttons.append(button)
@@ -34,6 +34,7 @@ class FurnishingSelect(object):
 
         dy = 0
 
+        self._hotkeys = []
         self._buttons = []
         for pile in self._player.getstockpiles(Furnishings):
             for item in pile.contents:
@@ -67,11 +68,9 @@ class FurnishingSelect(object):
                 self._dismiss()
                 return True
         
-        elif (e.type == MOUSEBUTTONDOWN and
-            e.button == 1):
-            for button in self._buttons:
-                if button.handle(e):
-                    return True
+        for button in self._buttons:
+            if button.handle(e):
+                return True
                 
         return False
 

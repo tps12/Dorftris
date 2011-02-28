@@ -44,10 +44,11 @@ class MainMenu(object):
     def draw(self):
         self.screen.fill((0,0,0))
 
+        hotkeys = []
         self.buttons = [
-            Button(self._font, _(u'New Game'), self.newgame, True),
-            Button(self._font, _(u'Make World'), self.world, True),
-            Button(self._font, _(u'Quit'), self.quitgame, True)
+            Button(self.zoom, hotkeys, _(u'New Game'), self.newgame, True),
+            Button(self.zoom, hotkeys, _(u'Make World'), self.world, True),
+            Button(self.zoom, hotkeys, _(u'Quit'), self.quitgame, True)
             ]
 
         size = self.screen.get_size()

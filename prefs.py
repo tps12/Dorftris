@@ -6,6 +6,7 @@ class DisplayOptions(object):
         self._fontclass = SysFont if sysfont else Font
         self.width = width
         self.height = height
+        self.hotkeycolor = 0, 255, 255
         self.selectioncolor = 0, 255, 0
         self.announcementtimeout = 5
         self.debugging = True

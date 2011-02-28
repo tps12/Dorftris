@@ -24,7 +24,7 @@ class ChooseManufacturingSubstance(object):
         return substances
 
     def _addbutton(self, surface, text, click, dy):
-        button = Button(self._font, text, click)
+        button = Button(self._prefs, self._hotkeys, text, click)
         button.location = 0, dy
         button.draw(surface)
         self._buttons.append(button)
@@ -43,6 +43,7 @@ class ChooseManufacturingSubstance(object):
 
         dy = 0
 
+        self._hotkeys = []
         self._buttons = []
         dy = self._addbutton(self._background,
                              _(u'Any {substance}').format(substance=
@@ -72,11 +73,9 @@ class ChooseManufacturingSubstance(object):
                 self._dismiss()
                 return True
         
-        elif (e.type == MOUSEBUTTONDOWN and
-            e.button == 1):
-            for button in self._buttons:
-                if button.handle(e):
-                    return True
+        for button in self._buttons:
+            if button.handle(e):
+                return True
                 
         return False
 

@@ -17,7 +17,7 @@ class DirectTree(object):
         self.scale(font)
 
     def _addbutton(self, surface, text, click, dy):
-        button = Button(self._font, text, click)
+        button = Button(self._prefs, self._hotkeys, text, click)
         button.location = 0, dy
         button.draw(surface)
         self._buttons.append(button)
@@ -36,6 +36,7 @@ class DirectTree(object):
 
         dy = 0
 
+        self._hotkeys = []
         self._buttons = []
         for i in range(len(self.arrows)):
             dy = self._addbutton(self._background,

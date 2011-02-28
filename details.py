@@ -27,7 +27,7 @@ class CreatureDetails(object):
         return dy + image.get_height()
 
     def _addbutton(self, surface, text, click, dy):
-        button = Button(self._font, text, click)
+        button = Button(self._prefs, self._hotkeys, text, click)
         button.location = 0, dy
         button.draw(surface)
         self._buttons.append(button)
@@ -53,6 +53,7 @@ class CreatureDetails(object):
                            (255,255,255),
                            dy)
 
+        self._hotkeys = []
         self._buttons = []
         dy = self._addbutton(self._background,
                              _(u'Description'),
@@ -93,11 +94,9 @@ class CreatureDetails(object):
                 self._playfield.selection = None
                 return True
             
-        if (e.type == MOUSEBUTTONDOWN and
-            e.button == 1):
-            for button in self._buttons:
-                if button.handle(e):
-                    return True
+        for button in self._buttons:
+            if button.handle(e):
+                return True
         
         return False
 
