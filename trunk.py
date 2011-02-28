@@ -60,11 +60,9 @@ class DirectTree(object):
                 self._dismiss()
                 return True
         
-        elif (e.type == MOUSEBUTTONDOWN and
-            e.button == 1):
-            for button in self._buttons:
-                if button.handle(e):
-                    return True
+        for button in self._buttons:
+            if button.handle(e):
+                return True
                 
         return False
 

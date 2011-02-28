@@ -1,3 +1,5 @@
+from string import letters
+
 import pygame
 from pygame import display, event, font, gfxdraw, key, mouse, Rect, Surface
 from pygame.locals import *
@@ -8,7 +10,7 @@ class Button(object):
         self.font = prefs.font
         self.hotkeycolor = prefs.hotkeycolor
         for c in text.lower():
-            if c not in hotkeys:
+            if c in letters and c not in hotkeys:
                 self.hotkey = c
                 hotkeys.append(self.hotkey)
                 break
