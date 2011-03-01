@@ -1754,10 +1754,19 @@ class World(object):
             self.space[location[0:2] + (location[2]-1,)].is_passable()):
             tile = Empty()
         else:
-            if isinstance(self.space[location[0:2] + (location[2]+1,)],
-                          Floor):
-                self.space[location[0:2] + (location[2]+1,)] = Empty()
             tile = Floor(randint(0,3))
+
+            abovelocation = location[0:2] + (location[2]+1,)
+            above = self.space[abovelocation]
+            if isinstance(above, Floor):
+                tile.items = above.items
+                tile.creatures = above.creatures
+                for item in tile.items:
+                    item.location = location
+                for creature in tile.creatures:
+                    creature.location = location
+                    
+                self.space[abovelocation] = Empty()
         tile.revealed = True
         for x,y in self.space.pathing.adjacent_xy(location[0:2]):
             nloc = x, y, location[2]

@@ -68,43 +68,43 @@ class MainMenu(object):
             self.game.world.space.maketree((x,y,
                                             self.game.world.space.groundlevel(x,y)))
 
-        kind = (Dwarf,Goblin,Tortoise,SmallSpider)
+        kind = (Goblin,Tortoise,SmallSpider)
 
         for i in range(20):
             race = choice(kind)
-            player = user if race is Dwarf else None
             x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
-            creature = race(player, (x,y,self.game.world.space.groundlevel(x,y)))
+            creature = race(None, (x,y,self.game.world.space.groundlevel(x,y)))
             self.game.schedule(creature)
+
+        for i in range(7):
+            x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+            creature = Dwarf(user, (x,y,self.game.world.space.groundlevel(x,y)))
+            self.game.schedule(creature)
+
+            x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+            self.game.world.additem(Pickax((x,y,
+                                            self.game.world.space.groundlevel(x,y)),
+                                           choice(Metal.__subclasses__()),
+                                           choice(Wood.__subclasses__())))
+
+
+            x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+            self.game.world.additem(Ax((x,y,
+                                        self.game.world.space.groundlevel(x,y)),
+                                       choice(Metal.__subclasses__()),
+                                       choice(Wood.__subclasses__())))
+
+
+            x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
+            self.game.world.additem(Workbench((x,y,
+                                            self.game.world.space.groundlevel(x,y)),
+                                           choice(Wood.__subclasses__())))
 
         for i in range(10):
             x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
             self.game.world.additem(Barrel((x,y,
                                             self.game.world.space.groundlevel(x,y)),
                                            choice(Wood.__subclasses__())))
-
-        x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
-        self.game.world.additem(Pickax((x,y,
-                                        self.game.world.space.groundlevel(x,y)),
-                                       choice(Metal.__subclasses__()),
-                                       choice(Wood.__subclasses__())))
-
-
-        x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
-        self.game.world.additem(Ax((x,y,
-                                    self.game.world.space.groundlevel(x,y)),
-                                   choice(Metal.__subclasses__()),
-                                   choice(Wood.__subclasses__())))
-
-        x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
-        self.game.world.additem(Workbench((x,y,
-                                        self.game.world.space.groundlevel(x,y)),
-                                       choice(Wood.__subclasses__())))
-
-        for i in range(500):
-            x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
-            liquid = Liquid(Water, (x,y,self.game.world.space.groundlevel(x,y)))
-            self.game.world.additem(liquid)
 
         self.child = Renderer(self.game, user, self.zoom)
 
