@@ -51,7 +51,7 @@ def takeitem(creature, world, item):
 def takefromstockpile(creature, world, pile, itemtype):
     item = pile.find(lambda item: isinstance(item, itemtype))
     item.reserved = True
-    for step in goto(creature, world, pile.components[0].location):
+    for step in goto(creature, world, pile.region[0]):
         yield _(u'{going} to {stockpile}').format(
             going=step, stockpile=pile.description())
 

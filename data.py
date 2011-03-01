@@ -197,18 +197,17 @@ class WrongItemType(Exception):
     pass
 
 class Stockpile(Entity):
-    __slots__ = 'storage', 'components', 'types', 'changed', 'player'
+    __slots__ = 'storage', 'region', 'types', 'changed', 'player'
     
     color = (255,255,255)
     noun = _(u'stockpile')
     
     def __init__(self, region, types):
         self.storage = Storage(0)
-        self.components = []
+        self.region = [location for location in region]
+        self.storage.capacity = float(len(self.region))
         self.types = types
         self.changed = False
-        for location in region:
-            self.annex(location)
 
     @property
     def capacity(self):
@@ -245,11 +244,6 @@ class Stockpile(Entity):
         if success:
             self.changed = True
         return success
-        
-    def annex(self, location):
-        self.storage.capacity += 1.0
-        self.components.append(StockpileComponent(self, location))
-        self.changed = True
 
 class Container(Item):
     __slots__ = 'storage',
@@ -301,16 +295,6 @@ class Container(Item):
 
     def has(self, kind):
         return self.storage.has(kind)
-
-class StockpileComponent(Container):
-    __slots__ = 'stockpile',
-    
-    def __init__(self, stockpile, location):
-        Container.__init__(self, [Material(AEther, 0)], location, 1.0)
-        self.stockpile = stockpile
-
-    def description(self):
-        return self.stockpile.description
 
 class Corpse(Item):
     __slots__ = 'origins',
@@ -718,10 +702,9 @@ class Stockpiling(Labor):
                     items.append(item)
                     return
 
-                for step in goto(creature, world, pile.components[0].location):
+                for step in goto(creature, world, pile.region[0]):
                     yield False, step
-                if (creature.location not in
-                    [c.location for c in pile.components]):
+                if creature.location not in pile.region:
                     items.append(item)
                     return
 
@@ -1507,8 +1490,8 @@ class Player(object):
             except KeyError:
                 self.stockjobs[t] = deque([stockpile]), deque()
 
-        for component in stockpile.components:
-            self._world.space[component.location].addstockpile(self, stockpile)
+        for location in stockpile.region:
+            self._world.space[location].addstockpile(self, stockpile)
                 
         self._world.stockpiles.append(stockpile)
 

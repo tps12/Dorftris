@@ -161,7 +161,7 @@ class ScreenSprites(LayeredDirty):
 
         if selection:
             if isinstance(selection, Stockpile):
-                selection = [c.location for c in selection.components]
+                selection = selection.region
                 if any([self._visible(location) for location in selection]):
                     sprite = TileSelectionSprite(self._visible,
                                                  self._position,
@@ -412,9 +412,7 @@ class Playfield(object):
             if tile.furnishing and not self.sprites.hasspritefor(tile.furnishing):
                 self.sprites.addspritefor(tile.furnishing, self.graphics)
             if tile.stockpiles and self.player in tile.stockpiles:
-                for component in tile.stockpiles[self.player].components:
-                    if not self.sprites.hasspritefor(component):
-                        self.sprites.addspritefor(component, self.graphics)
+                pass
         
     def _scanbackground(self, background, tileprocess):
         xs, ys = [range(self.offset[i], self.offset[i] + self.dimensions[i])
@@ -540,7 +538,7 @@ class Playfield(object):
             except ValueError:
                 self.selection = None
         elif isinstance(self.selection, Stockpile):
-            if location in [c.location for c in self.selection.components]:
+            if location in self.selection.region:
                 self.selection = self._nextentity(
                     self.game.world.space[location], self.selection)
         elif isinstance(self.selection, Entity):
