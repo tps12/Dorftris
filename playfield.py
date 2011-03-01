@@ -12,29 +12,6 @@ from glyphs import Air, GlyphGraphics
 from listener import PlayfieldListener
 from space import *
 
-class StockpileSprite(DirtySprite):
-    def __init__(self, visible, position, graphics, component, *args, **kwargs):
-        DirtySprite.__init__(self, *args, **kwargs)
-        self.component = component
-        
-        self._position = position
-        self._visible = visible
-
-        self.image = graphics[self.component][0].copy()
-        self.image.fill(self.component.color, special_flags=BLEND_ADD)
-        self.rect = self.image.get_rect().move(
-            self._position(self.component.location))
-        self.layer = 0
-        
-    def update(self):
-        if self._visible(self.component.location):
-            pos = self._position(self.component.location)
-            if self.rect.topleft != pos:
-                self.rect.topleft = pos
-                self.dirty = True
-        else:
-            self.kill()
-
 class EntitySprite(DirtySprite):
     def __init__(self, visible, position, graphics, entity, *args, **kwargs):
         DirtySprite.__init__(self, *args, **kwargs)
@@ -131,6 +108,17 @@ class RegionOutlineSprite(DirtySprite):
         self.rect = self.image.get_rect().move((pos[0]-self._zoom.height/3,
                                                 pos[1]))
         self.dirty = 1
+
+class StockpileSprite(RegionOutlineSprite, EntitySprite):
+    def __init__(self, visible, position, lines, zoom, stockpile,
+                 *args, **kwargs):
+        RegionOutlineSprite.__init__(self, visible, position, lines,
+                                     zoom, (255,255,255), stockpile.region,
+                                     *args, **kwargs)
+        self.entity = stockpile
+
+        self.layer = 0
+        self.update()
         
 class TileSelectionSprite(RegionOutlineSprite):
     def __init__(self, visible, position, lines, zoom, selection, *args, **kwargs):
@@ -197,6 +185,12 @@ class ScreenSprites(LayeredDirty):
         sprite = EntitySprite(self._visible, self._position, graphics, entity)
         self.add(sprite)
         self.entities[entity] = sprite
+
+    def addstockpilespritefor(self, stockpile):
+        sprite = StockpileSprite(self._visible, self._position, self._lines,
+                                 self._prefs, stockpile)
+        self.add(sprite)
+        self.entities[stockpile] = sprite
 
     def remove_internal(self, sprite):
         LayeredDirty.remove_internal(self, sprite)
@@ -412,7 +406,9 @@ class Playfield(object):
             if tile.furnishing and not self.sprites.hasspritefor(tile.furnishing):
                 self.sprites.addspritefor(tile.furnishing, self.graphics)
             if tile.stockpiles and self.player in tile.stockpiles:
-                pass
+                stockpile = tile.stockpiles[self.player]
+                if not self.sprites.hasspritefor(stockpile):
+                    self.sprites.addstockpilespritefor(stockpile)
         
     def _scanbackground(self, background, tileprocess):
         xs, ys = [range(self.offset[i], self.offset[i] + self.dimensions[i])
