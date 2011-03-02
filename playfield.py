@@ -253,9 +253,20 @@ class Playfield(object):
         self.graphics = GlyphGraphics(max(self.zoom.width, self.zoom.height))
         
         self.sprites.empty()
-        self.sprites.add(self.cursorsprite)
+        self._updatecursorsprite()
         
         self.background = None
+
+    def _updatecursorsprite(self):
+        self.cursorsprite.location = self.cursor
+        self.cursorsprite.visible = not mouse.set_visible(-1)
+        
+        if self.cursorsprite.location:
+            if not self.sprites.has(self.cursorsprite):
+                self.sprites.add(self.cursorsprite)
+        else:
+            if self.sprites.has(self.cursorsprite):
+                self.sprites.remove(self.cursorsprite)
 
     def visible(self, location):
         return location and all([
@@ -643,8 +654,7 @@ class Playfield(object):
 
     def draw(self, surface):
         self.cursor = self._absolutetile(mouse.get_pos())
-        self.cursorsprite.location = self.cursor
-        self.cursorsprite.visible = not mouse.set_visible(-1)
+        self._updatecursorsprite()
         
         self.sprites.setselection(self.selection)
 
