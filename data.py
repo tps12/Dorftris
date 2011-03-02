@@ -12,7 +12,7 @@ from space import Direction, Earth, Empty, Floor, TreeTrunk
 from substances import AEther, Meat, Water, Stone, Wood
 from language import Generator
 from skills import SkillSet
-from sound import Dig, Fight, Mine, Step
+from sound import Dig, Fall, Fight, Mine, Step
 from stocktype import StockpileType
 
 class Material(object):
@@ -676,6 +676,8 @@ class Woodcutting(ToolLabor):
                            cls.skilldisplayed(creature))
             
             work += progress
+
+            world.makesound(tree.wood.sound, tree.location)
 
         push = int((1-cls.skilldisplayed(creature, 0.75)) * 6)
         if push != 0:
@@ -1565,6 +1567,7 @@ class FallingObject(object):
                                   (self.item.location[2]-z,))
             world.additem(self.item)
             if done:
+                world.makesound(Fall, self.item.location)
                 return True
 
             self.position -= dz

@@ -3,13 +3,15 @@ from math import sqrt
 from pygame import Rect
 from pygame.mixer import *
 
-from sound import Dig, Fight, Mine, Step
+from sound import Chop, Dig, Fall, Fight, Mine, Step
 
 init()
 
 class PlayfieldListener(object):
     sound = {
+        Chop : Sound('chop.wav'),
         Dig : Sound('dirt.wav'),
+        Fall : Sound('land.wav'),
         Fight : Sound('hurt.wav'),
         Mine : Sound('stone.wav'),
         Step : Sound('step.wav')

@@ -12,3 +12,9 @@ class Dig(Sound):
 
 class Mine(Sound):
     pass
+
+class Chop(Sound):
+    pass
+
+class Fall(Sound):
+    pass

@@ -1,4 +1,4 @@
-from sound import Dig, Mine
+from sound import Chop, Dig, Mine
 from stocktype import StockpileType
 
 class Substance(object):
@@ -64,6 +64,7 @@ class Leaf(Substance):
 class Wood(Substance):
     stocktype = StockpileType(_(u'wood'))
     noun = _(u'wood')
+    sound = Chop
     rigid = True
 
 class Stone(Substance):
