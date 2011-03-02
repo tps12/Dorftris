@@ -219,13 +219,15 @@ class ScreenSprites(LayeredDirty):
         return entity in self.entities
 
 class Playfield(object):
-    def __init__(self, game, player, font, zoom):
+    def __init__(self, game, player, font, zoom, ignoremotion):
         self.game = game
         self.game.world.addsoundlistener(PlayfieldListener(self))
 
         self.player = player
 
         self.zoom = zoom
+
+        self._ignoremotion = ignoremotion
 
         self.sprites = ScreenSprites(self.visible,
                                      self.tilecoordinates,
@@ -492,6 +494,7 @@ class Playfield(object):
         size = self.zoom.width if axis == 0 else self.zoom.height
 
         pos, tile = self._mouse()
+        x0, y0 = pos
 
         while (tile is not None and
                ((amount < 0 and
@@ -522,6 +525,7 @@ class Playfield(object):
 
         self.background = None
         mouse.set_visible(False)
+        self._ignoremotion((pos[0] - x0, pos[1] - y0))
 
     def _zscroll(self, dz):
         level = max(0, min(self.game.dimensions[2], self.level + dz))

@@ -1,4 +1,4 @@
-from pygame import mouse
+from pygame import mouse, Rect
 from pygame.locals import *
 
 from details import CreatureDetails
@@ -10,8 +10,10 @@ class GameScreen(object):
     
     def __init__(self, game, player, font, zoom, push, pop):
         self._game = game
-        self._playfield = Playfield(self._game, player, font, zoom)
+        self._playfield = Playfield(self._game, player, font, zoom,
+                                    self._ignoremotion)
         self._info = InfoView(self._playfield, font, zoom, push, pop)
+        self._ignore = None
         self.scale(font)
 
     def scale(self, font):
@@ -24,9 +26,13 @@ class GameScreen(object):
         self._playfield.resize((self._fieldwidth, size[1]))
         self._info.resize((size[0] - self._fieldwidth, size[1]))
 
+    def _ignoremotion(self, rel):
+        self._ignore = rel
+
     def handle(self, e):
-        if e.type == MOUSEMOTION:
+        if e.type == MOUSEMOTION and e.rel != self._ignore:
             mouse.set_visible(True)
+            self._ignore = None
         
         if self._playfield.handle(e):
             return True
