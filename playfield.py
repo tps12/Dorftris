@@ -76,12 +76,12 @@ class RegionOutlineSprite(DirtySprite):
         self._lines = lines
         self._zoom = zoom
         self._color = color
-        self._region = region
+        self.region = region
         self._ps = []
 
     def update(self):
         ps = [self._position(loc)
-              for loc in self._region]
+              for loc in self.region]
                     
         if len(self._ps) == len(ps) and all([self._ps[i] == ps[i]
                                              for i in range(len(ps))]):
@@ -128,6 +128,22 @@ class TileSelectionSprite(RegionOutlineSprite):
         self.selection = selection
 
         self.layer = 2
+
+class CursorSprite(RegionOutlineSprite):
+    def __init__(self, visible, position, lines, prefs, location, *args, **kwargs):
+        RegionOutlineSprite.__init__(self, visible, position, lines,
+                                     prefs, prefs.cursorcolor,
+                                     [location], *args, **kwargs)
+        self.layer = 3
+        self.visible = 0
+
+    @property
+    def location(self):
+        return self.region[0]
+
+    @location.setter
+    def location(self, value):
+        self.region[0] = value
 
 class ScreenSprites(LayeredDirty):
     def __init__(self, visible, position, lines, prefs, *args, **kwargs):
@@ -215,13 +231,18 @@ class Playfield(object):
                                      self.tilecoordinates,
                                      self.hexlines,
                                      self.zoom)
+        self.cursor = None
+        self.cursorsprite = CursorSprite(self.visible,
+                                         self.tilecoordinates,
+                                         self.hexlines,
+                                         self.zoom,
+                                         self.cursor)
 
         self.selection = None
 
         self.scale(font)
 
         self._dragging = False
-        self.cursor = None
 
         self.offset = None
         
@@ -232,6 +253,7 @@ class Playfield(object):
         self.graphics = GlyphGraphics(max(self.zoom.width, self.zoom.height))
         
         self.sprites.empty()
+        self.sprites.add(self.cursorsprite)
         
         self.background = None
 
@@ -488,6 +510,7 @@ class Playfield(object):
             remainder -= remainder/abs(remainder)
 
         self.background = None
+        mouse.set_visible(False)
 
     def _zscroll(self, dz):
         level = max(0, min(self.game.dimensions[2], self.level + dz))
@@ -568,7 +591,7 @@ class Playfield(object):
             scroll = 10 if shifted else 1
             
             if e.key == K_UP:
-                self._scroll(1, -scroll)                                        
+                self._scroll(1, -scroll)
                 return True
                 
             elif e.key == K_DOWN:
@@ -592,7 +615,8 @@ class Playfield(object):
                 return True
 
             elif e.key == K_TAB:
-                self._select(self._absolutetile(mouse.get_pos()))
+                self._select(self.cursor)
+                mouse.set_visible(False)
                 return True
 
         elif (e.type == MOUSEBUTTONDOWN and
@@ -609,10 +633,9 @@ class Playfield(object):
             self._dragging = False
             return True
 
-        elif (e.type == MOUSEMOTION and
-              self.background and
-              self.background.get_rect().collidepoint(e.pos) and
-              1 in e.buttons):
+        elif (e.type == MOUSEMOTION and self.background and
+            self.background.get_rect().collidepoint(e.pos) and
+            1 in e.buttons):
             self._expandselection(self._absolutetile(mouse.get_pos()))
             self._dragging = True
             
@@ -620,6 +643,8 @@ class Playfield(object):
 
     def draw(self, surface):
         self.cursor = self._absolutetile(mouse.get_pos())
+        self.cursorsprite.location = self.cursor
+        self.cursorsprite.visible = not mouse.set_visible(-1)
         
         self.sprites.setselection(self.selection)
 

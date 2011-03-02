@@ -1,3 +1,4 @@
+from pygame import mouse
 from pygame.locals import *
 
 from details import CreatureDetails
@@ -24,6 +25,9 @@ class GameScreen(object):
         self._info.resize((size[0] - self._fieldwidth, size[1]))
 
     def handle(self, e):
+        if e.type == MOUSEMOTION:
+            mouse.set_visible(True)
+        
         if self._playfield.handle(e):
             return True
 
