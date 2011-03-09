@@ -454,8 +454,8 @@ class SkilledLabor(Labor):
         boost = boost if boost is not None else 0
         skill = creature.skills.exp(cls.skill)
         skill = ((skill * 2 - 1) ** 3)/2 + 0.5
+        total = 10 + 90 * abs(skill - 0.5)
         skill = max(0, min(1, skill + boost)) * 0.9 + 0.05
-        total = 50
         alpha = skill * total
         return betavariate(alpha, total - alpha)
 
