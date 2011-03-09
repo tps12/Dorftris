@@ -452,9 +452,9 @@ class SkilledLabor(Labor):
     @classmethod
     def skilldisplayed(cls, creature, boost = None):
         boost = boost if boost is not None else 0
-        skill = creature.skills.exp(cls.skill)
-        skill = ((skill * 2 - 1) ** 3)/2 + 0.5
-        total = 10 + 90 * abs(skill - 0.5)
+        exp = creature.skills.exp(cls.skill)
+        skill = 0.5 - cos(exp * pi)/2
+        total = 35 - 30 * sin(exp * pi)
         skill = max(0, min(1, skill + boost)) * 0.9 + 0.05
         alpha = skill * total
         return betavariate(alpha, total - alpha)
