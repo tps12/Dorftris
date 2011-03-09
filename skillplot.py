@@ -4,7 +4,8 @@ gettext.install('test')
 from itertools import chain
 from random import seed
 
-from matplotlib.pyplot import plot, axis, show
+from matplotlib.pyplot import plot, errorbar, axis, show
+from numpy import std
 
 from data import SkilledLabor
 
@@ -21,13 +22,19 @@ class Creature(object):
 
 seed(0)
 
-d = 1000
+d = 200
 n = 100
 
-xs = list(chain(*[n * [x] for x in [i/float(d) for i in range(d)]]))
+ss = [i/float(d) for i in range(d)]
+
+xs = list(chain(*[n * [x] for x in ss]))
 ys = [SkilledLabor.skilldisplayed(Creature(x)) for x in xs]
 
+means = [sum(ys[n*i:n*i+n])/n for i in range(d)]
+errs = [std(ys[n*i:n*i+n]) for i in range(d)]
+
 plot(xs, ys, ',', alpha=0.1)
+errorbar(ss, means, errs)
 axis([0,1,0,1])
 
 show()
