@@ -47,8 +47,8 @@ for i in range(d):
         ldy += 0.001
         c = len([y for y in ys[n*i:n*i+n] if m - ldy < y <= m])
         
-    errs[0].append(ldy)
-    errs[1].append(hdy)
+    errs[0].append(hdy)
+    errs[1].append(ldy)
 
 plot(xs, ys, ',', alpha=0.1)
 errorbar(ss, means, errs)
