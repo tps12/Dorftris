@@ -6,7 +6,7 @@ from pygame import display, event, font, key
 from pygame.locals import *
 
 from button import Button
-from data import Ax, AxHead, Barrel, Pickax, Dwarf, Goblin, Handle, Liquid, SmallSpider, Tortoise, Player, Workbench
+from data import Ax, AxHead, Barrel, Pickax, Dwarf, Goblin, Handle, Liquid, PickaxHead, SmallSpider, Tortoise, Player, Workbench
 from game import Game
 from rendering import Renderer
 from substances import Wood, Metal, Water
@@ -82,14 +82,12 @@ class MainMenu(object):
             self.game.schedule(creature)
 
             x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
-            self.game.world.additem(Pickax((x,y,
-                                            self.game.world.space.groundlevel(x,y)),
-                                           choice(Metal.__subclasses__()),
-                                           choice(Wood.__subclasses__())))
-
+            loc = x, y, self.game.world.space.groundlevel(x,y)
+            handle = Handle(choice(Wood.__subclasses__()), loc)
+            blade = PickaxHead(choice(Metal.__subclasses__()), loc)
+            self.game.world.additem(Pickax(loc, handle, blade))
 
             x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
-
             loc = x, y, self.game.world.space.groundlevel(x,y)
             handle = Handle(choice(Wood.__subclasses__()), loc)
             blade = AxHead(choice(Metal.__subclasses__()), loc)

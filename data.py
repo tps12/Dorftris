@@ -409,8 +409,8 @@ class PickaxHead(SimpleItem):
 
     stocktype = StockpileType(_(u'Pickax head'))
 
-    def __init__(self, material, location):
-        SimpleItem.__init__(self, material, location)
+    def __init__(self, substance, location):
+        SimpleItem.__init__(self, Material(substance, 0.0005), location)
 
     @classmethod
     def substancetest(cls, s):
@@ -428,11 +428,11 @@ class Ax(CompoundItem):
 
     def description(self):
         return _(u'{metal} {ax} with {wooden} handle').format(
-            metal = self.materials[0].substance.adjective,
+            metal = self.components[0].material.substance.adjective,
             ax = self.noun,
-            wooden = self.materials[1].substance.adjective)
+            wooden = self.components[1].material.substance.adjective)
 
-class Pickax(Item):
+class Pickax(CompoundItem):
     __slots__ = ()
     
     noun = _(u'pickax')
@@ -440,15 +440,13 @@ class Pickax(Item):
     stocktype = StockpileType(_(u'Pickax'))
     
     def __init__(self, location, blade, handle):
-        Item.__init__(self, [Material(blade, 0.00025),
-                             Material(handle, 0.0017)],
-                      location)
+        CompoundItem.__init__(self, [blade, handle], location)
 
     def description(self):
         return _(u'{metal} {pick} with {wooden} handle').format(
-            metal = self.materials[0].substance.adjective,
+            metal = self.components[0].material.substance.adjective,
             pick = self.noun,
-            wooden = self.materials[1].substance.adjective)
+            wooden = self.components[1].material.substance.adjective)
 
 Arms = StockpileType(_(u'Weapons and armor'), [])
 BuildingMaterials = StockpileType(_(u'Building materials'), [])
