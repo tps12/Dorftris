@@ -1,5 +1,6 @@
 from codecs import open as openunicode
 from collections import deque
+from itertools import chain
 from math import pi, sin, cos
 from pdb import set_trace
 from random import betavariate, choice, gauss, randint, random
@@ -78,10 +79,6 @@ class Item(Thing):
             material = self.materials[0].substance.adjective,
             thing = self.noun)
 
-    @classmethod
-    def substancetest(cls, s):
-        return False
-
 class SimpleItem(Item):
     __slots__ = ()
 
@@ -91,6 +88,10 @@ class SimpleItem(Item):
     @property
     def material(self):
         return self.materials[0]
+
+    @classmethod
+    def substancetest(cls, s):
+        return False
 
 class Liquid(SimpleItem):
     __slots__ = ()
@@ -310,6 +311,38 @@ class Corpse(Item):
     def description(self):
         return _(u'corpse of {0}').format(self.origins.namecard())
 
+def conjunction(items):
+    if len(items) > 2:
+        return _(u', ').join(items[:-1]) + _(u', and {last}').format(
+            last=items[-1])
+    elif len == 2:
+        return _(u'{first} and {second}').format(first=items[0], second=items[1])
+    else:
+        return items[0]
+
+def indefinitearticle(noun):
+    m = search('LETTER ([^ ])', unicodename(unicode(noun[0])))
+    return _(u'an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _(u'a')
+
+class CompoundItem(Item):
+    __slots__ = 'components',
+
+    assemblyskill = None
+
+    def __init__(self, components, location):
+        Item.__init__(self, chain(*[c.materials for c in components]), location)
+        self.components = components
+        for c in self.components:
+            if c.location is not None and c.location != self.location:
+                raise ValueError()
+            c.location = None
+
+    def description(self):
+        items = conjunction(self.components)
+        return _(u'object made of {an} {itemlist}',
+                 an = indefinitearticle(items),
+                 itemlist = items)
+
 class Barrel(Container):
     __slots__ = ()
 
@@ -439,19 +472,6 @@ class Toughness(PhysicalAttribute):
 
 def sampleattributes(attributes):
     return dict((a, gauss(attributes[a], 10)) for a in attributes.keys())
-
-def indefinitearticle(noun):
-    m = search('LETTER ([^ ])', unicodename(unicode(noun[0])))
-    return _(u'an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _(u'a')
-
-def conjunction(items):
-    if len(items) > 2:
-        return _(u', ').join(items[:-1]) + _(u', and {last}').format(
-            last=items[-1])
-    elif len == 2:
-        return _(u'{first} and {second}').format(first=items[0], second=items[1])
-    else:
-        return items[0]
 
 class Labor(object):
     pass
