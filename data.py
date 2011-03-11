@@ -328,6 +328,7 @@ class CompoundItem(Item):
     __slots__ = 'components',
 
     assemblyskill = None
+    requires = ()
 
     def __init__(self, components, location):
         Item.__init__(self, list(chain(*[c.materials for c in components])),
@@ -388,6 +389,9 @@ class Handle(SimpleItem):
     def substancetest(cls, s):
         return s.rigid and s.density < 1000
 
+    def description(self):
+        return _(u'{wood} ax handle').format(wood = self.material)
+
 class AxHead(SimpleItem):
     __slots__ = ()
 
@@ -402,6 +406,9 @@ class AxHead(SimpleItem):
     def substancetest(cls, s):
         return s.rigid and s.density > 1000
 
+    def description(self):
+        return _(u'{metal} ax head').format(metal = self.material)
+
 class PickaxHead(SimpleItem):
     __slots__ = ()
 
@@ -415,11 +422,15 @@ class PickaxHead(SimpleItem):
     @classmethod
     def substancetest(cls, s):
         return s.rigid and s.density > 1000
+
+    def description(self):
+        return _(u'{metal} pickax blade').format(metal = self.material)
         
 class Ax(CompoundItem):
     __slots__ = ()
 
     noun = _(u'ax')
+    requires = Handle, AxHead
 
     stocktype = StockpileType(_(u'Ax'))
 
@@ -436,6 +447,7 @@ class Pickax(CompoundItem):
     __slots__ = ()
     
     noun = _(u'pickax')
+    requires = Handle, PickaxHead
 
     stocktype = StockpileType(_(u'Pickax'))
     
@@ -458,7 +470,7 @@ Products = StockpileType(_(u'Trade products and supplies'),
                          [Barrel.containerstocktype])
 Refuse = StockpileType(_(u'Refuse'), [Corpse.stocktype])
 Resources = StockpileType(_(u'Raw materials'), [])
-Tools = StockpileType(_(u'Tools and equipment'), [Pickax.stocktype, Ax.stocktype])
+Tools = StockpileType(_(u'Tools and equipment'), [Pickax.stocktype, Ax.stocktype, Handle.stocktype, AxHead.stocktype, PickaxHead.stocktype])
 
 StockpileCategories = [
     Arms,
@@ -534,6 +546,27 @@ class ToolLabor(SkilledLabor):
                 for step in acquireitem(creature,
                                         world, tool.stocktype, tool):
                     yield step
+
+                if not creature.inventory.has(tool) and issubclass(tool, CompoundItem):
+                    components = []
+                    
+                    for component in tool.requires:
+                        if not creature.inventory.has(component):
+                            for step in acquireitem(creature,
+                                                    world,
+                                                    component.stocktype,
+                                                    component):
+                                yield step
+
+                            if not creature.inventory.has(component):
+                                return
+
+                        components.append(creature.inventory.find(
+                            lambda item: isinstance(item, component)))
+
+                    for c in components:
+                        creature.inventory.remove(c)
+                    creature.inventory.add(tool(creature.location, *components))
 
 class Manufacturing(SkilledLabor):
     substance = None

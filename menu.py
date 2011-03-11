@@ -85,6 +85,8 @@ class MainMenu(object):
             loc = x, y, self.game.world.space.groundlevel(x,y)
             handle = Handle(choice(Wood.__subclasses__()), loc)
             blade = PickaxHead(choice(Metal.__subclasses__()), loc)
+            self.game.world.additem(handle)
+            self.game.world.additem(blade)
 
             x, y = [randint(0, self.game.dimensions[i]-1) for i in range(2)]
             loc = x, y, self.game.world.space.groundlevel(x,y)
