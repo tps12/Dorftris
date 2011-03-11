@@ -1,5 +1,5 @@
 from detailview import DetailView
-from data import Item
+from data import SimpleItem
 from makesubstance import ChooseManufacturingSubstance
 
 class ChooseManufacturingItem(DetailView):
@@ -37,7 +37,7 @@ class ChooseManufacturingItem(DetailView):
         self.dismiss()
                 
     def addbuttons(self, surface, dy):
-        for item in self._qualifyingitems(Item, self._substance):
+        for item in self._qualifyingitems(SimpleItem, self._substance):
             dy = self.addbutton(surface,
                                 item.noun.capitalize(),
                                 self._choose(item),

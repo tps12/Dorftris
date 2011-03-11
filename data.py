@@ -82,29 +82,29 @@ class Item(Thing):
     def substancetest(cls, s):
         return False
 
-class Liquid(Item):
+class SimpleItem(Item):
+    __slots__ = ()
+
+    def __init__(self, material, location):
+        Item.__init__(self, [material], location)
+
+    @property
+    def material(self):
+        return self.materials[0]
+
+class Liquid(SimpleItem):
     __slots__ = ()
     volatile = True
 
     stocktype = None
 
     def __init__(self, substance, location):
-        Item.__init__(self, [Material(substance, 1.0)], location)
+        SimpleItem.__init__(self, Material(substance, 1.0), location)
 
     def description(self):
-        return self.materials[0].substance.noun
+        return self.material.substance.noun
 
-class Furniture(Item):
-    __slots__ = ()
-
-    def __init__(self, materials, location):
-        Item.__init__(self, materials, location)
-
-    @classmethod
-    def substancetest(cls, s):
-        return s.rigid
-
-class Workbench(Furniture):
+class Workbench(SimpleItem):
     __slots__ = ('jobs')
     
     noun = _(u'workbench')
@@ -112,16 +112,18 @@ class Workbench(Furniture):
     stocktype = StockpileType(_(u'Workbench'))
 
     def __init__(self, location, substance):
-        Furniture.__init__(self,
-                           [Material(substance, 0.025)],
-                           location)
+        SimpleItem.__init__(self, Material(substance, 0.025), location)
         self.jobs = deque()
 
-class LooseMaterial(Item):
+    @classmethod
+    def substancetest(cls, s):
+        return s.rigid
+
+class LooseMaterial(SimpleItem):
     __slots__ = ()
 
     def __init__(self, substance, location):
-        Item.__init__(self, [Material(substance, 0.1)], location)
+        SimpleItem.__init__(self, Material(substance, 0.1), location)
 
     def description(self):
         return _(u'loose {material}').format(
@@ -355,6 +357,15 @@ class Ax(Item):
             metal = self.materials[0].substance.adjective,
             ax = self.noun,
             wooden = self.materials[1].substance.adjective)
+
+class AxHead:
+    pass
+
+class PickaxHead:
+    pass
+
+class Handle:
+    pass
 
 class Pickax(Item):
     __slots__ = ()
