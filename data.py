@@ -373,6 +373,20 @@ class Bag(Container):
     def substancetest(cls, s):
         return not s.rigid
 
+class Handle(SimpleItem):
+    __slots__ = ()
+
+    noun = _(u'ax handle')
+
+    stocktype = StockpileType(_(u'Ax handle'))
+
+    def __init__(self, material, location):
+        SimpleItem.__init__(self, material, location)
+
+    @classmethod
+    def substancetest(cls, s):
+        return s.rigid and s.density < 1000
+        
 class Ax(Item):
     __slots__ = ()
 
@@ -395,9 +409,6 @@ class AxHead:
     pass
 
 class PickaxHead:
-    pass
-
-class Handle:
     pass
 
 class Pickax(Item):
