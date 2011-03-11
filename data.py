@@ -430,7 +430,7 @@ class Ax(CompoundItem):
     __slots__ = ()
 
     noun = _(u'ax')
-    requires = Handle, AxHead
+    requires = AxHead, Handle
 
     stocktype = StockpileType(_(u'Ax'))
 
@@ -447,7 +447,7 @@ class Pickax(CompoundItem):
     __slots__ = ()
     
     noun = _(u'pickax')
-    requires = Handle, PickaxHead
+    requires = PickaxHead, Handle
 
     stocktype = StockpileType(_(u'Pickax'))
     
