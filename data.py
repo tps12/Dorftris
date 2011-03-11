@@ -330,7 +330,8 @@ class CompoundItem(Item):
     assemblyskill = None
 
     def __init__(self, components, location):
-        Item.__init__(self, chain(*[c.materials for c in components]), location)
+        Item.__init__(self, list(chain(*[c.materials for c in components])),
+                      location)
         self.components = components
         for c in self.components:
             if c.location is not None and c.location != self.location:
@@ -380,8 +381,8 @@ class Handle(SimpleItem):
 
     stocktype = StockpileType(_(u'Ax handle'))
 
-    def __init__(self, material, location):
-        SimpleItem.__init__(self, material, location)
+    def __init__(self, substance, location):
+        SimpleItem.__init__(self, Material(substance, 0.0017), location)
 
     @classmethod
     def substancetest(cls, s):
@@ -394,8 +395,8 @@ class AxHead(SimpleItem):
 
     stocktype = StockpileType(_(u'Ax head'))
 
-    def __init__(self, material, location):
-        SimpleItem.__init__(self, material, location)
+    def __init__(self, substance, location):
+        SimpleItem.__init__(self, Material(substance, 0.0005), location)
 
     @classmethod
     def substancetest(cls, s):
@@ -415,7 +416,7 @@ class PickaxHead(SimpleItem):
     def substancetest(cls, s):
         return s.rigid and s.density > 1000
         
-class Ax(Item):
+class Ax(CompoundItem):
     __slots__ = ()
 
     noun = _(u'ax')
@@ -423,9 +424,7 @@ class Ax(Item):
     stocktype = StockpileType(_(u'Ax'))
 
     def __init__(self, location, blade, handle):
-        Item.__init__(self, [Material(blade, 0.0005),
-                             Material(handle, 0.0017)],
-                      location)
+        CompoundItem.__init__(self, [blade, handle], location)
 
     def description(self):
         return _(u'{metal} {ax} with {wooden} handle').format(
