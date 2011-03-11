@@ -386,6 +386,34 @@ class Handle(SimpleItem):
     @classmethod
     def substancetest(cls, s):
         return s.rigid and s.density < 1000
+
+class AxHead(SimpleItem):
+    __slots__ = ()
+
+    noun = _(u'ax head')
+
+    stocktype = StockpileType(_(u'Ax head'))
+
+    def __init__(self, material, location):
+        SimpleItem.__init__(self, material, location)
+
+    @classmethod
+    def substancetest(cls, s):
+        return s.rigid and s.density > 1000
+
+class PickaxHead(SimpleItem):
+    __slots__ = ()
+
+    noun = _(u'pickax head')
+
+    stocktype = StockpileType(_(u'Pickax head'))
+
+    def __init__(self, material, location):
+        SimpleItem.__init__(self, material, location)
+
+    @classmethod
+    def substancetest(cls, s):
+        return s.rigid and s.density > 1000
         
 class Ax(Item):
     __slots__ = ()
@@ -404,12 +432,6 @@ class Ax(Item):
             metal = self.materials[0].substance.adjective,
             ax = self.noun,
             wooden = self.materials[1].substance.adjective)
-
-class AxHead:
-    pass
-
-class PickaxHead:
-    pass
 
 class Pickax(Item):
     __slots__ = ()
