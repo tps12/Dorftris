@@ -566,7 +566,7 @@ class ToolLabor(SkilledLabor):
 
                     for c in components:
                         creature.inventory.remove(c)
-                    creature.inventory.add(tool(creature.location, *components))
+                    creature.inventory.add(tool(None, *components))
 
 class Manufacturing(SkilledLabor):
     substance = None
