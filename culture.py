@@ -84,7 +84,7 @@ class Skin(Characteristic):
 
     @property
     def color(self):
-        return self.attributes[0].value
+        return tuple([c.value for c in self.attributes])
 
     def noun(self):
         return _(u'{hue} skin').format(hue=describecolor(self.color))
@@ -192,7 +192,9 @@ class Ethnicity(object):
             self.plural = self.adjective
         
         r = randint(80,225)
-        self.characteristics = [Skin([Attribute((r, r-40, r-80))]),
+        self.characteristics = [Skin([Attribute(r),
+                                      Attribute(r-40),
+                                      Attribute(r-80)]),
                                 Nose([Attribute(random()),
                                       Attribute(random())])]
 
