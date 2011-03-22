@@ -92,37 +92,6 @@ class Skin(Characteristic):
     def adjective(self):
         return self.noun() + u'ned'
 
-class Ethnicity(object):
-    def __init__(self, lang):
-        name = NameGenerator(lang, 2 if random() < 0.1 else 1).generate()
-
-        self.noun = name.title()
-        if isvowel(self.noun[-1]):
-            self.adjective = (self.noun[:-1]
-                              if len(self.noun) > 1
-                              else self.noun) + _(u'an')
-            self.plural = self.adjective + _(u's')
-        else:
-            self.adjective = self.noun + _(u'ish')
-            self.plural = self.adjective
-        
-        r = randint(80,225)
-        self.characteristics = [Skin([Attribute((r, r-40, r-80))]),
-                                Nose([Attribute(random()),
-                                      Attribute(random())])]
-
-    def description(self):
-        desc = []
-        
-        for c in self.characteristics:
-            noun = c.indefinite()
-            if noun:
-                desc.append(noun)
-
-        return _(u'Ethnically, the {members} have {characteristics}.').format(
-            members = self.plural,
-            characteristics = conjunction(desc))
-
 class NaturalResource(object):
     def __init__(self, amount):
         self.amount = amount
@@ -207,6 +176,67 @@ class Region(object):
             land = u' '.join([land, summary])
 
         return land
+    
+class Ethnicity(object):
+    def __init__(self, lang):
+        name = NameGenerator(lang, 2 if random() < 0.1 else 1).generate()
+
+        self.noun = name.title()
+        if isvowel(self.noun[-1]):
+            self.adjective = (self.noun[:-1]
+                              if len(self.noun) > 1
+                              else self.noun) + _(u'an')
+            self.plural = self.adjective + _(u's')
+        else:
+            self.adjective = self.noun + _(u'ish')
+            self.plural = self.adjective
+        
+        r = randint(80,225)
+        self.characteristics = [Skin([Attribute((r, r-40, r-80))]),
+                                Nose([Attribute(random()),
+                                      Attribute(random())])]
+
+        water = random() > 0.25
+        resources = [FoodSource(_(u'food crops'), random()),
+                     FoodSource(_(u'grazable land'), random()),
+                     FreshWater(_(u'rainfall'), random()),
+                     FreshWater(_(u'natural spring water'), random())]
+
+        if water:
+            source = FreshWater(_(u'rivers and lakes'), random())
+            resources.append(source)
+            resources.append(FoodSource(_(u'seafood'), source.amount * random()))
+
+        for t in _(u'spice crops'), _(u'timber'), _(u'precious metals'):
+            if random() > 0.5:
+                resources.append(TradeGood(t, random()))
+
+        self.region = (NameGenerator(lang, 2 if random() < 0.1 else 1).generate(),
+                       Region(75000*random(), resources))
+
+    def description(self):
+
+        land = _(u'land')
+        size = self.region[1].sizedescription()
+        if size:
+            land = u' '.join([size, land])
+        land = _(u'The {culture} people originated in the {land} known to them as {name}.').format(
+            culture=self.adjective, land=land, name=self.region[0])
+
+        land = u' '.join([land, self.region[1].resourcedescription(self.region[0])])
+        
+        desc = []
+        
+        for c in self.characteristics:
+            noun = c.indefinite()
+            if noun:
+                desc.append(noun)
+
+        physical = _(u'Ethnically, the {members} have {characteristics}.').format(
+            members = self.plural,
+            characteristics = conjunction(desc))
+
+        return u'\n\n'.join([land, physical])
 
 class Culture(object):
     def __init__(self):
@@ -230,36 +260,9 @@ class Culture(object):
                 self.adjective = self.noun + _(u'ish')
                 self.plural = self.adjective
 
-        water = random() > 0.25
-        resources = [FoodSource(_(u'food crops'), random()),
-                     FoodSource(_(u'grazable land'), random()),
-                     FreshWater(_(u'rainfall'), random()),
-                     FreshWater(_(u'natural spring water'), random())]
-
-        if water:
-            source = FreshWater(_(u'rivers and lakes'), random())
-            resources.append(source)
-            resources.append(FoodSource(_(u'seafood'), source.amount * random()))
-
-        for t in _(u'spice crops'), _(u'timber'), _(u'precious metals'):
-            if random() > 0.5:
-                resources.append(TradeGood(t, random()))
-
-        self.region = (NameGenerator(lang, 2 if random() < 0.1 else 1).generate(),
-                       Region(75000*random(), resources))
-
     def description(self):
         name = _(u'The culture of {name}.').format(name=self.noun)
 
-        land = _(u'land')
-        size = self.region[1].sizedescription()
-        if size:
-            land = u' '.join([size, land])
-        land = _(u'The {culture} people originated in the {land} known to them as {name}.').format(
-            culture=self.adjective, land=land, name=self.region[0])
-
-        land = u' '.join([land, self.region[1].resourcedescription(self.region[0])])
-
         ethnicity = self.ethnicities[0].description()
 
-        return '\n\n'.join([name, land, ethnicity])
+        return '\n\n'.join([name, ethnicity])
