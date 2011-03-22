@@ -209,13 +209,24 @@ class Region(object):
 class Culture(object):
     def __init__(self):
         lang = choice(['cs','fi','fr','gd','nl','no']) + '.txt'
-        name = NameGenerator(lang, 2 if random() < 0.1 else 1).generate()
         
         self.ethnicities = [Ethnicity(lang)]
         if len(self.ethnicities) == 1:
             self.noun = self.ethnicities[0].noun
             self.adjective = self.ethnicities[0].adjective
             self.plural = self.ethnicities[0].plural
+        else:
+            name = NameGenerator(lang, 2 if random() < 0.1 else 1).generate()
+
+            self.noun = name.title()
+            if isvowel(self.noun[-1]):
+                self.adjective = (self.noun[:-1]
+                                  if len(self.noun) > 1
+                                  else self.noun) + _(u'an')
+                self.plural = self.adjective + _(u's')
+            else:
+                self.adjective = self.noun + _(u'ish')
+                self.plural = self.adjective
 
         water = random() > 0.25
         resources = [FoodSource(_(u'food crops'), random()),
