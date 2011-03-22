@@ -212,6 +212,10 @@ class Culture(object):
         name = NameGenerator(lang, 2 if random() < 0.1 else 1).generate()
         
         self.ethnicities = [Ethnicity(lang)]
+        if len(self.ethnicities) == 1:
+            self.noun = self.ethnicities[0].noun
+            self.adjective = self.ethnicities[0].adjective
+            self.plural = self.ethnicities[0].plural
 
         water = random() > 0.25
         resources = [FoodSource(_(u'food crops'), random()),
@@ -230,18 +234,6 @@ class Culture(object):
 
         self.region = (NameGenerator(lang, 2 if random() < 0.1 else 1).generate(),
                        Region(75000*random(), resources))
-
-    @property
-    def noun(self):
-        return self.ethnicities[0].noun
-
-    @property
-    def adjective(self):
-        return self.ethnicities[0].adjective
-
-    @property
-    def plural(self):
-        return self.ethnicities[0].plural
 
     def description(self):
         name = _(u'The culture of {name}.').format(name=self.noun)
