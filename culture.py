@@ -243,6 +243,10 @@ class Culture(object):
         lang = choice(['cs','fi','fr','gd','nl','no']) + '.txt'
         
         self.ethnicities = [Ethnicity(lang)]
+
+        while random() < 0.25:
+            self.ethnicities.append(Ethnicity(choice(['cs','fi','fr','gd','nl','no']) + '.txt'))
+        
         if len(self.ethnicities) == 1:
             self.noun = self.ethnicities[0].noun
             self.adjective = self.ethnicities[0].adjective
@@ -263,6 +267,16 @@ class Culture(object):
     def description(self):
         name = _(u'The culture of {name}.').format(name=self.noun)
 
-        ethnicity = self.ethnicities[0].description()
+        if len(self.ethnicities) == 1:
+            ethnicity = '\n\n'.join(
+                [_(u'The {people} are ethnically homogeneous.').format(
+                    people=self.plural),
+                 self.ethnicities[0].description()])
+        else:
+            ethnicity = '\n\n'.join(
+                [_(u'The {cultural} population is made up of people of the {ethnic} ethnicities.').format(
+                    cultural=self.adjective,
+                    ethnic=conjunction([e.adjective for e in self.ethnicities]))] +
+                [e.description() for e in self.ethnicities])
 
         return '\n\n'.join([name, ethnicity])
