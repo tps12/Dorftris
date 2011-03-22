@@ -214,14 +214,18 @@ class Ethnicity(object):
         self.region = (NameGenerator(lang, 2 if random() < 0.1 else 1).generate(),
                        Region(75000*random(), resources))
 
-    def description(self):
-
+    def description(self, fraction = None):
+        people = _(u'The {culture} people').format(culture=self.adjective)
+        if fraction is not None:
+            people += _(u' constitute {proportion}% of the population and').format(
+                proportion = int(100 * fraction))
+        
         land = _(u'land')
         size = self.region[1].sizedescription()
         if size:
             land = u' '.join([size, land])
-        land = _(u'The {culture} people originated in the {land} known to them as {name}.').format(
-            culture=self.adjective, land=land, name=self.region[0])
+        land = _(u'{People} originated in the {land} known to them as {name}.').format(
+            People=people, land=land, name=self.region[0])
 
         land = u' '.join([land, self.region[1].resourcedescription(self.region[0])])
         
@@ -242,15 +246,24 @@ class Culture(object):
     def __init__(self):
         lang = choice(['cs','fi','fr','gd','nl','no']) + '.txt'
         
-        self.ethnicities = [Ethnicity(lang)]
+        self.ethnicities = []
 
-        while random() < 0.25:
-            self.ethnicities.append(Ethnicity(choice(['cs','fi','fr','gd','nl','no']) + '.txt'))
-        
+        remaining = 1.0
+        while remaining:
+            prop = remaining/2 + random() * remaining/2
+            if prop > 0.85 * remaining:
+                prop = remaining
+            if self.ethnicities:
+                ethnicity = prop, Ethnicity(choice(['cs','fi','fr','gd','nl','no']) + '.txt')
+            else:
+                ethnicity = prop, Ethnicity(lang)
+            self.ethnicities.append(ethnicity)
+            remaining -= prop
+
         if len(self.ethnicities) == 1:
-            self.noun = self.ethnicities[0].noun
-            self.adjective = self.ethnicities[0].adjective
-            self.plural = self.ethnicities[0].plural
+            self.noun = self.ethnicities[0][1].noun
+            self.adjective = self.ethnicities[0][1].adjective
+            self.plural = self.ethnicities[0][1].plural
         else:
             name = NameGenerator(lang, 2 if random() < 0.1 else 1).generate()
 
@@ -271,12 +284,12 @@ class Culture(object):
             ethnicity = '\n\n'.join(
                 [_(u'The {people} are ethnically homogeneous.').format(
                     people=self.plural),
-                 self.ethnicities[0].description()])
+                 self.ethnicities[0][1].description()])
         else:
             ethnicity = '\n\n'.join(
                 [_(u'The {cultural} population is made up of people of the {ethnic} ethnicities.').format(
                     cultural=self.adjective,
-                    ethnic=conjunction([e.adjective for e in self.ethnicities]))] +
-                [e.description() for e in self.ethnicities])
+                    ethnic=conjunction([e[1].adjective for e in self.ethnicities]))] +
+                [e[1].description(e[0]) for e in self.ethnicities])
 
         return '\n\n'.join([name, ethnicity])
