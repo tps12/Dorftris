@@ -119,7 +119,9 @@ class Ethnicity(object):
             if noun:
                 desc.append(noun)
 
-        return conjunction(desc)
+        return _(u'Ethnically, the {members} have {characteristics}.').format(
+            members = self.plural,
+            characteristics = conjunction(desc))
 
 class NaturalResource(object):
     def __init__(self, amount):
@@ -258,8 +260,6 @@ class Culture(object):
 
         land = u' '.join([land, self.region[1].resourcedescription(self.region[0])])
 
-        ethnicity = _(u'Ethnically, the {members} have {characteristics}.').format(
-            members = self.plural,
-            characteristics = self.ethnicities[0].description())
+        ethnicity = self.ethnicities[0].description()
 
         return '\n\n'.join([name, land, ethnicity])
