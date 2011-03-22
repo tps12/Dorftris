@@ -177,6 +177,35 @@ class Region(object):
         else:
             return _(u'sprawling')
 
+    def resourcedescription(self, name):
+        land = u''
+        for kind, label in [(FoodSource, _(u'food sources')),
+                            (FreshWater, _(u'fresh water')),
+                            (TradeGood, _(u'trade goods'))]:
+            sources = [r for r in self.resources if isinstance(r, kind)]
+
+            if not sources:
+                land = u' '.join([land, _(u'{place} has little in the way of {resource}.').format(
+                    place=name, resource=label)])
+                continue
+            
+            summary = conjunction([s.description() for s in sources])
+            
+            amount = sum([s.amount for s in sources])
+            if amount < 0.75:
+                summary = _(u'With but {sources}, {place} has only limited {resource}.').format(
+                    sources=summary, place=name, resource=label)
+            elif amount > 2.25:
+                summary = _(u'With {sources}, {place} is blessed with an abundance of {resource}.').format(
+                    sources=summary, place=name, resource=label)
+            else:
+                summary = _(u'{place} has {sources}.').format(
+                    sources=summary, place=name)
+
+            land = u' '.join([land, summary])
+
+        return land
+
 class Culture(object):
     def __init__(self):
         lang = choice(['cs','fi','fr','gd','nl','no']) + '.txt'
@@ -221,33 +250,10 @@ class Culture(object):
         size = self.region[1].sizedescription()
         if size:
             land = u' '.join([size, land])
-        land = _(u'{culture} originated in the {land} known to them as {name}.').format(
-            culture=self.noun, land=land, name=self.region[0])
+        land = _(u'The {culture} people originated in the {land} known to them as {name}.').format(
+            culture=self.adjective, land=land, name=self.region[0])
 
-        for kind, label in [(FoodSource, _(u'food sources')),
-                            (FreshWater, _(u'fresh water')),
-                            (TradeGood, _(u'trade goods'))]:
-            sources = [r for r in self.region[1].resources if isinstance(r, kind)]
-
-            if not sources:
-                land = u' '.join([land, _(u'{place} has little in the way of {resource}.').format(
-                    place=self.region[0], resource=label)])
-                continue
-            
-            summary = conjunction([s.description() for s in sources])
-            
-            amount = sum([s.amount for s in sources])
-            if amount < 0.75:
-                summary = _(u'With but {sources}, {place} has only limited {resource}.').format(
-                    sources=summary, place=self.region[0], resource=label)
-            elif amount > 2.25:
-                summary = _(u'With {sources}, {place} is blessed with an abundance of {resource}.').format(
-                    sources=summary, place=self.region[0], resource=label)
-            else:
-                summary = _(u'{place} has {sources}.').format(
-                    sources=summary, place=self.region[0])
-
-            land = u' '.join([land, summary])
+        land = u' '.join([land, self.region[1].resourcedescription(self.region[0])])
 
         ethnicity = _(u'Ethnically, the {members} have {characteristics}.').format(
             members = self.plural,
