@@ -251,7 +251,7 @@ class Culture(object):
         remaining = 1.0
         while remaining:
             prop = remaining/2 + random() * remaining/2
-            if prop > 0.85 * remaining:
+            if prop < 0.1 or prop > 0.85 * remaining:
                 prop = remaining
             if self.ethnicities:
                 ethnicity = prop, Ethnicity(choice(['cs','fi','fr','gd','nl','no']) + '.txt')
