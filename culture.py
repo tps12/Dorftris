@@ -211,7 +211,7 @@ class Culture(object):
         lang = choice(['cs','fi','fr','gd','nl','no']) + '.txt'
         name = NameGenerator(lang, 2 if random() < 0.1 else 1).generate()
         
-        self.ethnicity = Ethnicity(lang)
+        self.ethnicities = [Ethnicity(lang)]
 
         water = random() > 0.25
         resources = [FoodSource(_(u'food crops'), random()),
@@ -233,15 +233,15 @@ class Culture(object):
 
     @property
     def noun(self):
-        return self.ethnicity.noun
+        return self.ethnicities[0].noun
 
     @property
     def adjective(self):
-        return self.ethnicity.adjective
+        return self.ethnicities[0].adjective
 
     @property
     def plural(self):
-        return self.ethnicity.plural
+        return self.ethnicities[0].plural
 
     def description(self):
         name = _(u'The culture of {name}.').format(name=self.noun)
@@ -257,6 +257,6 @@ class Culture(object):
 
         ethnicity = _(u'Ethnically, the {members} have {characteristics}.').format(
             members = self.plural,
-            characteristics = self.ethnicity.description())
+            characteristics = self.ethnicities[0].description())
 
         return '\n\n'.join([name, land, ethnicity])
