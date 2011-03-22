@@ -236,7 +236,7 @@ class Ethnicity(object):
             if noun:
                 desc.append(noun)
 
-        physical = _(u'Ethnically, the {members} have {characteristics}.').format(
+        physical = _(u'Physically, the {members} have {characteristics}.').format(
             members = self.plural,
             characteristics = conjunction(desc))
 
