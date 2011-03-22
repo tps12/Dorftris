@@ -320,9 +320,12 @@ def conjunction(items):
     else:
         return items[0]
 
+def isvowel(char):
+    m = search('LETTER ([^ ])', unicodename(unicode(char)))
+    return True if m and all([c in 'AEIOUH' for c in m.group(1)]) else False
+
 def indefinitearticle(noun):
-    m = search('LETTER ([^ ])', unicodename(unicode(noun[0])))
-    return _(u'an') if m and all([c in 'AEIOUH' for c in m.group(1)]) else _(u'a')
+    return _(u'an') if isvowel(noun[0]) else _(u'a')
 
 class CompoundItem(Item):
     __slots__ = 'components',
