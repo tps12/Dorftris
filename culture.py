@@ -227,7 +227,7 @@ class Ethnicity(object):
         land = _(u'{People} originated in the {land} known to them as {name}.').format(
             People=people, land=land, name=self.region[0])
 
-        land = u' '.join([land, self.region[1].resourcedescription(self.region[0])])
+        land = land + self.region[1].resourcedescription(self.region[0])
         
         desc = []
         
