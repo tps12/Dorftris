@@ -315,7 +315,7 @@ def conjunction(items):
     if len(items) > 2:
         return _(u', ').join(items[:-1]) + _(u', and {last}').format(
             last=items[-1])
-    elif len == 2:
+    elif len(items) == 2:
         return _(u'{first} and {second}').format(first=items[0], second=items[1])
     else:
         return items[0]
