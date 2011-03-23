@@ -122,8 +122,6 @@ while not done:
             if hierarchy[-1] != underclass:
                 underclass = hierarchy[-1]
                 print date(t), 'the', ruler.name, 'represses the', underclass.name
-        else:
-            underclass = None
 
         if underclass and underclass.overthrow and underclass.overthrow != uprising:
             uprising = underclass.overthrow
