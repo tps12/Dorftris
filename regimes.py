@@ -1,4 +1,4 @@
-from random import random
+from random import randint, random
 
 import pygame
 from pygame import display, draw, event, font, mouse, Rect, Surface
@@ -40,8 +40,6 @@ charts = [chart.subsurface(Rect(i * chart.get_width()/len(society.factions),
                                 chart.get_height()))
           for i in range(len(society.factions))]
 
-t = 0
-
 def conj(items):
     if not len(items):
         return ''
@@ -52,7 +50,37 @@ def conj(items):
     else:
         return ', and '.join([', '.join(items[:-1]), items[-1]])
 
-print 'At t =', t, 'a struggle for power between the', conj([f.name for f in
+t = 52000 + randint(-1000,1000)
+
+months = [
+    ('January', 31),
+    ('February', 28),
+    ('March', 31),
+    ('April', 30),
+    ('May', 31),
+    ('June', 30),
+    ('July', 31),
+    ('August', 31),
+    ('September', 30),
+    ('October', 31),
+    ('November', 30),
+    ('December', 31)
+    ]
+
+def date(t):
+    year = t/52
+    day = 7 * (t - 52 * year)
+    for m in months:
+        if day - m[1] > 0:
+            day -= m[1]
+        else:
+            month = m[0]
+            break
+    else:
+        month = months[-1]
+    return ' '.join(['In',month,'of year',str(year)])
+
+print date(t), 'a struggle for power between the', conj([f.name for f in
                                                              society.factions])
 
 ruler = None
@@ -78,20 +106,28 @@ while not done:
 
         hierarchy = sorted(society.factions, key=lambda f: f.status, reverse=True)
         
-        if hierarchy[0].status == 1 and hierarchy[0] != ruler:           
-            ruler = hierarchy[0]
-            state = (' '.join(['overthrows the', uprising.name])
-                     if uprising and ruler == underclass
-                     else 'takes over in the power vacuum')
-            print 'At t =', t, 'the', ruler.name, state
+        if hierarchy[0].status == 1:
+            if hierarchy[0] != ruler:           
+                ruler = hierarchy[0]
+                state = (' '.join(['overthrows the', uprising.name])
+                         if uprising and ruler == underclass
+                         else 'takes over in the power vacuum')
+                print date(t), 'the', ruler.name, state
 
-        if hierarchy[-1].status == 0 and hierarchy[-1] != underclass:
-            underclass = hierarchy[-1]
-            print 'At t =', t, 'the', ruler.name, 'represses the', underclass.name
+                uprising = None
+        else:
+            ruler = None
+
+        if hierarchy[-1].status == 0:
+            if hierarchy[-1] != underclass:
+                underclass = hierarchy[-1]
+                print date(t), 'the', ruler.name, 'represses the', underclass.name
+        else:
+            underclass = None
 
         if underclass and underclass.overthrow and underclass.overthrow != uprising:
             uprising = underclass.overthrow
-            print 'At t =', t, 'the oppressed', underclass.name, 'revolts against the ruling', uprising.name
+            print date(t), 'the oppressed', underclass.name, 'revolts against the ruling', uprising.name
 
         # scroll
         old = plot.copy()
