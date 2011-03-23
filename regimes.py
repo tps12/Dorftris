@@ -78,17 +78,20 @@ while not done:
 
         hierarchy = sorted(society.factions, key=lambda f: f.status, reverse=True)
         
-        if hierarchy[0].status == 1 and hierarchy[0] != ruler:
+        if hierarchy[0].status == 1 and hierarchy[0] != ruler:           
             ruler = hierarchy[0]
-            print 'At t =', t, 'the', ruler.name, 'assumes power'
+            state = (' '.join(['overthrows the', uprising.name])
+                     if uprising and ruler == underclass
+                     else 'takes over in the power vacuum')
+            print 'At t =', t, 'the', ruler.name, state
 
         if hierarchy[-1].status == 0 and hierarchy[-1] != underclass:
             underclass = hierarchy[-1]
-            print 'At t =', t, 'the leadership represses the', underclass.name
+            print 'At t =', t, 'the', ruler.name, 'represses the', underclass.name
 
         if underclass and underclass.overthrow and underclass.overthrow != uprising:
             uprising = underclass.overthrow
-            print 'At t =', t, 'revolution begins'
+            print 'At t =', t, 'the oppressed', underclass.name, 'revolts against the ruling', uprising.name
 
         # scroll
         old = plot.copy()
