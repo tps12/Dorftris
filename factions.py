@@ -38,13 +38,16 @@ class Faction(object):
             
         self.repress(target)
 
+    def wallow(self, others):
+        ruler = max(others, key=lambda f: f.status)
+        if ruler.status == 1:
+            self.react(ruler)
+
     def iterate(self, others):
         if self.status == 1:
             self.rule(others)
         elif self.status == 0:
-            ruler = max(others, key=lambda f: f.status)
-            if ruler.status == 1:
-                self.react(ruler)
+            self.wallow(others)
         elif all([self.status > f.status for f in others]):
             # rise to power
             d = min(0.001, 1 - self.status)
