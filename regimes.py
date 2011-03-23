@@ -15,7 +15,14 @@ display.set_caption('Regime Change')
 background = Surface(screen.get_size())
 background.fill((128,128,128))
 
-screen.blit(background, (0,0))
+plot = background.subsurface(Rect(0,
+                                  0,
+                                  background.get_width(),
+                                  background.get_height()/2))
+chart = background.subsurface(Rect(0,
+                                   plot.get_height(),
+                                   background.get_width(),
+                                   background.get_height()-plot.get_height()))
 
 values = 'militarism', 'moralism'
 society = Society([Faction('aristocracy', (0,0,255), random(), values),
@@ -31,5 +38,7 @@ while not done:
         elif e.type == KEYDOWN:
             if e.key == K_ESCAPE:
                 done = True
+                
+    screen.blit(background, (0,0))
 
     display.flip()
