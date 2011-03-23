@@ -73,8 +73,6 @@ class Faction(object):
     def struggle(self, others):
         d = min(0.001, 1 - self.status)
         self.status += d
-        for f in others:
-            f.status -= d/len(others)
 
     def iterate(self, others):
         if self.elite:
@@ -83,7 +81,7 @@ class Faction(object):
             self.rule(others)
         elif self.status == 0:
             self.wallow(others)
-        elif all([self.status > f.status for f in others]):
+        elif all([f.status < 1 for f in others]):
             self.struggle(others)
         else:
             self.muddle(others)
