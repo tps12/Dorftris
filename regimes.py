@@ -30,6 +30,9 @@ values = 'militarism', 'moralism'
 society = Society([Faction('aristocracy', (0,0,255), random(), values),
                    Faction('merchant class', (0,255,0), random(), values),
                    Faction('populace', (255,0,0), random(), values)])
+for f in society.factions:
+    for v in f.values.keys():
+        f.values[v] = random()
 
 charts = [chart.subsurface(Rect(i * chart.get_width()/len(society.factions),
                                 0,
