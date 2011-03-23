@@ -27,7 +27,7 @@ class Faction(object):
                 self.overthrow.status = max(0,
                                             self.overthrow.status -
                                             self.OVERTHROW_DELTA)
-                self.status = min(1, self.status + self.OVERTHROW_DELTA)
+                self.status = min(1, self.status + self.OVERTHROW_DELTA/2)
             else:
                 self.overthrow = None
         else:
