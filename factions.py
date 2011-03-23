@@ -7,11 +7,21 @@ class Faction(object):
         self.status = status
         self.values = dict([(v, 0.5) for v in values])
 
+    def ossify(self):
+        d = 0.01
+        for v in self.values.keys():
+            if self.values[v] >= 0.5:
+                self.values[v] = min(1, self.values[v] + d)
+            else:
+                self.values[v] = max(0, self.values[v] - d)
+
     def repress(self, target):
         d = min(0.001, target.status)
         target.status -= d
 
     def rule(self, others):
+        self.ossify()
+
         threat = max(others, key=lambda f: f.status)
         if threat.status > 0.5:
             # repress potential threat
