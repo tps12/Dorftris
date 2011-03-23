@@ -47,6 +47,8 @@ while not done:
             if e.key == K_ESCAPE:
                 done = True
 
+    society.iterate()
+
     # scroll
     old = plot.copy()
     plot.blit(old, (0,0), Rect(1,0,old.get_width()-1,old.get_height()))
