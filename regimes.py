@@ -38,6 +38,7 @@ charts = [chart.subsurface(Rect(i * chart.get_width()/len(society.factions),
           for i in range(len(society.factions))]
 
 done = False
+paused = False
 
 while not done:
     for e in event.get():
@@ -46,13 +47,16 @@ while not done:
         elif e.type == KEYDOWN:
             if e.key == K_ESCAPE:
                 done = True
+            elif e.key == K_SPACE:
+                paused = not paused
 
-    society.iterate()
+    if not paused:
+        society.iterate()
 
-    # scroll
-    old = plot.copy()
-    plot.blit(old, (0,0), Rect(1,0,old.get_width()-1,old.get_height()))
-    plot.fill((0,0,0), Rect(plot.get_width()-2,0,1,plot.get_height()))
+        # scroll
+        old = plot.copy()
+        plot.blit(old, (0,0), Rect(1,0,old.get_width()-1,old.get_height()))
+        plot.fill((0,0,0), Rect(plot.get_width()-2,0,1,plot.get_height()))
     
     for i in range(len(society.factions)):
         f = society.factions[i]
