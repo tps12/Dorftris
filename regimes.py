@@ -40,6 +40,25 @@ charts = [chart.subsurface(Rect(i * chart.get_width()/len(society.factions),
                                 chart.get_height()))
           for i in range(len(society.factions))]
 
+t = 0
+
+def conj(items):
+    if not len(items):
+        return ''
+    elif len(items) == 1:
+        return str(items[0])
+    elif len(items) == 2:
+        return ' and '.join(items)
+    else:
+        return ', and '.join([', '.join(items[:-1]), items[-1]])
+
+print 'At t =', t, 'a struggle for power between the', conj([f.name for f in
+                                                             society.factions])
+
+ruler = None
+underclass = None
+uprising = None
+
 done = False
 paused = False
 
@@ -55,6 +74,21 @@ while not done:
 
     if not paused:
         society.iterate()
+        t += 1
+
+        hierarchy = sorted(society.factions, key=lambda f: f.status, reverse=True)
+        
+        if hierarchy[0].status == 1 and hierarchy[0] != ruler:
+            ruler = hierarchy[0]
+            print 'At t =', t, 'the', ruler.name, 'assumes power'
+
+        if hierarchy[-1].status == 0 and hierarchy[-1] != underclass:
+            underclass = hierarchy[-1]
+            print 'At t =', t, 'the leadership represses the', underclass.name
+
+        if underclass and underclass.overthrow and underclass.overthrow != uprising:
+            uprising = underclass.overthrow
+            print 'At t =', t, 'revolution begins'
 
         # scroll
         old = plot.copy()
