@@ -59,7 +59,7 @@ while not done:
         
         # draw current status
         plot.set_at((plot.get_width()-2,
-                     int(f.status * (plot.get_height()-1))),
+                     int((1-f.status) * (plot.get_height()-1))),
                     f.color)
 
         # draw chart
