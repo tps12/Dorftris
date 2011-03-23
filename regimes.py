@@ -42,6 +42,10 @@ while not done:
     old = plot.copy()
     plot.blit(old, (0,0), Rect(1,0,old.get_width()-1,old.get_height()))
     plot.fill((0,0,0), Rect(plot.get_width()-2,0,1,plot.get_height()))
+    for f in society.factions:
+        plot.set_at((plot.get_width()-2,
+                     int(f.status * (plot.get_height()-1))),
+                    f.color)
                 
     screen.blit(background, (0,0))
 
