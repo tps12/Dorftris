@@ -1,92 +1,57 @@
-from random import choice
+from random import choice, random
 
 class Faction(object):
+    MUTATE_DELTA = 0.001
+    OSSIFY_DELTA = 0.01
+    OVERTHROW_DELTA = 0.01
+    REACT_DELTA = 0.01
+    REPRESS_DELTA = 0.01
+    STRIVE_DELTA = 0.001
+    
     def __init__(self, name, color, status, values):
         self.name = name
         self.color = color
         self.status = status
         self.values = dict([(v, 0.5) for v in values])
-        self.elite = None
+        self.overthrow = None
 
-    def ossify(self):
-        d = 0.001
-        for v in self.values.keys():
-            if self.values[v] >= 0.5:
-                self.values[v] = min(1, self.values[v] + d)
+    def iteratestatus(self, others):
+        if self.status == 1:
+            target = choice(others)
+            target.status = max(0, target.status - self.REPRESS_DELTA)
+        elif self.overthrow:
+            if self.status < self.overthrow.status:
+                self.overthrow.status = max(0,
+                                            self.overthrow.status -
+                                            self.OVERTHROW_DELTA)
+                self.status = min(1, self.status + self.OVERTHROW_DELTA)
             else:
-                self.values[v] = max(0, self.values[v] - d)
-
-    def react(self, ruler):
-        d = 0.001
-        for v in self.values.keys():
-            if ruler.values[v] >= 0.5:
-                self.values[v] = max(0, self.values[v] - d)
-            else:
-                self.values[v] = min(1, self.values[v] + d)
-        if all([abs(self.values[v] - ruler.values[v]) == 1
-                for v in self.values.keys()]):
-            self.elite = ruler
-
-    def conform(self, ruler):
-        d = 0.001
-        for v in self.values.keys():
-            if ruler.values[v] >= 0.5:
-                self.values[v] = min(1, self.values[v] + d)
-            else:
-                self.values[v] = max(0, self.values[v] - d)
-        if all([abs(self.values[v] - ruler.values[v]) == 1
-                for v in self.values.keys()]):
-            self.elite = ruler
-
-    def repress(self, target):
-        d = min(0.001, target.status)
-        target.status -= d
-
-    def rule(self, others):
-        self.ossify()
-
-        threat = max(others, key=lambda f: f.status)
-        if threat.status > 0.5:
-            # repress potential threat
-            target = threat
+                self.overthrow = None
         else:
-            # repress underclass
-            target = min(others, key=lambda f: f.status)
-            
-        self.repress(target)
+            if self.status == 0:
+                ruler = max(others, key=lambda f: f.status)
+                if sum([abs(ruler.values[v] - self.values[v])
+                        for v in self.values.keys()]) > 0.5 * len(self.values):
+                    self.overthrow = ruler
+            else:
+                self.status = min(1, self.status + self.STRIVE_DELTA)
 
-    def wallow(self, others):
-        ruler = max(others, key=lambda f: f.status)
-        if ruler.status == 1:
-            self.react(ruler)
-
-    def muddle(self, others):
-        ruler = max(others, key=lambda f: f.status)
-        if ruler.status == 1:
-            self.conform(ruler)
-
-    def overthrow(self):
-        d = min(0.01, self.elite.status - self.status)
-        self.status += d
-        self.elite.status -= d
-        if self.status > self.elite.status:
-            self.elite = None
-
-    def struggle(self, others):
-        d = min(0.001, 1 - self.status)
-        self.status += d
-
-    def iterate(self, others):
-        if self.elite:
-            self.overthrow()
-        elif self.status == 1:
-            self.rule(others)
+    def iteratevalues(self, others):
+        v = choice(self.values.keys())
+        
+        if self.status == 1:
+            d = (1 if self.values[v] >= 0.5 else -1) * self.OSSIFY_DELTA    
         elif self.status == 0:
-            self.wallow(others)
-        elif all([f.status < 1 for f in others]):
-            self.struggle(others)
+            ruler = max(others, key=lambda f: f.status)
+            d = (-1 if ruler.values[v] >= 0.5 else 1) * self.REACT_DELTA
         else:
-            self.muddle(others)
+            d = choice([1,-1]) * self.MUTATE_DELTA * random()
+
+        self.values[v] = min(1, max(0, self.values[v] + d))
+            
+    def iterate(self, others):
+        self.iteratestatus(others)
+        self.iteratevalues(others)
             
 class Society(object):
     def __init__(self, factions):
