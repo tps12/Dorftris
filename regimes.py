@@ -38,6 +38,10 @@ while not done:
         elif e.type == KEYDOWN:
             if e.key == K_ESCAPE:
                 done = True
+
+    old = plot.copy()
+    plot.blit(old, (0,0), Rect(1,0,old.get_width()-1,old.get_height()))
+    plot.fill((0,0,0), Rect(plot.get_width()-2,0,1,plot.get_height()))
                 
     screen.blit(background, (0,0))
 
