@@ -4,10 +4,10 @@ class Faction(object):
     CONFORM_DELTA = 0.01
     MUTATE_DELTA = 0.001
     OSSIFY_DELTA = 0.01
-    OVERTHROW_DELTA = 0.005
+    OVERTHROW_DELTA = 0.01
     REACT_DELTA = 0.01
-    REPRESS_DELTA = 0.01
-    STRIVE_DELTA = 0.001
+    REPRESS_DELTA = 0.02
+    STRIVE_DELTA = 0.002
     
     def __init__(self, name, color, status, values):
         self.name = name
