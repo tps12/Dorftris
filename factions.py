@@ -1,9 +1,10 @@
 from random import choice, random
 
 class Faction(object):
+    CONFORM_DELTA = 0.01
     MUTATE_DELTA = 0.001
     OSSIFY_DELTA = 0.01
-    OVERTHROW_DELTA = 0.01
+    OVERTHROW_DELTA = 0.005
     REACT_DELTA = 0.01
     REPRESS_DELTA = 0.01
     STRIVE_DELTA = 0.001
@@ -17,7 +18,9 @@ class Faction(object):
 
     def iteratestatus(self, others):
         if self.status == 1:
-            target = choice(others)
+            target = min(others, key=lambda f: f.status)
+            if target.status != 0:
+                target = choice(others)
             target.status = max(0, target.status - self.REPRESS_DELTA)
         elif self.overthrow:
             if self.status < self.overthrow.status:
@@ -30,8 +33,9 @@ class Faction(object):
         else:
             if self.status == 0:
                 ruler = max(others, key=lambda f: f.status)
-                if sum([abs(ruler.values[v] - self.values[v])
-                        for v in self.values.keys()]) > 0.5 * len(self.values):
+                if (sum([abs(ruler.values[v] - self.values[v])
+                        for v in self.values.keys()]) >
+                    0.5 * len(self.values)):
                     self.overthrow = ruler
             else:
                 self.status = min(1, self.status + self.STRIVE_DELTA)
@@ -41,11 +45,14 @@ class Faction(object):
         
         if self.status == 1:
             d = (1 if self.values[v] >= 0.5 else -1) * self.OSSIFY_DELTA    
-        elif self.status == 0:
-            ruler = max(others, key=lambda f: f.status)
-            d = (-1 if ruler.values[v] >= 0.5 else 1) * self.REACT_DELTA
         else:
-            d = choice([1,-1]) * self.MUTATE_DELTA * random()
+            ruler = max(others, key=lambda f: f.status)
+            if self.status == 0:
+                d = (-1 if ruler.values[v] >= 0.5 else 1) * self.REACT_DELTA
+            elif ruler.status == 1:
+                d = (1 if ruler.values[v] >= 0.5 else -1) * self.CONFORM_DELTA
+            else:
+                d = 0
 
         self.values[v] = min(1, max(0, self.values[v] + d))
             
