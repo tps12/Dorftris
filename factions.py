@@ -6,7 +6,7 @@ class Faction(object):
         self.values = dict([(v, 0.5) for v in values])
 
     def ossify(self):
-        d = 0.01
+        d = 0.0001
         for v in self.values.keys():
             if self.values[v] >= 0.5:
                 self.values[v] = min(1, self.values[v] + d)
@@ -14,7 +14,7 @@ class Faction(object):
                 self.values[v] = max(0, self.values[v] - d)
 
     def react(self, ruler):
-        d = 0.01
+        d = 0.001
         for v in self.values.keys():
             if ruler.values[v] >= 0.5:
                 self.values[v] = max(0, self.values[v] - d)
@@ -43,18 +43,19 @@ class Faction(object):
         if ruler.status == 1:
             self.react(ruler)
 
+    def struggle(self, others):
+        d = min(0.001, 1 - self.status)
+        self.status += d
+        for f in others:
+            f.status -= d/len(others)
+
     def iterate(self, others):
         if self.status == 1:
             self.rule(others)
         elif self.status == 0:
             self.wallow(others)
         elif all([self.status > f.status for f in others]):
-            # rise to power
-            d = min(0.001, 1 - self.status)
-            self.status += d
-            for f in others:
-                if f != self:
-                    f.status -= d/len(others)
+            self.struggle(others)
             
 class Society(object):
     def __init__(self, factions):
