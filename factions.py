@@ -1,3 +1,5 @@
+from random import choice
+
 class Faction(object):
     def __init__(self, name, color, status, values):
         self.name = name
@@ -91,5 +93,5 @@ class Society(object):
         self.factions = factions
 
     def iterate(self):
-        for f in self.factions:
-            f.iterate([e for e in self.factions if e != f])
+        f = choice(self.factions)
+        f.iterate([e for e in self.factions if e != f])
