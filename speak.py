@@ -104,9 +104,16 @@ with codecs.open(filename, 'w', 'utf_8') as f:
     f.write('\r\n')
 
     for i in range(10):
-        phonemes = (sample(cs, randint(0,3)) +
-                    [choice(vs)] +
-                    sample(cs, randint(0,3)))
+        phonemes = []
+        
+        for s in range(randint(1,2)):
+            c = sample(cs, choice((1,) + (2,) * 4))
+            if len(c) == 2:
+                phonemes += c[0], choice(vs), c[1]
+            elif randint(0,1):
+                phonemes += c[0], choice(vs)
+            else:
+                phonemes += choice(vs), c[0]
         
         word = ''.join([glyphs[p] for p in phonemes])
         words.append(''.join(phonemes))
