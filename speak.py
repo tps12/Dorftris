@@ -168,7 +168,9 @@ words = []
 
 with codecs.open(filename, 'w', 'utf_8') as f:
     for v in glyphs.keys():
-        f.write(glyphs[v] + u' = ' + unicode(v) + u'\r\n')
+        f.write(u'{glyph}: /{ipa}/\r\n'.format(
+            glyph = glyphs[v],
+            ipa=ipa[v]))
 
     f.write('\r\n')
 
