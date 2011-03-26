@@ -88,6 +88,11 @@ ipa = dict([
     ('l^', u'\u028e')
 ])
 
+for a in vowels:
+    for b in vowels:
+        if a != b:
+            ipa[a + b] = ipa[a] + ipa[b]
+
 # subset of possible vowels
 vs = sample(vowels, randint(len(vowels)/2, 3*len(vowels)/5))
 
@@ -179,9 +184,10 @@ with codecs.open(filename, 'w', 'utf_8') as f:
             else:
                 phonemes += choice(vs), c[0]
         
-        word = ''.join([glyphs[p] for p in phonemes])
         words.append(''.join(phonemes))
-        f.write(word + '\r\n')
+        f.write(u'{text} /{ipa}/\r\n'.format(
+            text=''.join([glyphs[p] for p in phonemes]),
+            ipa=''.join([ipa[p] for p in phonemes])))
 
 system('start notepad ' + filename)
 
