@@ -1,5 +1,6 @@
 import codecs
 from os import remove, system
+from phonemes import vowels, consonants, phonemes
 from random import choice, randint, sample
 from tempfile import NamedTemporaryFile
 
@@ -13,16 +14,6 @@ def speak(text):
     
     system(ESPEAK.format(file=temp, lang='en'))
     remove(temp)
-
-vowels = 'i', 'i"', 'u-', 'e', '@', 'o-', 'E', 'V"', 'V', '&', 'a', 'A'
-
-consonants = ('m', 'M', 'n[', 'n', 'n.', 'N',
-              'p', 'b', 'p[', 'b[', 't', 'd', 't[', 'd[', 't.', 'd.',
-              'c', 'J', 'k', 'g', 'q', 'G', '?',
-              'P', 'B', 'f', 'v', 'T', 'D', 's', 'z', 'S', 'Z', 's.', 'z.',
-              'C', 'x', 'Q', 'X', 'g"', 'H', 'h',
-              'r', '*', '*.',
-              'L', 'l', 'l.', 'l^')
 
 ipa = dict([
     ('i', u'\u0069'),
@@ -93,19 +84,7 @@ for a in vowels:
         if a != b:
             ipa[a + b] = ipa[a] + ipa[b]
 
-# subset of possible vowels
-vs = sample(vowels, randint(len(vowels)/2, 3*len(vowels)/5))
-
-# add some unique diphthongs
-for i in range(randint(0, 5)):
-    while True:
-        d = ''.join(sample(vowels, 2))
-        if d not in vs:
-            vs.append(d)
-            break
-
-# subset of possible consonants
-cs = sample(consonants, randint(len(consonants)/5, 3*len(consonants)/5))
+vs, cs = phonemes()
 
 glyphs = dict()
 
