@@ -10,17 +10,17 @@ vowelpositions = [
 vowels = [v for p in vowelpositions for v in p]
 
 consonantplaces = [
-    ['m', 'p', 'b', 'P', 'B',],                 # bilabial
+    ['m', 'p', 'b', 'P', 'B',],                 # bilabial         (close)
     ['M', 'f', 'v'],                            # labiodental
     ['n[', 't[', 'd[', 'T', 'D'],               # dental
-    ['n', 't', 'd', 's', 'z', 'r', 'l', '*'],   # alveolar
+    ['n', 't', 'd', 's', 'z', 'r', 'l', '*'],   # alveolar         (close-mid)
     ['n.', 't.', 'd.', 's.', 'z.', 'l.', '*.'], # retroflex
-    ['S', 'Z'],                                 # palato-alveolar
+    ['S', 'Z'],                                 # palato-alveolar  (open-mid)
     ['c', 'J', 'C', 'j', 'l^'],                 # palatal
-    ['N', 'k', 'g', 'x', 'Q', 'L'],             # velar
+    ['N', 'k', 'g', 'x', 'Q', 'L'],             # velar            (near-open)
     ['q', 'G', 'X', 'g"'],                      # uvular
     ['w'],                                      # labiovelar
-    ['H'],                                      # pharyngeal
+    ['H'],                                      # pharyngeal       (open)
     ['?', 'h']]                                 # glottal
 
 consonants = [c for p in consonantplaces for c in p]
