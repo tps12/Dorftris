@@ -11,10 +11,10 @@ from words import *
 ESPEAK = '"\Program Files (x86)\eSpeak\command_line\espeak" -f {file} -v {lang}'
 CONTENTS = '[[{text}]]'
 
-def speak(text):
+def speak(word):
     with NamedTemporaryFile(delete=False) as f:
         temp = f.name
-        f.write(CONTENTS.format(text=text))
+        f.write(CONTENTS.format(text=word.phonemes))
     
     system(ESPEAK.format(file=temp, lang='en'))
     remove(temp)
@@ -64,6 +64,6 @@ with codecs.open(filename, 'w', 'utf_8') as f:
 system('start notepad ' + filename)
 
 for w in words:
-    speak(w.phonemes)
+    speak(w)
 
 remove(filename)
