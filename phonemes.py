@@ -1,6 +1,13 @@
 from random import randint, sample
 
-vowels = 'i', 'i"', 'u-', 'e', '@', 'o-', 'E', 'V"', 'V', '&', 'a', 'A'
+vowelpositions = [
+  # front   ->   back
+    ['i',  'i"', 'u-'], # close
+    ['e',  '@',  'o-'], # close-mid
+    ['E',  'V"', 'V'],  # open-mid
+    ['&',  'a',  'A']]  # open
+
+vowels = [v for p in vowelpositions for v in p]
 
 consonants = ('m', 'M', 'n[', 'n', 'n.', 'N',
               'p', 'b', 'p[', 'b[', 't', 'd', 't[', 'd[', 't.', 'd.',
