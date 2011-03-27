@@ -9,13 +9,21 @@ vowelpositions = [
 
 vowels = [v for p in vowelpositions for v in p]
 
-consonants = ('m', 'M', 'n[', 'n', 'n.', 'N',
-              'p', 'b', 'p[', 'b[', 't', 'd', 't[', 'd[', 't.', 'd.',
-              'c', 'J', 'k', 'g', 'q', 'G', '?',
-              'P', 'B', 'f', 'v', 'T', 'D', 's', 'z', 'S', 'Z', 's.', 'z.',
-              'C', 'x', 'Q', 'X', 'g"', 'H', 'h',
-              'r', '*', '*.',
-              'L', 'l', 'l.', 'l^')
+consonantplaces = [
+    ['m', 'p', 'b', 'P', 'B',],                 # bilabial
+    ['M', 'f', 'v'],                            # labiodental
+    ['n[', 't[', 'd[', 'T', 'D'],               # dental
+    ['n', 't', 'd', 's', 'z', 'r', 'l', '*'],   # alveolar
+    ['n.', 't.', 'd.', 's.', 'z.', 'l.', '*.'], # retroflex
+    ['S', 'Z'],                                 # palato-alveolar
+    ['c', 'J', 'C', 'j', 'l^'],                 # palatal
+    ['N', 'k', 'g', 'x', 'Q', 'L'],             # velar
+    ['q', 'G', 'X', 'g"'],                      # uvular
+    ['w'],                                      # labiovelar
+    ['H'],                                      # pharyngeal
+    ['?', 'h']]                                 # glottal
+
+consonants = [c for p in consonantplaces for c in p]
 
 def phonemes(nv = None, nd = None, nc = None):
     global vowels, consonants
