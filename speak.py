@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 from ipa import ipa
 from orthography import getvowelglyph, getconsonantglyph
 from phonemes import vowels, consonants, phonemes
+from words import *
 
 ESPEAK = '"\Program Files (x86)\eSpeak\command_line\espeak" -f {file} -v {lang}'
 CONTENTS = '[[{text}]]'
@@ -43,24 +44,26 @@ with codecs.open(filename, 'w', 'utf_8') as f:
 
     for i in range(10):
         phonemes = []
-        
+
+        syllables = []
         for s in range(randint(1,2)):
             c = sample(cs, choice((1,) + (2,) * 4))
             if len(c) == 2:
-                phonemes += c[0], choice(vs), c[1]
+                syllables.append(Syllable([c[0]], [choice(vs)], [c[1]]))
             elif randint(0,1):
-                phonemes += c[0], choice(vs)
+                syllables.append(Syllable([c[0]], [choice(vs)], []))
             else:
-                phonemes += choice(vs), c[0]
-        
-        words.append(''.join(phonemes))
+                syllables.append(Syllable([], [choice(vs)], [c[0]]))
+
+        word = Word(syllables)
+        words.append(word)
         f.write(u'{text} /{ipa}/\r\n'.format(
-            text=''.join([glyphs[p] for p in phonemes]),
-            ipa=''.join([ipa[p] for p in phonemes])))
+            text=''.join([glyphs[p] for p in word.phonemes]),
+            ipa=''.join([ipa[p] for p in word.phonemes])))
 
 system('start notepad ' + filename)
 
 for w in words:
-    speak(w)
+    speak(w.phonemes)
 
 remove(filename)
