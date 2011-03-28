@@ -7,19 +7,6 @@ vowelpositions = [
     ['e',  '@',  'o-'], # close-mid
     ['i',  'i"', 'u-']] # close
 
-def backness(vowel):
-    for i in range(len(vowelpositions)):
-        for j in range(len(vowelpositions[i])):
-            if vowelpositions[i][j] == vowel:
-                return j
-    raise ValueError
-
-def height(vowel):
-    for i in range(len(vowelpositions)):
-        if vowel in vowelpositions[i]:
-            return i
-    raise ValueError
-
 vowels = [v for p in vowelpositions for v in p]
 
 consonantplaces = [
@@ -37,6 +24,29 @@ consonantplaces = [
     ['?', 'h']]                                 # glottal
 
 consonants = [c for p in consonantplaces for c in p]
+
+def backness(phoneme):
+    if phoneme in vowels:
+        for i in range(len(vowelpositions)):
+            for j in range(len(vowelpositions[i])):
+                if vowelpositions[i][j] == phoneme:
+                    return j
+        raise ValueError
+    else:
+        for i in range(len(consonantplaces)):
+            if phoneme in consonantplaces[i]:
+                if i <= 3:
+                    return 0
+                elif i <= 6:
+                    return 1
+                else:
+                    return 2
+
+def height(vowel):
+    for i in range(len(vowelpositions)):
+        if vowel in vowelpositions[i]:
+            return i
+    raise ValueError
 
 def phonemes(nv = None, nc = None):
     global vowels, consonants
