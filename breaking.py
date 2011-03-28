@@ -8,6 +8,7 @@ def diphthongize(vowel, consonant):
     return v if v != vowel else None
 
 def breakvowels(word):
+    changed = False
     ss = []
     for i in range(len(word.syllables)):
         s = word.syllables[i]
@@ -24,6 +25,7 @@ def breakvowels(word):
                 w = diphthongize(v, c)
                 if w:
                     ss.append(Syllable(s.onset, [v, w], s.coda))
+                    changed = True
                     continue
         ss.append(s)
-    return Word(ss)
+    return Word(ss) if changed else word

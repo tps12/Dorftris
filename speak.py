@@ -3,6 +3,7 @@ from os import remove, system
 from random import choice, randint, sample
 from tempfile import NamedTemporaryFile
 
+from breaking import breakvowels
 from ipa import ipa
 from metaphony import i_mutate, a_mutate
 from orthography import getvowelglyph, getconsonantglyph
@@ -61,18 +62,20 @@ with codecs.open(filename, 'w', 'utf_8') as f:
         m = i_mutate(word)
         if m == word:
             m = a_mutate(word)
+
+        b = breakvowels(m)
         
-        words.append(m)
+        words.append(b)
         f.write(u'{text} /{ipa}/'.format(
             text=''.join([glyphs[p] for p in word.phonemes]),
             ipa=''.join([ipa[p] for p in word.phonemes])))
-        if m != word:
-            for p in m.phonemes:
+        if b != word:
+            for p in b.phonemes:
                 if p not in glyphs:
                     glyphs[p] = getvowelglyph(p)
             f.write(u' \u2192 {text} /{ipa}/'.format(
-                text=''.join([glyphs[p] for p in m.phonemes]),
-                ipa=''.join([ipa[p] for p in m.phonemes])))
+                text=''.join([glyphs[p] for p in b.phonemes]),
+                ipa=''.join([ipa[p] for p in b.phonemes])))
         f.write(u'\r\n')
 
 system('start notepad ' + filename)
