@@ -34,5 +34,12 @@ class MetaphonyTestCase(unittest.TestCase):
         wm = i_mutate(w)
         self.assertEqual(w, wm)
 
+    def test_futies(self):
+        w = Word([Syllable(*s)
+                  for s in [[['f'],['V'],['t']],
+                            [[],['i'],['z']]]])
+        wm = i_mutate(w)
+        self.assertNotEqual(w, wm)
+
 if __name__ == '__main__':
     unittest.main()
