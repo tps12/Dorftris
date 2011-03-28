@@ -36,7 +36,7 @@ def lower(syllable):
     
 def i_mutate(word):
     if len(word.syllables) > 1:
-        for i in range(len(word.syllables)-2, 0, -1):
+        for i in range(len(word.syllables)-2, -1, -1):
             a, b = word.syllables[i], word.syllables[i+1]
             if any([v in b.nucleus for v in ('i', 'i"')]):
                 af = front(a)
