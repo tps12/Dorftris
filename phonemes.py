@@ -2,10 +2,23 @@ from random import randint, sample
 
 vowelpositions = [
   # front   ->   back
-    ['i',  'i"', 'u-'], # close
-    ['e',  '@',  'o-'], # close-mid
+    ['&',  'a',  'A'],  # open
     ['E',  'V"', 'V'],  # open-mid
-    ['&',  'a',  'A']]  # open
+    ['e',  '@',  'o-'], # close-mid
+    ['i',  'i"', 'u-']] # close
+
+def backness(vowel):
+    for i in range(len(vowelpositions)):
+        for j in range(len(vowelpositions[i])):
+            if vowelpositions[i][j] == vowel:
+                return j
+    raise ValueError
+
+def height(vowel):
+    for i in range(len(vowelpositions)):
+        if vowel in vowelpositions[i]:
+            return i
+    raise ValueError
 
 vowels = [v for p in vowelpositions for v in p]
 
