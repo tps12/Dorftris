@@ -4,6 +4,7 @@ from random import choice, randint, sample
 from tempfile import NamedTemporaryFile
 
 from ipa import ipa
+from metaphony import i_mutate, a_mutate
 from orthography import getvowelglyph, getconsonantglyph
 from phonemes import vowels, consonants, phonemes
 from words import *
@@ -56,10 +57,23 @@ with codecs.open(filename, 'w', 'utf_8') as f:
                 syllables.append(Syllable([], [choice(vs)], [c[0]]))
 
         word = Word(syllables)
-        words.append(word)
-        f.write(u'{text} /{ipa}/\r\n'.format(
+
+        m = i_mutate(word)
+        if m == word:
+            m = a_mutate(word)
+        
+        words.append(m)
+        f.write(u'{text} /{ipa}/'.format(
             text=''.join([glyphs[p] for p in word.phonemes]),
             ipa=''.join([ipa[p] for p in word.phonemes])))
+        if m != word:
+            for p in m.phonemes:
+                if p not in glyphs:
+                    glyphs[p] = getvowelglyph(p)
+            f.write(u' \u2192 {text} /{ipa}/'.format(
+                text=''.join([glyphs[p] for p in m.phonemes]),
+                ipa=''.join([ipa[p] for p in m.phonemes])))
+        f.write(u'\r\n')
 
 system('start notepad ' + filename)
 
