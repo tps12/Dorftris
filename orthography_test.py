@@ -12,14 +12,5 @@ class OrthographyTestCase(unittest.TestCase):
         for v in vowels:
             getvowelglyph(v)
 
-    def test_every_diphthong(self):
-        ds = []
-        for v in vowels:
-            for w in vowels:
-                if v != w:
-                    ds.append(v + w)
-        for d in ds:
-            getvowelglyph(d)
-
 if __name__ == '__main__':
     unittest.main()

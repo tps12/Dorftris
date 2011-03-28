@@ -38,23 +38,13 @@ consonantplaces = [
 
 consonants = [c for p in consonantplaces for c in p]
 
-def phonemes(nv = None, nd = None, nc = None):
+def phonemes(nv = None, nc = None):
     global vowels, consonants
     
     # subset of possible vowels
     nv = (len(vowels)/2, 3*len(vowels)/5) if nv is None else nv
     vs = sample(vowels, randint(max(0, min(len(vowels), nv[0])),
                                 max(0, min(len(vowels), nv[1]))))
-
-    # add some unique diphthongs
-    nd = (0, 5) if nd is None else nd
-    for i in range(randint(max(0, min(len(vowels)*(len(vowels)-1), nd[0])),
-                           max(0, min(len(vowels)*(len(vowels)-1), nd[1])))):
-        while True:
-            d = ''.join(sample(vowels, 2))
-            if d not in vs:
-                vs.append(d)
-                break
 
     # subset of possible consonants
     nc = (len(consonants)/5, 3*len(consonants)/5) if nc is None else nc
