@@ -41,12 +41,12 @@ def i_mutate(word):
             if any([v in b.nucleus for v in ('i', 'i"')]):
                 af = front(a)
                 if af != a:
-                    return Word(word.syllables[:i-1] +
+                    return Word(word.syllables[:i-2] +
                                 [af] +
                                 word.syllables[i+1:])
                 ar = raisen(a)
                 if ar != a:
-                    return Word(word.syllables[:i-1] +
+                    return Word(word.syllables[:i-2] +
                                 [ar] +
                                 word.syllables[i+1:])
     return word
@@ -58,7 +58,7 @@ def a_mutate(word):
             if any([height(v) == len(vowelpositions) for v in b.nucleus]):
                 al = lower(a)
                 if al != a:
-                    return Word(word.syllables[:i-1] +
+                    return Word(word.syllables[:i-2] +
                                 [al] +
                                 word.syllables[i+1:])
     return word

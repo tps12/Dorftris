@@ -11,6 +11,13 @@ class MetaphonyTestCase(unittest.TestCase):
         wm = i_mutate(w)
         self.assertNotEqual(w, wm)
 
+    def test_feeties_fities(self):
+        w = Word([Syllable(*s)
+                  for s in [[['f'],['e'],['t']],
+                            [[],['i'],['z']]]])
+        wm = i_mutate(w)
+        self.assertEqual(wm.syllables[0].nucleus[0], 'i')
+
     def test_defeeties(self):
         w = Word([Syllable(*s)
                   for s in [[['d'],['e'],[]],
