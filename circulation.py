@@ -62,7 +62,30 @@ class PygameDisplay(wx.Window):
         self.climate = {}
 
     def resetclimate(self):
-        self.climate.clear()
+        res = max([len(r) for r in self.tiles]), len(self.tiles)
+        
+        c = cells(radius(self.parent.slider.Value))
+
+        for y in range(res[1]):
+            n = abs(y - res[1]/2)/(float(res[1]/2)/c)
+            n = int(n) & 1
+            n = n if y > res[1]/2 else not n
+            d = 180 * n
+
+            s = spin(self.parent.order.Value)/360.0
+            ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
+            d += atan2(ce, 1) * 180/pi
+            
+            for x in range(len(self.tiles[y])):
+                h = self.tiles[y][x]
+                
+                ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
+                ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
+                self.climate[(x,y)] = d, ins, 1.0 * (h <= 0)
+
+    def iterateclimate(self):
+        for ((x,y), (t,h)) in self.climate.iteritems():
+            pass
 
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
@@ -75,6 +98,9 @@ class PygameDisplay(wx.Window):
 
         self.screen.fill((0,0,0))
 
+        if not self.climate:
+            self.resetclimate()
+
         res = max([len(r) for r in self.tiles]), len(self.tiles)
         template = pygame.Surface((self.size[0]/res[0],self.size[1]/res[1]), 0, 32)
 
@@ -85,20 +111,8 @@ class PygameDisplay(wx.Window):
                             [(0,arrow.get_height()-1),
                              (arrow.get_width()/2, 0),
                              (arrow.get_width()-1,arrow.get_height()-1)])
-        
-        c = cells(radius(self.parent.slider.Value))
 
         for y in range(res[1]):
-
-            n = abs(y - res[1]/2)/(float(res[1]/2)/c)
-            n = int(n) & 1
-            n = n if y > res[1]/2 else not n
-            d = 180 * n
-
-            s = spin(self.parent.order.Value)/360.0
-            ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
-            d += atan2(ce, 1) * 180/pi
-            
             for x in range(len(self.tiles[y])):
                 block = template.copy()
 
@@ -108,7 +122,11 @@ class PygameDisplay(wx.Window):
                 xo = x + o
                 if xo > len(self.tiles[y])-1:
                     xo -= len(self.tiles[y])
+                elif xo < 0:
+                    xo += len(self.tiles[y])
                 h = self.tiles[y][xo]
+
+                climate = self.climate[(xo,y)]
 
                 if self.parent.showinsol.Value:
                     ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
@@ -120,15 +138,9 @@ class PygameDisplay(wx.Window):
                              0 if ins < 0.5 else int(255 * (ins - 0.5) * 2))
                 else:
                     if self.parent.showclime.Value:
-                        if (x,y) not in self.climate:                            
-                            ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
-                            ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
-                            self.climate[(x,y)] = ins, 1.0 * (h <= 0)
-
-                        climate = self.climate[(x,y)]
-                        color = (int(255 * (1 - climate[1])),
+                        color = (int(255 * (1 - climate[2])),
                                  255,
-                                 int(255 * (1 - climate[0])))
+                                 int(255 * (1 - climate[1])))
                     else:
                         color = ((0,int(255 * (h/9000.0)),0) if h > 0
                                  else (0,0,int(255 * (1 + h/11000.0))))
@@ -138,7 +150,7 @@ class PygameDisplay(wx.Window):
                 if self.parent.showair.Value:
                     s = sin(pi/2 * (y - res[1]/2)/res[1]/2) * 90
                     s *= sin(pi/2 * (x - len(self.tiles[y])/2)/(len(self.tiles[y])/2))
-                    angle = pygame.transform.rotate(arrow, d + s)
+                    angle = pygame.transform.rotate(arrow, climate[0] + s)
 
                     block.blit(angle, ((block.get_width() - angle.get_width())/2,
                                        (block.get_height() - angle.get_height())/2))
@@ -247,11 +259,14 @@ class Frame(wx.Frame):
         self.sizer.Add(self.showinsol, 0, flag = wx.EXPAND)
 
         self.showclime = wx.CheckBox(self, wx.ID_ANY, u'Show climate')
+        self.iterate = wx.Button(self, wx.ID_ANY, u'Iterate')
+        self.iterate.Bind(wx.EVT_BUTTON, self.OnIterate)
         self.reset = wx.Button(self, wx.ID_ANY, u'Reset')
         self.reset.Bind(wx.EVT_BUTTON, self.OnReset)
 
         self.sizer5 = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer5.Add(self.showclime, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
+        self.sizer5.Add(self.iterate, 0, flag = wx.EXPAND | wx.ALL, border = 5)
         self.sizer5.Add(self.reset, 0, flag = wx.EXPAND | wx.ALL, border = 5)
 
         self.sizer.Add(self.sizer5, 0, flag = wx.EXPAND)
@@ -264,6 +279,9 @@ class Frame(wx.Frame):
         self.SetAutoLayout(True)
         self.SetSizer(self.sizer)
         self.Layout()
+
+    def OnIterate(self, event):
+        self.display.iterateclimate()
 
     def OnReset(self, event):
         self.display.resetclimate()
