@@ -1,7 +1,7 @@
 import gettext
 gettext.install('dorftris')
 
-from math import asin, acos, pi, sqrt, sin, cos
+from math import asin, acos, atan2, pi, sqrt, sin, cos
 
 import wx, pygame
 
@@ -89,6 +89,10 @@ class PygameDisplay(wx.Window):
             n = int(n) & 1
             n = n if y > res[1]/2 else not n
             d = 180 * n
+
+            s = spin(self.parent.order.Value)/360.0
+            ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
+            d += atan2(ce, 1) * 180/pi
             
             for x in range(len(self.tiles[y])):
                 block = template.copy()
