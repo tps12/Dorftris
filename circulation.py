@@ -92,8 +92,11 @@ class PygameDisplay(wx.Window):
                 block = template.copy()
 
                 r = rotation(self.parent.rotate.Value)
+                o = r * len(self.tiles[y])/360
 
-                xo = x
+                xo = x + o
+                if xo > len(self.tiles[y])-1:
+                    xo -= len(self.tiles[y])
                 h = self.tiles[y][xo]
 
                 if self.parent.showinsol.Value:
