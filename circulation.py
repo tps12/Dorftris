@@ -52,16 +52,13 @@ class PygameDisplay(wx.Window):
         template = pygame.Surface((self.size[0]/100,self.size[1]/100), 0, 32)
 
         size = min(self.size[0]/100, self.size[1]/100)
-        h = int(size)
 
-        while h > 2:
-            arrow = pygame.font.Font('FreeMono.ttf', h).render(u'\u16cf',
-                                                               True,
-                                                               (255,255,255))
-            if max(arrow.get_size()) * sqrt(2)/2 <= size:
-                break
-            h -= 1
-
+        arrow = pygame.Surface(2*(int(size/sqrt(2)),), 0, 32)
+        pygame.draw.polygon(arrow, (255,255,255),
+                            [(0,arrow.get_height()-1),
+                             (arrow.get_width()/2, 0),
+                             (arrow.get_width()-1,arrow.get_height()-1)])
+        
         c = cells(radius(self.parent.slider.Value))
  
         for y in range(100):
