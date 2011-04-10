@@ -38,6 +38,19 @@ class PygameDisplay(wx.Window):
  
         self.planet = Earth()
 
+        self.tiles = []
+        for lat in range(-88, 88, 2):
+            r = cos(lat * pi/180)
+            row = []
+            d = 2 / r
+            lon = d/2
+            while lon <= 180:
+                row = ([self.planet.sample(lat, -lon)] +
+                       row +
+                       [self.planet.sample(lat, lon)])
+                lon += d
+            self.tiles.append(row)
+
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
         self.Redraw()
@@ -49,20 +62,7 @@ class PygameDisplay(wx.Window):
 
         self.screen.fill((0,0,0))
 
-        tiles = []
-        for lat in range(-88, 88, 2):
-            r = cos(lat * pi/180)
-            row = []
-            d = 2 / r
-            lon = d/2
-            while lon <= 180:
-                row = ([self.planet.sample(lat, -lon)] +
-                       row +
-                       [self.planet.sample(lat, lon)])
-                lon += d
-            tiles.append(row)
-
-        res = max([len(r) for r in tiles]), len(tiles)
+        res = max([len(r) for r in self.tiles]), len(self.tiles)
         template = pygame.Surface((self.size[0]/res[0],self.size[1]/res[1]), 0, 32)
 
         size = min(self.size[0]/res[0], self.size[1]/res[1])
@@ -82,10 +82,10 @@ class PygameDisplay(wx.Window):
             n = n if y > res[1]/2 else not n
             d = 180 * n
             
-            for x in range(len(tiles[y])):
+            for x in range(len(self.tiles[y])):
                 block = template.copy()
 
-                h = tiles[y][x]
+                h = self.tiles[y][x]
 
                 if self.parent.showinsol.Value:
                     ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
@@ -103,13 +103,13 @@ class PygameDisplay(wx.Window):
 
                 if self.parent.showair.Value:
                     s = sin(pi/2 * (y - res[1]/2)/res[1]/2) * 90
-                    s *= sin(pi/2 * (x - len(tiles[y])/2)/(len(tiles[y])/2))
+                    s *= sin(pi/2 * (x - len(self.tiles[y])/2)/(len(self.tiles[y])/2))
                     angle = pygame.transform.rotate(arrow, d + s)
 
                     block.blit(angle, ((block.get_width() - angle.get_width())/2,
                                        (block.get_height() - angle.get_height())/2))
                 
-                self.screen.blit(block, ((x + (res[0] - len(tiles[y]))/2)*
+                self.screen.blit(block, ((x + (res[0] - len(self.tiles[y]))/2)*
                                          block.get_width(),
                                          y*block.get_height()))
 
