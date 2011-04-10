@@ -8,7 +8,7 @@ import wx, pygame
 from etopo import Earth
 
 def radius(i):
-    return i*1600    
+    return i*1600
 
 def cells(r):
     c = int(r/6400.0 + 2)
@@ -89,6 +89,8 @@ class PygameDisplay(wx.Window):
 
                 if self.parent.showinsol.Value:
                     ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
+
+                    ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
                     
                     color = (255,
                              255 if ins >= 0.5 else int(255 * ins * 2),
