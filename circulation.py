@@ -92,7 +92,9 @@ class PygameDisplay(wx.Window):
                 block.fill(color)
 
                 if self.parent.showair.Value:
-                    angle = pygame.transform.rotate(arrow, d)
+                    s = sin(pi/2 * (y - res[1]/2)/res[1]/2) * 90
+                    s *= sin(pi/2 * (x - len(tiles[y])/2)/(len(tiles[y])/2))
+                    angle = pygame.transform.rotate(arrow, d + s)
 
                     block.blit(angle, ((block.get_width() - angle.get_width())/2,
                                        (block.get_height() - angle.get_height())/2))
