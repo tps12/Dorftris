@@ -10,6 +10,12 @@ from etopo import Earth
 def radius(i):
     return i*1600
 
+def rotation(i):
+    return i*10
+
+def spin(i):
+    return pow(sqrt(360), i / 5.0)
+
 def cells(r):
     c = int(r/6400.0 + 2)
     if c < 1:
@@ -85,7 +91,10 @@ class PygameDisplay(wx.Window):
             for x in range(len(self.tiles[y])):
                 block = template.copy()
 
-                h = self.tiles[y][x]
+                r = rotation(self.parent.rotate.Value)
+
+                xo = x
+                h = self.tiles[y][xo]
 
                 if self.parent.showinsol.Value:
                     ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
@@ -142,6 +151,10 @@ class Frame(wx.Frame):
         return '{r} km'.format(r=radius(i))
 
     @staticmethod
+    def spinstr(i):
+        return '{w:.0f} d/y'.format(w=spin(i))
+
+    @staticmethod
     def tiltstr(d):
         return u'{d}\u00b0'.format(d=d)
     
@@ -160,6 +173,11 @@ class Frame(wx.Frame):
         self.slider = wx.Slider(self, wx.ID_ANY, 4, 1, 80, style = wx.SL_HORIZONTAL)
         self.radius = wx.TextCtrl(self, wx.ID_ANY,
                                   self.radstr(self.slider.Value))
+       
+        self.order = wx.Slider(self, wx.ID_ANY, 10, 0, 15, style = wx.SL_HORIZONTAL)
+        self.order.Bind(wx.EVT_SCROLL, self.OnSpin)
+        self.spin = wx.TextCtrl(self, wx.ID_ANY,
+                                self.spinstr(self.order.Value))
        
         self.tilt = wx.Slider(self, wx.ID_ANY, 23, 0, 90, style = wx.SL_HORIZONTAL)
         self.tilt.Bind(wx.EVT_SCROLL, self.OnTilt)
@@ -180,6 +198,10 @@ class Frame(wx.Frame):
         self.sizer2.Add(self.slider, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
         self.sizer2.Add(self.radius, 0, flag = wx.EXPAND | wx.ALL, border = 5)
         
+        self.sizer4 = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer4.Add(self.order, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
+        self.sizer4.Add(self.spin, 0, flag = wx.EXPAND | wx.ALL, border = 5)
+        
         self.sizer3 = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer3.Add(self.tilt, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
         self.sizer3.Add(self.angle, 0, flag = wx.EXPAND | wx.ALL, border = 5)
@@ -187,12 +209,17 @@ class Frame(wx.Frame):
         self.sizer.Add(self.sizer2, 0, flag = wx.EXPAND)
         self.showair = wx.CheckBox(self, wx.ID_ANY, u'Show circulation')
         self.sizer.Add(self.showair, 0, flag = wx.EXPAND)
+        
+        self.sizer.Add(self.sizer4, 0, flag = wx.EXPAND)
 
         self.sizer.Add(self.sizer3, 0, flag = wx.EXPAND)
         self.showinsol = wx.CheckBox(self, wx.ID_ANY, u'Show insolation')
         self.sizer.Add(self.showinsol, 0, flag = wx.EXPAND)
 
         self.sizer.Add(self.display, 1, flag = wx.EXPAND)
+
+        self.rotate = wx.Slider(self, wx.ID_ANY, 0, -18, 18, style = wx.SL_HORIZONTAL)
+        self.sizer.Add(self.rotate, 0, flag = wx.EXPAND)
        
         self.SetAutoLayout(True)
         self.SetSizer(self.sizer)
@@ -213,6 +240,9 @@ class Frame(wx.Frame):
 
     def OnTilt(self, event):
         self.angle.Value = self.tiltstr(self.tilt.Value)
+
+    def OnSpin(self, event):
+        self.spin.Value = self.spinstr(self.order.Value)
  
 class App(wx.App):
     def OnInit(self):
