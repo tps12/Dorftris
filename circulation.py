@@ -158,8 +158,8 @@ class Frame(wx.Frame):
         self.sizer2.Add(self.radius, 0, flag = wx.EXPAND | wx.ALL, border = 5)
         self.showair = wx.CheckBox(self, wx.ID_ANY, u'Show circulation')
         self.sizer.Add(self.sizer2, 0, flag = wx.EXPAND)
-        self.sizer.Add(self.showair, 1, flag = wx.EXPAND)
-        self.sizer.Add(self.display, 2, flag = wx.EXPAND)
+        self.sizer.Add(self.showair, 0, flag = wx.EXPAND)
+        self.sizer.Add(self.display, 1, flag = wx.EXPAND)
        
         self.SetAutoLayout(True)
         self.SetSizer(self.sizer)
