@@ -86,8 +86,16 @@ class PygameDisplay(wx.Window):
                 block = template.copy()
 
                 h = tiles[y][x]
-                color = ((0,int(255 * (h/9000.0)),0) if h > 0
-                         else (0,0,int(255 * (1 + h/11000.0))))
+
+                if self.parent.showinsol.Value:
+                    ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
+                    
+                    color = (255,
+                             255 if ins >= 0.5 else int(255 * ins * 2),
+                             0 if ins < 0.5 else int(255 * (ins - 0.5) * 2))
+                else:
+                    color = ((0,int(255 * (h/9000.0)),0) if h > 0
+                             else (0,0,int(255 * (1 + h/11000.0))))
 
                 block.fill(color)
 
@@ -130,6 +138,10 @@ class Frame(wx.Frame):
     @staticmethod
     def radstr(i):
         return '{r} km'.format(r=radius(i))
+
+    @staticmethod
+    def tiltstr(d):
+        return u'{d}\u00b0'.format(d=d)
     
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, size = (600, 600))
@@ -147,6 +159,11 @@ class Frame(wx.Frame):
         self.radius = wx.TextCtrl(self, wx.ID_ANY,
                                   self.radstr(self.slider.Value))
        
+        self.tilt = wx.Slider(self, wx.ID_ANY, 23, 0, 90, style = wx.SL_HORIZONTAL)
+        self.tilt.Bind(wx.EVT_SCROLL, self.OnTilt)
+        self.angle = wx.TextCtrl(self, wx.ID_ANY,
+                                 self.tiltstr(self.tilt.Value))
+       
         self.timer = wx.Timer(self)
        
         self.Bind(wx.EVT_SCROLL, self.OnScroll)
@@ -156,12 +173,23 @@ class Frame(wx.Frame):
         self.timer.Start((1000.0 / self.display.fps))
        
         self.sizer = wx.BoxSizer(wx.VERTICAL)
+        
         self.sizer2 = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer2.Add(self.slider, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
         self.sizer2.Add(self.radius, 0, flag = wx.EXPAND | wx.ALL, border = 5)
-        self.showair = wx.CheckBox(self, wx.ID_ANY, u'Show circulation')
+        
+        self.sizer3 = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer3.Add(self.tilt, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
+        self.sizer3.Add(self.angle, 0, flag = wx.EXPAND | wx.ALL, border = 5)
+        
         self.sizer.Add(self.sizer2, 0, flag = wx.EXPAND)
+        self.showair = wx.CheckBox(self, wx.ID_ANY, u'Show circulation')
         self.sizer.Add(self.showair, 0, flag = wx.EXPAND)
+
+        self.sizer.Add(self.sizer3, 0, flag = wx.EXPAND)
+        self.showinsol = wx.CheckBox(self, wx.ID_ANY, u'Show insolation')
+        self.sizer.Add(self.showinsol, 0, flag = wx.EXPAND)
+
         self.sizer.Add(self.display, 1, flag = wx.EXPAND)
        
         self.SetAutoLayout(True)
@@ -180,6 +208,9 @@ class Frame(wx.Frame):
  
     def OnScroll(self, event):
         self.radius.Value = self.radstr(self.slider.Value)
+
+    def OnTilt(self, event):
+        self.angle.Value = self.tiltstr(self.tilt.Value)
  
 class App(wx.App):
     def OnInit(self):
