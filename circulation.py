@@ -87,13 +87,15 @@ class PygameDisplay(wx.Window):
                 color = ((0,int(255 * (h/9000.0)),0) if h > 0
                          else (0,0,int(255 * (1 + h/11000.0))))
 
-                s = lat * float(r-(x-(50-r)))/r
-
-                angle = pygame.transform.rotate(arrow, d + s)
-
                 block.fill(color)
-                block.blit(angle, ((block.get_width() - angle.get_width())/2,
-                                   (block.get_height() - angle.get_height())/2))
+
+                if self.parent.showair.Value:
+                    s = lat * float(r-(x-(50-r)))/r
+
+                    angle = pygame.transform.rotate(arrow, d + s)
+
+                    block.blit(angle, ((block.get_width() - angle.get_width())/2,
+                                       (block.get_height() - angle.get_height())/2))
                 
                 self.screen.blit(block, (x*block.get_width(),
                                          y*block.get_height()))
@@ -154,8 +156,10 @@ class Frame(wx.Frame):
         self.sizer2 = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer2.Add(self.slider, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
         self.sizer2.Add(self.radius, 0, flag = wx.EXPAND | wx.ALL, border = 5)
+        self.showair = wx.CheckBox(self, wx.ID_ANY, u'Show circulation')
         self.sizer.Add(self.sizer2, 0, flag = wx.EXPAND)
-        self.sizer.Add(self.display, 1, flag = wx.EXPAND)
+        self.sizer.Add(self.showair, 1, flag = wx.EXPAND)
+        self.sizer.Add(self.display, 2, flag = wx.EXPAND)
        
         self.SetAutoLayout(True)
         self.SetSizer(self.sizer)
