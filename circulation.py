@@ -90,7 +90,6 @@ class PygameDisplay(wx.Window):
                 color = ((0,int(255 * (h/9000.0)),0) if h > 0
                          else (0,0,int(255 * (1 + h/11000.0))))
 
-                s = lat if x < 50 else -lat
                 s = lat * float(r-(x-(50-r)))/r
 
                 angle = pygame.transform.rotate(arrow, d + s)
