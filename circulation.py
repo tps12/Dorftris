@@ -59,6 +59,11 @@ class PygameDisplay(wx.Window):
                 lon += d
             self.tiles.append(row)
 
+        self.climate = {}
+
+    def resetclimate(self):
+        self.climate.clear()
+
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
         self.Redraw()
@@ -114,8 +119,19 @@ class PygameDisplay(wx.Window):
                              255 if ins >= 0.5 else int(255 * ins * 2),
                              0 if ins < 0.5 else int(255 * (ins - 0.5) * 2))
                 else:
-                    color = ((0,int(255 * (h/9000.0)),0) if h > 0
-                             else (0,0,int(255 * (1 + h/11000.0))))
+                    if self.parent.showclime.Value:
+                        if (x,y) not in self.climate:                            
+                            ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
+                            ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
+                            self.climate[(x,y)] = ins, 1.0 * (h <= 0)
+
+                        climate = self.climate[(x,y)]
+                        color = (int(255 * (1 - climate[1])),
+                                 255,
+                                 int(255 * (1 - climate[0])))
+                    else:
+                        color = ((0,int(255 * (h/9000.0)),0) if h > 0
+                                 else (0,0,int(255 * (1 + h/11000.0))))
 
                 block.fill(color)
 
@@ -173,7 +189,7 @@ class Frame(wx.Frame):
         return u'{d}\u00b0'.format(d=d)
     
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, size = (600, 600))
+        wx.Frame.__init__(self, parent, -1, size = (1600, 1000))
        
         self.display = PygameDisplay(self, -1)
        
@@ -230,6 +246,16 @@ class Frame(wx.Frame):
         self.showinsol = wx.CheckBox(self, wx.ID_ANY, u'Show insolation')
         self.sizer.Add(self.showinsol, 0, flag = wx.EXPAND)
 
+        self.showclime = wx.CheckBox(self, wx.ID_ANY, u'Show climate')
+        self.reset = wx.Button(self, wx.ID_ANY, u'Reset')
+        self.reset.Bind(wx.EVT_BUTTON, self.OnReset)
+
+        self.sizer5 = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer5.Add(self.showclime, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
+        self.sizer5.Add(self.reset, 0, flag = wx.EXPAND | wx.ALL, border = 5)
+
+        self.sizer.Add(self.sizer5, 0, flag = wx.EXPAND)
+
         self.sizer.Add(self.display, 1, flag = wx.EXPAND)
 
         self.rotate = wx.Slider(self, wx.ID_ANY, 0, -18, 18, style = wx.SL_HORIZONTAL)
@@ -238,6 +264,9 @@ class Frame(wx.Frame):
         self.SetAutoLayout(True)
         self.SetSizer(self.sizer)
         self.Layout()
+
+    def OnReset(self, event):
+        self.display.resetclimate()
  
     def Kill(self, event):
         self.display.Kill(event)
