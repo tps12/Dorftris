@@ -1,7 +1,7 @@
 import gettext
 gettext.install('dorftris')
 
-from math import asin, acos, pi, sqrt, sin
+from math import asin, acos, pi, sqrt, sin, cos
 
 import wx, pygame
 
@@ -49,9 +49,23 @@ class PygameDisplay(wx.Window):
 
         self.screen.fill((0,0,0))
 
-        template = pygame.Surface((self.size[0]/100,self.size[1]/100), 0, 32)
+        tiles = []
+        for lat in range(-88, 88, 2):
+            r = cos(lat * pi/180)
+            row = []
+            d = 2 / r
+            lon = d/2
+            while lon <= 180:
+                row = ([self.planet.sample(lat, -lon)] +
+                       row +
+                       [self.planet.sample(lat, lon)])
+                lon += d
+            tiles.append(row)
 
-        size = min(self.size[0]/100, self.size[1]/100)
+        res = max([len(r) for r in tiles]), len(tiles)
+        template = pygame.Surface((self.size[0]/res[0],self.size[1]/res[1]), 0, 32)
+
+        size = min(self.size[0]/res[0], self.size[1]/res[1])
 
         arrow = pygame.Surface(2*(int(size/sqrt(2)),), 0, 32)
         pygame.draw.polygon(arrow, (255,255,255),
@@ -60,44 +74,31 @@ class PygameDisplay(wx.Window):
                              (arrow.get_width()-1,arrow.get_height()-1)])
         
         c = cells(radius(self.parent.slider.Value))
- 
-        for y in range(100):
-            lat = asin(float(y-50)/50) * 180/pi
-            r = int(sqrt(2500 - (50-y)**2))
 
-            n = abs(lat) / (90/c)
+        for y in range(res[1]):
+
+            n = abs(y - res[1]/2)/(float(res[1]/2)/c)
             n = int(n) & 1
-            n = n if lat >= 0 else not n
+            n = n if y > res[1]/2 else not n
             d = 180 * n
             
-            for x in range(50-r, 50+r):
+            for x in range(len(tiles[y])):
                 block = template.copy()
 
-                v = [float(x-r)/50, float(y-50)/50]
-
-                if x >= 50:
-                    lon = -acos(float((x-(50-r)-r))/r) * 180/pi
-                else:
-                    lon = 180 + acos(float(r-(x-(50-r)))/r) * 180/pi
-
-                if lon > 180:
-                    lon -= 360
-
-                h = self.planet.sample(lat, lon)
+                h = tiles[y][x]
                 color = ((0,int(255 * (h/9000.0)),0) if h > 0
                          else (0,0,int(255 * (1 + h/11000.0))))
 
                 block.fill(color)
 
                 if self.parent.showair.Value:
-                    s = lat * float(r-(x-(50-r)))/r
-
-                    angle = pygame.transform.rotate(arrow, d + s)
+                    angle = pygame.transform.rotate(arrow, d)
 
                     block.blit(angle, ((block.get_width() - angle.get_width())/2,
                                        (block.get_height() - angle.get_height())/2))
                 
-                self.screen.blit(block, (x*block.get_width(),
+                self.screen.blit(block, ((x + (res[0] - len(tiles[y]))/2)*
+                                         block.get_width(),
                                          y*block.get_height()))
 
         s = pygame.image.tostring(self.screen, 'RGB')  # Convert the surface to an RGB string
