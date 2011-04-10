@@ -14,7 +14,9 @@ def rotation(i):
     return i*10
 
 def spin(i):
-    return pow(sqrt(360), i / 5.0)
+    a = abs(i)
+    s = i / a if i else 1
+    return s * pow(sqrt(360), a / 5.0)
 
 def cells(r):
     c = int(r/6400.0 + 2)
@@ -155,7 +157,12 @@ class Frame(wx.Frame):
 
     @staticmethod
     def spinstr(i):
-        return '{w:.0f} d/y'.format(w=spin(i))
+        s = spin(i)
+        return '{w:.0f} d/y {dir}'.format(w=abs(s),
+                                          dir=u' to '.join(
+                                              (u'W',u'E')
+                                              if s > 0 else
+                                              (u'E',u'W')))
 
     @staticmethod
     def tiltstr(d):
@@ -177,7 +184,7 @@ class Frame(wx.Frame):
         self.radius = wx.TextCtrl(self, wx.ID_ANY,
                                   self.radstr(self.slider.Value))
        
-        self.order = wx.Slider(self, wx.ID_ANY, 10, 0, 15, style = wx.SL_HORIZONTAL)
+        self.order = wx.Slider(self, wx.ID_ANY, 10, -15, 15, style = wx.SL_HORIZONTAL)
         self.order.Bind(wx.EVT_SCROLL, self.OnSpin)
         self.spin = wx.TextCtrl(self, wx.ID_ANY,
                                 self.spinstr(self.order.Value))
@@ -248,6 +255,9 @@ class Frame(wx.Frame):
         self.spin.Value = self.spinstr(self.order.Value)
  
 class App(wx.App):
+    def __init__(self, redirect=True):
+        wx.App.__init__(self, redirect)
+        
     def OnInit(self):
         pygame.font.init()
         
@@ -258,5 +268,5 @@ class App(wx.App):
         return True
  
 if __name__ == "__main__":
-    app = App()
+    app = App(False)
     app.MainLoop()
