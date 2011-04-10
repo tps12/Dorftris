@@ -47,15 +47,15 @@ class PygameDisplay(wx.Window):
         self.planet = Earth()
 
         self.tiles = []
-        for lat in range(-88, 88, 2):
+        for lat in range(-89, 91, 2):
             r = cos(lat * pi/180)
             row = []
             d = 2 / r
             lon = d/2
             while lon <= 180:
-                row = ([self.planet.sample(lat, -lon)] +
+                row = ([(lat, -lon, self.planet.sample(lat, -lon))] +
                        row +
-                       [self.planet.sample(lat, lon)])
+                       [(lat, lon, self.planet.sample(lat, lon))])
                 lon += d
             self.tiles.append(row)
 
@@ -124,7 +124,7 @@ class PygameDisplay(wx.Window):
                     xo -= len(self.tiles[y])
                 elif xo < 0:
                     xo += len(self.tiles[y])
-                h = self.tiles[y][xo]
+                h = self.tiles[y][xo][2]
 
                 climate = self.climate[(xo,y)]
 
