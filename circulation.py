@@ -112,7 +112,7 @@ class PygameDisplay(wx.Window):
             n = abs(y + 0.5 - res[1]/2)/(float(res[1]/2)/c)
             n = int(n) & 1
             n = n if y >= res[1]/2 else not n
-            d = 180 * n
+            d = 180 - 180 * n
 
             s = spin(self.parent.order.Value)/360.0
             ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
@@ -175,8 +175,9 @@ class PygameDisplay(wx.Window):
         arrow = pygame.Surface(2*(int(size/sqrt(2)),), 0, 32)
         pygame.draw.polygon(arrow, (255,255,255),
                             [(0,arrow.get_height()-1),
-                             (arrow.get_width()/2, 0),
+                             (arrow.get_width()/2,0),
                              (arrow.get_width()-1,arrow.get_height()-1)])
+        arrow = pygame.transform.flip(arrow, False, True)
 
         for y in range(res[1]):
             for x in range(len(self.tiles[y])):
