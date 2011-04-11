@@ -153,6 +153,10 @@ class PygameDisplay(wx.Window):
                            (bearing(c, self.tiles[a[1]][a[0]][0:2]) - d) *
                            pi / 180))
             n = s[-1]
+
+            de = self.tiles[n[1]][n[0]][2] - self.tiles[y][x][2]
+            h *= max(0, min(1, 1 - (de / 4000)))
+            
             addd(n, (t,h))
 
         for ((x,y), ss) in dc.iteritems():
