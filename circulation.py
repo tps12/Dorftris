@@ -154,7 +154,9 @@ class PygameDisplay(wx.Window):
                 l = []
                 dc[d] = l
             l.append(s)
-        
+
+        seen = set()
+
         for ((x,y), (d,t,h)) in self.climate.iteritems():
             if (x,y) not in self.adj:
                 continue
@@ -171,6 +173,14 @@ class PygameDisplay(wx.Window):
             
             addd(n, (t,h))
 
+            seen.add(n)
+
+        for y in range(len(self.tiles)):
+            for x in range(len(self.tiles[y])):
+                if (x,y) not in seen:
+                    for a in self.adj[(x,y)]:
+                        addd((x,y), self.climate[a][1:3])
+                    
         for ((x,y), ss) in dc.iteritems():
             t, h = [sum([e[i] for e in ss])/len(ss) for i in range(2)]
             if self.tiles[y][x][2] <= 0:
