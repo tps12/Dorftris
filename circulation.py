@@ -204,7 +204,7 @@ class PygameDisplay(wx.Window):
                              255 if ins >= 0.5 else int(255 * ins * 2),
                              0 if ins < 0.5 else int(255 * (ins - 0.5) * 2))
                 else:
-                    if self.parent.showclime.Value:
+                    if self.parent.showclime.Value and h > 0:
                         color = (int(255 * (1 - climate[2])),
                                  255,
                                  int(255 * (1 - climate[1])))
