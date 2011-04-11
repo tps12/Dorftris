@@ -60,6 +60,7 @@ class PygameDisplay(wx.Window):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_TIMER, self.Update, self.timer)
         self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.Bind(wx.EVT_LEFT_UP, self.OnClick)
        
         self.fps = 60.0
         self.timespacing = 1000.0 / self.fps
@@ -157,6 +158,17 @@ class PygameDisplay(wx.Window):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
         self.Redraw()
 
+    def OnClick(self, event):
+        mx, my = event.Position.Get()
+
+        res = max([len(r) for r in self.tiles]), len(self.tiles)
+
+        y = my / (self.size[1]/res[1])
+        x = mx / (self.size[0]/res[0]) - (res[0] - len(self.tiles[y]))/2
+
+        if 0 <= y < len(self.tiles) and 0 <= x < len(self.tiles[y]):
+            print x, y
+
     def Redraw(self):
         if self.size_dirty:
             self.screen = pygame.Surface(self.size, 0, 32)
@@ -222,9 +234,9 @@ class PygameDisplay(wx.Window):
                     block.blit(angle, ((block.get_width() - angle.get_width())/2,
                                        (block.get_height() - angle.get_height())/2))
                 
-                self.screen.blit(block, ((x + (res[0] - len(self.tiles[y]))/2)*
-                                         block.get_width(),
-                                         y*block.get_height()))
+                self.screen.blit(block,
+                                 ((x + (res[0] - len(self.tiles[y]))/2)*block.get_width(),
+                                  y*block.get_height()))
 
         s = pygame.image.tostring(self.screen, 'RGB')  # Convert the surface to an RGB string
         img = wx.ImageFromData(self.size[0], self.size[1], s)  # Load this string into a wx image
