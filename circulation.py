@@ -200,8 +200,8 @@ class PygameDisplay(wx.Window):
                 h = 1.0
             climate = self.climate[(x,y)]
             self.climate[(x,y)] = (climate[0],
-                                   0.9 * climate[1] + 0.1 * t,
-                                   0.25 * climate[2] + 0.75 * h)
+                                   0.5 * climate[1] + 0.5 * t,
+                                   0.5 * climate[2] + 0.5 * h)
             
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
