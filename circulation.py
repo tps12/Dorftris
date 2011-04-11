@@ -143,13 +143,15 @@ class PygameDisplay(wx.Window):
             
             c = self.tiles[y][x][0:2]
             s = sorted(self.adj[(x,y)],
-                       key=lambda a: bearing(c, self.tiles[a[1]][a[0]][0:2]))
-            n = s[0]
-            addd(n, (d,t))
+                       key=lambda a: cos(
+                           (bearing(c, self.tiles[a[1]][a[0]][0:2]) - d) *
+                           pi / 180))
+            n = s[-1]
+            addd(n, (t,h))
 
         for ((x,y), ss) in dc.iteritems():
-            d, t = [sum([e[i] for e in ss])/len(ss) for i in range(2)]
-            self.climate[(x,y)] = d, t, self.climate[(x,y)][2]
+            t, h = [sum([e[i] for e in ss])/len(ss) for i in range(2)]
+            self.climate[(x,y)] = self.climate[(x,y)][0], t, h
             
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
