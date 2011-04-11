@@ -191,6 +191,17 @@ class PygameDisplay(wx.Window):
                     h *= max(0, min(1, 1 - (de / 4000)))
                     
                     addd((x,y), (t,h), 1.0)
+
+        for y in range(len(self.tiles)):
+            ins = cos(2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2)
+            ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
+            
+            for x in range(len(self.tiles[y])):
+                if self.tiles[y][x][2] <= 0:
+                    h = 1.0
+                else:
+                    h = max(0, self.climate[(x,y)][2] - 0.025 * ins)
+                    self.climate[(x,y)] = self.climate[(x,y)][0:2] + (h,)
                     
         for ((x,y), ss) in dc.iteritems():
             nt, nh = [sum([e[0][i] * e[1] for e in ss]) for i in range(2)]
@@ -200,14 +211,7 @@ class PygameDisplay(wx.Window):
             self.climate[(x,y)] = (climate[0],
                                    0.5 * climate[1] + 0.5 * t,
                                    0.5 * climate[2] + 0.5 * h)
-        for y in range(len(self.tiles)):
-            for x in range(len(self.tiles[y])):
-                if self.tiles[y][x][2] <= 0:
-                    h = 1.0
-                else:
-                    h = self.climate[(x,y)][2] * 0.9
-                    self.climate[(x,y)] = self.climate[(x,y)][0:2] + (h,)
-            
+                        
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
         self.Redraw()
