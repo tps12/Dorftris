@@ -147,13 +147,13 @@ class PygameDisplay(wx.Window):
     def iterateclimate(self):
         dc = {}
 
-        def addd(d, s):
+        def addd(d, s, i):
             if d in dc:
                 l = dc[d]
             else:
                 l = []
                 dc[d] = l
-            l.append(s)
+            l.append((s, i))
 
         seen = set()
 
@@ -172,7 +172,7 @@ class PygameDisplay(wx.Window):
                 de = self.tiles[n[1]][n[0]][2] - self.tiles[y][x][2]
                 h *= max(0, min(1, 1 - (de / 4000)))
                 
-                addd(n, (t,h))
+                addd(n, (t,h), 0.5 if n is s[-1] else 0.25)
 
             seen.add(n)
 
@@ -190,10 +190,12 @@ class PygameDisplay(wx.Window):
                     de = self.tiles[y][x][2] - self.tiles[n[1]][n[0]][2]
                     h *= max(0, min(1, 1 - (de / 4000)))
                     
-                    addd((x,y), (t,h))
+                    addd((x,y), (t,h), 1.0)
                     
         for ((x,y), ss) in dc.iteritems():
-            t, h = [sum([e[i] for e in ss])/len(ss) for i in range(2)]
+            nt, nh = [sum([e[0][i] * e[1] for e in ss]) for i in range(2)]
+            d = sum([e[1] for e in ss])
+            t, h = nt / d, nh / d
             if self.tiles[y][x][2] <= 0:
                 h = 1.0
             climate = self.climate[(x,y)]
