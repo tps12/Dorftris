@@ -157,6 +157,8 @@ class PygameDisplay(wx.Window):
 
         for ((x,y), ss) in dc.iteritems():
             t, h = [sum([e[i] for e in ss])/len(ss) for i in range(2)]
+            if self.tiles[y][x][2] <= 0:
+                h = 1.0
             self.climate[(x,y)] = self.climate[(x,y)][0], t, h
             
     def Update(self, event):
