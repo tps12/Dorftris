@@ -169,11 +169,20 @@ class PygameDisplay(wx.Window):
         y = my / (self.size[1]/res[1])
         x = mx / (self.size[0]/res[0]) - (res[0] - len(self.tiles[y]))/2
 
-        if 0 <= y < len(self.tiles) and 0 <= x < len(self.tiles[y]):
-            if self.selected == (x,y):
+        r = rotation(self.parent.rotate.Value)
+        o = r * len(self.tiles[y])/360
+
+        xo = x + o
+        if xo > len(self.tiles[y])-1:
+            xo -= len(self.tiles[y])
+        elif xo < 0:
+            xo += len(self.tiles[y])
+        
+        if 0 <= y < len(self.tiles) and 0 <= xo < len(self.tiles[y]):
+            if self.selected == (xo,y):
                 self.selected = None
             else:
-                self.selected = (x,y)
+                self.selected = (xo,y)
 
     def Redraw(self):
         if self.size_dirty:
