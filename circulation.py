@@ -49,6 +49,16 @@ def bearing(c1, c2):
                   cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dlon))
     return (theta * 180/pi) % 360
 
+def season(i):
+    return [-1,
+            -0.5,
+            0,
+            0.5,
+            1,
+            0.5,
+            0,
+            -0.5][i]
+
 class PygameDisplay(wx.Window):
     ADJ_CACHE = '.adj.pickle'
     
@@ -122,7 +132,9 @@ class PygameDisplay(wx.Window):
         self.adjacent = []
 
     def insolation(self, y):
-        ins = cos(2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2)
+        theta = 2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2
+        theta += (self.parent.tilt.Value * pi/180) * season(self.parent.time.Value)
+        ins = max(0, cos(theta))
         return 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
 
     def resetclimate(self):
@@ -374,6 +386,17 @@ class Frame(wx.Frame):
     @staticmethod
     def tiltstr(d):
         return u'{d}\u00b0'.format(d=d)
+
+    @staticmethod
+    def seasonstr(i):
+        return [u'Southern solstice',
+                u'Northern spring',
+                u'Northward equinox',
+                u'Northern summer',
+                u'Northern solstice',
+                u'Southern spring',
+                u'Southward equinox',
+                u'Southern summer'][i]
     
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, size = (1600, 1000))
@@ -430,6 +453,18 @@ class Frame(wx.Frame):
         self.sizer.Add(self.sizer4, 0, flag = wx.EXPAND)
 
         self.sizer.Add(self.sizer3, 0, flag = wx.EXPAND)
+
+        self.time = wx.Slider(self, wx.ID_ANY, 2, 0, 7, style = wx.SL_HORIZONTAL)
+        self.season = wx.TextCtrl(self, wx.ID_ANY,
+                                  self.seasonstr(self.time.Value))
+        self.time.Bind(wx.EVT_SCROLL, self.OnSeason)
+
+        self.sizer6 = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer6.Add(self.time, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
+        self.sizer6.Add(self.season, 0, flag = wx.EXPAND | wx.ALL, border = 5)
+
+        self.sizer.Add(self.sizer6, 0, flag = wx.EXPAND)
+
         self.showinsol = wx.CheckBox(self, wx.ID_ANY, u'Show insolation')
         self.sizer.Add(self.showinsol, 0, flag = wx.EXPAND)
 
@@ -481,6 +516,9 @@ class Frame(wx.Frame):
 
     def OnSpin(self, event):
         self.spin.Value = self.spinstr(self.order.Value)
+
+    def OnSeason(self, event):
+        self.season.Value = self.seasonstr(self.time.Value)
  
 class App(wx.App):
     def __init__(self, redirect=True):
