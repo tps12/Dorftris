@@ -181,8 +181,10 @@ class PygameDisplay(wx.Window):
         if 0 <= y < len(self.tiles) and 0 <= xo < len(self.tiles[y]):
             if self.selected == (xo,y):
                 self.selected = None
+                self.adjacent = []
             else:
                 self.selected = (xo,y)
+                self.adjacent = self.adj[self.selected]
 
     def Redraw(self):
         if self.size_dirty:
@@ -224,6 +226,8 @@ class PygameDisplay(wx.Window):
 
                 if self.selected == (xo, y):
                     color = (255,0,255)
+                elif (xo, y) in self.adjacent:
+                    color = (127,0,255)
                 elif self.parent.showinsol.Value:
                     ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
 
