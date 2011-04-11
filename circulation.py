@@ -104,6 +104,9 @@ class PygameDisplay(wx.Window):
 
         self.climate = {}
 
+        self.selected = None
+        self.adjacent = []
+
     def resetclimate(self):
         res = max([len(r) for r in self.tiles]), len(self.tiles)
         
@@ -167,7 +170,10 @@ class PygameDisplay(wx.Window):
         x = mx / (self.size[0]/res[0]) - (res[0] - len(self.tiles[y]))/2
 
         if 0 <= y < len(self.tiles) and 0 <= x < len(self.tiles[y]):
-            print x, y
+            if self.selected == (x,y):
+                self.selected = None
+            else:
+                self.selected = (x,y)
 
     def Redraw(self):
         if self.size_dirty:
@@ -207,7 +213,9 @@ class PygameDisplay(wx.Window):
 
                 climate = self.climate[(xo,y)]
 
-                if self.parent.showinsol.Value:
+                if self.selected == (xo, y):
+                    color = (255,0,255)
+                elif self.parent.showinsol.Value:
                     ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
 
                     ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
