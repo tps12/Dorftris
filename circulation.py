@@ -159,7 +159,10 @@ class PygameDisplay(wx.Window):
             t, h = [sum([e[i] for e in ss])/len(ss) for i in range(2)]
             if self.tiles[y][x][2] <= 0:
                 h = 1.0
-            self.climate[(x,y)] = self.climate[(x,y)][0], t, h
+            climate = self.climate[(x,y)]
+            self.climate[(x,y)] = (climate[0],
+                                   (climate[1] + t)/2,
+                                   (climate[2] + h)/2)
             
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
