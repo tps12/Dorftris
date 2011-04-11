@@ -209,15 +209,6 @@ class PygameDisplay(wx.Window):
         res = max([len(r) for r in self.tiles]), len(self.tiles)
         template = pygame.Surface((self.size[0]/res[0],self.size[1]/res[1]), 0, 32)
 
-        size = min(self.size[0]/res[0], self.size[1]/res[1])
-
-        arrow = pygame.Surface(2*(int(size/sqrt(2)),), 0, 32)
-        pygame.draw.polygon(arrow, (255,255,255),
-                            [(0,arrow.get_height()-1),
-                             (arrow.get_width()/2,0),
-                             (arrow.get_width()-1,arrow.get_height()-1)])
-        arrow = pygame.transform.flip(arrow, False, True)
-
         for y in range(res[1]):
             for x in range(len(self.tiles[y])):
                 block = template.copy()
@@ -260,11 +251,38 @@ class PygameDisplay(wx.Window):
                 if self.parent.showair.Value:
                     s = sin(pi/2 * (y - res[1]/2)/res[1]/2) * 90
                     s *= sin(pi/2 * (x - len(self.tiles[y])/2)/(len(self.tiles[y])/2))
-                    angle = pygame.transform.rotate(arrow, climate[0] + s)
 
-                    block.blit(angle, ((block.get_width() - angle.get_width())/2,
-                                       (block.get_height() - angle.get_height())/2))
-                
+                    w, h = [c-1 for c in block.get_size()]
+
+                    angle = climate[0] + s
+                    if angle >= 337.5 or angle < 22.5:
+                        p = w/2, h-1
+                        es = (0, 0), (w-1, 0)
+                    elif 22.5 <= angle < 67.5:
+                        p = w-1, h-1
+                        es = (0, h-1), (w-1, 0)
+                    elif 67.5 <= angle < 112.5:
+                        p = w-1, h/2
+                        es = (0, 0), (0, h-1)
+                    elif 112.5 <= angle < 157.5:
+                        p = w-1, 0
+                        es = (w-1, h-1), (0, 0)
+                    elif 157.5 <= angle < 202.5:
+                        p = w/2, 0
+                        es = (0, h-1), (w-1, h-1)
+                    elif 202.5 <= angle < 247.5:
+                        p = 0, 0
+                        es = (0, h-1), (w-1, 0)
+                    elif 247.5 <= angle < 292.5:
+                        p = 0, h/2
+                        es = (w-1, 0), (w-1, h-1)
+                    else:
+                        p = 0, h-1
+                        es = (0, 0), (w-1, h-1)
+
+                    pygame.draw.lines(block, (255,255,255), False,
+                                      [es[0], p, es[1]])
+               
                 self.screen.blit(block,
                                  ((x + (res[0] - len(self.tiles[y]))/2)*block.get_width(),
                                   y*block.get_height()))
