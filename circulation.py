@@ -199,13 +199,14 @@ class PygameDisplay(wx.Window):
                                key=lambda a: cos(
                                    (bearing(c, self.tiles[a[1]][a[0]][0:2]) - d) *
                                    pi / 180))
-                    n = s[0]
-                    d,t,h = self.climate[n]
-                                        
-                    de = self.tiles[y][x][2] - self.tiles[n[1]][n[0]][2]
-                    h *= max(0, min(1, 1 - (de / 4000)))
+                    ns = s[:3]
+                    for n in ns:
+                        d,t,h = self.climate[n]
+                                            
+                        de = self.tiles[y][x][2] - self.tiles[n[1]][n[0]][2]
+                        h *= max(0, min(1, 1 - (de / 4000)))
                     
-                    addd((x,y), (t,h), 1.0)
+                        addd((x,y), (t,h), 0.5 if n is s[0] else 0.25)
 
         for y in range(len(self.tiles)):
             ins = self.insolation(y)
