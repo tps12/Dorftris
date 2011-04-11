@@ -121,6 +121,10 @@ class PygameDisplay(wx.Window):
         self.selected = None
         self.adjacent = []
 
+    def insolation(self, y):
+        ins = cos(2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2)
+        return 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
+
     def resetclimate(self):
         res = max([len(r) for r in self.tiles]), len(self.tiles)
         
@@ -139,9 +143,8 @@ class PygameDisplay(wx.Window):
             
             for x in range(len(self.tiles[y])):
                 h = self.tiles[y][x][2]
+                ins = self.insolation(y)
                 
-                ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
-                ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
                 self.climate[(x,y)] = d, ins, 1.0 * (h <= 0)
 
     def iterateclimate(self):
@@ -193,8 +196,7 @@ class PygameDisplay(wx.Window):
                     addd((x,y), (t,h), 1.0)
 
         for y in range(len(self.tiles)):
-            ins = cos(2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2)
-            ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
+            ins = self.insolation(y)
             
             for x in range(len(self.tiles[y])):
                 if self.tiles[y][x][2] <= 0:
@@ -278,10 +280,7 @@ class PygameDisplay(wx.Window):
                 elif (xo, y) in self.adjacent:
                     color = (127,0,255)
                 elif self.parent.showinsol.Value:
-                    ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
-
-                    ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
-                    
+                    ins = self.insolation(y)                    
                     color = (255,
                              255 if ins >= 0.5 else int(255 * ins * 2),
                              0 if ins < 0.5 else int(255 * (ins - 0.5) * 2))
