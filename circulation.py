@@ -198,6 +198,9 @@ class PygameDisplay(wx.Window):
         if not self.climate:
             self.resetclimate()
 
+        if self.parent.run.Value:
+            self.iterateclimate()
+
         res = max([len(r) for r in self.tiles]), len(self.tiles)
         template = pygame.Surface((self.size[0]/res[0],self.size[1]/res[1]), 0, 32)
 
@@ -361,13 +364,15 @@ class Frame(wx.Frame):
         self.sizer.Add(self.showinsol, 0, flag = wx.EXPAND)
 
         self.showclime = wx.CheckBox(self, wx.ID_ANY, u'Show climate')
-        self.iterate = wx.Button(self, wx.ID_ANY, u'Iterate')
+        self.run = wx.CheckBox(self, wx.ID_ANY, u'Iterate')
+        self.iterate = wx.Button(self, wx.ID_ANY, u'Step')
         self.iterate.Bind(wx.EVT_BUTTON, self.OnIterate)
         self.reset = wx.Button(self, wx.ID_ANY, u'Reset')
         self.reset.Bind(wx.EVT_BUTTON, self.OnReset)
 
         self.sizer5 = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer5.Add(self.showclime, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
+        self.sizer5.Add(self.run, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
         self.sizer5.Add(self.iterate, 0, flag = wx.EXPAND | wx.ALL, border = 5)
         self.sizer5.Add(self.reset, 0, flag = wx.EXPAND | wx.ALL, border = 5)
 
