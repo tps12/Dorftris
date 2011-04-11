@@ -178,8 +178,18 @@ class PygameDisplay(wx.Window):
         for y in range(len(self.tiles)):
             for x in range(len(self.tiles[y])):
                 if (x,y) not in seen:
-                    for a in self.adj[(x,y)]:
-                        addd((x,y), self.climate[a][1:3])
+                    c = self.tiles[y][x][0:2]
+                    s = sorted(self.adj[(x,y)],
+                               key=lambda a: cos(
+                                   (bearing(c, self.tiles[a[1]][a[0]][0:2]) - d) *
+                                   pi / 180))
+                    n = s[0]
+                    d,t,h = self.climate[n]
+                                        
+                    de = self.tiles[y][x][2] - self.tiles[n[1]][n[0]][2]
+                    h *= max(0, min(1, 1 - (de / 4000)))
+                    
+                    addd((x,y), (t,h))
                     
         for ((x,y), ss) in dc.iteritems():
             t, h = [sum([e[i] for e in ss])/len(ss) for i in range(2)]
