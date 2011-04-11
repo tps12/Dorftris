@@ -1,6 +1,8 @@
 import gettext
 gettext.install('dorftris')
 
+from cPickle import dump, load
+
 from math import asin, acos, atan2, pi, sqrt, sin, cos
 
 import wx, pygame
@@ -48,6 +50,8 @@ def bearing(c1, c2):
     return (theta * 180/pi) % 360
 
 class PygameDisplay(wx.Window):
+    ADJ_CACHE = '.adj.pickle'
+    
     def __init__(self, parent, ID):
         wx.Window.__init__(self, parent, ID)
         self.parent = parent
@@ -81,28 +85,36 @@ class PygameDisplay(wx.Window):
                 lon += d
             self.tiles.append(row)
 
-        self.adj = {}
+        try:
+            with open(self.ADJ_CACHE, 'r') as f:
+                self.adj = load(f)
+        except Exception as er:
+            print repr(er)
+            self.adj = {}
 
-        def addadj(t1, t2):
-            if t1 in self.adj:
-                adj = self.adj[t1]
-            else:
-                adj = []
-                self.adj[t1] = adj
-            adj.append(t2)
+            def addadj(t1, t2):
+                if t1 in self.adj:
+                    adj = self.adj[t1]
+                else:
+                    adj = []
+                    self.adj[t1] = adj
+                adj.append(t2)
 
-        def addadjes(t1, t2):
-            addadj(t1, t2)
-            addadj(t2, t1)
-        
-        for i in range(1, len(self.tiles)):
-            for j in range(len(self.tiles[i])):
-                c1 = self.tiles[i][j][0:2]
-                for k in range(len(self.tiles[i-1])):
-                    if distance(c1, self.tiles[i-1][k][0:2]) < pi/60:
-                        addadjes((j,i),(k,i-1))
-                addadj((j,i),(j-1 if j > 0 else len(self.tiles[i])-1, i))
-                addadj((j,i),(j+1 if j < len(self.tiles[i])-1 else 0, i))
+            def addadjes(t1, t2):
+                addadj(t1, t2)
+                addadj(t2, t1)
+            
+            for i in range(1, len(self.tiles)):
+                for j in range(len(self.tiles[i])):
+                    c1 = self.tiles[i][j][0:2]
+                    for k in range(len(self.tiles[i-1])):
+                        if distance(c1, self.tiles[i-1][k][0:2]) < pi/60:
+                            addadjes((j,i),(k,i-1))
+                    addadj((j,i),(j-1 if j > 0 else len(self.tiles[i])-1, i))
+                    addadj((j,i),(j+1 if j < len(self.tiles[i])-1 else 0, i))
+
+            with open(self.ADJ_CACHE, 'w') as f:
+                dump(self.adj, f, 0)
 
         self.climate = {}
 
