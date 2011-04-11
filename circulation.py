@@ -98,7 +98,7 @@ class PygameDisplay(wx.Window):
             for j in range(len(self.tiles[i])):
                 c1 = self.tiles[i][j][0:2]
                 for k in range(len(self.tiles[i-1])):
-                    if distance(c1, self.tiles[i-1][k][0:2]) < pi/75:
+                    if distance(c1, self.tiles[i-1][k][0:2]) < pi/60:
                         addadjes((j,i),(k,i-1))
 
         self.climate = {}
