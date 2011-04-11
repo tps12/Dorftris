@@ -19,7 +19,7 @@ class RenderWorld(object):
         self._zoomrate = 0
         self._zooming = None
 
-        self.left = PlanetSettings(self.zoom, Planet())
+        self.left = PlanetSettings(self.zoom, Earth())
         self.right = Globe(self.zoom, self.left.planet, self._zoom)
         
         self.definetiles()

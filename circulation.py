@@ -26,6 +26,27 @@ def cells(r):
         c -= 1
     return c
 
+def distance(c1, c2):
+    lat1, lon1 = [c * pi/180 for c in c1]
+    lat2, lon2 = [c * pi/180 for c in c2]
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    return 2 * atan2(sqrt(a), sqrt(1-a))
+
+def bearing(c1, c2):
+    lat1, lon1 = [c * pi/180 for c in c1]
+    lat2, lon2 = [c * pi/180 for c in c2]
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    theta = atan2(sin(dlon) * cos(lat2),
+                  cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dlon))
+    return (theta * 180/pi) % 360
+
 class PygameDisplay(wx.Window):
     def __init__(self, parent, ID):
         wx.Window.__init__(self, parent, ID)
@@ -59,6 +80,27 @@ class PygameDisplay(wx.Window):
                 lon += d
             self.tiles.append(row)
 
+        self.adj = {}
+
+        def addadj(t1, t2):
+            if t1 in self.adj:
+                adj = self.adj[t1]
+            else:
+                adj = []
+                self.adj[t1] = adj
+            adj.append(t2)
+
+        def addadjes(t1, t2):
+            addadj(t1, t2)
+            addadj(t2, t1)
+        
+        for i in range(1, len(self.tiles)):
+            for j in range(len(self.tiles[i])):
+                c1 = self.tiles[i][j][0:2]
+                for k in range(len(self.tiles[i-1])):
+                    if distance(c1, self.tiles[i-1][k][0:2]) < pi/75:
+                        addadjes((j,i),(k,i-1))
+
         self.climate = {}
 
     def resetclimate(self):
@@ -67,26 +109,48 @@ class PygameDisplay(wx.Window):
         c = cells(radius(self.parent.slider.Value))
 
         for y in range(res[1]):
-            n = abs(y - res[1]/2)/(float(res[1]/2)/c)
+            n = abs(y + 0.5 - res[1]/2)/(float(res[1]/2)/c)
             n = int(n) & 1
-            n = n if y > res[1]/2 else not n
+            n = n if y >= res[1]/2 else not n
             d = 180 * n
 
             s = spin(self.parent.order.Value)/360.0
             ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
             d += atan2(ce, 1) * 180/pi
+            d %= 360
             
             for x in range(len(self.tiles[y])):
-                h = self.tiles[y][x]
+                h = self.tiles[y][x][2]
                 
                 ins = cos(2 * pi * (y - res[1]/2)/res[1]/2)
                 ins = 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
                 self.climate[(x,y)] = d, ins, 1.0 * (h <= 0)
 
     def iterateclimate(self):
-        for ((x,y), (t,h)) in self.climate.iteritems():
-            pass
+        dc = {}
 
+        def addd(d, s):
+            if d in dc:
+                l = dc[d]
+            else:
+                l = []
+                dc[d] = l
+            l.append(s)
+        
+        for ((x,y), (d,t,h)) in self.climate.iteritems():
+            if (x,y) not in self.adj:
+                continue
+            
+            c = self.tiles[y][x][0:2]
+            s = sorted(self.adj[(x,y)],
+                       key=lambda a: bearing(c, self.tiles[a[1]][a[0]][0:2]))
+            n = s[0]
+            addd(n, (d,t))
+
+        for ((x,y), ss) in dc.iteritems():
+            d, t = [sum([e[i] for e in ss])/len(ss) for i in range(2)]
+            self.climate[(x,y)] = d, t, self.climate[(x,y)][2]
+            
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
         self.Redraw()

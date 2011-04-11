@@ -122,8 +122,8 @@ class MainMenu(object):
             self.makescreen(self.screen.get_size())
             self.child = None
 
-        if not self.game:
-            self.newgame()
+        if not self.child:
+            self.world()
         else:
             self.done = True
         
