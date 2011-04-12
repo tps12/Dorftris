@@ -3,7 +3,7 @@ gettext.install('dorftris')
 
 from cPickle import dump, load
 
-from math import asin, acos, atan2, pi, sqrt, sin, cos
+from math import asin, acos, atan2, pi, exp, sqrt, sin, cos
 
 import wx, pygame
 
@@ -218,6 +218,7 @@ class PygameDisplay(wx.Window):
                     h = max(0, self.climate[(x,y)][2] - 0.025 * ins)
                     self.climate[(x,y)] = self.climate[(x,y)][0:2] + (h,)
                     
+        e2 = 2 * exp(1)
         for ((x,y), ss) in dc.iteritems():
             nt, nh = [sum([e[0][i] * e[1] for e in ss]) for i in range(2)]
             d = sum([e[1] for e in ss])
@@ -225,7 +226,7 @@ class PygameDisplay(wx.Window):
             climate = self.climate[(x,y)]
             self.climate[(x,y)] = (climate[0],
                                    0.5 * climate[1] + 0.5 * t,
-                                   0.5 * climate[2] + 0.5 * h)
+                                   0.5 * climate[2] + 0.5 * h * (0.5 + exp(t)/e2))
                         
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
