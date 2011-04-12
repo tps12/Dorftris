@@ -328,14 +328,22 @@ class PygameDisplay(wx.Window):
                 elif self.parent.showinsol.Value:
                     ins = self.insolation(y)                    
                     color = warmscale(ins)
-                else:
-                    if self.parent.showclime.Value and h > 0:
+                elif h > 0:
+                    if self.parent.showclime.Value:
                         color = (int(255 * (1 - climate[2])),
                                  255,
                                  int(255 * (1 - climate[1])))
+                    elif self.parent.showtemp.Value:
+                        color = colorscale(climate[1])
+                    elif self.parent.showhum.Value:
+                        color = coolscale(climate[2])
                     else:
-                        color = ((0,int(255 * (h/9000.0)),0) if h > 0
-                                 else (0,0,int(255 * (1 + h/11000.0))))
+                        color = (0,int(255 * (h/9000.0)),0)
+                else:
+                    if self.parent.showtemp.Value:
+                        color = [(c+255)/2 for c in colorscale(climate[1])]
+                    else:
+                        color = (0,0,int(255 * (1 + h/11000.0)))
 
                 block.fill(color)
 
@@ -500,6 +508,8 @@ class Frame(wx.Frame):
         self.showinsol = wx.CheckBox(self, wx.ID_ANY, u'Show insolation')
         self.sizer.Add(self.showinsol, 0, flag = wx.EXPAND)
 
+        self.showtemp = wx.CheckBox(self, wx.ID_ANY, u'Show temperature')
+        self.showhum = wx.CheckBox(self, wx.ID_ANY, u'Show humidity')
         self.showclime = wx.CheckBox(self, wx.ID_ANY, u'Show climate')
         self.run = wx.CheckBox(self, wx.ID_ANY, u'Iterate')
         self.iterate = wx.Button(self, wx.ID_ANY, u'Step')
@@ -508,6 +518,8 @@ class Frame(wx.Frame):
         self.reset.Bind(wx.EVT_BUTTON, self.OnReset)
 
         self.sizer5 = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer5.Add(self.showtemp, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
+        self.sizer5.Add(self.showhum, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
         self.sizer5.Add(self.showclime, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
         self.sizer5.Add(self.run, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
         self.sizer5.Add(self.iterate, 0, flag = wx.EXPAND | wx.ALL, border = 5)
