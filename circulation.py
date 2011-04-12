@@ -59,6 +59,38 @@ def season(i):
             0,
             -0.5][i]
 
+def colorscale(v):
+    m = 1275
+    r = (255 - m * v if v < 0.2 else
+         0 if v < 0.6 else
+         m * (v - 0.6) if v < 0.8 else
+         255)
+    g = (0 if v < 0.2 else
+         m * (v - 0.2) if v < 0.4 else
+         255 if v < 0.8 else
+         255 - m * (v - 0.8))
+    b = (255 if v < 0.4 else
+         255 - m * (v - 0.4) if v < 0.6 else
+         0)
+    return r, g, b
+
+def warmscale(v):
+    m = 510
+    r = 255
+    g = v * m if v < 0.5 else 255
+    b = 0 if v < 0.5 else m * (v - 0.5)
+    return r, g, b
+
+def coolscale(v):
+    m = 1020
+    r = 255 - m * v if v < 0.25 else 0
+    g = (255 if v < 0.75 else
+         255 - m * (v - 0.75))
+    b = (255 - m * v if v < 0.25 else
+         m * (v - 0.25) if v < 0.5 else
+         255)
+    return r, g, b
+
 class PygameDisplay(wx.Window):
     ADJ_CACHE = '.adj.pickle'
     
@@ -295,9 +327,7 @@ class PygameDisplay(wx.Window):
                     color = (127,0,255)
                 elif self.parent.showinsol.Value:
                     ins = self.insolation(y)                    
-                    color = (255,
-                             255 if ins >= 0.5 else int(255 * ins * 2),
-                             0 if ins < 0.5 else int(255 * (ins - 0.5) * 2))
+                    color = warmscale(ins)
                 else:
                     if self.parent.showclime.Value and h > 0:
                         color = (int(255 * (1 - climate[2])),
