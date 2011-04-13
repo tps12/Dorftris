@@ -633,15 +633,16 @@ class Frame(wx.Frame):
         self.showinsol = wx.CheckBox(self, wx.ID_ANY, u'Show insolation')
         self.sizer.Add(self.showinsol, 0, flag = wx.EXPAND)
 
+        self.iterate = wx.Button(self, wx.ID_ANY, u'Step')
         self.showtemp = wx.CheckBox(self, wx.ID_ANY, u'Show temperature')
         self.showhum = wx.CheckBox(self, wx.ID_ANY, u'Show humidity')
         self.showclime = wx.CheckBox(self, wx.ID_ANY, u'Show climate')
         self.run = wx.CheckBox(self, wx.ID_ANY, u'Iterate')
         def onrun(event):
             self.sim.run = self.run.Value
+            self.iterate.Enabled = not self.run.Value
         self.Bind(wx.EVT_CHECKBOX, onrun, self.run)
         onrun(None)
-        self.iterate = wx.Button(self, wx.ID_ANY, u'Step')
         self.iterate.Bind(wx.EVT_BUTTON, self.OnIterate)
         self.reset = wx.Button(self, wx.ID_ANY, u'Reset')
         self.reset.Bind(wx.EVT_BUTTON, self.OnReset)
