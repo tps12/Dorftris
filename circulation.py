@@ -6,6 +6,7 @@ from cPickle import dump, load
 from math import asin, acos, atan2, pi, exp, sqrt, sin, cos
 
 import wx, pygame
+from pygame.locals import *
 
 from etopo import Earth
 
@@ -244,9 +245,40 @@ class ClimateSimulation(object):
             self.climate[(x,y)] = (climate[0],
                                    0.5 * climate[1] + 0.5 * t,
                                    0.5 * climate[2] + 0.5 * h * (0.5 + exp(t)/e2))
-                        
+
+    def handle(self, e):
+        if e.type == MOUSEBUTTONUP:
+            mx, my = e.pos
+
+            res = max([len(r) for r in self.tiles]), len(self.tiles)
+
+            y = my / (self.size[1]/res[1])
+            x = mx / (self.size[0]/res[0]) - (res[0] - len(self.tiles[y]))/2
+
+            r = rotation(self.parent.rotate.Value)
+            o = r * len(self.tiles[y])/360
+
+            xo = x + o
+            if xo > len(self.tiles[y])-1:
+                xo -= len(self.tiles[y])
+            elif xo < 0:
+                xo += len(self.tiles[y])
+            
+            if 0 <= y < len(self.tiles) and 0 <= xo < len(self.tiles[y]):
+                if self.selected == (xo,y):
+                    self.selected = None
+                    self.adjacent = []
+                else:
+                    self.selected = (xo,y)
+                    self.adjacent = self.adj[self.selected]
+
+                return True
+
+        return False
+    
     def draw(self, surface):
         self.screen = surface
+        self.size = surface.get_size()
         
         self.screen.fill((0,0,0))
 
@@ -257,8 +289,8 @@ class ClimateSimulation(object):
             self.iterateclimate()
 
         res = max([len(r) for r in self.tiles]), len(self.tiles)
-        template = pygame.Surface((self.screen.get_width()/res[0],
-                                   self.screen.get_height()/res[1]), 0, 32)
+        template = pygame.Surface((self.size[0]/res[0],
+                                   self.size[1]/res[1]), 0, 32)
 
         for y in range(res[1]):
             for x in range(len(self.tiles[y])):
@@ -367,29 +399,9 @@ class PygameDisplay(wx.Window):
         self.Redraw()
 
     def OnClick(self, event):
-        mx, my = event.Position.Get()
-
-        res = max([len(r) for r in self.tiles]), len(self.tiles)
-
-        y = my / (self.size[1]/res[1])
-        x = mx / (self.size[0]/res[0]) - (res[0] - len(self.tiles[y]))/2
-
-        r = rotation(self.parent.rotate.Value)
-        o = r * len(self.tiles[y])/360
-
-        xo = x + o
-        if xo > len(self.tiles[y])-1:
-            xo -= len(self.tiles[y])
-        elif xo < 0:
-            xo += len(self.tiles[y])
-        
-        if 0 <= y < len(self.tiles) and 0 <= xo < len(self.tiles[y]):
-            if self.selected == (xo,y):
-                self.selected = None
-                self.adjacent = []
-            else:
-                self.selected = (xo,y)
-                self.adjacent = self.adj[self.selected]
+        self.climate.handle(pygame.event.Event(MOUSEBUTTONUP,
+                                               {'button': 1,
+                                                'pos': event.Position.Get()}))
 
     def Redraw(self):
         if self.size_dirty:
