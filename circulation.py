@@ -527,8 +527,8 @@ class PygameDisplay(wx.Window):
         # This may or may not be necessary now that Pygame is just drawing to surfaces
         self.Unbind(event = wx.EVT_PAINT, handler = self.OnPaint)
         self.Unbind(event = wx.EVT_TIMER, handler = self.Update, source = self.timer)
- 
-class Frame(wx.Frame):
+
+class SimulationControls(wx.PyPanel):
     @staticmethod
     def radstr(i):
         return '{r} km'.format(r=radius(i))
@@ -556,7 +556,137 @@ class Frame(wx.Frame):
                 u'Southern spring',
                 u'Southward equinox',
                 u'Southern summer'][i]
-    
+
+    def __init__(self, parent, sim):
+        wx.PyPanel.__init__(self, parent)
+        self._sim = sim
+
+        lines = wx.BoxSizer(wx.VERTICAL)
+
+        self._radius = wx.TextCtrl(self, wx.ID_ANY)
+        self._rate = wx.TextCtrl(self, wx.ID_ANY)
+        self._tilt = wx.TextCtrl(self, wx.ID_ANY)
+        self._season = wx.TextCtrl(self, wx.ID_ANY)
+
+        for name, value, low, high, handler, display in [
+            (u'Radius:', 4, 1, 80, self._onradius, self._radius),
+            (u'Rotation rate:', 10, -15, 15, self._onrate, self._rate),
+            (u'Axial tilt:', 23, 0, 90, self._ontilt, self._tilt),
+            (u'Season:', 2, 0, 7, self._onseason, self._season)
+            ]:
+            controls = wx.BoxSizer(wx.HORIZONTAL)
+            slider = wx.Slider(self, wx.ID_ANY,
+                               value, low, high,
+                               style=wx.SL_HORIZONTAL)
+            self.Bind(wx.EVT_SCROLL, handler, slider)
+            handler(wx.ScrollEvent(pos=slider.Value))
+
+            controls.Add(wx.StaticText(self, wx.ID_ANY, name))
+            controls.Add(slider, 1)
+            controls.Add(display)
+
+            lines.Add(controls, flag=wx.EXPAND)
+
+        state = wx.BoxSizer(wx.HORIZONTAL)
+        
+        run = wx.CheckBox(self, wx.ID_ANY, u'Run simulation')
+        self.Bind(wx.EVT_CHECKBOX, self._onrun, run)
+
+        self._step = wx.Button(self, wx.ID_ANY, u'Step')
+        self.Bind(wx.EVT_BUTTON, self._clickhandler(self._sim.iterateclimate), self._step)
+
+        reset = wx.Button(self, wx.ID_ANY, u'Reset')
+        self.Bind(wx.EVT_BUTTON, self._clickhandler(self._sim.resetclimate), reset)
+
+        event = wx.CommandEvent()
+        event.Value = run.Value
+        self._onrun(event)
+
+        state.Add(run)
+        state.Add(self._step)
+        state.Add(reset)
+
+        lines.Add(state)
+                           
+        self.SetAutoLayout(True)
+        self.SetSizer(lines)
+        self.Layout()
+
+    def _onrun(self, event):
+        self._step.Enabled = not event.Checked()
+        self._sim.run = event.Checked()
+
+    def _clickhandler(self, handler):
+        def onclick(event):
+            handler()
+        return onclick
+
+    def _onradius(self, event):
+        self._sim.radius = radius(event.Position)
+        self._radius.Value = self.radstr(event.Position)
+
+    def _onrate(self, event):
+        self._sim.spin = spin(event.Position)/360.
+        self._rate.Value = self.spinstr(event.Position)
+
+    def _ontilt(self, event):
+        self._sim.tilt = event.Position
+        self._tilt.Value = self.tiltstr(event.Position)
+
+    def _onseason(self, event):
+        self._sim.season = season(event.Position)
+        self._season.Value = self.seasonstr(event.Position)
+
+class DisplayControls(wx.PyPanel):
+    def __init__(self, parent, display):
+        wx.PyPanel.__init__(self, parent)
+        self._display = display
+
+        lines = wx.BoxSizer(wx.VERTICAL)
+
+        rotate = wx.Slider(self, wx.ID_ANY, 0, -18, 18, style=wx.SL_HORIZONTAL)
+        self.Bind(wx.EVT_SCROLL, self._onrotate, rotate)
+        self._onrotate(wx.ScrollEvent(pos=rotate.Value))
+        lines.Add(rotate, flag=wx.EXPAND)
+
+        modes = wx.BoxSizer(wx.HORIZONTAL)
+        style = wx.RB_GROUP
+        for name, mode in [(u'Terrain', ClimateDisplay.TERRAIN),
+                           (u'Temperature', ClimateDisplay.TEMPERATURE),
+                           (u'Humidity', ClimateDisplay.HUMIDITY),
+                           (u'Climate', ClimateDisplay.CLIMATE),
+                           (u'Insolation', ClimateDisplay.INSOLATION)]:
+            button = wx.RadioButton(self, wx.ID_ANY, name, style=style)
+            self.Bind(wx.EVT_RADIOBUTTON, self._modehandler(mode), button)
+            modes.Add(button)
+            if style:
+                self._modehandler(mode)(None)
+                style = 0
+        lines.Add(modes, flag=wx.EXPAND)
+
+        airflow = wx.CheckBox(self, wx.ID_ANY, u'Show circulation')
+        self.Bind(wx.EVT_CHECKBOX, self._onairflow, airflow)
+        event = wx.CommandEvent()
+        event.Value = airflow.Value
+        self._onairflow(event)
+        lines.Add(airflow)
+        
+        self.SetAutoLayout(True)
+        self.SetSizer(lines)
+        self.Layout()
+
+    def _modehandler(self, mode):
+        def onmode(event):
+            self._display.mode = mode
+        return onmode
+
+    def _onairflow(self, event):
+        self._display.airflow = event.Checked()
+        
+    def _onrotate(self, event):
+        self._display.rotate = rotation(-event.Position)
+
+class Frame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, size = (1600, 1000))
 
@@ -570,132 +700,25 @@ class Frame(wx.Frame):
         self.curframe = 0
        
         self.SetTitle(self.sim.planet.name)
-       
-        self.slider = wx.Slider(self, wx.ID_ANY, 4, 1, 80, style = wx.SL_HORIZONTAL)
-        self.sim.radius = radius(self.slider.Value)
-        self.radius = wx.TextCtrl(self, wx.ID_ANY,
-                                  self.radstr(self.slider.Value))
-       
-        self.order = wx.Slider(self, wx.ID_ANY, 10, -15, 15, style = wx.SL_HORIZONTAL)
-        self.order.Bind(wx.EVT_SCROLL, self.OnSpin)
-        self.sim.spin = spin(self.order.Value)/360.0
-        self.spin = wx.TextCtrl(self, wx.ID_ANY,
-                                self.spinstr(self.order.Value))
-       
-        self.tilt = wx.Slider(self, wx.ID_ANY, 23, 0, 90, style = wx.SL_HORIZONTAL)
-        self.sim.tilt = self.tilt.Value
-        self.tilt.Bind(wx.EVT_SCROLL, self.OnTilt)
-        self.angle = wx.TextCtrl(self, wx.ID_ANY,
-                                 self.tiltstr(self.tilt.Value))
-       
+              
         self.timer = wx.Timer(self)
        
-        self.Bind(wx.EVT_SCROLL, self.OnScroll)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_TIMER, self.Update, self.timer)
        
         self.timer.Start((1000.0 / self.display.fps))
        
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        
-        self.sizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer2.Add(self.slider, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
-        self.sizer2.Add(self.radius, 0, flag = wx.EXPAND | wx.ALL, border = 5)
-        
-        self.sizer4 = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer4.Add(self.order, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
-        self.sizer4.Add(self.spin, 0, flag = wx.EXPAND | wx.ALL, border = 5)
-        
-        self.sizer3 = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer3.Add(self.tilt, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
-        self.sizer3.Add(self.angle, 0, flag = wx.EXPAND | wx.ALL, border = 5)
-        
-        self.sizer.Add(self.sizer2, 0, flag = wx.EXPAND)
-        self.showair = wx.CheckBox(self, wx.ID_ANY, u'Show circulation')
-        self.sizer.Add(self.showair, 0, flag = wx.EXPAND)
-        
-        self.sizer.Add(self.sizer4, 0, flag = wx.EXPAND)
 
-        self.sizer.Add(self.sizer3, 0, flag = wx.EXPAND)
-
-        self.time = wx.Slider(self, wx.ID_ANY, 2, 0, 7, style = wx.SL_HORIZONTAL)
-        self.sim.season = season(self.time.Value)
-        self.season = wx.TextCtrl(self, wx.ID_ANY,
-                                  self.seasonstr(self.time.Value))
-        self.time.Bind(wx.EVT_SCROLL, self.OnSeason)
-
-        self.sizer6 = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer6.Add(self.time, 1, flag = wx.EXPAND | wx.RIGHT, border = 5)
-        self.sizer6.Add(self.season, 0, flag = wx.EXPAND | wx.ALL, border = 5)
-
-        self.sizer.Add(self.sizer6, 0, flag = wx.EXPAND)
-
-        self.showinsol = wx.CheckBox(self, wx.ID_ANY, u'Show insolation')
-        self.sizer.Add(self.showinsol, 0, flag = wx.EXPAND)
-
-        self.iterate = wx.Button(self, wx.ID_ANY, u'Step')
-        self.showtemp = wx.CheckBox(self, wx.ID_ANY, u'Show temperature')
-        self.showhum = wx.CheckBox(self, wx.ID_ANY, u'Show humidity')
-        self.showclime = wx.CheckBox(self, wx.ID_ANY, u'Show climate')
-        self.run = wx.CheckBox(self, wx.ID_ANY, u'Iterate')
-        def onrun(event):
-            self.sim.run = self.run.Value
-            self.iterate.Enabled = not self.run.Value
-        self.Bind(wx.EVT_CHECKBOX, onrun, self.run)
-        onrun(None)
-        self.iterate.Bind(wx.EVT_BUTTON, self.OnIterate)
-        self.reset = wx.Button(self, wx.ID_ANY, u'Reset')
-        self.reset.Bind(wx.EVT_BUTTON, self.OnReset)
-
-        self.sizer5 = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer5.Add(self.showtemp, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
-        self.sizer5.Add(self.showhum, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
-        self.sizer5.Add(self.showclime, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
-        self.sizer5.Add(self.run, 0, flag = wx.EXPAND | wx.RIGHT, border = 5)
-        self.sizer5.Add(self.iterate, 0, flag = wx.EXPAND | wx.ALL, border = 5)
-        self.sizer5.Add(self.reset, 0, flag = wx.EXPAND | wx.ALL, border = 5)
-
-        def mode(event):
-            self.map.mode = (
-                ClimateDisplay.INSOLATION if self.showinsol.Value else
-                ClimateDisplay.TEMPERATURE if self.showtemp.Value else
-                ClimateDisplay.HUMIDITY if self.showhum.Value else
-                ClimateDisplay.CLIMATE if self.showclime.Value else
-                ClimateDisplay.TERRAIN)
-
-        self.Bind(wx.EVT_CHECKBOX, mode, self.showinsol)
-        self.Bind(wx.EVT_CHECKBOX, mode, self.showtemp)
-        self.Bind(wx.EVT_CHECKBOX, mode, self.showhum)
-        self.Bind(wx.EVT_CHECKBOX, mode, self.showclime)
-        mode(None)
-
-        def air(event):
-            self.map.airflow = self.showair.Value
-        self.Bind(wx.EVT_CHECKBOX, air, self.showair)
-        air(None)
-
-        self.sizer.Add(self.sizer5, 0, flag = wx.EXPAND)
+        self.sizer.Add(SimulationControls(self, self.sim), flag=wx.EXPAND)
 
         self.sizer.Add(self.display, 1, flag = wx.EXPAND)
 
-        self.rotate = wx.Slider(self, wx.ID_ANY, 0, -18, 18, style = wx.SL_HORIZONTAL)
-        def onrotate(event):
-            self.map.rotate = rotation(-self.rotate.Value)
-        self.Bind(wx.EVT_SCROLL,
-                  onrotate,
-                  self.rotate)
-        onrotate(None)
-        self.sizer.Add(self.rotate, 0, flag = wx.EXPAND)
+        self.sizer.Add(DisplayControls(self, self.map), flag=wx.EXPAND)
        
         self.SetAutoLayout(True)
         self.SetSizer(self.sizer)
         self.Layout()
-
-    def OnIterate(self, event):
-        self.sim.iterateclimate()
-
-    def OnReset(self, event):
-        self.sim.resetclimate()
  
     def Kill(self, event):
         self.display.Kill(event)
@@ -706,22 +729,6 @@ class Frame(wx.Frame):
  
     def Update(self, event):
         pass
- 
-    def OnScroll(self, event):
-        self.sim.radius = radius(self.slider.Value)
-        self.radius.Value = self.radstr(self.slider.Value)
-
-    def OnTilt(self, event):
-        self.sim.tilt = self.tilt.Value
-        self.angle.Value = self.tiltstr(self.tilt.Value)
-
-    def OnSpin(self, event):
-        self.sim.spin = spin(self.order.Value)/360.0
-        self.spin.Value = self.spinstr(self.order.Value)
-
-    def OnSeason(self, event):
-        self.sim.season = season(self.time.Value)
-        self.season.Value = self.seasonstr(self.time.Value)
  
 class App(wx.App):
     def __init__(self, redirect=True):
