@@ -161,7 +161,8 @@ class ClimateSimulation(object):
 
     @season.setter
     def season(self, value):
-        self._season = value      
+        self._season = value
+        self.climate.clear()
 
     @property
     def radius(self):
@@ -298,6 +299,8 @@ class ClimateSimulation(object):
             self.iterateclimate()
 
 class ClimateDisplay(object):
+    dt = 0.01
+    
     def __init__(self, sim):
         self._sim = sim
         
@@ -485,9 +488,7 @@ class PygameDisplay(wx.Window):
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_LEFT_UP, self.OnClick)
        
-        self.fps = 60.0
-        self.timespacing = 1000.0 / self.fps
-        self.timer.Start(self.timespacing, False)
+        self.timer.Start(self.display.dt * 1000, False)
 
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
@@ -701,13 +702,6 @@ class Frame(wx.Frame):
        
         self.SetTitle(self.sim.planet.name)
               
-        self.timer = wx.Timer(self)
-       
-        self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.Bind(wx.EVT_TIMER, self.Update, self.timer)
-       
-        self.timer.Start((1000.0 / self.display.fps))
-       
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         self.sizer.Add(SimulationControls(self, self.sim), flag=wx.EXPAND)
@@ -726,9 +720,6 @@ class Frame(wx.Frame):
  
     def OnSize(self, event):
         self.Layout()
- 
-    def Update(self, event):
-        pass
  
 class App(wx.App):
     def __init__(self, redirect=True):
