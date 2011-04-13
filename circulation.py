@@ -95,9 +95,7 @@ def coolscale(v):
 class ClimateSimulation(object):
     ADJ_CACHE = '.adj.pickle'
     
-    def __init__(self, parent):
-        self.parent = parent
-        
+    def __init__(self):
         self.planet = Earth()
 
         self.tiles = []
@@ -149,16 +147,98 @@ class ClimateSimulation(object):
         self.selected = None
         self.adjacent = []
 
+    @property
+    def tilt(self):
+        return self._tilt
+
+    @tilt.setter
+    def tilt(self, value):
+        self._tilt = value
+        self.climate.clear()
+        self._screen = None
+
+    @property
+    def rotate(self):
+        return self._rotate
+
+    @rotate.setter
+    def rotate(self, value):
+        self._rotate = value
+        self._screen = None
+
+    @property
+    def season(self):
+        return self._season
+
+    @season.setter
+    def season(self, value):
+        self._season = value
+        self.climate.clear()
+        self._screen = None
+
+    @property
+    def radius(self):
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):
+        self._radius = value
+        self.climate.clear()
+        self._screen = None
+
+    @property
+    def spin(self):
+        return self._spin
+
+    @spin.setter
+    def spin(self, value):
+        self._spin = value
+        self.climate.clear()
+        self._screen = None
+
+    @property
+    def run(self):
+        return self._run
+
+    @run.setter
+    def run(self, value):
+        self._run = value
+        self._screen = None
+
+    @property
+    def airflow(self):
+        return self._airflow
+
+    @airflow.setter
+    def airflow(self, value):
+        self._airflow = value
+        self._screen = None
+
+    TERRAIN = 0
+    INSOLATION = 1
+    TEMPERATURE = 2
+    HUMIDITY = 3
+    CLIMATE = 4
+
+    @property
+    def mode(self):
+        return self._mode
+
+    @mode.setter
+    def mode(self, value):
+        self._mode = value
+        self._screen = None
+
     def insolation(self, y):
         theta = 2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2
-        theta += (self.parent.tilt.Value * pi/180) * season(self.parent.time.Value)
+        theta += (self.tilt * pi/180) * self.season
         ins = max(0, cos(theta))
-        return 0.5 + (ins - 0.5) * cos(self.parent.tilt.Value * pi/180)
+        return 0.5 + (ins - 0.5) * cos(self.tilt * pi/180)
 
     def resetclimate(self):
         res = max([len(r) for r in self.tiles]), len(self.tiles)
         
-        c = cells(radius(self.parent.slider.Value))
+        c = cells(self.radius)
 
         for y in range(res[1]):
             n = abs(y + 0.5 - res[1]/2)/(float(res[1]/2)/c)
@@ -166,7 +246,7 @@ class ClimateSimulation(object):
             n = n if y >= res[1]/2 else not n
             d = 180 - 180 * n
 
-            s = spin(self.parent.order.Value)/360.0
+            s = self.spin
             ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
             d += atan2(ce, 1) * 180/pi
             d %= 360
@@ -176,6 +256,8 @@ class ClimateSimulation(object):
                 ins = self.insolation(y)
                 
                 self.climate[(x,y)] = d, ins, 1.0 * (h <= 0)
+
+        self._screen = None
 
     def iterateclimate(self):
         dc = {}
@@ -246,6 +328,8 @@ class ClimateSimulation(object):
                                    0.5 * climate[1] + 0.5 * t,
                                    0.5 * climate[2] + 0.5 * h * (0.5 + exp(t)/e2))
 
+        self._screen = None
+
     def handle(self, e):
         if e.type == MOUSEBUTTONUP:
             mx, my = e.pos
@@ -255,7 +339,7 @@ class ClimateSimulation(object):
             y = my / (self.size[1]/res[1])
             x = mx / (self.size[0]/res[0]) - (res[0] - len(self.tiles[y]))/2
 
-            r = rotation(self.parent.rotate.Value)
+            r = self.rotate
             o = r * len(self.tiles[y])/360
 
             xo = x + o
@@ -272,6 +356,8 @@ class ClimateSimulation(object):
                     self.selected = (xo,y)
                     self.adjacent = self.adj[self.selected]
 
+                self._screen = None
+
                 return True
 
         return False
@@ -285,7 +371,7 @@ class ClimateSimulation(object):
         if not self.climate:
             self.resetclimate()
 
-        if self.parent.run.Value:
+        if self.run:
             self.iterateclimate()
 
         res = max([len(r) for r in self.tiles]), len(self.tiles)
@@ -296,7 +382,7 @@ class ClimateSimulation(object):
             for x in range(len(self.tiles[y])):
                 block = template.copy()
 
-                r = rotation(self.parent.rotate.Value)
+                r = self.rotate
                 o = r * len(self.tiles[y])/360
 
                 xo = x + o
@@ -312,29 +398,29 @@ class ClimateSimulation(object):
                     color = (255,0,255)
                 elif (xo, y) in self.adjacent:
                     color = (127,0,255)
-                elif self.parent.showinsol.Value:
+                elif self.mode == self.INSOLATION:
                     ins = self.insolation(y)                    
                     color = warmscale(ins)
                 elif h > 0:
-                    if self.parent.showclime.Value:
+                    if self.mode == self.CLIMATE:
                         color = (int(255 * (1 - climate[2])),
                                  255,
                                  int(255 * (1 - climate[1])))
-                    elif self.parent.showtemp.Value:
+                    elif self.mode == self.TEMPERATURE:
                         color = colorscale(climate[1])
-                    elif self.parent.showhum.Value:
+                    elif self.mode == self.HUMIDITY:
                         color = coolscale(climate[2])
                     else:
                         color = (0,int(255 * (h/9000.0)),0)
                 else:
-                    if self.parent.showtemp.Value:
+                    if self.mode == self.TEMPERATURE:
                         color = [(c+255)/2 for c in colorscale(climate[1])]
                     else:
                         color = (0,0,int(255 * (1 + h/11000.0)))
 
                 block.fill(color)
 
-                if self.parent.showair.Value:
+                if self.airflow:
                     s = sin(pi/2 * (y - res[1]/2)/res[1]/2) * 90
                     s *= sin(pi/2 * (x - len(self.tiles[y])/2)/(len(self.tiles[y])/2))
 
@@ -392,7 +478,7 @@ class PygameDisplay(wx.Window):
         self.timespacing = 1000.0 / self.fps
         self.timer.Start(self.timespacing, False)
 
-        self.climate = ClimateSimulation(self.parent)
+        self.climate = ClimateSimulation()
 
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
@@ -475,15 +561,18 @@ class Frame(wx.Frame):
         self.SetTitle(self.display.climate.planet.name)
        
         self.slider = wx.Slider(self, wx.ID_ANY, 4, 1, 80, style = wx.SL_HORIZONTAL)
+        self.display.climate.radius = radius(self.slider.Value)
         self.radius = wx.TextCtrl(self, wx.ID_ANY,
                                   self.radstr(self.slider.Value))
        
         self.order = wx.Slider(self, wx.ID_ANY, 10, -15, 15, style = wx.SL_HORIZONTAL)
         self.order.Bind(wx.EVT_SCROLL, self.OnSpin)
+        self.display.climate.spin = spin(self.order.Value)/360.0
         self.spin = wx.TextCtrl(self, wx.ID_ANY,
                                 self.spinstr(self.order.Value))
        
         self.tilt = wx.Slider(self, wx.ID_ANY, 23, 0, 90, style = wx.SL_HORIZONTAL)
+        self.display.climate.tilt = self.tilt.Value
         self.tilt.Bind(wx.EVT_SCROLL, self.OnTilt)
         self.angle = wx.TextCtrl(self, wx.ID_ANY,
                                  self.tiltstr(self.tilt.Value))
@@ -519,6 +608,7 @@ class Frame(wx.Frame):
         self.sizer.Add(self.sizer3, 0, flag = wx.EXPAND)
 
         self.time = wx.Slider(self, wx.ID_ANY, 2, 0, 7, style = wx.SL_HORIZONTAL)
+        self.display.climate.season = season(self.time.Value)
         self.season = wx.TextCtrl(self, wx.ID_ANY,
                                   self.seasonstr(self.time.Value))
         self.time.Bind(wx.EVT_SCROLL, self.OnSeason)
@@ -536,6 +626,10 @@ class Frame(wx.Frame):
         self.showhum = wx.CheckBox(self, wx.ID_ANY, u'Show humidity')
         self.showclime = wx.CheckBox(self, wx.ID_ANY, u'Show climate')
         self.run = wx.CheckBox(self, wx.ID_ANY, u'Iterate')
+        def onrun(event):
+            self.display.climate.run = self.run.Value
+        self.Bind(wx.EVT_CHECKBOX, onrun, self.run)
+        onrun(None)
         self.iterate = wx.Button(self, wx.ID_ANY, u'Step')
         self.iterate.Bind(wx.EVT_BUTTON, self.OnIterate)
         self.reset = wx.Button(self, wx.ID_ANY, u'Reset')
@@ -549,11 +643,36 @@ class Frame(wx.Frame):
         self.sizer5.Add(self.iterate, 0, flag = wx.EXPAND | wx.ALL, border = 5)
         self.sizer5.Add(self.reset, 0, flag = wx.EXPAND | wx.ALL, border = 5)
 
+        def mode(event):
+            self.display.climate.mode = (
+                ClimateSimulation.INSOLATION if self.showinsol.Value else
+                ClimateSimulation.TEMPERATURE if self.showtemp.Value else
+                ClimateSimulation.HUMIDITY if self.showhum.Value else
+                ClimateSimulation.CLIMATE if self.showclime.Value else
+                ClimateSimulation.TERRAIN)
+
+        self.Bind(wx.EVT_CHECKBOX, mode, self.showinsol)
+        self.Bind(wx.EVT_CHECKBOX, mode, self.showtemp)
+        self.Bind(wx.EVT_CHECKBOX, mode, self.showhum)
+        self.Bind(wx.EVT_CHECKBOX, mode, self.showclime)
+        mode(None)
+
+        def air(event):
+            self.display.climate.airflow = self.showair.Value
+        self.Bind(wx.EVT_CHECKBOX, air, self.showair)
+        air(None)
+
         self.sizer.Add(self.sizer5, 0, flag = wx.EXPAND)
 
         self.sizer.Add(self.display, 1, flag = wx.EXPAND)
 
         self.rotate = wx.Slider(self, wx.ID_ANY, 0, -18, 18, style = wx.SL_HORIZONTAL)
+        def onrotate(event):
+            self.display.climate.rotate = rotation(self.rotate.Value)
+        self.Bind(wx.EVT_SCROLL,
+                  onrotate,
+                  self.rotate)
+        onrotate(None)
         self.sizer.Add(self.rotate, 0, flag = wx.EXPAND)
        
         self.SetAutoLayout(True)
@@ -577,15 +696,19 @@ class Frame(wx.Frame):
         pass
  
     def OnScroll(self, event):
+        self.display.climate.radius = radius(self.slider.Value)
         self.radius.Value = self.radstr(self.slider.Value)
 
     def OnTilt(self, event):
+        self.display.climate.tilt = self.tilt.Value
         self.angle.Value = self.tiltstr(self.tilt.Value)
 
     def OnSpin(self, event):
+        self.display.climate.spin = spin(self.order.Value)/360.0
         self.spin.Value = self.spinstr(self.order.Value)
 
     def OnSeason(self, event):
+        self.display.climate.season = season(self.time.Value)
         self.season.Value = self.seasonstr(self.time.Value)
  
 class App(wx.App):
