@@ -679,7 +679,7 @@ class Frame(wx.Frame):
 
         self.rotate = wx.Slider(self, wx.ID_ANY, 0, -18, 18, style = wx.SL_HORIZONTAL)
         def onrotate(event):
-            self.map.rotate = rotation(self.rotate.Value)
+            self.map.rotate = rotation(-self.rotate.Value)
         self.Bind(wx.EVT_SCROLL,
                   onrotate,
                   self.rotate)
