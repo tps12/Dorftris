@@ -156,15 +156,6 @@ class ClimateSimulation(object):
         self.climate.clear()
 
     @property
-    def rotate(self):
-        return self._rotate
-
-    @rotate.setter
-    def rotate(self, value):
-        self._rotate = value
-        self.dirty = True
-
-    @property
     def season(self):
         return self._season
 
@@ -197,30 +188,6 @@ class ClimateSimulation(object):
     @run.setter
     def run(self, value):
         self._run = value
-
-    @property
-    def airflow(self):
-        return self._airflow
-
-    @airflow.setter
-    def airflow(self, value):
-        self._airflow = value
-        self.dirty = True
-
-    TERRAIN = 0
-    INSOLATION = 1
-    TEMPERATURE = 2
-    HUMIDITY = 3
-    CLIMATE = 4
-
-    @property
-    def mode(self):
-        return self._mode
-
-    @mode.setter
-    def mode(self, value):
-        self._mode = value
-        self.dirty = True
 
     def insolation(self, y):
         theta = 2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2
@@ -339,6 +306,39 @@ class ClimateDisplay(object):
 
         self._screen = None
 
+    @property
+    def rotate(self):
+        return self._rotate
+
+    @rotate.setter
+    def rotate(self, value):
+        self._rotate = value
+        self.dirty = True
+
+    @property
+    def airflow(self):
+        return self._airflow
+
+    @airflow.setter
+    def airflow(self, value):
+        self._airflow = value
+        self.dirty = True
+
+    TERRAIN = 0
+    INSOLATION = 1
+    TEMPERATURE = 2
+    HUMIDITY = 3
+    CLIMATE = 4
+
+    @property
+    def mode(self):
+        return self._mode
+
+    @mode.setter
+    def mode(self, value):
+        self._mode = value
+        self.dirty = True
+
     def handle(self, e):
         if e.type == MOUSEBUTTONUP:
             mx, my = e.pos
@@ -389,7 +389,7 @@ class ClimateDisplay(object):
                 for x in range(len(self._sim.tiles[y])):
                     block = template.copy()
 
-                    r = self._sim.rotate
+                    r = self.rotate
                     o = r * len(self._sim.tiles[y])/360
 
                     xo = x + o
@@ -405,29 +405,29 @@ class ClimateDisplay(object):
                         color = (255,0,255)
                     elif (xo, y) in self.adjacent:
                         color = (127,0,255)
-                    elif self._sim.mode == self._sim.INSOLATION:
+                    elif self.mode == self.INSOLATION:
                         ins = self._sim.insolation(y)                    
                         color = warmscale(ins)
                     elif h > 0:
-                        if self._sim.mode == self._sim.CLIMATE:
+                        if self.mode == self.CLIMATE:
                             color = (int(255 * (1 - climate[2])),
                                      255,
                                      int(255 * (1 - climate[1])))
-                        elif self._sim.mode == self._sim.TEMPERATURE:
+                        elif self.mode == self.TEMPERATURE:
                             color = colorscale(climate[1])
-                        elif self._sim.mode == self._sim.HUMIDITY:
+                        elif self.mode == self.HUMIDITY:
                             color = coolscale(climate[2])
                         else:
                             color = (0,int(255 * (h/9000.0)),0)
                     else:
-                        if self._sim.mode == self._sim.TEMPERATURE:
+                        if self.mode == self.TEMPERATURE:
                             color = [(c+255)/2 for c in colorscale(climate[1])]
                         else:
                             color = (0,0,int(255 * (1 + h/11000.0)))
 
                     block.fill(color)
 
-                    if self._sim.airflow:
+                    if self.airflow:
                         s = sin(pi/2 * (y - res[1]/2)/res[1]/2) * 90
                         s *= sin(pi/2 * (x - len(self._sim.tiles[y])/2)/(len(self._sim.tiles[y])/2))
 
@@ -561,7 +561,8 @@ class Frame(wx.Frame):
         wx.Frame.__init__(self, parent, -1, size = (1600, 1000))
 
         self.sim = ClimateSimulation()
-        self.display = PygameDisplay(self, -1, ClimateDisplay(self.sim))
+        self.map = ClimateDisplay(self.sim)
+        self.display = PygameDisplay(self, -1, self.map)
        
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_CLOSE, self.Kill)
@@ -654,12 +655,12 @@ class Frame(wx.Frame):
         self.sizer5.Add(self.reset, 0, flag = wx.EXPAND | wx.ALL, border = 5)
 
         def mode(event):
-            self.sim.mode = (
-                ClimateSimulation.INSOLATION if self.showinsol.Value else
-                ClimateSimulation.TEMPERATURE if self.showtemp.Value else
-                ClimateSimulation.HUMIDITY if self.showhum.Value else
-                ClimateSimulation.CLIMATE if self.showclime.Value else
-                ClimateSimulation.TERRAIN)
+            self.map.mode = (
+                ClimateDisplay.INSOLATION if self.showinsol.Value else
+                ClimateDisplay.TEMPERATURE if self.showtemp.Value else
+                ClimateDisplay.HUMIDITY if self.showhum.Value else
+                ClimateDisplay.CLIMATE if self.showclime.Value else
+                ClimateDisplay.TERRAIN)
 
         self.Bind(wx.EVT_CHECKBOX, mode, self.showinsol)
         self.Bind(wx.EVT_CHECKBOX, mode, self.showtemp)
@@ -668,7 +669,7 @@ class Frame(wx.Frame):
         mode(None)
 
         def air(event):
-            self.sim.airflow = self.showair.Value
+            self.map.airflow = self.showair.Value
         self.Bind(wx.EVT_CHECKBOX, air, self.showair)
         air(None)
 
@@ -678,7 +679,7 @@ class Frame(wx.Frame):
 
         self.rotate = wx.Slider(self, wx.ID_ANY, 0, -18, 18, style = wx.SL_HORIZONTAL)
         def onrotate(event):
-            self.sim.rotate = rotation(self.rotate.Value)
+            self.map.rotate = rotation(self.rotate.Value)
         self.Bind(wx.EVT_SCROLL,
                   onrotate,
                   self.rotate)
