@@ -91,27 +91,12 @@ def coolscale(v):
          255)
     return r, g, b
 
-class PygameDisplay(wx.Window):
+class ClimateSimulation(object):
     ADJ_CACHE = '.adj.pickle'
     
-    def __init__(self, parent, ID):
-        wx.Window.__init__(self, parent, ID)
+    def __init__(self, parent):
         self.parent = parent
-        self.hwnd = self.GetHandle()
-       
-        self.size = self.GetSizeTuple()
-        self.size_dirty = True
-       
-        self.timer = wx.Timer(self)
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.Bind(wx.EVT_TIMER, self.Update, self.timer)
-        self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.Bind(wx.EVT_LEFT_UP, self.OnClick)
-       
-        self.fps = 60.0
-        self.timespacing = 1000.0 / self.fps
-        self.timer.Start(self.timespacing, False)
- 
+        
         self.planet = Earth()
 
         self.tiles = []
@@ -260,40 +245,9 @@ class PygameDisplay(wx.Window):
                                    0.5 * climate[1] + 0.5 * t,
                                    0.5 * climate[2] + 0.5 * h * (0.5 + exp(t)/e2))
                         
-    def Update(self, event):
-        # Any update tasks would go here (moving sprites, advancing animation frames etc.)
-        self.Redraw()
-
-    def OnClick(self, event):
-        mx, my = event.Position.Get()
-
-        res = max([len(r) for r in self.tiles]), len(self.tiles)
-
-        y = my / (self.size[1]/res[1])
-        x = mx / (self.size[0]/res[0]) - (res[0] - len(self.tiles[y]))/2
-
-        r = rotation(self.parent.rotate.Value)
-        o = r * len(self.tiles[y])/360
-
-        xo = x + o
-        if xo > len(self.tiles[y])-1:
-            xo -= len(self.tiles[y])
-        elif xo < 0:
-            xo += len(self.tiles[y])
+    def draw(self, surface):
+        self.screen = surface
         
-        if 0 <= y < len(self.tiles) and 0 <= xo < len(self.tiles[y]):
-            if self.selected == (xo,y):
-                self.selected = None
-                self.adjacent = []
-            else:
-                self.selected = (xo,y)
-                self.adjacent = self.adj[self.selected]
-
-    def Redraw(self):
-        if self.size_dirty:
-            self.screen = pygame.Surface(self.size, 0, 32)
-            self.size_dirty = False
-
         self.screen.fill((0,0,0))
 
         if not self.climate:
@@ -303,7 +257,8 @@ class PygameDisplay(wx.Window):
             self.iterateclimate()
 
         res = max([len(r) for r in self.tiles]), len(self.tiles)
-        template = pygame.Surface((self.size[0]/res[0],self.size[1]/res[1]), 0, 32)
+        template = pygame.Surface((self.screen.get_width()/res[0],
+                                   self.screen.get_height()/res[1]), 0, 32)
 
         for y in range(res[1]):
             for x in range(len(self.tiles[y])):
@@ -386,6 +341,63 @@ class PygameDisplay(wx.Window):
                                  ((x + (res[0] - len(self.tiles[y]))/2)*block.get_width(),
                                   y*block.get_height()))
 
+class PygameDisplay(wx.Window):
+    def __init__(self, parent, ID):
+        wx.Window.__init__(self, parent, ID)
+        self.parent = parent
+        self.hwnd = self.GetHandle()
+       
+        self.size = self.GetSizeTuple()
+        self.size_dirty = True
+       
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_TIMER, self.Update, self.timer)
+        self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.Bind(wx.EVT_LEFT_UP, self.OnClick)
+       
+        self.fps = 60.0
+        self.timespacing = 1000.0 / self.fps
+        self.timer.Start(self.timespacing, False)
+
+        self.climate = ClimateSimulation(self.parent)
+
+    def Update(self, event):
+        # Any update tasks would go here (moving sprites, advancing animation frames etc.)
+        self.Redraw()
+
+    def OnClick(self, event):
+        mx, my = event.Position.Get()
+
+        res = max([len(r) for r in self.tiles]), len(self.tiles)
+
+        y = my / (self.size[1]/res[1])
+        x = mx / (self.size[0]/res[0]) - (res[0] - len(self.tiles[y]))/2
+
+        r = rotation(self.parent.rotate.Value)
+        o = r * len(self.tiles[y])/360
+
+        xo = x + o
+        if xo > len(self.tiles[y])-1:
+            xo -= len(self.tiles[y])
+        elif xo < 0:
+            xo += len(self.tiles[y])
+        
+        if 0 <= y < len(self.tiles) and 0 <= xo < len(self.tiles[y]):
+            if self.selected == (xo,y):
+                self.selected = None
+                self.adjacent = []
+            else:
+                self.selected = (xo,y)
+                self.adjacent = self.adj[self.selected]
+
+    def Redraw(self):
+        if self.size_dirty:
+            self.screen = pygame.Surface(self.size, 0, 32)
+            self.size_dirty = False
+
+        self.climate.draw(self.screen)
+
         s = pygame.image.tostring(self.screen, 'RGB')  # Convert the surface to an RGB string
         img = wx.ImageFromData(self.size[0], self.size[1], s)  # Load this string into a wx image
         bmp = wx.BitmapFromImage(img)  # Get the image in bitmap form
@@ -448,7 +460,7 @@ class Frame(wx.Frame):
        
         self.curframe = 0
        
-        self.SetTitle(self.display.planet.name)
+        self.SetTitle(self.display.climate.planet.name)
        
         self.slider = wx.Slider(self, wx.ID_ANY, 4, 1, 80, style = wx.SL_HORIZONTAL)
         self.radius = wx.TextCtrl(self, wx.ID_ANY,
@@ -537,10 +549,10 @@ class Frame(wx.Frame):
         self.Layout()
 
     def OnIterate(self, event):
-        self.display.iterateclimate()
+        self.display.climate.iterateclimate()
 
     def OnReset(self, event):
-        self.display.resetclimate()
+        self.display.climate.resetclimate()
  
     def Kill(self, event):
         self.display.Kill(event)
