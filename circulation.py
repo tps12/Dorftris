@@ -465,9 +465,9 @@ class ClimateSimulation(object):
         surface.blit(self._screen, (0,0))
 
 class PygameDisplay(wx.Window):
-    def __init__(self, parent, ID):
+    def __init__(self, parent, ID, display):
         wx.Window.__init__(self, parent, ID)
-        self.parent = parent
+        self.display = display
         self.hwnd = self.GetHandle()
        
         self.size = self.GetSizeTuple()
@@ -483,14 +483,12 @@ class PygameDisplay(wx.Window):
         self.timespacing = 1000.0 / self.fps
         self.timer.Start(self.timespacing, False)
 
-        self.climate = ClimateSimulation()
-
     def Update(self, event):
         # Any update tasks would go here (moving sprites, advancing animation frames etc.)
         self.Redraw()
 
     def OnClick(self, event):
-        self.climate.handle(pygame.event.Event(MOUSEBUTTONUP,
+        self.display.handle(pygame.event.Event(MOUSEBUTTONUP,
                                                {'button': 1,
                                                 'pos': event.Position.Get()}))
 
@@ -499,7 +497,7 @@ class PygameDisplay(wx.Window):
             self.screen = pygame.Surface(self.size, 0, 32)
             self.size_dirty = False
 
-        self.climate.draw(self.screen)
+        self.display.draw(self.screen)
 
         s = pygame.image.tostring(self.screen, 'RGB')  # Convert the surface to an RGB string
         img = wx.ImageFromData(self.size[0], self.size[1], s)  # Load this string into a wx image
@@ -555,29 +553,30 @@ class Frame(wx.Frame):
     
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, size = (1600, 1000))
-       
-        self.display = PygameDisplay(self, -1)
+
+        self.sim = ClimateSimulation()
+        self.display = PygameDisplay(self, -1, self.sim)
        
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_CLOSE, self.Kill)
        
         self.curframe = 0
        
-        self.SetTitle(self.display.climate.planet.name)
+        self.SetTitle(self.sim.planet.name)
        
         self.slider = wx.Slider(self, wx.ID_ANY, 4, 1, 80, style = wx.SL_HORIZONTAL)
-        self.display.climate.radius = radius(self.slider.Value)
+        self.sim.radius = radius(self.slider.Value)
         self.radius = wx.TextCtrl(self, wx.ID_ANY,
                                   self.radstr(self.slider.Value))
        
         self.order = wx.Slider(self, wx.ID_ANY, 10, -15, 15, style = wx.SL_HORIZONTAL)
         self.order.Bind(wx.EVT_SCROLL, self.OnSpin)
-        self.display.climate.spin = spin(self.order.Value)/360.0
+        self.sim.spin = spin(self.order.Value)/360.0
         self.spin = wx.TextCtrl(self, wx.ID_ANY,
                                 self.spinstr(self.order.Value))
        
         self.tilt = wx.Slider(self, wx.ID_ANY, 23, 0, 90, style = wx.SL_HORIZONTAL)
-        self.display.climate.tilt = self.tilt.Value
+        self.sim.tilt = self.tilt.Value
         self.tilt.Bind(wx.EVT_SCROLL, self.OnTilt)
         self.angle = wx.TextCtrl(self, wx.ID_ANY,
                                  self.tiltstr(self.tilt.Value))
@@ -613,7 +612,7 @@ class Frame(wx.Frame):
         self.sizer.Add(self.sizer3, 0, flag = wx.EXPAND)
 
         self.time = wx.Slider(self, wx.ID_ANY, 2, 0, 7, style = wx.SL_HORIZONTAL)
-        self.display.climate.season = season(self.time.Value)
+        self.sim.season = season(self.time.Value)
         self.season = wx.TextCtrl(self, wx.ID_ANY,
                                   self.seasonstr(self.time.Value))
         self.time.Bind(wx.EVT_SCROLL, self.OnSeason)
@@ -632,7 +631,7 @@ class Frame(wx.Frame):
         self.showclime = wx.CheckBox(self, wx.ID_ANY, u'Show climate')
         self.run = wx.CheckBox(self, wx.ID_ANY, u'Iterate')
         def onrun(event):
-            self.display.climate.run = self.run.Value
+            self.sim.run = self.run.Value
         self.Bind(wx.EVT_CHECKBOX, onrun, self.run)
         onrun(None)
         self.iterate = wx.Button(self, wx.ID_ANY, u'Step')
@@ -649,7 +648,7 @@ class Frame(wx.Frame):
         self.sizer5.Add(self.reset, 0, flag = wx.EXPAND | wx.ALL, border = 5)
 
         def mode(event):
-            self.display.climate.mode = (
+            self.sim.mode = (
                 ClimateSimulation.INSOLATION if self.showinsol.Value else
                 ClimateSimulation.TEMPERATURE if self.showtemp.Value else
                 ClimateSimulation.HUMIDITY if self.showhum.Value else
@@ -663,7 +662,7 @@ class Frame(wx.Frame):
         mode(None)
 
         def air(event):
-            self.display.climate.airflow = self.showair.Value
+            self.sim.airflow = self.showair.Value
         self.Bind(wx.EVT_CHECKBOX, air, self.showair)
         air(None)
 
@@ -673,7 +672,7 @@ class Frame(wx.Frame):
 
         self.rotate = wx.Slider(self, wx.ID_ANY, 0, -18, 18, style = wx.SL_HORIZONTAL)
         def onrotate(event):
-            self.display.climate.rotate = rotation(self.rotate.Value)
+            self.sim.rotate = rotation(self.rotate.Value)
         self.Bind(wx.EVT_SCROLL,
                   onrotate,
                   self.rotate)
@@ -685,10 +684,10 @@ class Frame(wx.Frame):
         self.Layout()
 
     def OnIterate(self, event):
-        self.display.climate.iterateclimate()
+        self.sim.iterateclimate()
 
     def OnReset(self, event):
-        self.display.climate.resetclimate()
+        self.sim.resetclimate()
  
     def Kill(self, event):
         self.display.Kill(event)
@@ -701,19 +700,19 @@ class Frame(wx.Frame):
         pass
  
     def OnScroll(self, event):
-        self.display.climate.radius = radius(self.slider.Value)
+        self.sim.radius = radius(self.slider.Value)
         self.radius.Value = self.radstr(self.slider.Value)
 
     def OnTilt(self, event):
-        self.display.climate.tilt = self.tilt.Value
+        self.sim.tilt = self.tilt.Value
         self.angle.Value = self.tiltstr(self.tilt.Value)
 
     def OnSpin(self, event):
-        self.display.climate.spin = spin(self.order.Value)/360.0
+        self.sim.spin = spin(self.order.Value)/360.0
         self.spin.Value = self.spinstr(self.order.Value)
 
     def OnSeason(self, event):
-        self.display.climate.season = season(self.time.Value)
+        self.sim.season = season(self.time.Value)
         self.season.Value = self.seasonstr(self.time.Value)
  
 class App(wx.App):
