@@ -146,6 +146,7 @@ class ClimateSimulation(object):
 
         self.selected = None
         self.adjacent = []
+        self._screen = None
 
     @property
     def tilt(self):
@@ -363,101 +364,105 @@ class ClimateSimulation(object):
         return False
     
     def draw(self, surface):
-        self.screen = surface
-        self.size = surface.get_size()
-        
-        self.screen.fill((0,0,0))
-
         if not self.climate:
             self.resetclimate()
 
         if self.run:
             self.iterateclimate()
+            
+        if not self._screen or self._screen.get_size() != surface.get_size():
+            self._screen = pygame.Surface(surface.get_size(), 0, 32)
+            
+            self.size = self._screen.get_size()
+        
+            self._screen.fill((0,0,0))
 
-        res = max([len(r) for r in self.tiles]), len(self.tiles)
-        template = pygame.Surface((self.size[0]/res[0],
-                                   self.size[1]/res[1]), 0, 32)
+            res = max([len(r) for r in self.tiles]), len(self.tiles)
+            template = pygame.Surface((self.size[0]/res[0],
+                                       self.size[1]/res[1]), 0, 32)
 
-        for y in range(res[1]):
-            for x in range(len(self.tiles[y])):
-                block = template.copy()
+            for y in range(res[1]):
+                for x in range(len(self.tiles[y])):
+                    block = template.copy()
 
-                r = self.rotate
-                o = r * len(self.tiles[y])/360
+                    r = self.rotate
+                    o = r * len(self.tiles[y])/360
 
-                xo = x + o
-                if xo > len(self.tiles[y])-1:
-                    xo -= len(self.tiles[y])
-                elif xo < 0:
-                    xo += len(self.tiles[y])
-                h = self.tiles[y][xo][2]
+                    xo = x + o
+                    if xo > len(self.tiles[y])-1:
+                        xo -= len(self.tiles[y])
+                    elif xo < 0:
+                        xo += len(self.tiles[y])
+                    h = self.tiles[y][xo][2]
 
-                climate = self.climate[(xo,y)]
+                    climate = self.climate[(xo,y)]
 
-                if self.selected == (xo, y):
-                    color = (255,0,255)
-                elif (xo, y) in self.adjacent:
-                    color = (127,0,255)
-                elif self.mode == self.INSOLATION:
-                    ins = self.insolation(y)                    
-                    color = warmscale(ins)
-                elif h > 0:
-                    if self.mode == self.CLIMATE:
-                        color = (int(255 * (1 - climate[2])),
-                                 255,
-                                 int(255 * (1 - climate[1])))
-                    elif self.mode == self.TEMPERATURE:
-                        color = colorscale(climate[1])
-                    elif self.mode == self.HUMIDITY:
-                        color = coolscale(climate[2])
+                    if self.selected == (xo, y):
+                        color = (255,0,255)
+                    elif (xo, y) in self.adjacent:
+                        color = (127,0,255)
+                    elif self.mode == self.INSOLATION:
+                        ins = self.insolation(y)                    
+                        color = warmscale(ins)
+                    elif h > 0:
+                        if self.mode == self.CLIMATE:
+                            color = (int(255 * (1 - climate[2])),
+                                     255,
+                                     int(255 * (1 - climate[1])))
+                        elif self.mode == self.TEMPERATURE:
+                            color = colorscale(climate[1])
+                        elif self.mode == self.HUMIDITY:
+                            color = coolscale(climate[2])
+                        else:
+                            color = (0,int(255 * (h/9000.0)),0)
                     else:
-                        color = (0,int(255 * (h/9000.0)),0)
-                else:
-                    if self.mode == self.TEMPERATURE:
-                        color = [(c+255)/2 for c in colorscale(climate[1])]
-                    else:
-                        color = (0,0,int(255 * (1 + h/11000.0)))
+                        if self.mode == self.TEMPERATURE:
+                            color = [(c+255)/2 for c in colorscale(climate[1])]
+                        else:
+                            color = (0,0,int(255 * (1 + h/11000.0)))
 
-                block.fill(color)
+                    block.fill(color)
 
-                if self.airflow:
-                    s = sin(pi/2 * (y - res[1]/2)/res[1]/2) * 90
-                    s *= sin(pi/2 * (x - len(self.tiles[y])/2)/(len(self.tiles[y])/2))
+                    if self.airflow:
+                        s = sin(pi/2 * (y - res[1]/2)/res[1]/2) * 90
+                        s *= sin(pi/2 * (x - len(self.tiles[y])/2)/(len(self.tiles[y])/2))
 
-                    w, h = [c-1 for c in block.get_size()]
+                        w, h = [c-1 for c in block.get_size()]
 
-                    angle = climate[0] + s
-                    if angle >= 337.5 or angle < 22.5:
-                        p = w/2, h-1
-                        es = (0, 0), (w-1, 0)
-                    elif 22.5 <= angle < 67.5:
-                        p = w-1, h-1
-                        es = (0, h-1), (w-1, 0)
-                    elif 67.5 <= angle < 112.5:
-                        p = w-1, h/2
-                        es = (0, 0), (0, h-1)
-                    elif 112.5 <= angle < 157.5:
-                        p = w-1, 0
-                        es = (w-1, h-1), (0, 0)
-                    elif 157.5 <= angle < 202.5:
-                        p = w/2, 0
-                        es = (0, h-1), (w-1, h-1)
-                    elif 202.5 <= angle < 247.5:
-                        p = 0, 0
-                        es = (0, h-1), (w-1, 0)
-                    elif 247.5 <= angle < 292.5:
-                        p = 0, h/2
-                        es = (w-1, 0), (w-1, h-1)
-                    else:
-                        p = 0, h-1
-                        es = (0, 0), (w-1, h-1)
+                        angle = climate[0] + s
+                        if angle >= 337.5 or angle < 22.5:
+                            p = w/2, h-1
+                            es = (0, 0), (w-1, 0)
+                        elif 22.5 <= angle < 67.5:
+                            p = w-1, h-1
+                            es = (0, h-1), (w-1, 0)
+                        elif 67.5 <= angle < 112.5:
+                            p = w-1, h/2
+                            es = (0, 0), (0, h-1)
+                        elif 112.5 <= angle < 157.5:
+                            p = w-1, 0
+                            es = (w-1, h-1), (0, 0)
+                        elif 157.5 <= angle < 202.5:
+                            p = w/2, 0
+                            es = (0, h-1), (w-1, h-1)
+                        elif 202.5 <= angle < 247.5:
+                            p = 0, 0
+                            es = (0, h-1), (w-1, 0)
+                        elif 247.5 <= angle < 292.5:
+                            p = 0, h/2
+                            es = (w-1, 0), (w-1, h-1)
+                        else:
+                            p = 0, h-1
+                            es = (0, 0), (w-1, h-1)
 
-                    pygame.draw.lines(block, (255,255,255), False,
-                                      [es[0], p, es[1]])
-               
-                self.screen.blit(block,
-                                 ((x + (res[0] - len(self.tiles[y]))/2)*block.get_width(),
-                                  y*block.get_height()))
+                        pygame.draw.lines(block, (255,255,255), False,
+                                          [es[0], p, es[1]])
+                   
+                    self._screen.blit(block,
+                                      ((x + (res[0] - len(self.tiles[y]))/2)*block.get_width(),
+                                       y*block.get_height()))
+                    
+        surface.blit(self._screen, (0,0))
 
 class PygameDisplay(wx.Window):
     def __init__(self, parent, ID):
