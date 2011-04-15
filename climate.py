@@ -158,6 +158,15 @@ class ClimateSimulation(object):
                 
                 self.climate[(x,y)] = d, ins, 1.0 * (h <= 0)
 
+        self.sadj = {}
+        for (x,y), ns in self.adj.iteritems():
+            c = self.tiles[y][x][0:2]
+            self.sadj[(x,y)] = sorted(self.adj[(x,y)],
+                                      key=lambda a: cos(
+                                          (bearing(c,
+                                                   self.tiles[a[1]][a[0]][0:2])
+                                           - d) * pi / 180))
+            
         self.dirty = True
 
     def iterateclimate(self):
@@ -178,10 +187,7 @@ class ClimateSimulation(object):
                 continue
             
             c = self.tiles[y][x][0:2]
-            s = sorted(self.adj[(x,y)],
-                       key=lambda a: cos(
-                           (bearing(c, self.tiles[a[1]][a[0]][0:2]) - d) *
-                           pi / 180))
+            s = self.sadj[(x,y)]
             ns = s[-3:]
 
             for n in ns:
@@ -193,10 +199,7 @@ class ClimateSimulation(object):
             for x in range(len(self.tiles[y])):
                 if (x,y) not in seen:
                     c = self.tiles[y][x][0:2]
-                    s = sorted(self.adj[(x,y)],
-                               key=lambda a: cos(
-                                   (bearing(c, self.tiles[a[1]][a[0]][0:2]) - d) *
-                                   pi / 180))
+                    s = self.sadj[(x,y)]
                     ns = s[:3]
                     for n in ns:
                         d,t,h = self.climate[n]
