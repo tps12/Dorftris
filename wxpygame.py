@@ -25,7 +25,7 @@ class PygameDisplay(wx.Window):
         self.Redraw()
 
     def OnClick(self, event):
-        self.display.handle(pygame.event.Event(MOUSEBUTTONUP,
+        self.display.handle(pygame.event.Event(pygame.locals.MOUSEBUTTONUP,
                                                {'button': 1,
                                                 'pos': event.Position.Get()}))
 

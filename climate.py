@@ -228,6 +228,24 @@ class ClimateSimulation(object):
 
         self.dirty = True
 
+    def average(self, steps):
+        self.resetclimate()
+
+        c = {}
+        for k,v in self.climate.iteritems():
+            c[k] = [x for x in v[1:]]
+        
+        for i in range(steps):
+            self.iterateclimate()
+            for k, v in self.climate.iteritems():
+                for i in range(len(v)-1):
+                    c[k][i] += v[i+1]
+            
+        value = [[(self.tiles[y][x][2], tuple([n/(steps+1) for n in c[(x,y)]]))
+                  for x in range(len(self.tiles[y]))]
+                 for y in range(len(self.tiles))]
+        return value
+
     def update(self):
         if not self.climate:
             self.resetclimate()

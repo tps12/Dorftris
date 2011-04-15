@@ -127,7 +127,7 @@ class SimulationControls(wx.PyPanel):
         self.Layout()
 
     def _onaverage(self, event):
-        ClimateSummaryFrame(None).Show()
+        ClimateSummaryFrame(None, self._sim.average(20)).Show()
         
     def _onrun(self, event):
         self._step.Enabled = not event.Checked()

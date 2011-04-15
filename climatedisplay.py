@@ -1,6 +1,7 @@
 from math import sin, cos, pi
 
 import pygame
+from pygame.locals import *
 
 def colorscale(v):
     m = 1275
