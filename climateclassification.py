@@ -53,8 +53,16 @@ class ClimateClassDisplay(object):
                     ps = [pf(c[1]) for (h,c) in cs]
 
                     if h > 0:
+                        thr = sum(ts)/len(cs) * 20
+                        byt = sorted(range(len(ts)), key=lambda i: ts[i])
+                        tot = sum(ps)
+                        inh = sum([ps[i] for i in byt[-len(byt):]])
+                        if inh >= 0.7 * tot:
+                            thr += 280
+                        elif inh >= 0.3:
+                            thr += 140
 
-                        if sum(ps) <= sum(ts)/len(cs) * 20:
+                        if tot <= thr:
                             color = (255,0,0)
                         elif min(ts) >= 18:
                             color = (0,0,255)
