@@ -1,6 +1,5 @@
 import wx
 
-from climatedisplay import ClimateDisplay
 from climatesummary import ClimateSummaryDisplay
 from wxpygame import PygameDisplay
 
