@@ -231,17 +231,17 @@ class ClimateSimulation(object):
     def average(self, steps):
         self.resetclimate()
 
-        c = {}
-        for k,v in self.climate.iteritems():
-            c[k] = [x for x in v[1:]]
+        c = [[(0,0) for x in range(len(self.tiles[y]))]
+             for y in range(len(self.tiles))]
+        for (x,y), (d,t,h) in self.climate.iteritems():
+            c[y][x] = t, h
         
         for i in range(steps):
             self.iterateclimate()
-            for k, v in self.climate.iteritems():
-                for i in range(len(v)-1):
-                    c[k][i] += v[i+1]
+            for (x,y), (d,t,h) in self.climate.iteritems():
+                c[y][x] = c[y][x][0] + t, c[y][x][1] + h
             
-        value = [[(self.tiles[y][x][2], tuple([n/(steps+1) for n in c[(x,y)]]))
+        value = [[(self.tiles[y][x][2], tuple([n/(steps+1) for n in c[y][x]]))
                   for x in range(len(self.tiles[y]))]
                  for y in range(len(self.tiles))]
         return value
