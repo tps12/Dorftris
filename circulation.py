@@ -9,6 +9,7 @@ import wx, pygame
 from pygame.locals import *
 
 from climate import ClimateSimulation
+from climateclassificationframe import ClimateClassFrame
 from climatedisplay import ClimateDisplay
 from climatesummaryframe import ClimateSummaryFrame
 
@@ -116,9 +117,14 @@ class SimulationControls(wx.PyPanel):
         lines.Add(state)
 
         proc = wx.BoxSizer(wx.HORIZONTAL)
+
         average = wx.Button(self, wx.ID_ANY, u'Average...')
         self.Bind(wx.EVT_BUTTON, self._onaverage, average)
         proc.Add(average)
+
+        classify = wx.Button(self, wx.ID_ANY, u'Classify...')
+        self.Bind(wx.EVT_BUTTON, self._onclassify, classify)
+        proc.Add(classify)
 
         lines.Add(proc)
                            
@@ -128,6 +134,19 @@ class SimulationControls(wx.PyPanel):
 
     def _onaverage(self, event):
         ClimateSummaryFrame(None, self._sim.average(20)).Show()
+
+    def _onclassify(self, event):
+        ss = []
+        for i in range(8):
+            self._sim.season = season(i)
+            ss.append(self._sim.average(20))
+        seasons = []
+        for y in range(len(ss[0])):
+            row = []
+            for x in range(len(ss[0][y])):
+                row.append([ss[i][y][x] for i in range(len(ss))])
+            seasons.append(row)
+        ClimateClassFrame(None, seasons).Show()
         
     def _onrun(self, event):
         self._step.Enabled = not event.Checked()
