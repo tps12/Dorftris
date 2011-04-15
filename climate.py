@@ -185,9 +185,6 @@ class ClimateSimulation(object):
             ns = s[-3:]
 
             for n in ns:
-                de = self.tiles[n[1]][n[0]][2] - self.tiles[y][x][2]
-                h *= max(0, min(1, 1 - (de / 4000)))
-                
                 addd(n, (t,h), 0.5 if n is s[-1] else 0.25)
 
             seen.add(n)
@@ -203,9 +200,6 @@ class ClimateSimulation(object):
                     ns = s[:3]
                     for n in ns:
                         d,t,h = self.climate[n]
-                                            
-                        de = self.tiles[y][x][2] - self.tiles[n[1]][n[0]][2]
-                        h *= max(0, min(1, 1 - (de / 4000)))
                     
                         addd((x,y), (t,h), 0.5 if n is s[0] else 0.25)
 
@@ -224,6 +218,9 @@ class ClimateSimulation(object):
             nt, nh = [sum([e[0][i] * e[1] for e in ss]) for i in range(2)]
             d = sum([e[1] for e in ss])
             t, h = nt / d, nh / d
+            if self.tiles[y][x][2] > 0:
+                t = max(t, self.tiles[y][x][2]/11000)
+            
             climate = self.climate[(x,y)]
             self.climate[(x,y)] = (climate[0],
                                    0.5 * climate[1] + 0.5 * t,
