@@ -249,40 +249,6 @@ class ClimateSimulation(object):
             self._mapping[d] = [(s, w/t) for (s,w) in sws]
 
     def iterateclimate(self):
-        dc = {}
-
-        def addd(d, s, i):
-            if d in dc:
-                l = dc[d]
-            else:
-                l = []
-                dc[d] = l
-            l.append((s, i))
-
-        seen = set()
-
-        for ((x,y), (d,t,h)) in self.climate.iteritems():
-            if (x,y) not in self.adj:
-                continue
-            
-            s = self.sadj[(x,y)]
-            ns = s[-3:]
-
-            for n in ns:
-                addd(n, (t,h), 0.5 if n is s[-1] else 0.25)
-
-                seen.add(n)
-
-        for y in range(len(self.tiles)):
-            for x in range(len(self.tiles[y])):
-                if (x,y) not in seen:
-                    s = self.sadj[(x,y)]
-                    ns = s[:3]
-                    for n in ns:
-                        d,t,h = self.climate[n]
-                    
-                        addd((x,y), (t,h), 0.5 if n is s[0] else 0.25)
-
         for y in range(len(self.tiles)):
             ins = self.insolation(y)
             
@@ -294,17 +260,35 @@ class ClimateSimulation(object):
                     self.climate[(x,y)] = self.climate[(x,y)][0:2] + (h,)
                     
         e2 = 2 * exp(1)
-        for ((x,y), ss) in dc.iteritems():
-            nt, nh = [sum([e[0][i] * e[1] for e in ss]) for i in range(2)]
-            d = sum([e[1] for e in ss])
-            t, h = nt / d, nh / d
-            if self.tiles[y][x][2] > 0:
-                t = max(t, self.tiles[y][x][2]/11000)
+        for y in range(len(self.tiles)):
+            ins = self.insolation(y)
             
-            climate = self.climate[(x,y)]
-            self.climate[(x,y)] = (climate[0],
-                                   0.5 * climate[1] + 0.5 * t,
-                                   0.5 * climate[2] + 0.5 * h * (0.5 + exp(t)/e2))
+            for x in range(len(self.tiles[y])):
+                climate = self.climate[(x,y)]
+
+                if self.tiles[y][x][2] <= 0:
+                    oh = 1.0
+                else:
+                    oh = max(0, climate[2] - 0.0125 * ins)
+
+                sws = self._mapping[(x,y)]
+                    
+                t = h = 0
+                for s, w in sws:
+                    st, sh = self.climate[s][1:]
+                    t += st * w
+                    h += sh * w
+                
+                if self.tiles[y][x][2] > 0:
+                    t = max(t, self.tiles[y][x][2]/11000)
+                
+                self._scratch[(x,y)] = (climate[0],
+                                        t,
+                                        h * (0.5 + exp(t)/e2))
+
+        swap = self.climate
+        self.climate = self._scratch
+        self._scratch = swap
 
         self.dirty = True
 
