@@ -203,8 +203,49 @@ class ClimateSimulation(object):
                                           (bearing(c,
                                                    self.tiles[a[1]][a[0]][0:2])
                                            - d) * pi / 180))
-            
+
+        self._definemapping()
+                    
         self.dirty = True
+
+    def _definemapping(self):
+        mapping = {}
+
+        def addmap(s, d, w):
+            if s in mapping:
+                l = mapping[s]
+            else:
+                l = []
+                mapping[s] = l
+            l.append((d,w))
+
+        seen = set()
+
+        # map destinations for every tile
+        for y in range(len(self.tiles)):
+            for x in range(len(self.tiles[y])):
+                s = self.sadj[(x,y)]
+                ns = s[-3:]
+
+                for n in ns:
+                    addmap((x,y), n, 0.5 if n is s[-1] else 0.25)
+                    seen.add(n)
+
+        # map from sources for any tile that hasn't been targeted
+        for y in range(len(self.tiles)):
+            for x in range(len(self.tiles[y])):
+                if (x,y) not in seen:
+                    s = self.sadj[(x,y)]
+                    ns = s[:3]
+                    
+                    for n in ns:
+                        addmap(n, (x,y), 0.5 if n is s[0] else 0.25)
+
+        # normalize weights
+        self._mapping = {}
+        for (s, dws) in mapping.iteritems():
+            t = sum([w for (d, w) in dws])
+            self._mapping[s] = [(d, w/t) for (d,w) in dws]
 
     def iterateclimate(self):
         dc = {}
