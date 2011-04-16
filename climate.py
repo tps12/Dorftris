@@ -192,8 +192,9 @@ class ClimateSimulation(object):
             for x in range(len(self.tiles[y])):
                 h = self.tiles[y][x][2]
                 ins = self.insolation(y)
-                
-                self.climate[(x,y)] = d, ins, 1.0 * (h <= 0)
+
+                t = ins * (1-h/11000.0) if h > 0 else ins
+                self.climate[(x,y)] = d, t, 1.0 * (h <= 0)
 
         self.sadj = {}
         for (x,y), ns in self.adj.iteritems():
@@ -280,11 +281,11 @@ class ClimateSimulation(object):
                     h += sh * w
                 
                 if self.tiles[y][x][2] > 0:
-                    t = max(t, self.tiles[y][x][2]/11000)
+                    t = min(t, (1-self.tiles[y][x][2]/11000.0))
                 
                 self._scratch[(x,y)] = (climate[0],
                                         t,
-                                        h * (0.5 + exp(t)/e2))
+                                        max(oh, h * (0.5 + exp(t)/e2)))
 
         swap = self.climate
         self.climate = self._scratch
