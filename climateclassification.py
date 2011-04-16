@@ -91,7 +91,7 @@ class ClimateClassDisplay(object):
                             elif min(ts) >= 18:
                                 color = (0,0,255)
                             elif max(ts) > 10:
-                                if -3 <= min(ts) < 18:
+                                if min(ts) >= -3:
                                     color = (0,255,0)
                                 else:
                                     color = (255,0,255)
