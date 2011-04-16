@@ -205,7 +205,6 @@ class ClimateSimulation(object):
                                           (bearing(c,
                                                    self.tiles[a[1]][a[0]][0:2])
                                            - d) * pi / 180))
-
         self._definemapping()
                     
         self.dirty = True
@@ -227,10 +226,16 @@ class ClimateSimulation(object):
         for y in range(len(self.tiles)):
             for x in range(len(self.tiles[y])):
                 s = self.sadj[(x,y)]
-                ns = s[-3:]
+                
+                nws = [(a, cos((bearing(
+                    self.tiles[y][x][0:2],
+                    self.tiles[a[1]][a[0]][0:2])
+                        - self.climate[(x,y)][0])*pi/180))
+                       for a in self.sadj[(x,y)]]
+                nws = [nw for nw in nws if nw[1] > 0]
 
-                for n in ns:
-                    addmap((x,y), n, 0.5 if n is s[-1] else 0.25)
+                for n, w in nws:
+                    addmap((x,y), n, w)
                     seen.add(n)
 
         # map from sources for any tile that hasn't been targeted
@@ -238,10 +243,16 @@ class ClimateSimulation(object):
             for x in range(len(self.tiles[y])):
                 if (x,y) not in seen:
                     s = self.sadj[(x,y)]
-                    ns = s[:3]
+
+                    nws = [(a, -cos((bearing(
+                        self.tiles[y][x][0:2],
+                        self.tiles[a[1]][a[0]][0:2])
+                            - self.climate[a][0])*pi/180))
+                           for a in self.sadj[(x,y)]]
+                    nws = [nw for nw in nws if nw[1] > 0]
                     
-                    for n in ns:
-                        addmap(n, (x,y), 0.5 if n is s[0] else 0.25)
+                    for n, w in nws:
+                        addmap(n, (x,y), w)
 
         # normalize weights
         self._mapping = {}
