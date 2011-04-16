@@ -212,12 +212,12 @@ class ClimateSimulation(object):
         mapping = {}
 
         def addmap(s, d, w):
-            if s in mapping:
-                l = mapping[s]
+            if d in mapping:
+                l = mapping[d]
             else:
                 l = []
-                mapping[s] = l
-            l.append((d,w))
+                mapping[d] = l
+            l.append((s,w))
 
         seen = set()
 
@@ -243,9 +243,9 @@ class ClimateSimulation(object):
 
         # normalize weights
         self._mapping = {}
-        for (s, dws) in mapping.iteritems():
-            t = sum([w for (d, w) in dws])
-            self._mapping[s] = [(d, w/t) for (d,w) in dws]
+        for (d, sws) in mapping.iteritems():
+            t = sum([w for (s, w) in sws])
+            self._mapping[d] = [(s, w/t) for (s,w) in sws]
 
     def iterateclimate(self):
         dc = {}
