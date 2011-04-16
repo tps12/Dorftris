@@ -18,6 +18,19 @@ class DisplayControls(wx.PyPanel):
         self._onrotate(wx.ScrollEvent(pos=rotate.Value))
         lines.Add(rotate, flag=wx.EXPAND)
 
+        modes = wx.BoxSizer(wx.HORIZONTAL)
+        style = wx.RB_GROUP
+        for name, mode in [(u'Climate', ClimateClassDisplay.CLIMATE),
+                           (u'Precipitation', ClimateClassDisplay.MOISTURE),
+                           (u'Precipitation threshold', ClimateClassDisplay.THRESHOLD)]:
+            button = wx.RadioButton(self, wx.ID_ANY, name, style=style)
+            self.Bind(wx.EVT_RADIOBUTTON, self._modehandler(mode), button)
+            modes.Add(button)
+            if style:
+                self._modehandler(mode)(None)
+                style = 0
+        lines.Add(modes, flag=wx.EXPAND)
+
         self.SetAutoLayout(True)
         self.SetSizer(lines)
         self.Layout()
