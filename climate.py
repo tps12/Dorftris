@@ -198,6 +198,7 @@ class ClimateSimulation(object):
         self.sadj = {}
         for (x,y), ns in self.adj.iteritems():
             c = self.tiles[y][x][0:2]
+            d = self.climate[(x,y)][0]
             self.sadj[(x,y)] = sorted(self.adj[(x,y)],
                                       key=lambda a: cos(
                                           (bearing(c,
