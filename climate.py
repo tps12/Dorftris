@@ -229,7 +229,7 @@ class ClimateSimulation(object):
             for n in ns:
                 addd(n, (t,h), 0.5 if n is s[-1] else 0.25)
 
-            seen.add(n)
+                seen.add(n)
 
         for y in range(len(self.tiles)):
             for x in range(len(self.tiles[y])):
