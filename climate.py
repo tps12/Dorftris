@@ -222,7 +222,6 @@ class ClimateSimulation(object):
             if (x,y) not in self.adj:
                 continue
             
-            c = self.tiles[y][x][0:2]
             s = self.sadj[(x,y)]
             ns = s[-3:]
 
@@ -234,7 +233,6 @@ class ClimateSimulation(object):
         for y in range(len(self.tiles)):
             for x in range(len(self.tiles[y])):
                 if (x,y) not in seen:
-                    c = self.tiles[y][x][0:2]
                     s = self.sadj[(x,y)]
                     ns = s[:3]
                     for n in ns:
