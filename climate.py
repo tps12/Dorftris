@@ -32,6 +32,41 @@ def bearing(c1, c2):
                   cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dlon))
     return (theta * 180/pi) % 360
 
+class ClimateDict(object):
+    def __init__(self, dimensions):
+        self._xmax, self._ymax = dimensions
+        self._list = [None for i in range(self._xmax * self._ymax)]
+        self.clear()
+
+    def _index(self, p):
+        return p[0] + p[1] * self._xmax
+
+    def __getitem__(self, p):
+        isset, value = self._list[self._index(p)]
+        if not isset:
+            raise KeyError
+        return value
+
+    def __setitem__(self, p, value):
+        self._list[self._index(p)] = True, value
+
+    def __delitem__(self, p):
+        self._list[self._index(p)] = None, None
+
+    def clear(self):
+        for i in range(len(self._list)):
+            self._list[i] = None, None
+
+    def iteritems(self):
+        for y in range(self._ymax):
+            for x in range(self._xmax):
+                isset, value = self._list[self._index((x,y))]
+                if isset:
+                    yield (x,y), value
+
+    def __len__(self):
+        return len(list(self.iteritems()))
+
 class ClimateSimulation(object):
     ADJ_CACHE = '.adj.pickle'
     
@@ -82,7 +117,8 @@ class ClimateSimulation(object):
             with open(self.ADJ_CACHE, 'w') as f:
                 dump(self.adj, f, 0)
 
-        self.climate = {}
+        xmax = max([len(self.tiles[i]) for i in range(len(self.tiles))])
+        self.climate = ClimateDict((xmax, len(self.tiles)))
 
         self.dirty = True
 
