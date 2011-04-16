@@ -194,7 +194,7 @@ class ClimateSimulation(object):
                 ins = self.insolation(y)
 
                 t = ins * (1-h/11000.0) if h > 0 else ins
-                self.climate[(x,y)] = d, t, 1.0 * (h <= 0)
+                self.climate[(x,y)] = d, t, 1.0 * (h <= 0), 0
 
         self.sadj = {}
         for (x,y), ns in self.adj.iteritems():
@@ -268,8 +268,9 @@ class ClimateSimulation(object):
                 if self.tiles[y][x][2] <= 0:
                     h = 1.0
                 else:
-                    h = max(0, self.climate[(x,y)][2] - 0.025 * ins)
-                    self.climate[(x,y)] = self.climate[(x,y)][0:2] + (h,)
+                    climate = self.climate[(x,y)]
+                    h = max(0, climate[2] - 0.025 * ins)
+                    self.climate[(x,y)] = climate[0:2] + (h,) + climate[3:]
                     
         e2 = 2 * exp(1)
         for y in range(len(self.tiles)):
@@ -287,7 +288,7 @@ class ClimateSimulation(object):
                     
                 t = h = 0
                 for s, w in sws:
-                    st, sh = self.climate[s][1:]
+                    st, sh = self.climate[s][1:3]
                     t += st * w
                     h += sh * w
                 
@@ -296,7 +297,8 @@ class ClimateSimulation(object):
                 
                 self._scratch[(x,y)] = (climate[0],
                                         t,
-                                        max(oh, h * (0.5 + exp(t)/e2)))
+                                        max(oh, h * (0.5 + exp(t)/e2)),
+                                        climate[3])
 
         swap = self.climate
         self.climate = self._scratch
@@ -309,13 +311,13 @@ class ClimateSimulation(object):
 
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
-        for (x,y), (d,t,h) in self.climate.iteritems():
-            c[y][x] = t, h
+        for (x,y), (d,t,h,p) in self.climate.iteritems():
+            c[y][x] = t, h, p
         
         for i in range(steps):
             self.iterateclimate()
-            for (x,y), (d,t,h) in self.climate.iteritems():
-                c[y][x] = c[y][x][0] + t, c[y][x][1] + h
+            for (x,y), (d,t,h,p) in self.climate.iteritems():
+                c[y][x] = c[y][x][0] + t, c[y][x][1] + h, c[y][x][2] + p
             
         value = [[(self.tiles[y][x][2], tuple([n/(steps+1) for n in c[y][x]]))
                   for x in range(len(self.tiles[y]))]
