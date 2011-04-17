@@ -149,8 +149,7 @@ class ClimateDisplay(object):
                     if self.selected == (xo, y):
                         color = (255,0,255)
                     elif (xo, y) in self.sources:
-                        shade = 255 * self.sources[(xo,y)]
-                        color = (shade,shade,0)
+                        color = (255,255 * self.sources[(xo,y)],0)
                     elif self.mode == self.INSOLATION:
                         ins = self._sim.insolation(y)                    
                         color = warmscale(ins)
