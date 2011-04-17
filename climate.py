@@ -294,11 +294,12 @@ class ClimateSimulation(object):
                 
                 if self.tiles[y][x][2] > 0:
                     t = min(t, (1-self.tiles[y][x][2]/11000.0))
+
+                h = max(oh, h * (0.5 + exp(t)/e2))
+
+                p = climate[3] + max(0, climate[2] - h)
                 
-                self._scratch[(x,y)] = (climate[0],
-                                        t,
-                                        max(oh, h * (0.5 + exp(t)/e2)),
-                                        climate[3])
+                self._scratch[(x,y)] = (climate[0], t, h, p)
 
         swap = self.climate
         self.climate = self._scratch

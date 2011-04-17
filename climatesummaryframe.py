@@ -23,6 +23,7 @@ class DisplayControls(wx.PyPanel):
         for name, mode in [(u'Terrain', ClimateSummaryDisplay.TERRAIN),
                            (u'Temperature', ClimateSummaryDisplay.TEMPERATURE),
                            (u'Humidity', ClimateSummaryDisplay.HUMIDITY),
+                           (u'Precipitation', ClimateSummaryDisplay.PRECIPITATION),
                            (u'Climate', ClimateSummaryDisplay.CLIMATE)]:
             button = wx.RadioButton(self, wx.ID_ANY, name, style=style)
             self.Bind(wx.EVT_RADIOBUTTON, self._modehandler(mode), button)

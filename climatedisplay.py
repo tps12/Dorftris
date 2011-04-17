@@ -69,6 +69,7 @@ class ClimateDisplay(object):
     TEMPERATURE = 2
     HUMIDITY = 3
     CLIMATE = 4
+    PRECIPITATION = 5
 
     @property
     def mode(self):
@@ -157,11 +158,15 @@ class ClimateDisplay(object):
                             color = colorscale(climate[1])
                         elif self.mode == self.HUMIDITY:
                             color = coolscale(climate[2])
+                        elif self.mode == self.PRECIPITATION:
+                            color = coolscale(climate[3])
                         else:
                             color = (0,int(255 * (h/9000.0)),0)
                     else:
                         if self.mode == self.TEMPERATURE:
                             color = [(c+255)/2 for c in colorscale(climate[1])]
+                        elif self.mode == self.PRECIPITATION:
+                            color = (128,128,128)
                         else:
                             color = (0,0,int(255 * (1 + h/11000.0)))
 
