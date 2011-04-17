@@ -279,11 +279,6 @@ class ClimateSimulation(object):
             for x in range(len(self.tiles[y])):
                 climate = self.climate[(x,y)]
 
-                if self.tiles[y][x][2] <= 0:
-                    oh = 1.0
-                else:
-                    oh = max(0, climate[2] - 0.0125 * ins)
-
                 sws = self._mapping[(x,y)]
                     
                 t = h = 0
@@ -291,13 +286,20 @@ class ClimateSimulation(object):
                     st, sh = self.climate[s][1:3]
                     t += st * w
                     h += sh * w
+
+                t = min(1.0, t + 0.00125 * ins)
                 
                 if self.tiles[y][x][2] > 0:
                     t = min(t, (1-self.tiles[y][x][2]/11000.0))
 
-                h = max(oh, h * (0.5 + exp(t)/e2))
+                h = max(h, (0.5 + exp(t)/e2))
 
-                p = climate[3] + max(0, climate[2] - h)
+                convective = max(0, min(h, t - climate[1]))
+                h -= convective
+
+                stratiform = max(0, climate[2] - h)
+
+                p = climate[3] + convective + stratiform
                 
                 self._scratch[(x,y)] = (climate[0], t, h, p)
 
