@@ -30,7 +30,7 @@ def bearing(c1, c2):
 
     theta = atan2(sin(dlon) * cos(lat2),
                   cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dlon))
-    return (theta * 180/pi) % 360
+    return (theta * 180/pi) % 360   
 
 class ClimateDict(object):
     def __init__(self, dimensions):
@@ -178,6 +178,7 @@ class ClimateSimulation(object):
         
         c = cells(self.radius)
 
+        e2 = 2 * exp(1)
         for y in range(res[1]):
             n = abs(y + 0.5 - res[1]/2)/(float(res[1]/2)/c)
             n = int(n) & 1
@@ -188,13 +189,14 @@ class ClimateSimulation(object):
             ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
             d += atan2(ce, 1) * 180/pi
             d %= 360
+
+            ins = self.insolation(y)
             
             for x in range(len(self.tiles[y])):
                 h = self.tiles[y][x][2]
-                ins = self.insolation(y)
 
                 t = ins * (1-h/11000.0) if h > 0 else ins
-                self.climate[(x,y)] = d, t, 1.0 * (h <= 0), 0
+                self.climate[(x,y)] = d, t, (0.5 + exp(t)/e2) * (h <= 0), 0
 
         self.sadj = {}
         for (x,y), ns in self.adj.iteritems():
@@ -261,17 +263,6 @@ class ClimateSimulation(object):
             self._mapping[d] = [(s, w/t) for (s,w) in sws]
 
     def iterateclimate(self):
-        for y in range(len(self.tiles)):
-            ins = self.insolation(y)
-            
-            for x in range(len(self.tiles[y])):
-                if self.tiles[y][x][2] <= 0:
-                    h = 1.0
-                else:
-                    climate = self.climate[(x,y)]
-                    h = max(0, climate[2] - 0.025 * ins)
-                    self.climate[(x,y)] = climate[0:2] + (h,) + climate[3:]
-                    
         e2 = 2 * exp(1)
         for y in range(len(self.tiles)):
             ins = self.insolation(y)
@@ -286,22 +277,24 @@ class ClimateSimulation(object):
                     st, sh = self.climate[s][1:3]
                     t += st * w
                     h += sh * w
-
-                t = min(1.0, t + 0.00125 * ins)
                 
                 if self.tiles[y][x][2] > 0:
+                    t += 0.0125 * ins
                     t = min(t, (1-self.tiles[y][x][2]/11000.0))
-
-                h = max(h, (0.5 + exp(t)/e2))
+                else:
+                    h += 0.125
+                    
+                h = min(h, (0.5 + exp(t)/e2))
 
                 convective = max(0, min(h, t - climate[1]))
                 h -= convective
 
                 stratiform = max(0, climate[2] - h)
+                h = max(0, h - stratiform)
 
                 p = climate[3] + convective + stratiform
                 
-                self._scratch[(x,y)] = (climate[0], t, h, p)
+                self._scratch[(x,y)] = (climate[0], climate[1], h, p)
 
         swap = self.climate
         self.climate = self._scratch
