@@ -43,6 +43,7 @@ class ClimateDisplay(object):
         
         self.selected = None
         self.adjacent = []
+        self.sources = {}
 
         self._screen = None
 
@@ -101,9 +102,13 @@ class ClimateDisplay(object):
                 if self.selected == (xo,y):
                     self.selected = None
                     self.adjacent = []
+                    self.sources = {}
                 else:
                     self.selected = (xo,y)
                     self.adjacent = self._sim.adj[self.selected]
+                    self.sources = dict(((s,w)
+                                         for (s,w) in
+                                         self._sim.sources(self.selected)))
 
                 self._screen = None
 
@@ -143,8 +148,9 @@ class ClimateDisplay(object):
 
                     if self.selected == (xo, y):
                         color = (255,0,255)
-                    elif (xo, y) in self.adjacent:
-                        color = (127,0,255)
+                    elif (xo, y) in self.sources:
+                        shade = 255 * self.sources[(xo,y)]
+                        color = (shade,shade,0)
                     elif self.mode == self.INSOLATION:
                         ins = self._sim.insolation(y)                    
                         color = warmscale(ins)
