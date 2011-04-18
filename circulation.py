@@ -133,13 +133,13 @@ class SimulationControls(wx.PyPanel):
         self.Layout()
 
     def _onaverage(self, event):
-        ClimateSummaryFrame(None, self._sim.average(20)).Show()
+        ClimateSummaryFrame(None, self._sim.average(0)).Show()
 
     def _onclassify(self, event):
         ss = []
         for i in range(8):
             self._sim.season = season(i)
-            ss.append(self._sim.average(20))
+            ss.append(self._sim.average(0))
         seasons = []
         for y in range(len(ss[0])):
             row = []
