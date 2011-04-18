@@ -80,6 +80,16 @@ class ClimateDisplay(object):
         self._mode = value
         self.dirty = True
 
+    def resolvesources(self, p, t, f):
+        value = []
+        for (s,w) in self._sim.sources(p):
+            fw = f*w
+            if fw > t:
+                value.extend([(s, 0)] + self.resolvesources(s, t, fw/2))
+            else:
+                value.append((s,fw))
+        return value
+    
     def handle(self, e):
         if e.type == MOUSEBUTTONUP:
             mx, my = e.pos
@@ -106,10 +116,9 @@ class ClimateDisplay(object):
                 else:
                     self.selected = (xo,y)
                     self.adjacent = self._sim.adj[self.selected]
-                    self.sources = dict(((s,w)
-                                         for (s,w) in
-                                         self._sim.sources(self.selected)))
-
+                    self.sources = dict(((s,w) for (s,w) in
+                                         self.resolvesources(self.selected, 0.1, 1.0)))
+       
                 self._screen = None
 
                 return True
@@ -149,7 +158,7 @@ class ClimateDisplay(object):
                     if self.selected == (xo, y):
                         color = (255,0,255)
                     elif (xo, y) in self.sources:
-                        color = (255,255 * self.sources[(xo,y)],0)
+                        color = (255,255 * self.sources[(xo,y)]/0.1,0)
                     elif self.mode == self.INSOLATION:
                         ins = self._sim.insolation(y)                    
                         color = warmscale(ins)
