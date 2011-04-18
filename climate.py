@@ -359,7 +359,7 @@ class ClimateSimulation(object):
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
         for (x,y), (d,t,h,p) in self.climate.iteritems():
-            c[y][x] = t, h, p
+            c[y][x] = t, h, 0.25*h+0.75*p
         
         for i in range(steps):
             self.iterateclimate()
