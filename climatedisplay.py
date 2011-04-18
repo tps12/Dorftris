@@ -159,7 +159,7 @@ class ClimateDisplay(object):
                         elif self.mode == self.TEMPERATURE:
                             color = colorscale(climate[1])
                         elif self.mode == self.PRECIPITATION:
-                            color = coolscale(climate[3]/25)
+                            color = coolscale(climate[3])
                         else:
                             color = (0,int(255 * (h/9000.0)),0)
                     else:

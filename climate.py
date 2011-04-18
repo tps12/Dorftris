@@ -196,7 +196,8 @@ class ClimateSimulation(object):
                 h = self.tiles[y][x][2]
 
                 t = ins * (1-h/11000.0) if h > 0 else ins
-                self.climate[(x,y)] = d, t, (0.5 + exp(t)/e2) * (h <= 0), 0
+                p = t * (cos(self.tiles[y][x][0]*2*c*pi/180) + 1)/2
+                self.climate[(x,y)] = d, t, (0.5 + exp(t)/e2) * (h <= 0), p
 
         self.sadj = {}
         for (x,y), ns in self.adj.iteritems():
