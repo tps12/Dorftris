@@ -71,7 +71,7 @@ class ClimateClassDisplay(object):
                     h = cs[0][0]
 
                     tf = lambda c: c * 75.0 - 25.0
-                    pf = lambda c: c * 2000.0/len(cs)
+                    pf = lambda c: c * 1800.0/len(cs)
                     ts = [tf(c[0]) for (h,c) in cs]
                     ps = [pf(c[2]) for (h,c) in cs]
 

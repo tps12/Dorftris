@@ -233,7 +233,7 @@ class ClimateSimulation(object):
                 if climate[2] is None:
                     h = 0
                 else:
-                    h = sqrt(max(0, (d - climate[2]))/float(d))
+                    h = ((d - climate[2])/float(d))**2
                 self.climate[(x,y)] = climate[0], climate[1], h, climate[3]
 
     def _propogate(self, sources, d):
@@ -359,7 +359,7 @@ class ClimateSimulation(object):
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
         for (x,y), (d,t,h,p) in self.climate.iteritems():
-            c[y][x] = t, h, 0.25*h+0.75*p
+            c[y][x] = t, h, min(1.0, h+p)
         
         for i in range(steps):
             self.iterateclimate()
