@@ -287,6 +287,9 @@ class ClimateSimulation(object):
             t = sum([w for (s, w) in sws])
             self._mapping[d] = [(s, w/t) for (s,w) in sws]
 
+    def sources(self, p):
+        return self._mapping[p]
+
     def iterateclimate(self):
         e2 = 2 * exp(1)
         for y in range(len(self.tiles)):
