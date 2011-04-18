@@ -223,7 +223,7 @@ class ClimateSimulation(object):
                     self.climate[(x,y)] = climate[0], climate[1], d, climate[3]
                     frontier.append((x,y))
                     
-        while frontier:
+        while d < 10 and frontier:
             d += 1
             frontier = self._propogate(frontier, d)
             
@@ -231,7 +231,10 @@ class ClimateSimulation(object):
             for x in range(len(self.tiles[y])):
                 climate = self.climate[(x,y)]
                 if climate[2] is None:
-                    self.climate[(x,y)] = climate[0], climate[1], 10, climate[3]
+                    h = 0
+                else:
+                    h = sqrt(max(0, (d - climate[2]))/float(d))
+                self.climate[(x,y)] = climate[0], climate[1], h, climate[3]
 
     def _propogate(self, sources, d):
         frontier = []
