@@ -70,23 +70,23 @@ class ClimateClassDisplay(object):
 
                     h = cs[0][0]
 
-                    tf = lambda c: c * 110.0 - 50.0
-                    pf = lambda c: c * 10000.0
+                    tf = lambda c: c * 75.0 - 25.0
+                    pf = lambda c: c * 20000.0/len(cs)
                     ts = [tf(c[0]) for (h,c) in cs]
                     ps = [pf(c[2]) for (h,c) in cs]
 
                     if h > 0:
                         thr = sum(ts)/len(cs) * 20
                         byt = sorted(range(len(ts)), key=lambda i: ts[i])
-                        tot = sum(ps)/len(ps)
+                        tot = sum(ps)
                         inh = sum([ps[i] for i in byt[-len(byt)/2:]])
                         if inh >= 0.7 * tot:
                             thr += 280
-                        elif inh >= 0.3:
+                        elif inh >= 0.3 * tot:
                             thr += 140
 
                         if self.mode == self.CLIMATE:
-                            if tot <= thr:
+                            if tot/len(ps) <= thr:
                                 color = (255,0,0)
                             elif min(ts) >= 18:
                                 color = (0,0,255)
@@ -98,9 +98,9 @@ class ClimateClassDisplay(object):
                             else:
                                 color = (128,128,128)
                         elif self.mode == self.MOISTURE:
-                            color = coolscale(min(10000.0, tot)/10000.0)
+                            color = coolscale(min(10000.0, tot/len(ps))/10000.0)
                         elif self.mode == self.THRESHOLD:
-                            color = coolscale(max(0, thr)/1480.0)
+                            color = coolscale(max(0, thr)/2280.0)
                     else:
                         if self.mode == self.CLIMATE:
                             color = (255,255,255)
