@@ -71,7 +71,7 @@ class ClimateClassDisplay(object):
                     h = cs[0][0]
 
                     tf = lambda c: c * 75.0 - 25.0
-                    pf = lambda c: c * 20000.0/len(cs)
+                    pf = lambda c: c * 100.0
                     ts = [tf(c[0]) for (h,c) in cs]
                     ps = [pf(c[2]) for (h,c) in cs]
 
@@ -86,19 +86,65 @@ class ClimateClassDisplay(object):
                             thr += 140
 
                         if self.mode == self.CLIMATE:
-                            if tot/len(ps) <= thr:
-                                color = (255,0,0)
+                            ann = (tot/len(ps)) * (360/len(ps))
+                            if ann <= thr:
+                                # B
+                                if ann <= thr/2:
+                                    # W
+                                    color = (255,0,0)
+                                else:
+                                    # S
+                                    color = (255,127,0)
                             elif min(ts) >= 18:
-                                color = (0,0,255)
+                                # A
+                                if all([p >= 60 for p in ps]):
+                                    # f
+                                    color = (0,0,255)
+                                elif any([100 - ann/25 <= p < 60 for p in ps]):
+                                    # m
+                                    color = (0,63,255)
+                                else:
+                                    # w
+                                    color = (0,127,255)
                             elif max(ts) > 10:
                                 if min(ts) >= -3:
-                                    color = (0,255,0)
+                                    # C
+                                    if (min([ps[i] for i in byt[-len(byt)/2:]]) <
+                                        max([ps[i] for i in byt[:len(byt)/2]])/10.0):
+                                        # w
+                                        color = (127,255,0)
+                                    elif (min([ps[i] for i in byt[:len(byt)/2]]) <
+                                          min(30,
+                                              max([ps[i] for i in byt[-len(byt)/2:]])/3.0)):
+                                        # s
+                                        color = (255,255,0)
+                                    else:
+                                        # f
+                                        color = (0,255,0)
                                 else:
-                                    color = (255,0,255)
+                                    # D
+                                    if (min([ps[i] for i in byt[-len(byt)/2:]]) <
+                                        max([ps[i] for i in byt[:len(byt)/2]])/10.0):
+                                        # w
+                                        color = (127,127,255)
+                                    elif (min([ps[i] for i in byt[:len(byt)/2]]) <
+                                          min(30,
+                                              max([ps[i] for i in byt[-len(byt)/2:]])/3.0)):
+                                        # s
+                                        color = (255,0,255)
+                                    else:
+                                        # f
+                                        color = (0,255,255)
                             else:
-                                color = (128,128,128)
+                                # E
+                                if max(ts) >= 0:
+                                    # T
+                                    color = (191,191,191)
+                                else:
+                                    # F
+                                    color = (127,127,127)
                         elif self.mode == self.MOISTURE:
-                            color = coolscale(min(10000.0, tot/len(ps))/10000.0)
+                            color = coolscale(tot/len(ps)/100.0)
                         elif self.mode == self.THRESHOLD:
                             color = coolscale(max(0, thr)/2280.0)
                     else:
