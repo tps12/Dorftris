@@ -222,14 +222,21 @@ class ClimateSimulation(object):
                     climate = self.climate[(x,y)]
                     self.climate[(x,y)] = climate[0], climate[1], d, climate[3]
                     frontier.append((x,y))
+                    
         while frontier:
             d += 1
             frontier = self._propogate(frontier, d)
+            
+        for y in range(len(self.tiles)):
+            for x in range(len(self.tiles[y])):
+                climate = self.climate[(x,y)]
+                if climate[2] is None:
+                    self.climate[(x,y)] = climate[0], climate[1], 10, climate[3]
 
     def _propogate(self, sources, d):
         frontier = []
         for s in sources:
-            for a in self.adj[s]:
+            for a in [p for (p,w) in self._destmap[s]]:
                 climate = self.climate[a]
                 if climate[2] is None:
                     self.climate[a] = climate[0], climate[1], d, climate[3]
@@ -238,6 +245,7 @@ class ClimateSimulation(object):
 
     def _definemapping(self):
         mapping = {}
+        dests = {}
 
         def addmap(s, d, w):
             if d in mapping:
@@ -246,6 +254,13 @@ class ClimateSimulation(object):
                 l = []
                 mapping[d] = l
             l.append((s,w))
+
+            if s in dests:
+                l = dests[s]
+            else:
+                l = []
+                dests[s] = l
+            l.append((d,w))
 
         seen = set()
 
@@ -286,6 +301,11 @@ class ClimateSimulation(object):
         for (d, sws) in mapping.iteritems():
             t = sum([w for (s, w) in sws])
             self._mapping[d] = [(s, w/t) for (s,w) in sws]
+
+        self._destmap = {}
+        for (s, dws) in dests.iteritems():
+            t = sum([w for (d, w) in dws])
+            self._destmap[s] = [(d, w/t) for (d,w) in dws]
 
     def sources(self, p):
         return self._mapping[p]
