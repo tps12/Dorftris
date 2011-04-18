@@ -197,7 +197,7 @@ class ClimateSimulation(object):
 
                 t = ins * (1-h/11000.0) if h > 0 else ins
                 p = t * (cos(self.tiles[y][x][0]*2*c*pi/180) + 1)/2
-                self.climate[(x,y)] = d, t, (0.5 + exp(t)/e2) * (h <= 0), p
+                self.climate[(x,y)] = d, t, None, p
 
         self.sadj = {}
         for (x,y), ns in self.adj.iteritems():
@@ -209,8 +209,32 @@ class ClimateSimulation(object):
                                                    self.tiles[a[1]][a[0]][0:2])
                                            - d) * pi / 180))
         self._definemapping()
+        self._seabreeze()
                     
         self.dirty = True
+
+    def _seabreeze(self):
+        frontier = []
+        d = 0
+        for y in range(len(self.tiles)):
+            for x in range(len(self.tiles[y])):
+                if self.tiles[y][x][2] <= 0:
+                    climate = self.climate[(x,y)]
+                    self.climate[(x,y)] = climate[0], climate[1], d, climate[3]
+                    frontier.append((x,y))
+        while frontier:
+            d += 1
+            frontier = self._propogate(frontier, d)
+
+    def _propogate(self, sources, d):
+        frontier = []
+        for s in sources:
+            for a in self.adj[s]:
+                climate = self.climate[a]
+                if climate[2] is None:
+                    self.climate[a] = climate[0], climate[1], d, climate[3]
+                    frontier.append(a)
+        return frontier
 
     def _definemapping(self):
         mapping = {}

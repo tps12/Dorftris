@@ -150,7 +150,7 @@ class ClimateDisplay(object):
                         ins = self._sim.insolation(y)                    
                         color = warmscale(ins)
                     elif self.mode == self.HUMIDITY:
-                        color = coolscale(climate[2])
+                        color = coolscale(max(0, (10 - climate[2]))/10.0)
                     elif h > 0:
                         if self.mode == self.CLIMATE:
                             color = (int(255 * (1 - climate[2])),
