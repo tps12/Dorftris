@@ -71,7 +71,7 @@ class ClimateClassDisplay(object):
                     h = cs[0][0]
 
                     tf = lambda c: c * 75.0 - 25.0
-                    pf = lambda c: c * 100.0
+                    pf = lambda c: c * 2000.0/len(cs)
                     ts = [tf(c[0]) for (h,c) in cs]
                     ps = [pf(c[2]) for (h,c) in cs]
 
@@ -86,10 +86,9 @@ class ClimateClassDisplay(object):
                             thr += 140
 
                         if self.mode == self.CLIMATE:
-                            ann = (tot/len(ps)) * (360/len(ps))
-                            if ann <= thr:
+                            if tot <= thr:
                                 # B
-                                if ann <= thr/2:
+                                if tot <= thr/2:
                                     # W
                                     color = (255,0,0)
                                 else:
@@ -97,10 +96,11 @@ class ClimateClassDisplay(object):
                                     color = (255,127,0)
                             elif min(ts) >= 18:
                                 # A
-                                if all([p >= 60 for p in ps]):
+                                if all([p >= 60*len(ps) for p in ps]):
                                     # f
                                     color = (0,0,255)
-                                elif any([100 - ann/25 <= p < 60 for p in ps]):
+                                elif any([(100 - tot/25)*len(ps) <= p < 60*len(ps)
+                                          for p in ps]):
                                     # m
                                     color = (0,63,255)
                                 else:
@@ -114,7 +114,7 @@ class ClimateClassDisplay(object):
                                         # w
                                         color = (127,255,0)
                                     elif (min([ps[i] for i in byt[:len(byt)/2]]) <
-                                          min(30,
+                                          min(30*len(ps),
                                               max([ps[i] for i in byt[-len(byt)/2:]])/3.0)):
                                         # s
                                         color = (255,255,0)
@@ -128,7 +128,7 @@ class ClimateClassDisplay(object):
                                         # w
                                         color = (127,127,255)
                                     elif (min([ps[i] for i in byt[:len(byt)/2]]) <
-                                          min(30,
+                                          min(30*len(ps),
                                               max([ps[i] for i in byt[-len(byt)/2:]])/3.0)):
                                         # s
                                         color = (255,0,255)
