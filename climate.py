@@ -226,7 +226,8 @@ class ClimateSimulation(object):
                     h = 0
                 else:
                     h = ((d - climate[2])/float(d))**2
-                self.climate[(x,y)] = climate[0], climate[1], h, climate[3]
+                p = min(1.0, h + climate[3])
+                self.climate[(x,y)] = climate[0], climate[1], h, climate[3], p
 
     def _propagate(self, sources, d):
         frontier = []
@@ -310,8 +311,8 @@ class ClimateSimulation(object):
 
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
-        for (x,y), (d,t,h,p) in self.climate.iteritems():
-            c[y][x] = t, h, min(1.0, h+p)
+        for (x,y), (d,t,h,b,p) in self.climate.iteritems():
+            c[y][x] = t, h, p
             
         value = [[(self.tiles[y][x][2], c[y][x])
                   for x in range(len(self.tiles[y]))]

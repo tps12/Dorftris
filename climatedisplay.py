@@ -165,8 +165,7 @@ class ClimateDisplay(object):
                         color = warmscale(ins)
                     elif h > 0:
                         if self.mode == self.PRECIPITATION:
-                            color = coolscale(climate[2] * 0.25 +
-                                              climate[3] * 0.75)
+                            color = coolscale(climate[4])
                         elif self.mode == self.SEABREEZE:
                             color = coolscale(climate[2])
                         elif self.mode == self.TEMPERATURE:
@@ -176,7 +175,9 @@ class ClimateDisplay(object):
                         else:
                             color = (0,int(255 * (h/9000.0)),0)
                     else:
-                        if self.mode == self.TEMPERATURE:
+                        if self.mode == self.PRECIPITATION:
+                            color = (0,0,0)
+                        elif self.mode == self.TEMPERATURE:
                             color = [(c+255)/2 for c in colorscale(climate[1])]
                         elif self.mode == self.SEABREEZE:
                             color = (0,0,0)
