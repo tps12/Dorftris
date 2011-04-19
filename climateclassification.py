@@ -27,7 +27,7 @@ class ClimateClassification(object):
                 self.climate[y][x] = (h,
                                       sum(ts)/len(ts),
                                       tot/(1800.0/len(ps))/len(ps),
-                                      max(0, thr)/1280.0,
+                                      max(0, thr)/(20 * templimits[1] + 280.0),
                                       k)
 
     def koeppen(self, ts, ps, byt, thr, tot):

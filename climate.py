@@ -3,6 +3,8 @@ from math import asin, acos, atan2, pi, exp, sqrt, sin, cos
 
 from etopo import Earth
 
+from climateclassification import ClimateClassification
+
 def cells(r):
     c = int(r/6400.0 + 2)
     if c < 1:
@@ -314,8 +316,24 @@ class ClimateSimulation(object):
         for (x,y), (d,t,h,b,p) in self.climate.iteritems():
             c[y][x] = self.tiles[y][x][2], t, p
 
-        return c            
+        return c
 
+    def classify(self, seasons):
+        ss = []
+        for s in seasons:
+            self.season = s
+            ss.append(self.average())
+            
+        seasons = []
+        for y in range(len(ss[0])):
+            row = []
+            for x in range(len(ss[0][y])):
+                row.append((ss[0][y][x][0],
+                            [ss[i][y][x][1:] for i in range(len(ss))]))
+            seasons.append(row)
+
+        return ClimateClassification(seasons, (-25.0, 50.0))
+    
     def update(self):
         if not self.climate:
             self.resetclimate()

@@ -107,18 +107,7 @@ class SimulationControls(wx.PyPanel):
         self.Layout()
 
     def _onclassify(self, event):
-        ss = []
-        for i in range(8):
-            self._sim.season = season(i)
-            ss.append(self._sim.average())
-        seasons = []
-        for y in range(len(ss[0])):
-            row = []
-            for x in range(len(ss[0][y])):
-                row.append((ss[0][y][x][0],
-                            [ss[i][y][x][1:] for i in range(len(ss))]))
-            seasons.append(row)
-        ClimateClassFrame(None, seasons).Show()
+        ClimateClassFrame(None, self._sim.classify([season(i) for i in range(8)])).Show()
 
     def _onradius(self, event):
         self._sim.radius = radius(event.Position)
