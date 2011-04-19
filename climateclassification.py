@@ -1,14 +1,15 @@
 class ClimateClassification(object):
-    def __init__(self, summary):
+    def __init__(self, summary, templimits):
         self.climate = [[None for x in range(len(summary[y]))]
                         for y in range(len(summary))]
+
+        tf = lambda c: c * (templimits[1] - templimits[0]) + templimits[0]
+        pf = lambda c: c * 1800.0/len(cs)
 
         for y in range(len(summary)):
             for x in range(len(summary[y])):                    
                 h, cs = summary[y][x]
 
-                tf = lambda c: c * 75.0 - 25.0
-                pf = lambda c: c * 1800.0/len(cs)
                 ts = [tf(t) for (t,p) in cs]
                 ps = [pf(p) for (t,p) in cs]
 

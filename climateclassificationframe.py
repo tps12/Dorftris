@@ -48,7 +48,7 @@ class ClimateClassFrame(wx.Frame):
     def __init__(self, parent, summary):
         wx.Frame.__init__(self, parent, -1, size = (1600, 1000))
 
-        summarydisplay = ClimateClassDisplay(ClimateClassification(summary).climate)
+        summarydisplay = ClimateClassDisplay(ClimateClassification(summary, (-25.0, 75.0)).climate)
         self.display = PygameDisplay(self, -1, summarydisplay)
        
         self.Bind(wx.EVT_SIZE, self.OnSize)
