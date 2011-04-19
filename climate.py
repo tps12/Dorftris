@@ -159,14 +159,6 @@ class ClimateSimulation(object):
         self._spin = value
         self.climate.clear()
 
-    @property
-    def run(self):
-        return self._run
-
-    @run.setter
-    def run(self, value):
-        self._run = value
-
     def insolation(self, y):
         theta = 2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2
         theta += (self.tilt * pi/180) * self.season
@@ -313,46 +305,6 @@ class ClimateSimulation(object):
     def sources(self, p):
         return self._mapping[p]
 
-    def iterateclimate(self):
-        e2 = 2 * exp(1)
-        for y in range(len(self.tiles)):
-            ins = self.insolation(y)
-            
-            for x in range(len(self.tiles[y])):
-                climate = self.climate[(x,y)]
-
-                sws = self._mapping[(x,y)]
-                    
-                t = h = 0
-                for s, w in sws:
-                    st, sh = self.climate[s][1:3]
-                    t += st * w
-                    h += sh * w
-                
-                if self.tiles[y][x][2] > 0:
-                    t += 0.0125 * ins
-                    t = min(t, (1-self.tiles[y][x][2]/11000.0))
-                else:
-                    h += 0.125
-                    
-                h = min(h, (0.5 + exp(t)/e2))
-
-                convective = max(0, min(h, t - climate[1]))
-                h -= convective
-
-                stratiform = max(0, climate[2] - h)
-                h = max(0, h - stratiform)
-
-                p = climate[3] + convective + stratiform
-                
-                self._scratch[(x,y)] = (climate[0], climate[1], h, p)
-
-        swap = self.climate
-        self.climate = self._scratch
-        self._scratch = swap
-
-        self.dirty = True
-
     def average(self, steps):
         self.resetclimate()
 
@@ -369,6 +321,3 @@ class ClimateSimulation(object):
     def update(self):
         if not self.climate:
             self.resetclimate()
-
-        if self.run:
-            self.iterateclimate()

@@ -94,27 +94,6 @@ class SimulationControls(wx.PyPanel):
 
             lines.Add(controls, flag=wx.EXPAND)
 
-        state = wx.BoxSizer(wx.HORIZONTAL)
-        
-        run = wx.CheckBox(self, wx.ID_ANY, u'Run simulation')
-        self.Bind(wx.EVT_CHECKBOX, self._onrun, run)
-
-        self._step = wx.Button(self, wx.ID_ANY, u'Step')
-        self.Bind(wx.EVT_BUTTON, self._clickhandler(self._sim.iterateclimate), self._step)
-
-        reset = wx.Button(self, wx.ID_ANY, u'Reset')
-        self.Bind(wx.EVT_BUTTON, self._clickhandler(self._sim.resetclimate), reset)
-
-        event = wx.CommandEvent()
-        event.Value = run.Value
-        self._onrun(event)
-
-        state.Add(run)
-        state.Add(self._step)
-        state.Add(reset)
-
-        lines.Add(state)
-
         proc = wx.BoxSizer(wx.HORIZONTAL)
 
         classify = wx.Button(self, wx.ID_ANY, u'Classify...')
@@ -139,15 +118,6 @@ class SimulationControls(wx.PyPanel):
                 row.append([ss[i][y][x] for i in range(len(ss))])
             seasons.append(row)
         ClimateClassFrame(None, seasons).Show()
-        
-    def _onrun(self, event):
-        self._step.Enabled = not event.Checked()
-        self._sim.run = event.Checked()
-
-    def _clickhandler(self, handler):
-        def onclick(event):
-            handler()
-        return onclick
 
     def _onradius(self, event):
         self._sim.radius = radius(event.Position)
