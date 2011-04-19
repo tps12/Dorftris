@@ -74,6 +74,7 @@ class ClimateSimulation(object):
 
     maxelevation = 11000.0
     temprange = (-25.0, 50.0)
+    sealevel = 0
     
     def __init__(self):
         self.planet = Earth()
@@ -192,7 +193,8 @@ class ClimateSimulation(object):
             for x in range(len(self.tiles[y])):
                 h = self.tiles[y][x][2]
 
-                t = ins * (1-h/self.maxelevation) if h > 0 else ins
+                t = (ins * (1-(h - self.sealevel)/(self.maxelevation - self.sealevel))
+                     if h > self.sealevel else ins)
                 p = (cos((self.tiles[y][x][0]*2*c + self.tilt*self.season)*pi/180) + 1)/2
                 self.climate[(x,y)] = d, t, None, p
 
@@ -215,7 +217,7 @@ class ClimateSimulation(object):
         d = 0
         for y in range(len(self.tiles)):
             for x in range(len(self.tiles[y])):
-                if self.tiles[y][x][2] <= 0:
+                if self.tiles[y][x][2] <= self.sealevel:
                     climate = self.climate[(x,y)]
                     self.climate[(x,y)] = climate[0], climate[1], d, climate[3]
                     frontier.append((x,y))

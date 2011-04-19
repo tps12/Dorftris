@@ -44,10 +44,10 @@ class DisplayControls(wx.PyPanel):
         self._display.rotate = rotation(-event.Position)
 
 class ClimateClassFrame(wx.Frame):
-    def __init__(self, parent, summary):
+    def __init__(self, parent, summary, sealevel):
         wx.Frame.__init__(self, parent, -1, size = (1600, 1000))
 
-        summarydisplay = ClimateClassDisplay(summary.climate)
+        summarydisplay = ClimateClassDisplay(summary.climate, sealevel)
         self.display = PygameDisplay(self, -1, summarydisplay)
        
         self.Bind(wx.EVT_SIZE, self.OnSize)

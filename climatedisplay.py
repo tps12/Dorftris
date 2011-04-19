@@ -163,7 +163,7 @@ class ClimateDisplay(object):
                     elif self.mode == self.INSOLATION:
                         ins = self._sim.insolation(y)                    
                         color = warmscale(ins)
-                    elif h > 0:
+                    elif h > self._sim.sealevel:
                         if self.mode == self.PRECIPITATION:
                             color = coolscale(climate[4])
                         elif self.mode == self.SEABREEZE:
@@ -173,7 +173,9 @@ class ClimateDisplay(object):
                         elif self.mode == self.CONVECTION:
                             color = coolscale(climate[3])
                         else:
-                            color = (0,int(255 * (h/self._sim.maxelevation)),0)
+                            color = (0, int(255 * (
+                                (h - self._sim.sealevel)/
+                                (self._sim.maxelevation - self._sim.sealevel))),0)
                     else:
                         if self.mode == self.PRECIPITATION:
                             color = (0,0,0)
@@ -184,7 +186,9 @@ class ClimateDisplay(object):
                         elif self.mode == self.CONVECTION:
                             color = (128,128,128)
                         else:
-                            color = (0,0,int(255 * (1 + h/11000.0)))
+                            color = (0,0,int(255 * (1 -
+                                                    (h - self._sim.sealevel)/
+                                                    (-11000.0 - self._sim.sealevel))))
 
                     block.fill(color)
 

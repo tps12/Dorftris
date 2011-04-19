@@ -15,8 +15,9 @@ def coolscale(v):
 class ClimateClassDisplay(object):
     dt = 0.01
     
-    def __init__(self, summary):
+    def __init__(self, summary, sealevel):
         self._summary = summary
+        self._sealevel = sealevel
         self.dirty = True
 
     @property
@@ -91,7 +92,7 @@ class ClimateClassDisplay(object):
                     h, t, p, thr, k = self._summary[y][xo]
 
 
-                    if h > 0:
+                    if h > self._sealevel:
                         if self.mode == self.CLIMATE:
                             color = self.colors[k[0]][k[1]]
                         elif self.mode == self.MOISTURE:
