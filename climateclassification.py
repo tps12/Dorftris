@@ -21,45 +21,50 @@ class ClimateClassification(object):
                 elif inh >= 0.3 * tot:
                     thr += 140
 
-                if tot <= thr:
-                    k = u'B'
-                    if tot <= thr/2:
-                        k += u'W'
-                    else:
-                        k += u'S'
-                elif min(ts) >= 18:
-                    k = u'A'
-                    if all([p >= 60*len(ps) for p in ps]):
-                        k += u'f'
-                    elif any([(100 - tot/25)*len(ps) <= p < 60*len(ps)
-                              for p in ps]):
-                        k += u'm'
-                    else:
-                        k += u'w'
-                elif max(ts) > 10:
-                    if min(ts) >= -3:
-                        k = u'C'
-                    else:
-                        k = u'D'
-                        
-                    if (min([ps[i] for i in byt[-len(byt)/2:]]) <
-                        max([ps[i] for i in byt[:len(byt)/2]])/10.0):
-                        k += u'w'
-                    elif (min([ps[i] for i in byt[:len(byt)/2]]) <
-                          min(30*len(ps),
-                              max([ps[i] for i in byt[-len(byt)/2:]])/3.0)):
-                        k += u's'
-                    else:
-                        k += u'f'
-                else:
-                    k = u'E'
-                    if max(ts) >= 0:
-                        k += u'T'
-                    else:
-                        k += u'F'
+                k = self.koeppen(ts, ps, byt, thr, tot)
 
                 self.climate[y][x] = (h,
                                       sum(ts)/len(ts),
                                       tot/(1800.0/len(ps))/len(ps),
                                       max(0, thr)/1280.0,
                                       k)
+
+    def koeppen(self, ts, ps, byt, thr, tot):
+        if tot <= thr:
+            k = u'B'
+            if tot <= thr/2:
+                k += u'W'
+            else:
+                k += u'S'
+        elif min(ts) >= 18:
+            k = u'A'
+            if all([p >= 60*len(ps) for p in ps]):
+                k += u'f'
+            elif any([(100 - tot/25)*len(ps) <= p < 60*len(ps)
+                      for p in ps]):
+                k += u'm'
+            else:
+                k += u'w'
+        elif max(ts) > 10:
+            if min(ts) >= -3:
+                k = u'C'
+            else:
+                k = u'D'
+                
+            if (min([ps[i] for i in byt[-len(byt)/2:]]) <
+                max([ps[i] for i in byt[:len(byt)/2]])/10.0):
+                k += u'w'
+            elif (min([ps[i] for i in byt[:len(byt)/2]]) <
+                  min(30*len(ps),
+                      max([ps[i] for i in byt[-len(byt)/2:]])/3.0)):
+                k += u's'
+            else:
+                k += u'f'
+        else:
+            k = u'E'
+            if max(ts) >= 0:
+                k += u'T'
+            else:
+                k += u'F'
+                
+        return k
