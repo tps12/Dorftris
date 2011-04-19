@@ -144,9 +144,9 @@ class ClimateClassDisplay(object):
                                     # F
                                     color = (127,127,127)
                         elif self.mode == self.MOISTURE:
-                            color = coolscale(tot/len(ps)/100.0)
+                            color = coolscale(tot/(1800.0/len(ps))/len(ps))
                         elif self.mode == self.THRESHOLD:
-                            color = coolscale(max(0, thr)/2280.0)
+                            color = coolscale(max(0, thr)/1280.0)
                     else:
                         if self.mode == self.CLIMATE:
                             color = (255,255,255)
