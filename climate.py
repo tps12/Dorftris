@@ -72,7 +72,7 @@ class ClimateDict(object):
 class ClimateSimulation(object):
     ADJ_CACHE = '.adj.pickle'
 
-    maxelevation = 11000.0
+    maxelevation = 9000.0
     temprange = (-25.0, 50.0)
     sealevel = 0
     
