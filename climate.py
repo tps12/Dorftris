@@ -312,12 +312,9 @@ class ClimateSimulation(object):
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
         for (x,y), (d,t,h,b,p) in self.climate.iteritems():
-            c[y][x] = t, h, p
-            
-        value = [[(self.tiles[y][x][2], c[y][x])
-                  for x in range(len(self.tiles[y]))]
-                 for y in range(len(self.tiles))]
-        return value
+            c[y][x] = self.tiles[y][x][2], t, p
+
+        return c            
 
     def update(self):
         if not self.climate:

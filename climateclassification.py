@@ -66,14 +66,13 @@ class ClimateClassDisplay(object):
                         xo -= len(self._summary[y])
                     elif xo < 0:
                         xo += len(self._summary[y])
-                    cs = self._summary[y][xo]
-
-                    h = cs[0][0]
+                        
+                    h, cs = self._summary[y][xo]
 
                     tf = lambda c: c * 75.0 - 25.0
                     pf = lambda c: c * 1800.0/len(cs)
-                    ts = [tf(c[0]) for (h,c) in cs]
-                    ps = [pf(c[2]) for (h,c) in cs]
+                    ts = [tf(t) for (t,p) in cs]
+                    ps = [pf(p) for (t,p) in cs]
 
                     if h > 0:
                         thr = sum(ts)/len(cs) * 20

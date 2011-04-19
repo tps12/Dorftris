@@ -115,7 +115,8 @@ class SimulationControls(wx.PyPanel):
         for y in range(len(ss[0])):
             row = []
             for x in range(len(ss[0][y])):
-                row.append([ss[i][y][x] for i in range(len(ss))])
+                row.append((ss[0][y][x][0],
+                            [ss[i][y][x][1:] for i in range(len(ss))]))
             seasons.append(row)
         ClimateClassFrame(None, seasons).Show()
 
