@@ -217,7 +217,7 @@ class ClimateSimulation(object):
                     
         while d < 10 and frontier:
             d += 1
-            frontier = self._propogate(frontier, d)
+            frontier = self._propagate(frontier, d)
             
         for y in range(len(self.tiles)):
             for x in range(len(self.tiles[y])):
@@ -228,7 +228,7 @@ class ClimateSimulation(object):
                     h = ((d - climate[2])/float(d))**2
                 self.climate[(x,y)] = climate[0], climate[1], h, climate[3]
 
-    def _propogate(self, sources, d):
+    def _propagate(self, sources, d):
         frontier = []
         for s in sources:
             for a in [p for (p,w) in self._destmap[s]]:
