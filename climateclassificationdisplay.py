@@ -2,28 +2,6 @@ from math import sin, cos, pi
 
 import pygame
 
-def colorscale(v):
-    m = 1275
-    r = (255 - m * v if v < 0.2 else
-         0 if v < 0.6 else
-         m * (v - 0.6) if v < 0.8 else
-         255)
-    g = (0 if v < 0.2 else
-         m * (v - 0.2) if v < 0.4 else
-         255 if v < 0.8 else
-         255 - m * (v - 0.8))
-    b = (255 if v < 0.4 else
-         255 - m * (v - 0.4) if v < 0.6 else
-         0)
-    return r, g, b
-
-def warmscale(v):
-    m = 510
-    r = 255
-    g = v * m if v < 0.5 else 255
-    b = 0 if v < 0.5 else m * (v - 0.5)
-    return r, g, b
-
 def coolscale(v):
     m = 1020
     r = 255 - m * v if v < 0.25 else 0
@@ -34,7 +12,7 @@ def coolscale(v):
          255)
     return r, g, b
 
-class ClimateSummaryDisplay(object):
+class ClimateClassDisplay(object):
     dt = 0.01
     
     def __init__(self, summary):
@@ -50,10 +28,9 @@ class ClimateSummaryDisplay(object):
         self._rotate = value
         self.dirty = True
 
-    TERRAIN = 0
-    TEMPERATURE = 1
-    HUMIDITY = 2
-    CLIMATE = 3
+    CLIMATE = 0
+    THRESHOLD = 1
+    MOISTURE = 2
 
     @property
     def mode(self):
@@ -66,6 +43,27 @@ class ClimateSummaryDisplay(object):
 
     def handle(self, e):
         return False
+
+    colors = {
+        u'A' : {
+            u'f' : (0,0,255),
+            u'm' : (0,63,255),
+            u'w' : (0,127,255) },
+        u'B' : {
+            u'S' : (255,127,0),
+            u'W' : (255,0,0) },
+        u'C' : {
+            u'f' : (0,255,0),
+            u's' : (255,255,0),
+            u'w' : (127,255,0) },
+        u'D' : {
+            u'f' : (0,255,255),
+            u's' : (255,0,255),
+            u'w' : (127,127,255) },
+        u'E' : {
+            u'F' : (127,127,127),
+            u'T' : (191,191,191) }
+        }
     
     def draw(self, surface):
         if self.dirty or self._screen.get_size() != surface.get_size():
@@ -89,24 +87,22 @@ class ClimateSummaryDisplay(object):
                         xo -= len(self._summary[y])
                     elif xo < 0:
                         xo += len(self._summary[y])
-                    h, climate = self._summary[y][xo]
+                        
+                    h, t, p, thr, k = self._summary[y][xo]
+
 
                     if h > 0:
                         if self.mode == self.CLIMATE:
-                            color = (int(255 * (1 - climate[1])),
-                                     255,
-                                     int(255 * (1 - climate[0])))
-                        elif self.mode == self.TEMPERATURE:
-                            color = colorscale(climate[0])
-                        elif self.mode == self.HUMIDITY:
-                            color = coolscale(climate[1])
-                        else:
-                            color = (0,int(255 * (h/9000.0)),0)
+                            color = self.colors[k[0]][k[1]]
+                        elif self.mode == self.MOISTURE:
+                            color = coolscale(p)
+                        elif self.mode == self.THRESHOLD:
+                            color = coolscale(thr)
                     else:
-                        if self.mode == self.TEMPERATURE:
-                            color = [(c+255)/2 for c in colorscale(climate[0])]
+                        if self.mode == self.CLIMATE:
+                            color = (255,255,255)
                         else:
-                            color = (0,0,int(255 * (1 + h/11000.0)))
+                            color = (0,0,0)
 
                     block.fill(color)
                    

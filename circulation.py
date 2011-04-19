@@ -11,7 +11,6 @@ from pygame.locals import *
 from climate import ClimateSimulation
 from climateclassificationframe import ClimateClassFrame
 from climatedisplay import ClimateDisplay
-from climatesummaryframe import ClimateSummaryFrame
 
 from wxpygame import PygameDisplay
 
@@ -95,32 +94,7 @@ class SimulationControls(wx.PyPanel):
 
             lines.Add(controls, flag=wx.EXPAND)
 
-        state = wx.BoxSizer(wx.HORIZONTAL)
-        
-        run = wx.CheckBox(self, wx.ID_ANY, u'Run simulation')
-        self.Bind(wx.EVT_CHECKBOX, self._onrun, run)
-
-        self._step = wx.Button(self, wx.ID_ANY, u'Step')
-        self.Bind(wx.EVT_BUTTON, self._clickhandler(self._sim.iterateclimate), self._step)
-
-        reset = wx.Button(self, wx.ID_ANY, u'Reset')
-        self.Bind(wx.EVT_BUTTON, self._clickhandler(self._sim.resetclimate), reset)
-
-        event = wx.CommandEvent()
-        event.Value = run.Value
-        self._onrun(event)
-
-        state.Add(run)
-        state.Add(self._step)
-        state.Add(reset)
-
-        lines.Add(state)
-
         proc = wx.BoxSizer(wx.HORIZONTAL)
-
-        average = wx.Button(self, wx.ID_ANY, u'Average...')
-        self.Bind(wx.EVT_BUTTON, self._onaverage, average)
-        proc.Add(average)
 
         classify = wx.Button(self, wx.ID_ANY, u'Classify...')
         self.Bind(wx.EVT_BUTTON, self._onclassify, classify)
@@ -132,30 +106,19 @@ class SimulationControls(wx.PyPanel):
         self.SetSizer(lines)
         self.Layout()
 
-    def _onaverage(self, event):
-        ClimateSummaryFrame(None, self._sim.average(20)).Show()
-
     def _onclassify(self, event):
         ss = []
         for i in range(8):
             self._sim.season = season(i)
-            ss.append(self._sim.average(20))
+            ss.append(self._sim.average())
         seasons = []
         for y in range(len(ss[0])):
             row = []
             for x in range(len(ss[0][y])):
-                row.append([ss[i][y][x] for i in range(len(ss))])
+                row.append((ss[0][y][x][0],
+                            [ss[i][y][x][1:] for i in range(len(ss))]))
             seasons.append(row)
         ClimateClassFrame(None, seasons).Show()
-        
-    def _onrun(self, event):
-        self._step.Enabled = not event.Checked()
-        self._sim.run = event.Checked()
-
-    def _clickhandler(self, handler):
-        def onclick(event):
-            handler()
-        return onclick
 
     def _onradius(self, event):
         self._sim.radius = radius(event.Position)
@@ -189,8 +152,9 @@ class DisplayControls(wx.PyPanel):
         style = wx.RB_GROUP
         for name, mode in [(u'Terrain', ClimateDisplay.TERRAIN),
                            (u'Temperature', ClimateDisplay.TEMPERATURE),
-                           (u'Humidity', ClimateDisplay.HUMIDITY),
-                           (u'Climate', ClimateDisplay.CLIMATE),
+                           (u'Moisture from sea', ClimateDisplay.SEABREEZE),
+                           (u'Moisture from convection', ClimateDisplay.CONVECTION),
+                           (u'Total precipitation', ClimateDisplay.PRECIPITATION),
                            (u'Insolation', ClimateDisplay.INSOLATION)]:
             button = wx.RadioButton(self, wx.ID_ANY, name, style=style)
             self.Bind(wx.EVT_RADIOBUTTON, self._modehandler(mode), button)

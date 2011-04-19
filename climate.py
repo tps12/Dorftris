@@ -30,7 +30,7 @@ def bearing(c1, c2):
 
     theta = atan2(sin(dlon) * cos(lat2),
                   cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dlon))
-    return (theta * 180/pi) % 360
+    return (theta * 180/pi) % 360   
 
 class ClimateDict(object):
     def __init__(self, dimensions):
@@ -159,14 +159,6 @@ class ClimateSimulation(object):
         self._spin = value
         self.climate.clear()
 
-    @property
-    def run(self):
-        return self._run
-
-    @run.setter
-    def run(self, value):
-        self._run = value
-
     def insolation(self, y):
         theta = 2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2
         theta += (self.tilt * pi/180) * self.season
@@ -178,6 +170,7 @@ class ClimateSimulation(object):
         
         c = cells(self.radius)
 
+        e2 = 2 * exp(1)
         for y in range(res[1]):
             n = abs(y + 0.5 - res[1]/2)/(float(res[1]/2)/c)
             n = int(n) & 1
@@ -188,13 +181,15 @@ class ClimateSimulation(object):
             ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
             d += atan2(ce, 1) * 180/pi
             d %= 360
+
+            ins = self.insolation(y)
             
             for x in range(len(self.tiles[y])):
                 h = self.tiles[y][x][2]
-                ins = self.insolation(y)
 
                 t = ins * (1-h/11000.0) if h > 0 else ins
-                self.climate[(x,y)] = d, t, 1.0 * (h <= 0)
+                p = (cos((self.tiles[y][x][0]*2*c + self.tilt*self.season)*pi/180) + 1)/2
+                self.climate[(x,y)] = d, t, None, p
 
         self.sadj = {}
         for (x,y), ns in self.adj.iteritems():
@@ -206,11 +201,47 @@ class ClimateSimulation(object):
                                                    self.tiles[a[1]][a[0]][0:2])
                                            - d) * pi / 180))
         self._definemapping()
+        self._seabreeze()
                     
         self.dirty = True
 
+    def _seabreeze(self):
+        frontier = []
+        d = 0
+        for y in range(len(self.tiles)):
+            for x in range(len(self.tiles[y])):
+                if self.tiles[y][x][2] <= 0:
+                    climate = self.climate[(x,y)]
+                    self.climate[(x,y)] = climate[0], climate[1], d, climate[3]
+                    frontier.append((x,y))
+                    
+        while d < 10 and frontier:
+            d += 1
+            frontier = self._propagate(frontier, d)
+            
+        for y in range(len(self.tiles)):
+            for x in range(len(self.tiles[y])):
+                climate = self.climate[(x,y)]
+                if climate[2] is None:
+                    h = 0
+                else:
+                    h = ((d - climate[2])/float(d))**2
+                p = min(1.0, h + climate[3])
+                self.climate[(x,y)] = climate[0], climate[1], h, climate[3], p
+
+    def _propagate(self, sources, d):
+        frontier = []
+        for s in sources:
+            for a in [p for (p,w) in self._destmap[s]]:
+                climate = self.climate[a]
+                if climate[2] is None:
+                    self.climate[a] = climate[0], climate[1], d, climate[3]
+                    frontier.append(a)
+        return frontier
+
     def _definemapping(self):
         mapping = {}
+        dests = {}
 
         def addmap(s, d, w):
             if d in mapping:
@@ -219,6 +250,13 @@ class ClimateSimulation(object):
                 l = []
                 mapping[d] = l
             l.append((s,w))
+
+            if s in dests:
+                l = dests[s]
+            else:
+                l = []
+                dests[s] = l
+            l.append((d,w))
 
         seen = set()
 
@@ -260,71 +298,24 @@ class ClimateSimulation(object):
             t = sum([w for (s, w) in sws])
             self._mapping[d] = [(s, w/t) for (s,w) in sws]
 
-    def iterateclimate(self):
-        for y in range(len(self.tiles)):
-            ins = self.insolation(y)
-            
-            for x in range(len(self.tiles[y])):
-                if self.tiles[y][x][2] <= 0:
-                    h = 1.0
-                else:
-                    h = max(0, self.climate[(x,y)][2] - 0.025 * ins)
-                    self.climate[(x,y)] = self.climate[(x,y)][0:2] + (h,)
-                    
-        e2 = 2 * exp(1)
-        for y in range(len(self.tiles)):
-            ins = self.insolation(y)
-            
-            for x in range(len(self.tiles[y])):
-                climate = self.climate[(x,y)]
+        self._destmap = {}
+        for (s, dws) in dests.iteritems():
+            t = sum([w for (d, w) in dws])
+            self._destmap[s] = [(d, w/t) for (d,w) in dws]
 
-                if self.tiles[y][x][2] <= 0:
-                    oh = 1.0
-                else:
-                    oh = max(0, climate[2] - 0.0125 * ins)
+    def sources(self, p):
+        return self._mapping[p]
 
-                sws = self._mapping[(x,y)]
-                    
-                t = h = 0
-                for s, w in sws:
-                    st, sh = self.climate[s][1:]
-                    t += st * w
-                    h += sh * w
-                
-                if self.tiles[y][x][2] > 0:
-                    t = min(t, (1-self.tiles[y][x][2]/11000.0))
-                
-                self._scratch[(x,y)] = (climate[0],
-                                        t,
-                                        max(oh, h * (0.5 + exp(t)/e2)))
-
-        swap = self.climate
-        self.climate = self._scratch
-        self._scratch = swap
-
-        self.dirty = True
-
-    def average(self, steps):
+    def average(self):
         self.resetclimate()
 
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
-        for (x,y), (d,t,h) in self.climate.iteritems():
-            c[y][x] = t, h
-        
-        for i in range(steps):
-            self.iterateclimate()
-            for (x,y), (d,t,h) in self.climate.iteritems():
-                c[y][x] = c[y][x][0] + t, c[y][x][1] + h
-            
-        value = [[(self.tiles[y][x][2], tuple([n/(steps+1) for n in c[y][x]]))
-                  for x in range(len(self.tiles[y]))]
-                 for y in range(len(self.tiles))]
-        return value
+        for (x,y), (d,t,h,b,p) in self.climate.iteritems():
+            c[y][x] = self.tiles[y][x][2], t, p
+
+        return c            
 
     def update(self):
         if not self.climate:
             self.resetclimate()
-
-        if self.run:
-            self.iterateclimate()
