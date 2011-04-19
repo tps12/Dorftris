@@ -71,6 +71,9 @@ class ClimateDict(object):
 
 class ClimateSimulation(object):
     ADJ_CACHE = '.adj.pickle'
+
+    maxelevation = 11000.0
+    temprange = (-25.0, 50.0)
     
     def __init__(self):
         self.planet = Earth()
@@ -189,7 +192,7 @@ class ClimateSimulation(object):
             for x in range(len(self.tiles[y])):
                 h = self.tiles[y][x][2]
 
-                t = ins * (1-h/11000.0) if h > 0 else ins
+                t = ins * (1-h/self.maxelevation) if h > 0 else ins
                 p = (cos((self.tiles[y][x][0]*2*c + self.tilt*self.season)*pi/180) + 1)/2
                 self.climate[(x,y)] = d, t, None, p
 
@@ -332,7 +335,7 @@ class ClimateSimulation(object):
                             [ss[i][y][x][1:] for i in range(len(ss))]))
             seasons.append(row)
 
-        return ClimateClassification(seasons, (-25.0, 50.0))
+        return ClimateClassification(seasons, self.temprange)
     
     def update(self):
         if not self.climate:

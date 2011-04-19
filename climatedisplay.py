@@ -173,7 +173,7 @@ class ClimateDisplay(object):
                         elif self.mode == self.CONVECTION:
                             color = coolscale(climate[3])
                         else:
-                            color = (0,int(255 * (h/9000.0)),0)
+                            color = (0,int(255 * (h/self._sim.maxelevation)),0)
                     else:
                         if self.mode == self.PRECIPITATION:
                             color = (0,0,0)
