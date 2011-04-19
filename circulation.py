@@ -110,7 +110,7 @@ class SimulationControls(wx.PyPanel):
         ss = []
         for i in range(8):
             self._sim.season = season(i)
-            ss.append(self._sim.average(0))
+            ss.append(self._sim.average())
         seasons = []
         for y in range(len(ss[0])):
             row = []

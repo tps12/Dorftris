@@ -305,7 +305,7 @@ class ClimateSimulation(object):
     def sources(self, p):
         return self._mapping[p]
 
-    def average(self, steps):
+    def average(self):
         self.resetclimate()
 
         c = [[(0,0) for x in range(len(self.tiles[y]))]
@@ -313,7 +313,7 @@ class ClimateSimulation(object):
         for (x,y), (d,t,h,p) in self.climate.iteritems():
             c[y][x] = t, h, min(1.0, h+p)
             
-        value = [[(self.tiles[y][x][2], tuple([n/(steps+1) for n in c[y][x]]))
+        value = [[(self.tiles[y][x][2], c[y][x])
                   for x in range(len(self.tiles[y]))]
                  for y in range(len(self.tiles))]
         return value
