@@ -1,6 +1,7 @@
 import wx
 
-from climateclassification import ClimateClassDisplay
+from climateclassification import ClimateClassification
+from climateclassificationdisplay import ClimateClassDisplay
 from wxpygame import PygameDisplay
 
 def rotation(i):
@@ -47,7 +48,7 @@ class ClimateClassFrame(wx.Frame):
     def __init__(self, parent, summary):
         wx.Frame.__init__(self, parent, -1, size = (1600, 1000))
 
-        summarydisplay = ClimateClassDisplay(summary)
+        summarydisplay = ClimateClassDisplay(ClimateClassification(summary).climate)
         self.display = PygameDisplay(self, -1, summarydisplay)
        
         self.Bind(wx.EVT_SIZE, self.OnSize)
