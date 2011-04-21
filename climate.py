@@ -124,8 +124,7 @@ class ClimateSimulation(object):
                 dump(self.adj, f, 0)
 
         xmax = max([len(self.tiles[i]) for i in range(len(self.tiles))])
-        self.climate, self._scratch = [ClimateDict((xmax, len(self.tiles)))
-                                       for i in range(2)]
+        self.climate = ClimateDict((xmax, len(self.tiles)))
 
         self.dirty = True
 
