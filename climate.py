@@ -315,7 +315,9 @@ class ClimateSimulation(object):
 
     def average(self):
         self.resetclimate()
+        return self._getaverage()
 
+    def _getaverage(self):
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
         for (x,y), (d,t,h,b,p) in self.climate.iteritems():
