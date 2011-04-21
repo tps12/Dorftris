@@ -124,7 +124,10 @@ class ClimateSimulation(object):
                 dump(self.adj, f, 0)
 
         xmax = max([len(self.tiles[i]) for i in range(len(self.tiles))])
-        self.climate = ClimateDict((xmax, len(self.tiles)))
+
+        dimensions = xmax, len(self.tiles)
+        self.climate, self.precipitation = [ClimateDict(dimensions)
+                                            for i in range(2)]
 
         self.dirty = True
 
@@ -233,8 +236,9 @@ class ClimateSimulation(object):
                 else:
                     h = ((d - climate[2])/float(d))**2
                 p = min(1.0, h + climate[3])
-                self.climate[(x,y)] = climate[0], climate[1], h, climate[3], p
-
+                self.precipitation[(x,y)] = p
+                self.climate[(x,y)] = climate[0], climate[1], h, climate[3]
+                
     def _propagate(self, sources, d):
         frontier = []
         for s in sources:
@@ -319,8 +323,8 @@ class ClimateSimulation(object):
     def _getaverage(self):
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
-        for (x,y), (d,t,h,b,p) in self.climate.iteritems():
-            c[y][x] = self.tiles[y][x][2], t, p
+        for (x,y), (d,t,h,b) in self.climate.iteritems():
+            c[y][x] = self.tiles[y][x][2], t, self.precipitation[(x,y)]
 
         return c
 
