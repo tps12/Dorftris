@@ -171,7 +171,7 @@ class ClimateDisplay(object):
                         elif self.mode == self.TEMPERATURE:
                             color = colorscale(climate[1])
                         elif self.mode == self.CONVECTION:
-                            color = coolscale(climate[3])
+                            color = coolscale(self._sim.convective[(xo,y)])
                         else:
                             color = (0, int(255 * (
                                 (h - self._sim.sealevel)/

@@ -132,8 +132,9 @@ class ClimateSimulation(object):
         xmax = max([len(self.tiles[i]) for i in range(len(self.tiles))])
 
         dimensions = xmax, len(self.tiles)
-        self.climate, self.precipitation = [ClimateDict(dimensions)
-                                            for i in range(2)]
+        (self.climate,
+         self.precipitation,
+         self.convective) = [ClimateDict(dimensions) for i in range(3)]
 
         self.dirty = True
 
@@ -204,7 +205,8 @@ class ClimateSimulation(object):
                 t = (ins * (1-(h - self.sealevel)/(self.maxelevation - self.sealevel))
                      if h > self.sealevel else ins)
                 p = (cos((self.tiles[y][x][0]*2*c + self.tilt*self.season)*pi/180) + 1)/2
-                self.climate[(x,y)] = d, t, None, p
+                self.climate[(x,y)] = d, t, None
+                self.convective[(x,y)] = p
 
         self.sadj = {}
         for (x,y), ns in self.adj.iteritems():
@@ -227,7 +229,7 @@ class ClimateSimulation(object):
             for x in range(len(self.tiles[y])):
                 if self.tiles[y][x][2] <= self.sealevel:
                     climate = self.climate[(x,y)]
-                    self.climate[(x,y)] = climate[0], climate[1], d, climate[3]
+                    self.climate[(x,y)] = climate[0], climate[1], d
                     frontier.append((x,y))
                     
         while d < 10 and frontier:
@@ -241,9 +243,9 @@ class ClimateSimulation(object):
                     h = 0
                 else:
                     h = ((d - climate[2])/float(d))**2
-                p = min(1.0, h + climate[3])
+                p = min(1.0, h + self.convective[(x,y)])
                 self.precipitation[(x,y)] = p
-                self.climate[(x,y)] = climate[0], climate[1], h, climate[3]
+                self.climate[(x,y)] = climate[0], climate[1], h
                 
     def _propagate(self, sources, d):
         frontier = []
@@ -251,7 +253,7 @@ class ClimateSimulation(object):
             for a in [p for (p,w) in self._destmap[s]]:
                 climate = self.climate[a]
                 if climate[2] is None:
-                    self.climate[a] = climate[0], climate[1], d, climate[3]
+                    self.climate[a] = climate[0], climate[1], d
                     frontier.append(a)
         return frontier
 
@@ -329,7 +331,7 @@ class ClimateSimulation(object):
     def _getaverage(self):
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
-        for (x,y), (d,t,h,b) in self.climate.iteritems():
+        for (x,y), (d,t,h) in self.climate.iteritems():
             c[y][x] = self.tiles[y][x][2], t, self.precipitation[(x,y)]
 
         return c
