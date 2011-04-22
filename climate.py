@@ -135,7 +135,8 @@ class ClimateSimulation(object):
         (self.climate,
          self.precipitation,
          self.convective,
-         self.seabased) = [ClimateDict(dimensions) for i in range(4)]
+         self.seabased,
+         self.temperature) = [ClimateDict(dimensions) for i in range(5)]
 
         self.dirty = True
 
@@ -206,7 +207,8 @@ class ClimateSimulation(object):
                 t = (ins * (1-(h - self.sealevel)/(self.maxelevation - self.sealevel))
                      if h > self.sealevel else ins)
                 p = (cos((self.tiles[y][x][0]*2*c + self.tilt*self.season)*pi/180) + 1)/2
-                self.climate[(x,y)] = d, t
+                self.climate[(x,y)] = (d,)
+                self.temperature[(x,y)] = t
                 self.seabased[(x,y)] = None
                 self.convective[(x,y)] = p
 
@@ -331,8 +333,10 @@ class ClimateSimulation(object):
     def _getaverage(self):
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
-        for (x,y), (d,t) in self.climate.iteritems():
-            c[y][x] = self.tiles[y][x][2], t, self.precipitation[(x,y)]
+        for (x,y), (d,) in self.climate.iteritems():
+            c[y][x] = (self.tiles[y][x][2],
+                       self.temperature[(x,y)],
+                       self.precipitation[(x,y)])
 
         return c
 
