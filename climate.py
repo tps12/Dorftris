@@ -279,8 +279,6 @@ class ClimateSimulation(object):
         # map destinations for every tile
         for y in range(len(self.tiles)):
             for x in range(len(self.tiles[y])):
-                s = self.sadj[(x,y)]
-                
                 nws = [(a, cos((bearing(
                     self.tiles[y][x][0:2],
                     self.tiles[a[1]][a[0]][0:2])
@@ -296,8 +294,6 @@ class ClimateSimulation(object):
         for y in range(len(self.tiles)):
             for x in range(len(self.tiles[y])):
                 if (x,y) not in seen:
-                    s = self.sadj[(x,y)]
-
                     nws = [(a, -cos((bearing(
                         self.tiles[y][x][0:2],
                         self.tiles[a[1]][a[0]][0:2])
