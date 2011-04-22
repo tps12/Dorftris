@@ -167,7 +167,7 @@ class ClimateDisplay(object):
                         if self.mode == self.PRECIPITATION:
                             color = coolscale(self._sim.precipitation[(xo,y)])
                         elif self.mode == self.SEABREEZE:
-                            color = coolscale(climate[2])
+                            color = coolscale(self._sim.seabased[(xo,y)])
                         elif self.mode == self.TEMPERATURE:
                             color = colorscale(climate[1])
                         elif self.mode == self.CONVECTION:
