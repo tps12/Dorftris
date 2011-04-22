@@ -154,8 +154,6 @@ class ClimateDisplay(object):
                         xo += len(self._sim.tiles[y])
                     h = self._sim.tiles[y][xo][2]
 
-                    climate = self._sim.climate[(xo,y)]
-
                     if self.selected == (xo, y):
                         color = (255,0,255)
                     elif (xo, y) in self.sources:
@@ -165,13 +163,13 @@ class ClimateDisplay(object):
                         color = warmscale(ins)
                     elif h > self._sim.sealevel:
                         if self.mode == self.PRECIPITATION:
-                            color = coolscale(climate[4])
+                            color = coolscale(self._sim.precipitation[(xo,y)])
                         elif self.mode == self.SEABREEZE:
-                            color = coolscale(climate[2])
+                            color = coolscale(self._sim.seabased[(xo,y)])
                         elif self.mode == self.TEMPERATURE:
-                            color = colorscale(climate[1])
+                            color = colorscale(self._sim.temperature[(xo,y)])
                         elif self.mode == self.CONVECTION:
-                            color = coolscale(climate[3])
+                            color = coolscale(self._sim.convective[(xo,y)])
                         else:
                             color = (0, int(255 * (
                                 (h - self._sim.sealevel)/
@@ -180,7 +178,9 @@ class ClimateDisplay(object):
                         if self.mode == self.PRECIPITATION:
                             color = (0,0,0)
                         elif self.mode == self.TEMPERATURE:
-                            color = [(c+255)/2 for c in colorscale(climate[1])]
+                            color = [(c+255)/2
+                                     for c in colorscale(
+                                         self._sim.temperature[(xo,y)])]
                         elif self.mode == self.SEABREEZE:
                             color = (0,0,0)
                         elif self.mode == self.CONVECTION:
@@ -198,7 +198,7 @@ class ClimateDisplay(object):
 
                         w, h = [c-1 for c in block.get_size()]
 
-                        angle = climate[0] + s
+                        angle = self._sim.direction[(xo,y)] + s
                         if angle >= 337.5 or angle < 22.5:
                             p = w/2, h-1
                             es = (0, 0), (w-1, 0)
