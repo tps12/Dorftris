@@ -132,7 +132,7 @@ class ClimateSimulation(object):
         xmax = max([len(self.tiles[i]) for i in range(len(self.tiles))])
 
         dimensions = xmax, len(self.tiles)
-        (self.climate,
+        (self.direction,
          self.precipitation,
          self.convective,
          self.seabased,
@@ -147,7 +147,6 @@ class ClimateSimulation(object):
     @tilt.setter
     def tilt(self, value):
         self._tilt = value
-        self.climate.clear()
 
     @property
     def season(self):
@@ -156,7 +155,6 @@ class ClimateSimulation(object):
     @season.setter
     def season(self, value):
         self._season = value
-        self.climate.clear()
 
     @property
     def radius(self):
@@ -165,7 +163,6 @@ class ClimateSimulation(object):
     @radius.setter
     def radius(self, value):
         self._radius = value
-        self.climate.clear()
 
     @property
     def spin(self):
@@ -174,7 +171,6 @@ class ClimateSimulation(object):
     @spin.setter
     def spin(self, value):
         self._spin = value
-        self.climate.clear()
 
     def insolation(self, y):
         theta = 2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2
@@ -207,7 +203,7 @@ class ClimateSimulation(object):
                 t = (ins * (1-(h - self.sealevel)/(self.maxelevation - self.sealevel))
                      if h > self.sealevel else ins)
                 p = (cos((self.tiles[y][x][0]*2*c + self.tilt*self.season)*pi/180) + 1)/2
-                self.climate[(x,y)] = (d,)
+                self.direction[(x,y)] = d
                 self.temperature[(x,y)] = t
                 self.seabased[(x,y)] = None
                 self.convective[(x,y)] = p
@@ -215,7 +211,7 @@ class ClimateSimulation(object):
         self.sadj = {}
         for (x,y), ns in self.adj.iteritems():
             c = self.tiles[y][x][0:2]
-            d = self.climate[(x,y)][0]
+            d = self.direction[(x,y)]
             self.sadj[(x,y)] = sorted(self.adj[(x,y)],
                                       key=lambda a: cos(
                                           (bearing(c,
@@ -288,7 +284,7 @@ class ClimateSimulation(object):
                 nws = [(a, cos((bearing(
                     self.tiles[y][x][0:2],
                     self.tiles[a[1]][a[0]][0:2])
-                        - self.climate[(x,y)][0])*pi/180))
+                        - self.direction[(x,y)])*pi/180))
                        for a in self.sadj[(x,y)]]
                 nws = [nw for nw in nws if nw[1] > 0]
 
@@ -305,7 +301,7 @@ class ClimateSimulation(object):
                     nws = [(a, -cos((bearing(
                         self.tiles[y][x][0:2],
                         self.tiles[a[1]][a[0]][0:2])
-                            - self.climate[a][0])*pi/180))
+                            - self.direction[a])*pi/180))
                            for a in self.sadj[(x,y)]]
                     nws = [nw for nw in nws if nw[1] > 0]
                     
@@ -333,10 +329,11 @@ class ClimateSimulation(object):
     def _getaverage(self):
         c = [[(0,0) for x in range(len(self.tiles[y]))]
              for y in range(len(self.tiles))]
-        for (x,y), (d,) in self.climate.iteritems():
-            c[y][x] = (self.tiles[y][x][2],
-                       self.temperature[(x,y)],
-                       self.precipitation[(x,y)])
+        for y in range(len(self.tiles)):
+            for x in range(len(self.tiles[y])):
+                c[y][x] = (self.tiles[y][x][2],
+                           self.temperature[(x,y)],
+                           self.precipitation[(x,y)])
 
         return c
 
@@ -357,5 +354,5 @@ class ClimateSimulation(object):
         return ClimateClassification(seasons, self.temprange)
     
     def update(self):
-        if not self.climate:
+        if not self.direction:
             self.resetclimate()

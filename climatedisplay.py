@@ -154,8 +154,6 @@ class ClimateDisplay(object):
                         xo += len(self._sim.tiles[y])
                     h = self._sim.tiles[y][xo][2]
 
-                    climate = self._sim.climate[(xo,y)]
-
                     if self.selected == (xo, y):
                         color = (255,0,255)
                     elif (xo, y) in self.sources:
@@ -200,7 +198,7 @@ class ClimateDisplay(object):
 
                         w, h = [c-1 for c in block.get_size()]
 
-                        angle = climate[0] + s
+                        angle = self._sim.direction[(xo,y)] + s
                         if angle >= 337.5 or angle < 22.5:
                             p = w/2, h-1
                             es = (0, 0), (w-1, 0)
