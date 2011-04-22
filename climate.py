@@ -75,6 +75,7 @@ class ClimateSimulation(object):
     maxelevation = 9000.0
     temprange = (-25.0, 50.0)
     sealevel = 0
+    breezedistance = 10
     
     def __init__(self):
         self.planet = Earth()
@@ -138,6 +139,8 @@ class ClimateSimulation(object):
          self.seabased,
          self.temperature) = [ClimateDict(dimensions) for i in range(5)]
 
+        self._tilt = self._season = self._radius = self._spin = None
+
         self.dirty = True
 
     @property
@@ -146,7 +149,10 @@ class ClimateSimulation(object):
 
     @tilt.setter
     def tilt(self, value):
-        self._tilt = value
+        if self._tilt != value:
+            self._tilt = value
+            self.temperature.clear()
+            self.convective.clear()
 
     @property
     def season(self):
@@ -154,7 +160,10 @@ class ClimateSimulation(object):
 
     @season.setter
     def season(self, value):
-        self._season = value
+        if self._season != value:
+            self._season = value
+            self.temperature.clear()
+            self.convective.clear()
 
     @property
     def radius(self):
@@ -162,7 +171,10 @@ class ClimateSimulation(object):
 
     @radius.setter
     def radius(self, value):
-        self._radius = value
+        if self._radius != value:
+            self._radius = value
+            self.direction.clear()
+            self.convective.clear()
 
     @property
     def spin(self):
@@ -170,7 +182,9 @@ class ClimateSimulation(object):
 
     @spin.setter
     def spin(self, value):
-        self._spin = value
+        if self._spin != value:
+            self._spin = value
+            self.direction.clear()
 
     def insolation(self, y):
         theta = 2 * pi * (y - len(self.tiles)/2)/len(self.tiles)/2
@@ -178,47 +192,61 @@ class ClimateSimulation(object):
         ins = max(0, cos(theta))
         return 0.5 + (ins - 0.5) * cos(self.tilt * pi/180)
 
-    def resetclimate(self):
+    def resetclimate(self, direction, temperature, convective):
         res = max([len(r) for r in self.tiles]), len(self.tiles)
         
         c = cells(self.radius)
 
         e2 = 2 * exp(1)
         for y in range(res[1]):
-            n = abs(y + 0.5 - res[1]/2)/(float(res[1]/2)/c)
-            n = int(n) & 1
-            n = n if y >= res[1]/2 else not n
-            d = 180 - 180 * n
+            if direction:
+                n = abs(y + 0.5 - res[1]/2)/(float(res[1]/2)/c)
+                n = int(n) & 1
+                n = n if y >= res[1]/2 else not n
+                d = 180 - 180 * n
 
-            s = self.spin
-            ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
-            d += atan2(ce, 1) * 180/pi
-            d %= 360
+                s = self.spin
+                ce = 2 * s * sin(2 * pi * (y - res[1]/2)/res[1]/2)
+                d += atan2(ce, 1) * 180/pi
+                d %= 360
 
-            ins = self.insolation(y)
+            if temperature:
+                ins = self.insolation(y)
             
             for x in range(len(self.tiles[y])):
-                h = self.tiles[y][x][2]
+                if direction:
+                    self.direction[(x,y)] = d
 
-                t = (ins * (1-(h - self.sealevel)/(self.maxelevation - self.sealevel))
-                     if h > self.sealevel else ins)
-                p = (cos((self.tiles[y][x][0]*2*c + self.tilt*self.season)*pi/180) + 1)/2
-                self.direction[(x,y)] = d
-                self.temperature[(x,y)] = t
-                self.seabased[(x,y)] = None
-                self.convective[(x,y)] = p
+                if temperature:                    
+                    h = self.tiles[y][x][2]
+                    t = (ins * (1-(h - self.sealevel)/(self.maxelevation - self.sealevel))
+                         if h > self.sealevel else ins)
+                    self.temperature[(x,y)] = t
 
-        self.sadj = {}
-        for (x,y), ns in self.adj.iteritems():
-            c = self.tiles[y][x][0:2]
-            d = self.direction[(x,y)]
-            self.sadj[(x,y)] = sorted(self.adj[(x,y)],
-                                      key=lambda a: cos(
-                                          (bearing(c,
-                                                   self.tiles[a[1]][a[0]][0:2])
-                                           - d) * pi / 180))
-        self._definemapping()
-        self._seabreeze()
+                if convective:
+                    p = (cos((self.tiles[y][x][0]*2*c + self.tilt*self.season)*pi/180) + 1)/2
+                    self.convective[(x,y)] = p
+                    
+                if direction:
+                    self.seabased[(x,y)] = None
+
+        if direction:
+            self.sadj = {}
+            for (x,y), ns in self.adj.iteritems():
+                c = self.tiles[y][x][0:2]
+                d = self.direction[(x,y)]
+                self.sadj[(x,y)] = sorted(self.adj[(x,y)],
+                                          key=lambda a: cos(
+                                              (bearing(c,
+                                                       self.tiles[a[1]][a[0]][0:2])
+                                               - d) * pi / 180))
+            self._definemapping()
+
+        if direction:
+            self._seabreeze()
+
+        if direction or convective:
+            self._totalprecipitation()
                     
         self.dirty = True
 
@@ -231,10 +259,10 @@ class ClimateSimulation(object):
                     self.seabased[(x,y)] = d
                     frontier.append((x,y))
                     
-        while d < 10 and frontier:
+        while d < self.breezedistance and frontier:
             d += 1
             frontier = self._propagate(frontier, d)
-            
+
         for y in range(len(self.tiles)):
             for x in range(len(self.tiles[y])):
                 seabased = self.seabased[(x,y)]
@@ -243,8 +271,14 @@ class ClimateSimulation(object):
                 else:
                     h = ((d - seabased)/float(d))**2
                 p = min(1.0, h + self.convective[(x,y)])
-                self.precipitation[(x,y)] = p
                 self.seabased[(x,y)] = h
+
+    def _totalprecipitation(self):
+        d = self.breezedistance
+        for y in range(len(self.tiles)):
+            for x in range(len(self.tiles[y])):
+                p = min(1.0, self.seabased[(x,y)] + self.convective[(x,y)])
+                self.precipitation[(x,y)] = p
                 
     def _propagate(self, sources, d):
         frontier = []
@@ -319,7 +353,7 @@ class ClimateSimulation(object):
         return self._mapping[p]
 
     def average(self):
-        self.resetclimate()
+        self.update()
         return self._getaverage()
 
     def _getaverage(self):
@@ -350,5 +384,6 @@ class ClimateSimulation(object):
         return ClimateClassification(seasons, self.temprange)
     
     def update(self):
-        if not self.direction:
-            self.resetclimate()
+        d, t, c = [not dic for dic in self.direction, self.temperature, self.convective]
+        if d or t or c:
+            self.resetclimate(d, t, c)
