@@ -79,8 +79,10 @@ class ClimateSimulation(object):
     def __init__(self):
         self.planet = Earth()
 
+        degrees = 2
+
         self.tiles = []
-        for lat in range(-89, 91, 2):
+        for lat in range(-89, 91, degrees):
             r = cos(lat * pi/180)
             row = []
             d = 2 / r
@@ -94,9 +96,11 @@ class ClimateSimulation(object):
 
         try:
             with open(self.ADJ_CACHE, 'r') as f:
-                self.adj = load(f)
+                res, self.adj = load(f)
+                if res != len(self.tiles):
+                    raise Exception('Resolution mismatch')
         except Exception as er:
-            print repr(er)
+            print 'Cached adjacency list failed:', repr(er)
             self.adj = {}
 
             def addadj(t1, t2):
@@ -110,18 +114,20 @@ class ClimateSimulation(object):
             def addadjes(t1, t2):
                 addadj(t1, t2)
                 addadj(t2, t1)
+
+            limit = 1.5 * degrees * (pi/180)
             
             for i in range(1, len(self.tiles)):
                 for j in range(len(self.tiles[i])):
                     c1 = self.tiles[i][j][0:2]
                     for k in range(len(self.tiles[i-1])):
-                        if distance(c1, self.tiles[i-1][k][0:2]) < pi/60:
+                        if distance(c1, self.tiles[i-1][k][0:2]) < limit:
                             addadjes((j,i),(k,i-1))
                     addadj((j,i),(j-1 if j > 0 else len(self.tiles[i])-1, i))
                     addadj((j,i),(j+1 if j < len(self.tiles[i])-1 else 0, i))
 
             with open(self.ADJ_CACHE, 'w') as f:
-                dump(self.adj, f, 0)
+                dump((len(self.tiles), self.adj), f, 0)
 
         xmax = max([len(self.tiles[i]) for i in range(len(self.tiles))])
 
