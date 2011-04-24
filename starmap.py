@@ -312,7 +312,8 @@ class Display:
 
         def magnitude(color, magnitude, distance):
             apparent = magnitude - 5 * (log10(distance/3.26) + 1)
-            scale = min(1, 1 - (apparent + 20)/30.0)
+            scale = 1 - (apparent + 40)/45.0
+            scale = min(1, scale)
             return [int(c * scale) for c in color]
 
         for s in StarData().stars:
