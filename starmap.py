@@ -322,9 +322,8 @@ class Display:
             x,y = planet.vector_to_xy((sin_th * cos(phi),
                                        sin_th * sin(phi),
                                        cos(theta)))
-            pygame.draw.circle(background,
-                               magnitude(color(s.color), s.magnitude, r),
-                               (int(x),int(y)), 1)
+            background.set_at((int(x),int(y)),
+                              magnitude(color(s.color), s.magnitude, r))
 
         screen.blit(background, (0,0))
             
