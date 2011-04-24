@@ -113,8 +113,8 @@ class StarData(object):
     @staticmethod
     def getlocation(alpha, delta, pi):
         r = 3.26/pi
-        theta = (delta + 90) * math.pi / 180
-        phi = alpha * math.pi / 180
+        theta = math.pi - (delta + 90) * math.pi / 180
+        phi = - alpha * math.pi / 180
         return r, theta, phi
 
 if __name__ == '__main__':
