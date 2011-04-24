@@ -113,7 +113,7 @@ class StarData(object):
     @staticmethod
     def getlocation(alpha, delta, pi):
         r = 3.26/pi
-        theta = delta * math.pi / 180
+        theta = (delta + 90) * math.pi / 180
         phi = alpha * math.pi / 180
         return r, theta, phi
 
@@ -123,6 +123,7 @@ if __name__ == '__main__':
     d = StarData()
 
     pyplot.scatter([s.color for s in d.stars],
-                   [s.magnitude for s in d.stars])
+                   [s.magnitude for s in d.stars],
+                   alpha=0.025)
 
     pyplot.show()
