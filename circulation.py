@@ -107,8 +107,9 @@ class SimulationControls(wx.PyPanel):
         self.Layout()
 
     def _onclassify(self, event):
+        summary = self._sim.classify([season(i) for i in range(8)])
         ClimateClassFrame(None,
-                          self._sim.classify([season(i) for i in range(8)]),
+                          summary,
                           self._sim.sealevel).Show()
 
     def _onradius(self, event):
