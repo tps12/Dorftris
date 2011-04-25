@@ -118,7 +118,8 @@ class RandomStars(object):
         self.stars = [self.getrandom() for i in range(6000)]
 
     def getrandom(self):
-        from random import uniform, randint
+        from random import random, uniform, randint, gauss
+        from math import cos, sqrt
 
         w, h = self._hist.get_size()
         while True:
@@ -131,9 +132,12 @@ class RandomStars(object):
             if randint(0, 255) > self._hist.get_at((x,y))[0]:
 
                 r = uniform(1, 3.26/pow(10, (m - 6)/5 - 1))
-                theta = uniform(0, math.pi)
+                if random() > sqrt((x*y)/float(w*h)):
+                    theta = max(0, min(math.pi, gauss(math.pi/2, math.pi/16)))
+                else:
+                    theta = uniform(0, math.pi)
                 phi = uniform(0, 2 * math.pi)
-                return Star((r,theta,phi), c, m, 0)
+                return Star((r,theta,phi), c, m, abs(cos(theta)))
 
 if __name__ == '__main__':
     from matplotlib import pyplot, axes
