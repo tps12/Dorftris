@@ -297,8 +297,7 @@ class Display:
         for y in range(0, screen.get_height()):
             for x in range(0, screen.get_width()):
                 if in_bounds(x,y):
-                    value = planet.rows[y][x - planet.row_offsets[y]]
-                    background.set_at((x,y),(value,value,value))
+                    background.set_at((x,y), (0,0,0))
         background.unlock()
 
         def color(index):
@@ -318,10 +317,12 @@ class Display:
 
         for s in StarData().stars:
             r, theta, phi = s.location
+
             sin_th = sin(theta)
             x,y = planet.vector_to_xy((sin_th * cos(phi),
                                        sin_th * sin(phi),
                                        cos(theta)))
+            
             background.set_at((int(x),int(y)),
                               magnitude(color(s.color), s.magnitude, r))
 
