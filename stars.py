@@ -89,16 +89,7 @@ class StarData(object):
                     if not cells:
                         continue
 
-                    for i in 5, 8, 9, 11, 37:
-                        try:
-                            float(cells[i])
-                        except:
-                            print line
-
                     pi = float(cells[11]) / 1000
-
-                    if pi <= 0:
-                        print line
 
                     yield Star(cls.getlocation(float(cells[8]),
                                                float(cells[9]),
