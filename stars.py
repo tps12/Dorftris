@@ -111,8 +111,28 @@ class StarData(object):
         phi = - alpha * math.pi / 180
         return r, theta, phi
 
+class RandomStars(object):
+    def __init__(self):
+        import pygame
+        self._hist = pygame.image.load('hist.pgm')
+        self.stars = [self.getrandom() for i in range(6000)]
+
+    def getrandom(self):
+        from random import uniform, randint
+
+        w, h = self._hist.get_size()
+        while True:
+            c = uniform(-0.274, 3.271)
+            m = uniform(-15.329, 7.49)
+
+            x = int((c + 0.274) * w/(3.271+0.274))
+            y = int((m + 15.329) * h/(7.49+15.329))
+            
+            if randint(0, 255) > self._hist.get_at((x,y))[0]:
+                return Star((0,0,0), c, m, 0)
+
 if __name__ == '__main__':
-    from matplotlib import pyplot
+    from matplotlib import pyplot, axes
     import numpy
 
     from sys import argv
@@ -121,7 +141,7 @@ if __name__ == '__main__':
         print 'Usage: {cmd} e|r h|s|3'.format(cmd=argv[0])
         exit(-1)
 
-    d = StarData() if argv[1] == 'e' else None
+    d = StarData() if argv[1] == 'e' else RandomStars()
         
     if argv[2] == 'h':
         H, xedges, yedges = numpy.histogram2d(
@@ -130,7 +150,7 @@ if __name__ == '__main__':
             normed=True,
             bins=(100,100))
 
-        extent = [0,100,0,100]
+        extent = [xedges[0], xedges[-1] * 10, yedges[0], yedges[-1]]                
         pyplot.imshow(H,
                       cmap=pyplot.cm.gray_r,
                       extent=extent,
