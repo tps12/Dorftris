@@ -129,7 +129,11 @@ class RandomStars(object):
             y = int((m + 15.329) * h/(7.49+15.329))
             
             if randint(0, 255) > self._hist.get_at((x,y))[0]:
-                return Star((0,0,0), c, m, 0)
+
+                r = uniform(1, 3.26/pow(10, (m - 6)/5 - 1))
+                theta = uniform(0, math.pi)
+                phi = uniform(0, 2 * math.pi)
+                return Star((r,theta,phi), c, m, 0)
 
 if __name__ == '__main__':
     from matplotlib import pyplot, axes

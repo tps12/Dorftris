@@ -3,7 +3,7 @@ from math import *
 import pygame
 from pygame.locals import *
 
-from stars import StarData
+from stars import StarData, RandomStars
 
 # Calculations involving great circles based on example code by Chris Veness:
 # http://www.movable-type.co.uk/scripts/latlong.html
@@ -276,7 +276,7 @@ def ranges(ps):
 
 class Display:
 
-    def main_loop(self):
+    def main_loop(self, realdata):
 
         planet = Planet(200,1,0)
 
@@ -315,14 +315,14 @@ class Display:
             scale = min(1, scale)
             return [int(c * scale) for c in color]
 
-        for s in StarData().stars:
+        for s in (StarData() if realdata else RandomStars()).stars:
             r, theta, phi = s.location
 
             sin_th = sin(theta)
             x,y = planet.vector_to_xy((sin_th * cos(phi),
                                        sin_th * sin(phi),
                                        cos(theta)))
-            
+
             background.set_at((int(x),int(y)),
                               magnitude(color(s.color), s.magnitude, r))
 
@@ -341,4 +341,6 @@ class Display:
             pygame.display.flip()
 
 if __name__ == '__main__':
-    Display().main_loop()
+    from sys import argv
+    realdata = len(argv) > 1 and argv[1] == 'r'
+    Display().main_loop(realdata)
