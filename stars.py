@@ -117,12 +117,13 @@ if __name__ == '__main__':
 
     from sys import argv
     
-    d = StarData()
+    if len(argv) < 3:
+        print 'Usage: {cmd} e|r h|s|3'.format(cmd=argv[0])
+        exit(-1)
 
-    if len(argv) < 2:
-        print 'Usage: {cmd} h|s|3'.format(cmd=argv[0])
+    d = StarData() if argv[1] == 'e' else None
         
-    elif argv[1] == 'h':
+    if argv[2] == 'h':
         H, xedges, yedges = numpy.histogram2d(
             [s.color for s in d.stars],
             [s.magnitude for s in d.stars],
@@ -132,13 +133,13 @@ if __name__ == '__main__':
         extent = [0,100,0,100]
         pyplot.imshow(H, extent=extent, interpolation='nearest')
 
-    elif argv[1] == 's':
+    elif argv[2] == 's':
         pyplot.scatter([s.color for s in d.stars],
                        [s.magnitude for s in d.stars],
                        marker='+',
                        alpha=0.025)
         
-    elif argv[1] == '3':
+    elif argv[2] == '3':
         from mpl_toolkits.mplot3d import axes3d
 
         axes = pyplot.figure().add_subplot(111, projection='3d')
