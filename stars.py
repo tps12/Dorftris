@@ -1,10 +1,11 @@
 import math
 
 class Star(object):
-    def __init__(self, location, color, magnitude):
+    def __init__(self, location, color, magnitude, offset):
         self.location = location
         self.color = color
         self.magnitude = magnitude
+        self.offset = offset
 
 class StarData(object):
     def __init__(self):
@@ -80,22 +81,24 @@ class StarData(object):
     @classmethod
     def readdata(cls):
         with open('hipparcos-naked.txt', 'r') as f:
-            first = True
-            for line in f:
-                if first:
-                    first = False
-                else:
-                    cells = cls.correct(line.split('|'))
-                    if not cells:
-                        continue
+            with open('star-distances.txt', 'r') as d:
+                first = True
+                for line in f:
+                    if first:
+                        first = False
+                    else:
+                        cells = cls.correct(line.split('|'))
+                        if not cells:
+                            continue
 
-                    pi = float(cells[11]) / 1000
+                        pi = float(cells[11]) / 1000
 
-                    yield Star(cls.getlocation(float(cells[8]),
-                                               float(cells[9]),
-                                               pi),
-                               float(cells[37]),
-                               cls.getmagnitude(float(cells[5]), pi))
+                        yield Star(cls.getlocation(float(cells[8]),
+                                                   float(cells[9]),
+                                                   pi),
+                                   float(cells[37]),
+                                   cls.getmagnitude(float(cells[5]), pi),
+                                   float(d.readline()))
 
     @staticmethod
     def getmagnitude(visual, pi):
