@@ -114,21 +114,36 @@ class StarData(object):
 if __name__ == '__main__':
     from matplotlib import pyplot
     import numpy
+
+    from sys import argv
     
     d = StarData()
 
-    H, xedges, yedges = numpy.histogram2d(
-        [s.color for s in d.stars],
-        [s.magnitude for s in d.stars],
-        normed=True,
-        bins=(100,100))
+    if len(argv) < 2:
+        print 'Usage: {cmd} h|s|3'.format(cmd=argv[0])
+        
+    elif argv[1] == 'h':
+        H, xedges, yedges = numpy.histogram2d(
+            [s.color for s in d.stars],
+            [s.magnitude for s in d.stars],
+            normed=True,
+            bins=(100,100))
 
-    #extent = [0,100,0,100]
-    #pyplot.imshow(H, extent=extent, interpolation='nearest')
+        extent = [0,100,0,100]
+        pyplot.imshow(H, extent=extent, interpolation='nearest')
 
-    pyplot.scatter([s.color for s in d.stars],
-                   [s.magnitude for s in d.stars],
-                   marker='+',
-                   alpha=0.025)
+    elif argv[1] == 's':
+        pyplot.scatter([s.color for s in d.stars],
+                       [s.magnitude for s in d.stars],
+                       marker='+',
+                       alpha=0.025)
+        
+    elif argv[1] == '3':
+        from mpl_toolkits.mplot3d import axes3d
+
+        axes = pyplot.figure().add_subplot(111, projection='3d')
+        axes.scatter([s.color for s in d.stars],
+                     [s.magnitude for s in d.stars],
+                     [s.offset for s in d.stars])
 
     pyplot.show()
