@@ -131,7 +131,10 @@ if __name__ == '__main__':
             bins=(100,100))
 
         extent = [0,100,0,100]
-        pyplot.imshow(H, extent=extent, interpolation='nearest')
+        pyplot.imshow(H,
+                      cmap=pyplot.cm.gray_r,
+                      extent=extent,
+                      interpolation='nearest')
 
     elif argv[2] == 's':
         pyplot.scatter([s.color for s in d.stars],
