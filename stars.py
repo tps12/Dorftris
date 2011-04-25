@@ -110,11 +110,22 @@ class StarData(object):
 
 if __name__ == '__main__':
     from matplotlib import pyplot
+    import numpy
     
     d = StarData()
 
+    H, xedges, yedges = numpy.histogram2d(
+        [s.color for s in d.stars],
+        [s.magnitude for s in d.stars],
+        normed=True,
+        bins=(100,100))
+
+    #extent = [0,100,0,100]
+    #pyplot.imshow(H, extent=extent, interpolation='nearest')
+
     pyplot.scatter([s.color for s in d.stars],
                    [s.magnitude for s in d.stars],
+                   marker='+',
                    alpha=0.025)
 
     pyplot.show()
