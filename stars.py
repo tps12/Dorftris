@@ -119,7 +119,7 @@ class RandomStars(object):
 
     def getrandom(self):
         from random import random, uniform, randint, gauss
-        from math import sqrt
+        from math import sqrt, acos
 
         w, h = self._hist.get_size()
         while True:
@@ -133,11 +133,11 @@ class RandomStars(object):
 
                 r = uniform(1, 3.26/pow(10, (m - 6)/5 - 1))
                 if random() > sqrt((x*y)/float(w*h)):
-                    theta = max(0, min(math.pi, gauss(math.pi/2, math.pi/16)))
+                    theta = acos(max(-1, min(1, gauss(0, 0.125))))
                 else:
-                    theta = uniform(0, math.pi)
+                    theta = acos(uniform(-1, 1))
                 phi = uniform(0, 2 * math.pi)
-                return Star((r,theta,phi), c, m, abs(math.pi/2 - theta))
+                return Star((r, theta, phi), c, m, abs(math.pi/2 - theta))
 
 if __name__ == '__main__':
     from matplotlib import pyplot, axes
