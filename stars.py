@@ -119,7 +119,7 @@ class RandomStars(object):
 
     def getrandom(self):
         from random import random, uniform, randint, gauss
-        from math import cos, sqrt
+        from math import sqrt
 
         w, h = self._hist.get_size()
         while True:
@@ -137,7 +137,7 @@ class RandomStars(object):
                 else:
                     theta = uniform(0, math.pi)
                 phi = uniform(0, 2 * math.pi)
-                return Star((r,theta,phi), c, m, abs(cos(theta)))
+                return Star((r,theta,phi), c, m, abs(math.pi/2 - theta))
 
 if __name__ == '__main__':
     from matplotlib import pyplot, axes
