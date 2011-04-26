@@ -10,6 +10,7 @@ class Star(object):
 class StarData(object):
     def __init__(self):
         self.stars = [s for s in self.readdata()]
+        self.rotation = 0, (0,0,0)
 
     @staticmethod
     def correct(cells):
@@ -107,15 +108,24 @@ class StarData(object):
     @staticmethod
     def getlocation(alpha, delta, pi):
         r = 3.26/pi
-        theta = math.pi - (delta + 90) * math.pi / 180
+        theta = (delta + 90) * math.pi / 180
         phi = - alpha * math.pi / 180
         return r, theta, phi
 
 class RandomStars(object):
     def __init__(self):
         import pygame
+        from random import uniform
+        
         self._hist = pygame.image.load('hist.pgm')
         self.stars = [self.getrandom() for i in range(6000)]
+
+        z = uniform(-1, 1)
+        theta = uniform(0, 2 * math.pi)
+        r = math.sqrt(1 - z ** 2)
+        u = r * math.cos(theta), r * math.sin(theta), z
+        
+        self.rotation = uniform(0, 2 * math.pi), u
 
     def getrandom(self):
         from random import random, uniform, randint, gauss

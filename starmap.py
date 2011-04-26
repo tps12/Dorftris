@@ -3,6 +3,7 @@ from math import *
 import pygame
 from pygame.locals import *
 
+from quat import quat
 from stars import StarData, RandomStars
 
 # Calculations involving great circles based on example code by Chris Veness:
@@ -315,13 +316,25 @@ class Display:
             scale = min(1, scale)
             return [int(c * scale) for c in color]
 
-        for s in (StarData() if realdata else RandomStars()).stars:
+        data = StarData() if realdata else RandomStars()
+
+        rot_th, rot_u = data.rotation
+        rot = quat(rot_u[0] * sin(rot_th/2),
+                   rot_u[1] * sin(rot_th/2),
+                   rot_u[2] * sin(rot_th/2),
+                   cos(rot_th/2))
+        
+        for s in data.stars:
             r, theta, phi = s.location
 
             sin_th = sin(theta)
-            x,y = planet.vector_to_xy((sin_th * cos(phi),
-                                       sin_th * sin(phi),
-                                       cos(theta)))
+
+            v = sin_th * cos(phi), sin_th * sin(phi), cos(theta)
+            
+            q = quat(0, *v)
+            v = ((rot*q)/rot).q[1:4]
+            
+            x,y = planet.vector_to_xy(v)
 
             background.set_at((int(x),int(y)),
                               magnitude(color(s.color), s.magnitude, r))
