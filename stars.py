@@ -154,38 +154,58 @@ if __name__ == '__main__':
     import numpy
 
     from sys import argv
+
+    d = StarData()
+    r = RandomStars()
+
+    pyplot.subplot(321)
+    pyplot.scatter([s.color for s in d.stars],
+                   [s.magnitude for s in d.stars],
+                   marker='+',
+                   alpha=0.025)
+
+    pyplot.subplot(322)
+    pyplot.scatter([s.color for s in r.stars],
+                   [s.magnitude for s in r.stars],
+                   marker='+',
+                   alpha=0.025)
+
+    pyplot.subplot(323)
+    H, xedges, yedges = numpy.histogram2d(
+        [s.color for s in d.stars],
+        [s.magnitude for s in d.stars],
+        normed=True,
+        bins=(100,100))
     
-    if len(argv) < 3:
-        print 'Usage: {cmd} e|r h|s|3'.format(cmd=argv[0])
-        exit(-1)
+    extent = [xedges[0], xedges[-1] * 10, yedges[0], yedges[-1]]                
+    pyplot.imshow(H,
+                  cmap=pyplot.cm.gray_r,
+                  extent=extent,
+                  interpolation='nearest')
+    
+    pyplot.subplot(324)
+    H, xedges, yedges = numpy.histogram2d(
+        [s.color for s in r.stars],
+        [s.magnitude for s in r.stars],
+        normed=True,
+        bins=(100,100))
+    
+    extent = [xedges[0], xedges[-1] * 10, yedges[0], yedges[-1]]                
+    pyplot.imshow(H,
+                  cmap=pyplot.cm.gray_r,
+                  extent=extent,
+                  interpolation='nearest')
 
-    d = StarData() if argv[1] == 'e' else RandomStars()
-        
-    if argv[2] == 'h':
-        H, xedges, yedges = numpy.histogram2d(
-            [s.color for s in d.stars],
-            [s.magnitude for s in d.stars],
-            normed=True,
-            bins=(100,100))
+    from mpl_toolkits.mplot3d import axes3d
 
-        extent = [xedges[0], xedges[-1] * 10, yedges[0], yedges[-1]]                
-        pyplot.imshow(H,
-                      cmap=pyplot.cm.gray_r,
-                      extent=extent,
-                      interpolation='nearest')
+    axes = pyplot.subplot(325, projection='3d')
+    axes.scatter([s.color for s in d.stars],
+                 [s.magnitude for s in d.stars],
+                 [s.offset for s in d.stars])
 
-    elif argv[2] == 's':
-        pyplot.scatter([s.color for s in d.stars],
-                       [s.magnitude for s in d.stars],
-                       marker='+',
-                       alpha=0.025)
-        
-    elif argv[2] == '3':
-        from mpl_toolkits.mplot3d import axes3d
-
-        axes = pyplot.figure().add_subplot(111, projection='3d')
-        axes.scatter([s.color for s in d.stars],
-                     [s.magnitude for s in d.stars],
-                     [s.offset for s in d.stars])
+    axes = pyplot.subplot(326, projection='3d')
+    axes.scatter([s.color for s in r.stars],
+                 [s.magnitude for s in r.stars],
+                 [s.offset for s in r.stars])
 
     pyplot.show()
