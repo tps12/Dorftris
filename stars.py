@@ -1,11 +1,6 @@
 import math
 
-class Star(object):
-    def __init__(self, location, color, magnitude, offset):
-        self.location = location
-        self.color = color
-        self.magnitude = magnitude
-        self.offset = offset
+from star import Star
 
 class StarData(object):
     def __init__(self):
