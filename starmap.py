@@ -4,7 +4,8 @@ import pygame
 from pygame.locals import *
 
 from quat import quat
-from stars import StarData, RandomStars
+from hipparcos import StarData
+from randomstars import RandomStars
 
 # Calculations involving great circles based on example code by Chris Veness:
 # http://www.movable-type.co.uk/scripts/latlong.html
